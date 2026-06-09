@@ -27,17 +27,29 @@ const TAB_LABELS: { key: Tab; label: string }[] = [
   { key: "hidden", label: "Hidden" },
 ];
 
-const STATUS_STYLES: Record<Testimonial["status"], string> = {
-  pending: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20",
-  approved: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20",
-  hidden: "bg-zinc-100 text-zinc-600 ring-1 ring-inset ring-zinc-500/20",
+const STATUS_BADGE: Record<
+  Testimonial["status"],
+  { label: string; classes: string }
+> = {
+  pending: {
+    label: "Pending",
+    classes: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-500/25",
+  },
+  approved: {
+    label: "Approved",
+    classes: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-500/25",
+  },
+  hidden: {
+    label: "Hidden",
+    classes: "bg-[#FAF8F5] text-[#6B6B6B] ring-1 ring-inset ring-[#ECE7E0]",
+  },
 };
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-0.5 text-base leading-none">
+    <div className="flex gap-0.5 text-sm leading-none" aria-label={`${rating} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= rating ? "text-amber-400" : "text-zinc-200"}>
+        <span key={n} className={n <= rating ? "text-[#E8743B]" : "text-[#ECE7E0]"}>
           ★
         </span>
       ))}
@@ -46,11 +58,10 @@ function Stars({ rating }: { rating: number }) {
 }
 
 function StatusBadge({ status }: { status: Testimonial["status"] }) {
+  const { label, classes } = STATUS_BADGE[status];
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}
-    >
-      {status}
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${classes}`}>
+      {label}
     </span>
   );
 }
@@ -96,25 +107,31 @@ export default function TestimonialsPanel({
 
   return (
     <div>
-      {/* Tabs */}
-      <div className="flex gap-0 border-b border-zinc-200">
+      {/* Pill tabs */}
+      <div
+        className="flex flex-wrap gap-2 mb-5"
+        role="tablist"
+        aria-label="Filter testimonials"
+      >
         {TAB_LABELS.map(({ key, label }) => (
           <button
             key={key}
+            role="tab"
+            aria-selected={activeTab === key}
             onClick={() => setActiveTab(key)}
-            className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium -mb-px transition-colors ${
+            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
               activeTab === key
-                ? "border-zinc-900 text-zinc-900"
-                : "border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300"
+                ? "bg-[#E8743B] text-white shadow-sm"
+                : "bg-white border border-[#ECE7E0] text-[#6B6B6B] hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
             }`}
           >
             {label}
             {counts[key] > 0 && (
               <span
-                className={`rounded-full px-1.5 py-0.5 text-xs font-medium ${
+                className={`rounded-full px-1.5 py-0.5 text-xs font-semibold leading-none ${
                   activeTab === key
-                    ? "bg-zinc-900 text-white"
-                    : "bg-zinc-100 text-zinc-600"
+                    ? "bg-white/25 text-white"
+                    : "bg-[#FAF8F5] text-[#6B6B6B]"
                 }`}
               >
                 {counts[key]}
@@ -125,12 +142,14 @@ export default function TestimonialsPanel({
       </div>
 
       {/* Cards */}
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         {filtered.length === 0 ? (
-          <div className="rounded-md border border-dashed border-zinc-300 px-6 py-12 text-center text-sm text-zinc-500">
-            {activeTab === "all"
-              ? "No testimonials yet. Share your collection form to get started."
-              : `No ${activeTab} testimonials.`}
+          <div className="rounded-2xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center">
+            <p className="text-sm text-[#6B6B6B]">
+              {activeTab === "all"
+                ? "No testimonials yet. Share your collection form to get started."
+                : `No ${activeTab} testimonials.`}
+            </p>
           </div>
         ) : (
           filtered.map((t) => {
@@ -138,18 +157,18 @@ export default function TestimonialsPanel({
             return (
               <div
                 key={t.id}
-                className="rounded-lg border border-zinc-200 bg-white p-5 transition-opacity"
-                style={{ opacity: isLoading ? 0.6 : 1 }}
+                className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm transition-opacity"
+                style={{ opacity: isLoading ? 0.55 : 1 }}
               >
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="font-medium text-zinc-900">
+                      <span className="font-semibold text-[#1A1A1A]">
                         {t.author_name}
                       </span>
                       {t.author_role && (
-                        <span className="text-sm text-zinc-500">
+                        <span className="text-sm text-[#6B6B6B]">
                           {t.author_role}
                         </span>
                       )}
@@ -159,27 +178,28 @@ export default function TestimonialsPanel({
                         <Stars rating={t.rating} />
                       </div>
                     )}
-                    <p className="mt-2 text-sm leading-relaxed text-zinc-700">
+                    <p className="mt-3 text-sm leading-relaxed text-[#3f3f46]">
                       {t.body_original}
                     </p>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+
+                  <div className="flex shrink-0 flex-col items-end gap-2">
                     <StatusBadge status={t.status} />
-                    <span className="text-xs text-zinc-400">
+                    <span className="text-xs text-[#6B6B6B]">
                       {formatDate(t.created_at)}
                     </span>
                   </div>
                 </div>
 
                 {/* Action buttons */}
-                <div className="mt-4 flex items-center gap-2 border-t border-zinc-100 pt-4">
+                <div className="mt-4 flex items-center gap-2 border-t border-[#ECE7E0] pt-4">
                   {t.status !== "approved" && (
                     <button
                       disabled={isLoading}
                       onClick={() =>
                         runAction(t.id, () => approveTestimonial(t.id))
                       }
-                      className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -190,7 +210,7 @@ export default function TestimonialsPanel({
                       onClick={() =>
                         runAction(t.id, () => hideTestimonial(t.id))
                       }
-                      className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Hide
                     </button>
@@ -200,7 +220,7 @@ export default function TestimonialsPanel({
                     onClick={() =>
                       runAction(t.id, () => deleteTestimonial(t.id))
                     }
-                    className="ml-auto rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ml-auto rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Delete
                   </button>

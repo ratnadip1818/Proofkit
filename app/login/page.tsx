@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -30,55 +31,89 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: "#FAF8F5" }}>
       <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-2xl font-semibold">Log in</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
-            />
+        <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
+          {/* Wordmark */}
+          <div className="mb-8 text-center">
+            <Link
+              href="/"
+              className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              ProofKit
+            </Link>
+            <p className="mt-2 text-sm text-[#6B6B6B]">
+              Sign in to your account
+            </p>
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
-            />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
-          >
-            {loading ? "Logging in…" : "Log in"}
-          </button>
-        </form>
-        <p className="mt-4 text-center text-sm text-zinc-600">
-          Don&apos;t have an account?{" "}
-          <a href="/signup" className="font-medium text-zinc-900 underline">
-            Sign up
-          </a>
-        </p>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-[#1A1A1A]"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-[#1A1A1A]"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                placeholder="••••••••"
+              />
+            </div>
+
+            {error && (
+              <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-1 w-full rounded-lg bg-[#E8743B] py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-[#6B6B6B]">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/signup"
+              className="font-semibold text-[#1A1A1A] underline underline-offset-2 hover:text-[#E8743B] transition-colors"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
