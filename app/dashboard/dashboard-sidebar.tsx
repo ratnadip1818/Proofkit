@@ -73,7 +73,7 @@ function SidebarInner({
                 <Link
                   href={item.href}
                   onClick={onClose}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
                     active
                       ? "bg-[#FFF4EE] text-[#E8743B]"
                       : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
