@@ -14,9 +14,9 @@ import Footer from "@/components/Footer";
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="w-full min-h-screen flex flex-col">
       <Navbar />
-      <main className="w-full flex flex-col">
+      <main className="w-full flex flex-col flex-1">
         <Hero />
         <LogoStrip />
         <CostComparison />
@@ -30,6 +30,6 @@ export default function LandingPage() {
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

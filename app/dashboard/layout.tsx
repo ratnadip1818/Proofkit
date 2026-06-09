@@ -12,7 +12,7 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: "#FAF8F5" }}>
+    <div className="w-full min-h-screen bg-[#FAF8F5]">
       <DashboardNav email={user?.email ?? null} />
       <main className="w-full">{children}</main>
     </div>
