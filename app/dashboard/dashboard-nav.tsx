@@ -15,9 +15,9 @@ export default function DashboardNav({ email }: { email: string | null }) {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#ECE7E0] bg-white">
+    <header className="sticky top-0 z-50 h-16 w-full border-b border-[#ECE7E0] bg-white">
       <nav
-        className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3.5"
+        className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 md:px-10"
         aria-label="Dashboard navigation"
       >
         <Link

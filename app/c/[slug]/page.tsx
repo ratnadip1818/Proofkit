@@ -31,13 +31,16 @@ export default async function CollectionPage({
   if (!form) notFound();
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-12">
-      <div className="mx-auto w-full max-w-lg">
-        <div className="rounded-xl border border-zinc-200 bg-white px-8 py-10 shadow-sm">
-          <h1 className="text-2xl font-semibold text-zinc-900">
+    <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-5 md:px-10 py-12">
+      <div className="w-full max-w-lg">
+        <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
+          <h1
+            className="text-2xl font-bold text-[#1A1A1A]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             {form.headline}
           </h1>
-          <p className="mt-2 text-zinc-600">{form.prompt}</p>
+          <p className="mt-2 text-[#6B6B6B]">{form.prompt}</p>
           <div className="mt-8">
             <CollectionForm form={form as FormRow} />
           </div>

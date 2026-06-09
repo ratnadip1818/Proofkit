@@ -37,7 +37,8 @@ export default async function DashboardPage() {
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="w-full bg-[#FAF8F5] min-h-screen">
+    <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
       {/* Page header */}
       <div className="mb-8">
         <h1
@@ -116,6 +117,7 @@ export default async function DashboardPage() {
           testimonials={(testimonials ?? []) as Testimonial[]}
         />
       </div>
+    </div>
     </div>
   );
 }

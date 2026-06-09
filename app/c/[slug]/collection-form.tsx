@@ -29,13 +29,9 @@ function StarRating({
           onClick={() => onChange(star)}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
-          className="text-3xl leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 rounded"
+          className="text-3xl leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B]/40 rounded"
         >
-          <span
-            className={
-              (hover || value) >= star ? "text-amber-400" : "text-zinc-200"
-            }
-          >
+          <span className={(hover || value) >= star ? "text-amber-400" : "text-[#ECE7E0]"}>
             ★
           </span>
         </button>
@@ -43,6 +39,9 @@ function StarRating({
     </div>
   );
 }
+
+const inputClass =
+  "w-full rounded-lg border border-[#ECE7E0] px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20";
 
 export default function CollectionForm({ form }: { form: FormRow }) {
   const [authorName, setAuthorName] = useState("");
@@ -94,23 +93,19 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
   if (submitted) {
     return (
-      <div className="py-6 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+      <div className="py-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#2E9E6B]/10">
           <svg
-            className="h-6 w-6 text-green-600"
+            className="h-6 w-6 text-[#2E9E6B]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={2.5}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <p className="text-lg font-medium text-zinc-900">
+        <p className="text-lg font-semibold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
           {form.thank_you_message}
         </p>
       </div>
@@ -119,11 +114,8 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <label
-          htmlFor="author_name"
-          className="text-sm font-medium text-zinc-700"
-        >
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="author_name" className="text-sm font-medium text-[#1A1A1A]">
           Your name <span className="text-red-500">*</span>
         </label>
         <input
@@ -133,17 +125,13 @@ export default function CollectionForm({ form }: { form: FormRow }) {
           value={authorName}
           onChange={(e) => setAuthorName(e.target.value)}
           placeholder="Jane Smith"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+          className={inputClass}
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label
-          htmlFor="author_role"
-          className="text-sm font-medium text-zinc-700"
-        >
-          Your role{" "}
-          <span className="font-normal text-zinc-400">(optional)</span>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="author_role" className="text-sm font-medium text-[#1A1A1A]">
+          Your role <span className="font-normal text-[#6B6B6B]">(optional)</span>
         </label>
         <input
           id="author_role"
@@ -151,21 +139,21 @@ export default function CollectionForm({ form }: { form: FormRow }) {
           value={authorRole}
           onChange={(e) => setAuthorRole(e.target.value)}
           placeholder="CEO at Acme Corp"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+          className={inputClass}
         />
       </div>
 
       {form.collect_rating && (
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-zinc-700">
+          <span className="text-sm font-medium text-[#1A1A1A]">
             Rating <span className="text-red-500">*</span>
           </span>
           <StarRating value={rating} onChange={setRating} />
         </div>
       )}
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="body" className="text-sm font-medium text-zinc-700">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="body" className="text-sm font-medium text-[#1A1A1A]">
           Your testimonial <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -175,7 +163,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Share your experience…"
-          className="resize-none rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+          className={`${inputClass} resize-none`}
         />
       </div>
 
@@ -185,20 +173,22 @@ export default function CollectionForm({ form }: { form: FormRow }) {
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-zinc-300 accent-zinc-900"
+            className="mt-0.5 h-4 w-4 rounded border-[#ECE7E0] accent-[#E8743B]"
           />
-          <span className="text-sm text-zinc-600">
+          <span className="text-sm text-[#6B6B6B]">
             I consent to having my testimonial displayed publicly.
           </span>
         </label>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</p>
+      )}
 
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
+        className="w-full rounded-lg bg-[#E8743B] py-3 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Submitting…" : "Submit testimonial"}
       </button>

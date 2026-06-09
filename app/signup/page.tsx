@@ -39,8 +39,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: "#FAF8F5" }}>
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-5 md:px-10">
+      <div className="w-full max-w-md">
         <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
           {/* Wordmark */}
           <div className="mb-8 text-center">
