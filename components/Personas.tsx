@@ -26,7 +26,7 @@ const PERSONAS = [
 
 export default function Personas() {
   return (
-    <section className="bg-[#FAF8F5] py-24 px-6">
+    <section className="w-full bg-[#FAF8F5] py-24 px-6">
       <div className="mx-auto max-w-6xl">
         <FadeIn>
           <h2

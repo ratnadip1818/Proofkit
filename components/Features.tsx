@@ -36,7 +36,7 @@ const FEATURES = [
 
 export default function Features() {
   return (
-    <section id="features" className="bg-white py-28 px-6">
+    <section id="features" className="w-full bg-white py-28 px-6">
       <div className="mx-auto max-w-6xl">
         <FadeIn>
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#6B6B6B] mb-4">

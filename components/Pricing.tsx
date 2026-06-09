@@ -22,7 +22,7 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className="py-28 px-6"
+      className="w-full py-28 px-6"
       style={{ backgroundColor: "#16161D" }}
     >
       <div className="mx-auto max-w-6xl">

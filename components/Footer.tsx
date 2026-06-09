@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer
-      className="border-t border-[#ECE7E0] bg-white py-12 px-6"
+      className="w-full border-t border-[#ECE7E0] bg-white py-12 px-6"
       role="contentinfo"
     >
       <div className="mx-auto max-w-6xl">

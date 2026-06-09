@@ -37,7 +37,7 @@ const MAX = 2160;
 
 export default function CostComparison() {
   return (
-    <section className="bg-[#FAF8F5] py-28 px-6">
+    <section className="w-full bg-[#FAF8F5] py-28 px-6">
       <div className="mx-auto max-w-6xl">
         <FadeIn>
           <div className="mb-4 text-center">

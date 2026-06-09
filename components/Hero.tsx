@@ -14,7 +14,7 @@ const fadeUp = (delay = 0) => ({
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF8F5] px-6 pt-24 pb-20">
+    <section className="relative w-full flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF8F5] px-6 pt-24 pb-20">
       <div
         className="pointer-events-none absolute inset-0"
         style={{

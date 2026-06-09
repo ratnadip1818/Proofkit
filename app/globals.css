@@ -24,7 +24,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Smooth scroll for in-page anchors */
 html {
   scroll-behavior: smooth;
+  min-height: 100%;
+  width: 100%;
 }

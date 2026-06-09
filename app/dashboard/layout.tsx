@@ -12,9 +12,9 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#FAF8F5" }}>
+    <div className="min-h-screen w-full" style={{ backgroundColor: "#FAF8F5" }}>
       <DashboardNav email={user?.email ?? null} />
-      <main>{children}</main>
+      <main className="w-full">{children}</main>
     </div>
   );
 }
