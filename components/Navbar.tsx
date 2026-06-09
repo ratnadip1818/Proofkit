@@ -21,7 +21,7 @@ export default function Navbar() {
       }`}
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"
+        className="flex w-full items-center justify-between px-8 py-4"
         aria-label="Main navigation"
       >
         {/* Wordmark */}

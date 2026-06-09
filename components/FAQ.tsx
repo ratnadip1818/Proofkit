@@ -69,8 +69,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function FAQ() {
   return (
-    <section id="faq" className="w-full bg-[#FAF8F5] py-28 px-6">
-      <div className="mx-auto max-w-3xl">
+    <section id="faq" className="w-full bg-[#FAF8F5] py-28">
+      <div className="max-w-screen-xl mx-auto px-8 w-full">
         <FadeIn>
           <h2
             className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A] mb-12"

@@ -4,8 +4,8 @@ import FadeIn from "./FadeIn";
 
 export default function WallOfLove() {
   return (
-    <section className="w-full bg-white py-28 px-6">
-      <div className="mx-auto max-w-3xl text-center">
+    <section className="w-full bg-white py-28">
+      <div className="max-w-screen-xl mx-auto px-8 w-full text-center">
         <FadeIn>
           <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B] mb-4">
             Wall of love

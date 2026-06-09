@@ -22,10 +22,10 @@ export default function Pricing() {
   return (
     <section
       id="pricing"
-      className="w-full py-28 px-6"
+      className="w-full py-28"
       style={{ backgroundColor: "#16161D" }}
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="max-w-screen-xl mx-auto px-8 w-full">
         <FadeIn>
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#E8743B] mb-4">
             Pricing

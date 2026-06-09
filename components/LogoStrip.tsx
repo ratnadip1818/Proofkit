@@ -3,7 +3,7 @@ import FadeIn from "./FadeIn";
 export default function LogoStrip() {
   return (
     <section className="w-full border-y border-[#ECE7E0] bg-white py-12">
-      <div className="mx-auto max-w-3xl px-6">
+      <div className="max-w-screen-xl mx-auto px-8 w-full">
         <FadeIn>
           <p
             className="text-center text-lg font-semibold text-[#6B6B6B]"

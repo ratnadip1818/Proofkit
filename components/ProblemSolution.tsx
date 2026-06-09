@@ -19,8 +19,8 @@ const AFTER = [
 
 export default function ProblemSolution() {
   return (
-    <section className="w-full bg-white py-28 px-6">
-      <div className="mx-auto max-w-6xl">
+    <section className="w-full bg-white py-28">
+      <div className="max-w-screen-xl mx-auto px-8 w-full">
         <FadeIn>
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#6B6B6B] mb-4">
             Before &amp; after
