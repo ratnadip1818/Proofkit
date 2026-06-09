@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { submitTestimonial } from "./actions";
 
 interface FormRow {
   id: string;
@@ -67,23 +67,19 @@ export default function CollectionForm({ form }: { form: FormRow }) {
     }
 
     setLoading(true);
-    const supabase = createClient();
 
-    const { error: insertError } = await supabase.from("testimonials").insert({
-      user_id: form.user_id,
-      form_id: form.id,
-      author_name: authorName,
-      author_role: authorRole || null,
-      body_original: body,
-      display_body: body,
+    const { error: insertError } = await submitTestimonial({
+      formId: form.id,
+      userId: form.user_id,
+      authorName,
+      authorRole: authorRole || null,
+      body,
       rating: form.collect_rating ? rating : null,
       consent,
-      status: "pending",
-      source: "form",
     });
 
     if (insertError) {
-      setError(insertError.message);
+      setError(insertError);
       setLoading(false);
       return;
     }
