@@ -14,7 +14,7 @@ const fadeUp = (delay = 0) => ({
 
 export default function Hero() {
   return (
-    <section className="relative w-full flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF8F5] px-8 pt-24 pb-20">
+    <section className="relative w-full flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF8F5] px-8 lg:px-16 pt-24 pb-20">
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -24,7 +24,7 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto max-w-4xl text-center">
+      <div className="relative w-full max-w-screen-xl mx-auto px-8 lg:px-16 text-center">
         {/* Eyebrow */}
         <motion.div {...fadeUp(0)}>
           <span className="inline-flex items-center gap-2 rounded-full border border-[#E8743B]/30 bg-[#E8743B]/8 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#E8743B]">
@@ -36,7 +36,7 @@ export default function Hero() {
         {/* H1 */}
         <motion.h1
           {...fadeUp(0.1)}
-          className="mt-6 text-[clamp(2.75rem,7vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight text-[#1A1A1A]"
+          className="mt-6 max-w-5xl mx-auto text-[clamp(2.75rem,7vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight text-[#1A1A1A]"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Collect testimonials.
@@ -101,7 +101,7 @@ export default function Hero() {
         {/* Product mockup placeholder */}
         <motion.div
           {...fadeUp(0.44)}
-          className="mx-auto mt-14 max-w-3xl"
+          className="w-full max-w-5xl mx-auto mt-14"
         >
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-xl">
             <div className="mb-4 flex items-center gap-2">

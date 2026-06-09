@@ -4,8 +4,8 @@ import FadeIn from "./FadeIn";
 
 export default function FinalCTA() {
   return (
-    <section className="w-full bg-white py-28">
-      <div className="max-w-screen-xl mx-auto px-8 w-full text-center">
+    <section className="w-full bg-white py-28 px-8 lg:px-16">
+      <div className="w-full max-w-screen-xl mx-auto px-8 lg:px-16 text-center">
         <FadeIn>
           <p
             className="text-[clamp(1rem,2vw,1.125rem)] font-semibold uppercase tracking-widest text-[#E8743B] mb-4"
