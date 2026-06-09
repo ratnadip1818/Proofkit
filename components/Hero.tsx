@@ -14,7 +14,7 @@ const fadeUp = (delay = 0) => ({
 
 export default function Hero() {
   return (
-    <section className="relative w-full flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF8F5] px-8 lg:px-16 pt-24 pb-20">
+    <section className="relative w-full overflow-hidden bg-[#FAF8F5] py-24 px-5 md:px-10">
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -24,7 +24,7 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      <div className="relative w-full max-w-screen-xl mx-auto px-8 lg:px-16 text-center">
+      <div className="relative mx-auto w-full max-w-[1200px] text-center">
         {/* Eyebrow */}
         <motion.div {...fadeUp(0)}>
           <span className="inline-flex items-center gap-2 rounded-full border border-[#E8743B]/30 bg-[#E8743B]/8 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#E8743B]">
@@ -36,7 +36,7 @@ export default function Hero() {
         {/* H1 */}
         <motion.h1
           {...fadeUp(0.1)}
-          className="mt-6 max-w-5xl mx-auto text-[clamp(2.75rem,7vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight text-[#1A1A1A]"
+          className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight text-[#1A1A1A] md:text-7xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Collect testimonials.
@@ -48,7 +48,7 @@ export default function Hero() {
         {/* Subhead */}
         <motion.p
           {...fadeUp(0.18)}
-          className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#6B6B6B]"
+          className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#6B6B6B] md:text-xl"
         >
           ProofKit helps indie founders, agencies, and freelancers collect text
           testimonials and embed a beautiful Wall of Love — for a{" "}
@@ -101,7 +101,7 @@ export default function Hero() {
         {/* Product mockup placeholder */}
         <motion.div
           {...fadeUp(0.44)}
-          className="w-full max-w-5xl mx-auto mt-14"
+          className="w-full max-w-[900px] mx-auto mt-16"
         >
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-xl">
             <div className="mb-4 flex items-center gap-2">

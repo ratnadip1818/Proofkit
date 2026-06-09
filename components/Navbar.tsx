@@ -14,14 +14,14 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 h-16 w-full transition-all duration-300 ${
         scrolled
           ? "bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#ECE7E0] shadow-sm"
           : "bg-transparent"
       }`}
     >
       <nav
-        className="flex w-full items-center justify-between px-8 py-4"
+        className="mx-auto h-full max-w-[1200px] flex items-center justify-between px-5 md:px-10"
         aria-label="Main navigation"
       >
         {/* Wordmark */}

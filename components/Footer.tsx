@@ -3,10 +3,10 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer
-      className="w-full border-t border-[#ECE7E0] bg-white py-12 px-8 lg:px-16"
+      className="w-full border-t border-[#ECE7E0] bg-white py-12 px-5 md:px-10"
       role="contentinfo"
     >
-      <div className="w-full max-w-screen-xl mx-auto px-8 lg:px-16">
+      <div className="mx-auto w-full max-w-[1200px]">
         <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
           {/* Wordmark */}
           <Link

@@ -24,8 +24,8 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="w-full bg-[#FAF8F5] py-28 px-8 lg:px-16">
-      <div className="w-full max-w-screen-xl mx-auto px-8 lg:px-16">
+    <section id="how-it-works" className="w-full bg-[#FAF8F5] py-24 px-5 md:px-10">
+      <div className="mx-auto w-full max-w-[1200px]">
         <FadeIn>
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#6B6B6B] mb-4">
             How it works

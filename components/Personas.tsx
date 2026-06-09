@@ -26,8 +26,8 @@ const PERSONAS = [
 
 export default function Personas() {
   return (
-    <section className="w-full bg-[#FAF8F5] py-24 px-8 lg:px-16">
-      <div className="w-full max-w-screen-xl mx-auto px-8 lg:px-16">
+    <section className="w-full bg-[#FAF8F5] py-24 px-5 md:px-10">
+      <div className="mx-auto w-full max-w-[1200px]">
         <FadeIn>
           <h2
             className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A]"
