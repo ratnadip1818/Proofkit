@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { submitTestimonial } from "./actions";
 
 interface FormRow {
@@ -31,7 +32,11 @@ function StarRating({
           onMouseLeave={() => setHover(0)}
           className="text-3xl leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B]/40 rounded"
         >
-          <span className={(hover || value) >= star ? "text-amber-400" : "text-[#ECE7E0]"}>
+          <span
+            className={
+              (hover || value) >= star ? "text-amber-400" : "text-[#ECE7E0]"
+            }
+          >
             ★
           </span>
         </button>
@@ -49,9 +54,30 @@ export default function CollectionForm({ form }: { form: FormRow }) {
   const [body, setBody] = useState("");
   const [rating, setRating] = useState(0);
   const [consent, setConsent] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Photo must be under 2MB.");
+      e.target.value = "";
+      return;
+    }
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) =>
+      setAvatarPreview(ev.target?.result as string ?? null);
+    reader.readAsDataURL(file);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,6 +94,27 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
     setLoading(true);
 
+    let avatarUrl: string | null = null;
+    if (avatarFile) {
+      const supabase = createClient();
+      const ext = avatarFile.name.split(".").pop() ?? "jpg";
+      const path = `${form.user_id}/${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2)}.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, avatarFile, { contentType: avatarFile.type });
+      if (uploadErr) {
+        setError("Photo upload failed. You can still submit without a photo.");
+        setLoading(false);
+        return;
+      }
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(path);
+      avatarUrl = publicUrl;
+    }
+
     const { error: insertError } = await submitTestimonial({
       formId: form.id,
       userId: form.user_id,
@@ -76,6 +123,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       body,
       rating: form.collect_rating ? rating : null,
       consent,
+      avatarUrl,
     });
 
     if (insertError) {
@@ -98,10 +146,17 @@ export default function CollectionForm({ form }: { form: FormRow }) {
             stroke="currentColor"
             strokeWidth={2.5}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
-        <p className="text-lg font-semibold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
+        <p
+          className="text-lg font-semibold text-[#1A1A1A]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
           {form.thank_you_message}
         </p>
       </div>
@@ -110,8 +165,66 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Photo upload */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-[#1A1A1A]">
+          Your photo{" "}
+          <span className="font-normal text-[#6B6B6B]">(optional)</span>
+        </label>
+        <div className="flex items-center gap-4">
+          {avatarPreview ? (
+            <img
+              src={avatarPreview}
+              alt="Preview"
+              className="h-14 w-14 rounded-full object-cover ring-2 ring-[#ECE7E0]"
+            />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FAF8F5] ring-2 ring-[#ECE7E0]">
+              <svg
+                className="h-6 w-6 text-[#D9D3CB]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+            </div>
+          )}
+          <label className="cursor-pointer rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]">
+            {avatarPreview ? "Change photo" : "Upload photo"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="sr-only"
+            />
+          </label>
+          {avatarPreview && (
+            <button
+              type="button"
+              onClick={() => {
+                setAvatarFile(null);
+                setAvatarPreview(null);
+              }}
+              className="text-xs text-[#6B6B6B] hover:text-red-500 transition-colors"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-[#6B6B6B]">JPEG or PNG, max 2MB</p>
+      </div>
+
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="author_name" className="text-sm font-medium text-[#1A1A1A]">
+        <label
+          htmlFor="author_name"
+          className="text-sm font-medium text-[#1A1A1A]"
+        >
           Your name <span className="text-red-500">*</span>
         </label>
         <input
@@ -126,8 +239,12 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="author_role" className="text-sm font-medium text-[#1A1A1A]">
-          Your role <span className="font-normal text-[#6B6B6B]">(optional)</span>
+        <label
+          htmlFor="author_role"
+          className="text-sm font-medium text-[#1A1A1A]"
+        >
+          Your role{" "}
+          <span className="font-normal text-[#6B6B6B]">(optional)</span>
         </label>
         <input
           id="author_role"
@@ -178,7 +295,9 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       )}
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</p>
+        <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">
+          {error}
+        </p>
       )}
 
       <button

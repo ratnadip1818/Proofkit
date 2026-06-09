@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 async function getAuthenticatedClient() {
   const supabase = await createClient();
@@ -43,6 +44,19 @@ export async function deleteTestimonial(id: string): Promise<void> {
   revalidatePath("/dashboard");
 }
 
+export async function updateTestimonial(
+  id: string,
+  newText: string
+): Promise<void> {
+  const { supabase, user } = await getAuthenticatedClient();
+  await supabase
+    .from("testimonials")
+    .update({ body_original: newText, display_body: newText })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  revalidatePath("/dashboard");
+}
+
 export type CreateFormState = { error: string | null; done: boolean };
 
 export async function createForm(
@@ -73,5 +87,43 @@ export async function createForm(
   if (error) return { error: error.message, done: false };
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/forms");
   return { error: null, done: true };
+}
+
+export async function deleteForm(id: string): Promise<void> {
+  const { supabase, user } = await getAuthenticatedClient();
+  await supabase
+    .from("forms")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+  revalidatePath("/dashboard/forms");
+  revalidatePath("/dashboard");
+}
+
+export async function updateProfile(
+  fullName: string
+): Promise<{ error: string | null }> {
+  const { supabase, user } = await getAuthenticatedClient();
+  const { error } = await supabase.from("profiles").upsert({
+    id: user.id,
+    full_name: fullName,
+    updated_at: new Date().toISOString(),
+  });
+  revalidatePath("/dashboard/settings");
+  return { error: error?.message ?? null };
+}
+
+export async function deleteAccount(): Promise<never> {
+  const { supabase, user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  await supabase.from("testimonials").delete().eq("user_id", user.id);
+  await supabase.from("forms").delete().eq("user_id", user.id);
+  await supabase.from("profiles").delete().eq("id", user.id);
+  await admin.auth.admin.deleteUser(user.id);
+  await supabase.auth.signOut();
+
+  redirect("/");
 }

@@ -13,10 +13,12 @@ import {
   Settings,
   Menu,
   X,
+  LayoutList,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { label: "Forms", icon: LayoutList, href: "/dashboard/forms" },
   {
     label: "Testimonials",
     icon: MessageSquare,
@@ -37,8 +39,12 @@ function isActive(
   itemIndex: number
 ): boolean {
   const basePath = itemHref.split("#")[0];
+  // Deep paths (not root /dashboard): active when pathname starts with basePath
+  if (basePath !== "/dashboard") {
+    return pathname === basePath || pathname.startsWith(basePath + "/");
+  }
+  // Root /dashboard: only the first matching item gets highlighted
   if (pathname !== basePath) return false;
-  // Only the first item with this base path gets the active highlight
   const firstIdx = NAV_ITEMS.findIndex(
     (i) => i.href.split("#")[0] === basePath
   );
@@ -73,10 +79,7 @@ function SidebarInner({
                       : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
                   }`}
                 >
-                  <item.icon
-                    size={18}
-                    strokeWidth={active ? 2.5 : 2}
-                  />
+                  <item.icon size={18} strokeWidth={active ? 2.5 : 2} />
                   {item.label}
                 </Link>
               </li>

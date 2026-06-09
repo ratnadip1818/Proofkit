@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Pencil } from "lucide-react";
 import {
   approveTestimonial,
   hideTestimonial,
   deleteTestimonial,
+  updateTestimonial,
 } from "./actions";
 
 export type Testimonial = {
@@ -17,6 +18,7 @@ export type Testimonial = {
   rating: number | null;
   status: "pending" | "approved" | "hidden";
   created_at: string;
+  avatar_url: string | null;
 };
 
 type Tab = "all" | "pending" | "approved" | "hidden";
@@ -53,7 +55,10 @@ function Stars({ rating }: { rating: number }) {
       aria-label={`${rating} out of 5 stars`}
     >
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= rating ? "text-amber-400" : "text-[#ECE7E0]"}>
+        <span
+          key={n}
+          className={n <= rating ? "text-amber-400" : "text-[#ECE7E0]"}
+        >
           ★
         </span>
       ))}
@@ -72,7 +77,22 @@ function StatusBadge({ status }: { status: Testimonial["status"] }) {
   );
 }
 
-function Avatar({ name }: { name: string }) {
+function Avatar({
+  name,
+  avatarUrl,
+}: {
+  name: string;
+  avatarUrl: string | null;
+}) {
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={name}
+        className="h-10 w-10 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
   return (
     <div
       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-sm font-bold text-[#E8743B]"
@@ -100,6 +120,8 @@ export default function TestimonialsPanel({
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
 
   const counts: Record<Tab, number> = {
     all: testimonials.length,
@@ -127,6 +149,12 @@ export default function TestimonialsPanel({
     } finally {
       setPendingId(null);
     }
+  }
+
+  async function handleSaveEdit(id: string) {
+    if (!editText.trim()) return;
+    await runAction(id, () => updateTestimonial(id, editText.trim()));
+    setEditingId(null);
   }
 
   return (
@@ -194,6 +222,7 @@ export default function TestimonialsPanel({
         ) : (
           filtered.map((t) => {
             const isLoading = pendingId === t.id;
+            const isEditing = editingId === t.id;
             return (
               <div
                 key={t.id}
@@ -202,7 +231,7 @@ export default function TestimonialsPanel({
               >
                 {/* Header row */}
                 <div className="flex items-start gap-4">
-                  <Avatar name={t.author_name} />
+                  <Avatar name={t.author_name} avatarUrl={t.avatar_url} />
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
@@ -221,7 +250,6 @@ export default function TestimonialsPanel({
                           </div>
                         )}
                       </div>
-
                       <div className="flex shrink-0 flex-col items-end gap-1.5">
                         <span className="text-xs text-[#6B6B6B]">
                           {formatDate(t.created_at)}
@@ -230,14 +258,41 @@ export default function TestimonialsPanel({
                       </div>
                     </div>
 
-                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
-                      {t.body_original}
-                    </p>
+                    {isEditing ? (
+                      <div className="mt-3">
+                        <textarea
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          rows={4}
+                          className="w-full resize-none rounded-lg border border-[#E8743B] px-3 py-2.5 text-sm leading-relaxed text-[#1A1A1A] outline-none ring-2 ring-[#E8743B]/20"
+                          autoFocus
+                        />
+                        <div className="mt-2 flex gap-2">
+                          <button
+                            onClick={() => handleSaveEdit(t.id)}
+                            disabled={isLoading || !editText.trim()}
+                            className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isLoading ? "Saving…" : "Save"}
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
+                        {t.body_original}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Action buttons */}
-                <div className="mt-4 flex items-center gap-2 border-t border-[#ECE7E0] pt-4">
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#ECE7E0] pt-4">
                   {t.status !== "approved" && (
                     <button
                       disabled={isLoading}
@@ -258,6 +313,19 @@ export default function TestimonialsPanel({
                       className="rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Hide
+                    </button>
+                  )}
+                  {!isEditing && (
+                    <button
+                      disabled={isLoading}
+                      onClick={() => {
+                        setEditingId(t.id);
+                        setEditText(t.body_original);
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Pencil size={12} />
+                      Edit
                     </button>
                   )}
                   <button

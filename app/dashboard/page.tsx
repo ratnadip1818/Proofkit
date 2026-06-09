@@ -34,7 +34,7 @@ export default async function DashboardPage() {
     supabase
       .from("testimonials")
       .select(
-        "id, author_name, author_role, body_original, rating, status, created_at"
+        "id, author_name, author_role, body_original, rating, status, created_at, avatar_url"
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),

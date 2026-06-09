@@ -12,6 +12,7 @@ interface SubmitTestimonialInput {
   body: string;
   rating: number | null;
   consent: boolean;
+  avatarUrl: string | null;
 }
 
 export async function submitTestimonial(
@@ -28,6 +29,7 @@ export async function submitTestimonial(
     display_body: input.body,
     rating: input.rating,
     consent: input.consent,
+    avatar_url: input.avatarUrl,
     status: "pending",
     source: "form",
   });
