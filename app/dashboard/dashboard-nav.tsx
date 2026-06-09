@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Logo from "@/components/Logo";
 
 export default function DashboardNav({ email }: { email: string | null }) {
   const router = useRouter();
@@ -20,12 +21,8 @@ export default function DashboardNav({ email }: { email: string | null }) {
         className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 md:px-10"
         aria-label="Dashboard navigation"
       >
-        <Link
-          href="/dashboard"
-          className="text-lg font-extrabold tracking-tight text-[#1A1A1A]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Blovi
+        <Link href="/dashboard" aria-label="Blovi dashboard">
+          <Logo />
         </Link>
 
         <div className="flex items-center gap-3">

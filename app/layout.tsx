@@ -16,9 +16,25 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Blovi — Collect Testimonials. Pay Once.",
+  title: "Blovi — Collect Testimonials. Pay Once. Keep Them Forever.",
   description:
-    "Blovi lets indie founders, agencies, and freelancers collect text & video testimonials and embed a beautiful Wall of Love — for a single $49 payment, not another monthly subscription.",
+    "Blovi helps indie founders, agencies, and freelancers collect text testimonials and embed a beautiful Wall of Love — for a single $49 payment, not another monthly subscription.",
+  keywords: "testimonials, social proof, wall of love, senja alternative, lifetime deal",
+  openGraph: {
+    title: "Blovi — Collect Testimonials. Pay Once.",
+    description: "Collect testimonials and embed a Wall of Love for a single $49 lifetime payment.",
+    url: "https://blovi.space",
+    siteName: "Blovi",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blovi — Collect Testimonials. Pay Once.",
+    description: "Collect testimonials and embed a Wall of Love for a single $49 lifetime payment.",
+  },
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

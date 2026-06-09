@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
@@ -8,13 +9,8 @@ export default function Footer() {
     >
       <div className="mx-auto w-full max-w-[1200px]">
         <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
-          {/* Wordmark */}
-          <Link
-            href="/"
-            className="text-lg font-extrabold tracking-tight text-[#1A1A1A]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Blovi
+          <Link href="/" aria-label="Blovi home">
+            <Logo />
           </Link>
 
           {/* Nav links */}
@@ -40,12 +36,29 @@ export default function Footer() {
             >
               FAQ
             </Link>
-            {/* TODO: Add real links when pages exist */}
             <Link
               href="/login"
               className="text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
             >
               Log in
+            </Link>
+            <Link
+              href="/privacy"
+              className="text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+            >
+              Privacy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+            >
+              Terms
+            </Link>
+            <Link
+              href="/refund"
+              className="text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+            >
+              Refunds
             </Link>
           </nav>
 

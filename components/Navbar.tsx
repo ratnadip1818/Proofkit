@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,13 +25,8 @@ export default function Navbar() {
         className="mx-auto h-full max-w-[1200px] flex items-center justify-between px-5 md:px-10"
         aria-label="Main navigation"
       >
-        {/* Wordmark */}
-        <Link
-          href="/"
-          className="font-display text-lg font-700 tracking-tight text-[#1A1A1A]"
-          style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
-        >
-          Blovi
+        <Link href="/" aria-label="Blovi home">
+          <Logo />
         </Link>
 
         {/* Center links */}
