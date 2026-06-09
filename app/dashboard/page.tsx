@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CreateFormButton from "./create-form-button";
+import TestimonialsPanel, { type Testimonial } from "./testimonials-panel";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -10,13 +11,22 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  const { data: form } = await supabase
-    .from("forms")
-    .select("id, slug")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  const [{ data: form }, { data: testimonials }] = await Promise.all([
+    supabase
+      .from("forms")
+      .select("id, slug")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("testimonials")
+      .select(
+        "id, author_name, author_role, body_original, rating, status, created_at"
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   return (
     <div className="flex flex-1 flex-col px-4 py-12 sm:px-8">
@@ -24,6 +34,7 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="mt-1 text-sm text-zinc-600">Signed in as {user.email}</p>
 
+        {/* Collection form */}
         <div className="mt-8">
           {form ? (
             <div className="rounded-lg border border-zinc-200 bg-white p-6">
@@ -55,8 +66,14 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="mt-8 rounded-md border border-dashed border-zinc-300 px-6 py-12 text-center text-zinc-500">
-          No testimonials yet
+        {/* Testimonials */}
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold text-zinc-900">Testimonials</h2>
+          <div className="mt-4">
+            <TestimonialsPanel
+              testimonials={(testimonials ?? []) as Testimonial[]}
+            />
+          </div>
         </div>
       </div>
     </div>

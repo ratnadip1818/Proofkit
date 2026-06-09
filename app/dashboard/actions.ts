@@ -4,6 +4,45 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+async function getAuthenticatedClient() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  return { supabase, user };
+}
+
+export async function approveTestimonial(id: string): Promise<void> {
+  const { supabase, user } = await getAuthenticatedClient();
+  await supabase
+    .from("testimonials")
+    .update({ status: "approved" })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  revalidatePath("/dashboard");
+}
+
+export async function hideTestimonial(id: string): Promise<void> {
+  const { supabase, user } = await getAuthenticatedClient();
+  await supabase
+    .from("testimonials")
+    .update({ status: "hidden" })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  revalidatePath("/dashboard");
+}
+
+export async function deleteTestimonial(id: string): Promise<void> {
+  const { supabase, user } = await getAuthenticatedClient();
+  await supabase
+    .from("testimonials")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+  revalidatePath("/dashboard");
+}
+
 export type CreateFormState = { error: string | null; done: boolean };
 
 export async function createForm(
