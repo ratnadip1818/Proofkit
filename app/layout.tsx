@@ -31,7 +31,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jakarta.variable} antialiased h-full`}
     >
-      <body className="h-full min-h-screen w-full m-0 p-0">{children}</body>
+      <body className="w-full min-h-screen overflow-x-hidden">{children}</body>
     </html>
   );
 }

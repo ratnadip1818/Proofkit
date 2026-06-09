@@ -14,9 +14,9 @@ import Footer from "@/components/Footer";
 
 export default function LandingPage() {
   return (
-    <div className="w-full min-h-screen flex flex-col">
+    <div className="w-full min-h-screen overflow-x-hidden flex flex-col">
       <Navbar />
-      <main className="w-full flex flex-col flex-1">
+      <main className="w-full overflow-x-hidden flex flex-col flex-1">
         <Hero />
         <LogoStrip />
         <CostComparison />
