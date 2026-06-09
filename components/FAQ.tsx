@@ -1,0 +1,97 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import FadeIn from "./FadeIn";
+
+const FAQS = [
+  {
+    q: "Is it really a one-time payment?",
+    a: "Yes. You pay $49 once and ProofKit is yours for life — no renewals, no annual billing, no surprise charges. That's the whole deal.",
+  },
+  {
+    q: "What does 'lifetime' mean exactly?",
+    a: "Lifetime means as long as ProofKit exists as a product, you have full access. You'll receive all feature updates and improvements at no extra cost.",
+  },
+  {
+    q: "How do I migrate from Senja or Testimonial.to?",
+    a: "ProofKit supports importing testimonials from most major platforms including Senja, Testimonial.to, Twitter/X, LinkedIn, Google Reviews, and Product Hunt. Migration typically takes under 30 minutes.",
+  },
+  {
+    q: "Is there a refund if it's not for me?",
+    a: "Absolutely. If you're not satisfied within 30 days of purchase, we'll refund you in full — no questions asked. Just reach out.",
+  },
+  {
+    q: "Are there any limits or hidden fees?",
+    a: "No limits on testimonials, no per-domain fees, no per-seat charges, no usage caps. One price includes everything. We list everything in the feature checklist — what you see is what you get.",
+  },
+  {
+    q: "What happens to my testimonials if I cancel?",
+    a: "You don't cancel — there's nothing to cancel. Your one-time payment means you own access permanently. Your data is yours.",
+  },
+  {
+    q: "Does the embed work on my platform?",
+    a: "Yes. The embed is a lightweight script tag that works on any HTML page, Framer, Webflow, WordPress, Ghost, Notion (embed block), and more. If it can run JavaScript, it runs ProofKit.",
+  },
+];
+
+function FAQItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="border-b border-[#ECE7E0] last:border-0">
+      <button
+        className="flex w-full items-center justify-between gap-4 py-5 text-left"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        <span
+          className="text-base font-semibold text-[#1A1A1A]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {q}
+        </span>
+        <ChevronDown
+          size={20}
+          className={`shrink-0 text-[#6B6B6B] transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          open ? "max-h-96 pb-5 opacity-100" : "max-h-0 opacity-0"
+        }`}
+        role="region"
+      >
+        <p className="text-sm leading-relaxed text-[#6B6B6B]">{a}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function FAQ() {
+  return (
+    <section id="faq" className="bg-[#FAF8F5] py-28 px-6">
+      <div className="mx-auto max-w-3xl">
+        <FadeIn>
+          <h2
+            className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A] mb-12"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Common questions.
+          </h2>
+        </FadeIn>
+
+        <FadeIn delay={0.08}>
+          <div className="rounded-2xl border border-[#ECE7E0] bg-white px-8 shadow-sm">
+            {FAQS.map((faq) => (
+              <FAQItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
