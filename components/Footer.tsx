@@ -14,7 +14,7 @@ export default function Footer() {
             className="text-lg font-extrabold tracking-tight text-[#1A1A1A]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            ProofKit
+            Blovi
           </Link>
 
           {/* Nav links */}
@@ -90,7 +90,7 @@ export default function Footer() {
             Made by indie founders, for indie founders.
           </p>
           <p className="text-xs text-[#6B6B6B]">
-            © {new Date().getFullYear()} ProofKit. All rights reserved.
+            © {new Date().getFullYear()} Blovi. All rights reserved.
           </p>
         </div>
       </div>

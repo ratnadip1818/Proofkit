@@ -6,7 +6,7 @@ const STEPS = [
     num: "01",
     icon: Link2,
     title: "Collect",
-    desc: "Share your unique ProofKit link with customers. They fill out a short form — name, role, rating, and their testimonial. No login needed on their end.",
+    desc: "Share your unique Blovi link with customers. They fill out a short form — name, role, rating, and their testimonial. No login needed on their end.",
   },
   {
     num: "02",

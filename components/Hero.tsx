@@ -50,7 +50,7 @@ export default function Hero() {
           {...fadeUp(0.18)}
           className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#6B6B6B] md:text-xl"
         >
-          ProofKit helps indie founders, agencies, and freelancers collect text
+          Blovi helps indie founders, agencies, and freelancers collect text
           testimonials and embed a beautiful Wall of Love — for a{" "}
           <strong className="font-semibold text-[#1A1A1A]">
             single $49 payment
@@ -68,7 +68,7 @@ export default function Hero() {
             href="/signup"
             className="group flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
           >
-            Get ProofKit — $49
+            Get Blovi — $49
             <ArrowRight
               size={18}
               className="transition-transform group-hover:translate-x-1"

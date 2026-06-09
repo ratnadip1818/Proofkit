@@ -26,7 +26,7 @@ const BARS: BarData[] = [
     color: "#BFBAB2",
   },
   {
-    label: "ProofKit — pay once",
+    label: "Blovi — pay once",
     years: [49, 49, 49],
     color: "#E8743B",
     isProofKit: true,
@@ -54,7 +54,7 @@ export default function CostComparison() {
           <p className="mx-auto mt-4 max-w-xl text-center text-lg text-[#6B6B6B]">
             Most testimonial tools cost{" "}
             <strong className="text-[#1A1A1A]">$108–$960 per year</strong>.
-            ProofKit is $49 — total. For life.
+            Blovi is $49 — total. For life.
           </p>
         </FadeIn>
 
@@ -82,7 +82,7 @@ export default function CostComparison() {
                 Best value
               </div>
               <p className="text-sm font-semibold uppercase tracking-widest text-[#E8743B]">
-                ProofKit
+                Blovi
               </p>
               <p
                 className="mt-3 text-[2.5rem] font-extrabold text-[#1A1A1A]"

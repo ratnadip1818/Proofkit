@@ -45,7 +45,7 @@ export default function ProblemSolution() {
                   className="text-lg font-bold text-[#1A1A1A]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Without ProofKit
+                  Without Blovi
                 </h3>
               </div>
               <ul className="space-y-3">
@@ -78,7 +78,7 @@ export default function ProblemSolution() {
                   className="text-lg font-bold text-[#1A1A1A]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  With ProofKit
+                  With Blovi
                 </h3>
               </div>
               <ul className="space-y-3">

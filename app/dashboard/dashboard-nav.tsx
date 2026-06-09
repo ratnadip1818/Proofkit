@@ -25,7 +25,7 @@ export default function DashboardNav({ email }: { email: string | null }) {
           className="text-lg font-extrabold tracking-tight text-[#1A1A1A]"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          ProofKit
+          Blovi
         </Link>
 
         <div className="flex items-center gap-3">

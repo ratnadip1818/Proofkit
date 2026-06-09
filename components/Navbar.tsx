@@ -30,7 +30,7 @@ export default function Navbar() {
           className="font-display text-lg font-700 tracking-tight text-[#1A1A1A]"
           style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
         >
-          ProofKit
+          Blovi
         </Link>
 
         {/* Center links */}

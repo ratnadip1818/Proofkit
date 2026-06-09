@@ -60,7 +60,7 @@ export default function LoginPage() {
               className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              ProofKit
+              Blovi
             </Link>
             <p className="mt-2 text-sm text-[#6B6B6B]">
               Sign in to your account

@@ -16,9 +16,9 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ProofKit — Collect Testimonials. Pay Once.",
+  title: "Blovi — Collect Testimonials. Pay Once.",
   description:
-    "ProofKit lets indie founders, agencies, and freelancers collect text & video testimonials and embed a beautiful Wall of Love — for a single $49 payment, not another monthly subscription.",
+    "Blovi lets indie founders, agencies, and freelancers collect text & video testimonials and embed a beautiful Wall of Love — for a single $49 payment, not another monthly subscription.",
 };
 
 export default function RootLayout({

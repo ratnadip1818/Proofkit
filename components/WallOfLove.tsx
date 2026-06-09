@@ -17,7 +17,7 @@ export default function WallOfLove() {
             Be one of our first customers.
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-lg text-[#6B6B6B]">
-            ProofKit is freshly launched. Early customers get the lifetime deal
+            Blovi is freshly launched. Early customers get the lifetime deal
             at $49 — and their testimonial featured right here.
           </p>
 
