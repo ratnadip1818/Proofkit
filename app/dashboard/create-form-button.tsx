@@ -1,10 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createForm } from "./actions";
 
 export default function CreateFormButton() {
-  const [state, action, pending] = useActionState(createForm, { error: null });
+  const router = useRouter();
+  const [state, action, pending] = useActionState(createForm, {
+    error: null,
+    done: false,
+  });
+
+  useEffect(() => {
+    if (state.done) router.refresh();
+  }, [state.done, router]);
 
   return (
     <form action={action}>

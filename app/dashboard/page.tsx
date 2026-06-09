@@ -14,6 +14,8 @@ export default async function DashboardPage() {
     .from("forms")
     .select("id, slug")
     .eq("user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
     .maybeSingle();
 
   return (

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-export type CreateFormState = { error: string | null };
+export type CreateFormState = { error: string | null; done: boolean };
 
 export async function createForm(
   _prev: CreateFormState,
@@ -31,8 +31,8 @@ export async function createForm(
     slug,
   });
 
-  if (error) return { error: error.message };
+  if (error) return { error: error.message, done: false };
 
   revalidatePath("/dashboard");
-  redirect("/dashboard");
+  return { error: null, done: true };
 }
