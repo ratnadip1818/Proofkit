@@ -12,19 +12,9 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.6, ease: EASE, delay },
 });
 
-// TODO: Replace with real avatar images of customers
-const AVATARS = [
-  { initials: "JM", bg: "#E8743B" },
-  { initials: "SR", bg: "#2E9E6B" },
-  { initials: "AL", bg: "#6B6B6B" },
-  { initials: "TK", bg: "#16161D" },
-  { initials: "RP", bg: "#CF5F2C" },
-];
-
 export default function Hero() {
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#FAF8F5] px-6 pt-24 pb-20">
-      {/* Subtle radial gradient */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -39,7 +29,7 @@ export default function Hero() {
         <motion.div {...fadeUp(0)}>
           <span className="inline-flex items-center gap-2 rounded-full border border-[#E8743B]/30 bg-[#E8743B]/8 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#E8743B]">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#E8743B]" />
-            Lifetime deal · Limited
+            Early access · Lifetime deal
           </span>
         </motion.div>
 
@@ -61,7 +51,7 @@ export default function Hero() {
           className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#6B6B6B]"
         >
           ProofKit helps indie founders, agencies, and freelancers collect text
-          &amp; video testimonials and embed a beautiful Wall of Love — for a{" "}
+          testimonials and embed a beautiful Wall of Love — for a{" "}
           <strong className="font-semibold text-[#1A1A1A]">
             single $49 payment
           </strong>
@@ -73,11 +63,12 @@ export default function Hero() {
           {...fadeUp(0.26)}
           className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
         >
+          {/* TODO: wire up payment — currently links to free signup */}
           <Link
             href="/signup"
             className="group flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
           >
-            Get ProofKit — $49 once
+            Get ProofKit — $49
             <ArrowRight
               size={18}
               className="transition-transform group-hover:translate-x-1"
@@ -96,31 +87,16 @@ export default function Hero() {
           {...fadeUp(0.32)}
           className="mt-5 text-sm text-[#6B6B6B]"
         >
-          No subscription · No per-seat fees · 30-day money-back guarantee
+          No subscription · No per-seat fees · Pay once, yours forever
         </motion.p>
 
-        {/* Avatar row + count */}
-        <motion.div
+        {/* Early access note */}
+        <motion.p
           {...fadeUp(0.38)}
-          className="mt-8 flex items-center justify-center gap-3"
+          className="mt-4 text-sm font-medium text-[#E8743B]"
         >
-          <div className="flex -space-x-2">
-            {AVATARS.map((a) => (
-              <div
-                key={a.initials}
-                className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#FAF8F5] text-[10px] font-bold text-white"
-                style={{ backgroundColor: a.bg }}
-                aria-hidden="true"
-              >
-                {a.initials}
-              </div>
-            ))}
-          </div>
-          <p className="text-sm text-[#6B6B6B]">
-            {/* TODO: Replace with real customer count */}
-            Join <strong className="text-[#1A1A1A]">1,200+ founders</strong> already using ProofKit
-          </p>
-        </motion.div>
+          Early access — be one of our first customers
+        </motion.p>
 
         {/* Product mockup placeholder */}
         <motion.div

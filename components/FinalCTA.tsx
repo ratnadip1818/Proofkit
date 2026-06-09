@@ -41,7 +41,7 @@ export default function FinalCTA() {
           </div>
 
           <p className="mt-4 text-sm text-[#6B6B6B]">
-            30-day money-back guarantee · No subscription · Cancel nothing
+            No subscription · No per-seat fees · Pay once, yours forever
           </p>
         </FadeIn>
       </div>

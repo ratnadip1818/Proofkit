@@ -1,20 +1,21 @@
 import Link from "next/link";
-import { Check, Shield } from "lucide-react";
+import { Check, Clock } from "lucide-react";
 import FadeIn from "./FadeIn";
 
-const FEATURES = [
-  "Unlimited testimonials",
-  "Text & video testimonials",
-  "Wall of Love embed widget",
-  "Custom collection form",
-  "Import from 30+ platforms",
-  "Custom branding (remove ProofKit logo)",
-  "Unlimited projects & domains",
-  "No per-seat or per-domain fees",
-  "Lightning-fast embed script",
+const FEATURES_NOW = [
+  "Unlimited text testimonials",
+  "Shareable collection form",
+  "Embeddable Wall of Love widget",
+  "Approve / hide / delete dashboard",
   "Star ratings & author profiles",
-  "One-click approve / hide",
+  "One-line embed script",
+  "Lifetime access — pay once",
   "All future updates included",
+];
+
+const FEATURES_SOON = [
+  "Video testimonials",
+  "Platform imports (Twitter/X, Google, etc.)",
 ];
 
 export default function Pricing() {
@@ -69,33 +70,37 @@ export default function Pricing() {
               </p>
             </div>
 
-            {/* Feature list */}
+            {/* What's included now */}
             <ul className="mt-8 space-y-3">
-              {FEATURES.map((f) => (
+              {FEATURES_NOW.map((f) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-[#1A1A1A]">
-                  <Check
-                    size={16}
-                    className="shrink-0 text-[#2E9E6B]"
-                    strokeWidth={2.5}
-                  />
+                  <Check size={16} className="shrink-0 text-[#2E9E6B]" strokeWidth={2.5} />
                   {f}
                 </li>
               ))}
             </ul>
 
-            {/* Guarantee */}
-            <div className="mt-8 flex items-center gap-3 rounded-xl bg-[#FAF8F5] px-4 py-3">
-              <Shield size={20} className="shrink-0 text-[#2E9E6B]" strokeWidth={2} />
-              <p className="text-xs text-[#6B6B6B]">
-                <strong className="text-[#1A1A1A]">30-day money-back guarantee.</strong>{" "}
-                No questions asked.
+            {/* Coming soon */}
+            <div className="mt-6 rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] px-4 py-4">
+              <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">
+                <Clock size={12} />
+                Coming soon — included when ready
               </p>
+              <ul className="space-y-2">
+                {FEATURES_SOON.map((f) => (
+                  <li key={f} className="flex items-center gap-3 text-sm text-[#6B6B6B]">
+                    <Clock size={14} className="shrink-0 text-[#6B6B6B]" strokeWidth={2} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* CTA */}
+            {/* TODO: wire up payment — currently links to free signup */}
             <Link
               href="/signup"
-              className="mt-6 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
+              className="mt-7 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
             >
               Get ProofKit — $49 once
             </Link>

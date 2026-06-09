@@ -1,43 +1,36 @@
-import {
-  MessageSquare,
-  Video,
-  LayoutGrid,
-  Download,
-  Palette,
-  Zap,
-} from "lucide-react";
+import { MessageSquare, LayoutGrid, Code2, ClipboardList, CheckSquare, Zap } from "lucide-react";
 import FadeIn from "./FadeIn";
 
 const FEATURES = [
   {
     icon: MessageSquare,
     title: "Text Testimonials",
-    desc: "Collect written reviews with star ratings, author name, role, and consent. Customise the form with your own thank-you message.",
-  },
-  {
-    icon: Video,
-    title: "Video Testimonials",
-    desc: "Let customers record short video testimonials directly from the collection form. No third-party recorder needed.",
+    desc: "Collect written reviews with star ratings, author name, and role. Customise the form with your own thank-you message and optional consent checkbox.",
   },
   {
     icon: LayoutGrid,
-    title: "Wall of Love",
-    desc: "A beautiful masonry-style widget that auto-updates as you approve new testimonials. Embed it anywhere with one script tag.",
+    title: "Wall of Love Widget",
+    desc: "A clean masonry-style embed that auto-updates as you approve new testimonials. One script tag, works anywhere.",
   },
   {
-    icon: Download,
-    title: "Import from 30+ Platforms",
-    desc: "Pull in existing reviews from Twitter/X, LinkedIn, Google, Product Hunt, Gumroad, and more. Centralise everything.",
+    icon: ClipboardList,
+    title: "Shareable Collection Form",
+    desc: "Share a unique link with customers. They submit directly — no account needed on their end. You stay in control of what goes live.",
   },
   {
-    icon: Palette,
-    title: "Custom Branding",
-    desc: "Remove ProofKit branding, match your colors, and customise the collection form to feel native to your product.",
+    icon: CheckSquare,
+    title: "Approve / Hide / Delete",
+    desc: "Every submission lands in your dashboard. Review each one and approve, hide, or delete with a single click before it shows on your site.",
+  },
+  {
+    icon: Code2,
+    title: "One-Line Embed",
+    desc: "Paste one script tag anywhere — plain HTML, Framer, Webflow, or any no-code tool. Your Wall of Love appears instantly and auto-resizes.",
   },
   {
     icon: Zap,
-    title: "Lightning-Fast Embed",
-    desc: "Under 10 KB script. Lazy-loads in an iframe with auto-resize. Zero layout shift. Works on any stack — even plain HTML.",
+    title: "Lightweight & Fast",
+    desc: "The embed script is tiny and loads in an iframe with no layout shift. Built to stay out of the way of your site's performance.",
   },
 ];
 
@@ -53,11 +46,11 @@ export default function Features() {
             className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Everything you need. Nothing you don&apos;t.
+            Everything you need for v1.
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-center text-lg text-[#6B6B6B]">
-            No usage limits, no per-domain fees, no seat add-ons. One price.
-            All features. Forever.
+            No fluff. Just the core tools to collect, curate, and display
+            testimonials — working today.
           </p>
         </FadeIn>
 

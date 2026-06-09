@@ -15,15 +15,11 @@ const FAQS = [
   },
   {
     q: "How do I migrate from Senja or Testimonial.to?",
-    a: "ProofKit supports importing testimonials from most major platforms including Senja, Testimonial.to, Twitter/X, LinkedIn, Google Reviews, and Product Hunt. Migration typically takes under 30 minutes.",
-  },
-  {
-    q: "Is there a refund if it's not for me?",
-    a: "Absolutely. If you're not satisfied within 30 days of purchase, we'll refund you in full — no questions asked. Just reach out.",
+    a: "Currently you can paste existing testimonials manually into ProofKit using the collection form. CSV import and direct platform imports are on the roadmap.",
   },
   {
     q: "Are there any limits or hidden fees?",
-    a: "No limits on testimonials, no per-domain fees, no per-seat charges, no usage caps. One price includes everything. We list everything in the feature checklist — what you see is what you get.",
+    a: "V1 supports text testimonials — no limit on how many you collect. Video testimonials are on the roadmap. No per-domain fees, no per-seat charges, no usage caps.",
   },
   {
     q: "What happens to my testimonials if I cancel?",
