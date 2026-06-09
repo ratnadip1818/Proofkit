@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createForm } from "./actions";
+import CreateFormButton from "./create-form-button";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -46,14 +46,9 @@ export default async function DashboardPage() {
                 No collection form yet. Create one to start collecting
                 testimonials.
               </p>
-              <form action={createForm} className="mt-4">
-                <button
-                  type="submit"
-                  className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
-                >
-                  Create your collection form
-                </button>
-              </form>
+              <div className="mt-4">
+                <CreateFormButton />
+              </div>
             </div>
           )}
         </div>

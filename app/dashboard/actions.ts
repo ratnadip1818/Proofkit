@@ -1,9 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-export async function createForm() {
+export type CreateFormState = { error: string | null };
+
+export async function createForm(
+  _prev: CreateFormState,
+  _formData: FormData
+): Promise<CreateFormState> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,7 +31,8 @@ export async function createForm() {
     slug,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) return { error: error.message };
 
+  revalidatePath("/dashboard");
   redirect("/dashboard");
 }
