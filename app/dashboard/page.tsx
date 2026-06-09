@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CreateFormButton from "./create-form-button";
+import EmbedCode from "./embed-code";
 import TestimonialsPanel, { type Testimonial } from "./testimonials-panel";
 
 export default async function DashboardPage() {
@@ -65,6 +66,13 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Embed code */}
+        {form && (
+          <div className="mt-6">
+            <EmbedCode userId={user.id} />
+          </div>
+        )}
 
         {/* Testimonials */}
         <div className="mt-10">
