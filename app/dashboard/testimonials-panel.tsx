@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import {
   approveTestimonial,
   hideTestimonial,
@@ -47,9 +48,12 @@ const STATUS_BADGE: Record<
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-0.5 text-sm leading-none" aria-label={`${rating} out of 5 stars`}>
+    <div
+      className="flex gap-0.5 text-sm leading-none"
+      aria-label={`${rating} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= rating ? "text-[#E8743B]" : "text-[#ECE7E0]"}>
+        <span key={n} className={n <= rating ? "text-amber-400" : "text-[#ECE7E0]"}>
           ★
         </span>
       ))}
@@ -60,9 +64,22 @@ function Stars({ rating }: { rating: number }) {
 function StatusBadge({ status }: { status: Testimonial["status"] }) {
   const { label, classes } = STATUS_BADGE[status];
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${classes}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${classes}`}
+    >
       {label}
     </span>
+  );
+}
+
+function Avatar({ name }: { name: string }) {
+  return (
+    <div
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-sm font-bold text-[#E8743B]"
+      aria-hidden="true"
+    >
+      {name.trim().charAt(0).toUpperCase()}
+    </div>
   );
 }
 
@@ -82,6 +99,7 @@ export default function TestimonialsPanel({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const counts: Record<Tab, number> = {
     all: testimonials.length,
@@ -90,10 +108,16 @@ export default function TestimonialsPanel({
     hidden: testimonials.filter((t) => t.status === "hidden").length,
   };
 
-  const filtered =
-    activeTab === "all"
-      ? testimonials
-      : testimonials.filter((t) => t.status === activeTab);
+  const q = searchQuery.trim().toLowerCase();
+
+  const filtered = testimonials
+    .filter((t) => activeTab === "all" || t.status === activeTab)
+    .filter(
+      (t) =>
+        !q ||
+        t.author_name.toLowerCase().includes(q) ||
+        t.body_original.toLowerCase().includes(q)
+    );
 
   async function runAction(id: string, action: () => Promise<void>) {
     setPendingId(id);
@@ -107,9 +131,23 @@ export default function TestimonialsPanel({
 
   return (
     <div>
+      {/* Search bar */}
+      <div className="relative mb-5">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+          <Search size={16} className="text-[#6B6B6B]" />
+        </div>
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by name or testimonial text..."
+          className="w-full rounded-lg border border-[#ECE7E0] bg-white py-2.5 pl-10 pr-4 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+        />
+      </div>
+
       {/* Pill tabs */}
       <div
-        className="flex flex-wrap gap-2 mb-5"
+        className="mb-5 flex flex-wrap gap-2"
         role="tablist"
         aria-label="Filter testimonials"
       >
@@ -122,7 +160,7 @@ export default function TestimonialsPanel({
             className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
               activeTab === key
                 ? "bg-[#E8743B] text-white shadow-sm"
-                : "bg-white border border-[#ECE7E0] text-[#6B6B6B] hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
+                : "border border-[#ECE7E0] bg-white text-[#6B6B6B] hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
             }`}
           >
             {label}
@@ -146,7 +184,9 @@ export default function TestimonialsPanel({
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center">
             <p className="text-sm text-[#6B6B6B]">
-              {activeTab === "all"
+              {q
+                ? "No testimonials match your search."
+                : activeTab === "all"
                 ? "No testimonials yet. Share your collection form to get started."
                 : `No ${activeTab} testimonials.`}
             </p>
@@ -161,33 +201,38 @@ export default function TestimonialsPanel({
                 style={{ opacity: isLoading ? 0.55 : 1 }}
               >
                 {/* Header row */}
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <Avatar name={t.author_name} />
+
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="font-semibold text-[#1A1A1A]">
-                        {t.author_name}
-                      </span>
-                      {t.author_role && (
-                        <span className="text-sm text-[#6B6B6B]">
-                          {t.author_role}
-                        </span>
-                      )}
-                    </div>
-                    {t.rating !== null && (
-                      <div className="mt-1.5">
-                        <Stars rating={t.rating} />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-[#1A1A1A]">
+                          {t.author_name}
+                        </p>
+                        {t.author_role && (
+                          <p className="text-sm text-[#6B6B6B]">
+                            {t.author_role}
+                          </p>
+                        )}
+                        {t.rating !== null && (
+                          <div className="mt-1.5">
+                            <Stars rating={t.rating} />
+                          </div>
+                        )}
                       </div>
-                    )}
-                    <p className="mt-3 text-sm leading-relaxed text-[#3f3f46]">
+
+                      <div className="flex shrink-0 flex-col items-end gap-1.5">
+                        <span className="text-xs text-[#6B6B6B]">
+                          {formatDate(t.created_at)}
+                        </span>
+                        <StatusBadge status={t.status} />
+                      </div>
+                    </div>
+
+                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
                       {t.body_original}
                     </p>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <StatusBadge status={t.status} />
-                    <span className="text-xs text-[#6B6B6B]">
-                      {formatDate(t.created_at)}
-                    </span>
                   </div>
                 </div>
 
@@ -199,7 +244,7 @@ export default function TestimonialsPanel({
                       onClick={() =>
                         runAction(t.id, () => approveTestimonial(t.id))
                       }
-                      className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg bg-[#2E9E6B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#268A5C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -210,7 +255,7 @@ export default function TestimonialsPanel({
                       onClick={() =>
                         runAction(t.id, () => hideTestimonial(t.id))
                       }
-                      className="rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Hide
                     </button>
@@ -220,7 +265,7 @@ export default function TestimonialsPanel({
                     onClick={() =>
                       runAction(t.id, () => deleteTestimonial(t.id))
                     }
-                    className="ml-auto rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ml-auto rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Delete
                   </button>

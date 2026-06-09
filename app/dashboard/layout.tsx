@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import DashboardNav from "./dashboard-nav";
+import DashboardSidebar from "./dashboard-sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -12,9 +12,12 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <div className="w-full min-h-screen bg-[#FAF8F5]">
-      <DashboardNav email={user?.email ?? null} />
-      <main className="w-full">{children}</main>
+    <div className="min-h-screen bg-[#FAF8F5]">
+      <DashboardSidebar email={user?.email ?? null} />
+      {/* Offset: sidebar width on md+, top bar height on mobile */}
+      <main className="md:pl-64 pt-14 md:pt-0 min-h-screen">
+        {children}
+      </main>
     </div>
   );
 }
