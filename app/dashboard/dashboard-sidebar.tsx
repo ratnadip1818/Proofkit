@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -33,46 +33,42 @@ const NAV_ITEMS = [
   { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
-function isActive(
-  pathname: string,
-  itemHref: string,
-  itemIndex: number
-): boolean {
-  const basePath = itemHref.split("#")[0];
+function isActive(pathname: string, hash: string, itemHref: string): boolean {
+  const [basePath, itemHash] = itemHref.split("#");
   // Deep paths (not root /dashboard): active when pathname starts with basePath
   if (basePath !== "/dashboard") {
     return pathname === basePath || pathname.startsWith(basePath + "/");
   }
-  // Root /dashboard: only the first matching item gets highlighted
+  // Root /dashboard: match on the hash so Testimonials / Collection Form /
+  // Embed Widget can each be highlighted independently from Dashboard.
   if (pathname !== basePath) return false;
-  const firstIdx = NAV_ITEMS.findIndex(
-    (i) => i.href.split("#")[0] === basePath
-  );
-  return itemIndex === firstIdx;
+  return hash === (itemHash ? `#${itemHash}` : "");
 }
 
 function SidebarInner({
   email,
   pathname,
-  onClose,
+  hash,
+  onItemClick,
   onSignOut,
 }: {
   email: string | null;
   pathname: string;
-  onClose?: () => void;
+  hash: string;
+  onItemClick: (href: string) => void;
   onSignOut: () => void;
 }) {
   return (
     <>
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <ul className="flex flex-col gap-0.5">
-          {NAV_ITEMS.map((item, idx) => {
-            const active = isActive(pathname, item.href, idx);
+          {NAV_ITEMS.map((item) => {
+            const active = isActive(pathname, hash, item.href);
             return (
               <li key={item.label}>
                 <Link
                   href={item.href}
-                  onClick={onClose}
+                  onClick={() => onItemClick(item.href)}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
                     active
                       ? "bg-[#FFF4EE] text-[#E8743B]"
@@ -110,6 +106,21 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hash, setHash] = useState("");
+
+  // usePathname() doesn't include the hash, so track it separately to
+  // highlight the right nav item for /dashboard#section links.
+  useEffect(() => {
+    const updateHash = () => setHash(window.location.hash);
+    updateHash();
+    window.addEventListener("hashchange", updateHash);
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, [pathname]);
+
+  function handleItemClick(href: string) {
+    setHash(href.includes("#") ? `#${href.split("#")[1]}` : "");
+    setMobileOpen(false);
+  }
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -130,6 +141,8 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           pathname={pathname}
+          hash={hash}
+          onItemClick={handleItemClick}
           onSignOut={handleSignOut}
         />
       </aside>
@@ -178,7 +191,8 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           pathname={pathname}
-          onClose={() => setMobileOpen(false)}
+          hash={hash}
+          onItemClick={handleItemClick}
           onSignOut={handleSignOut}
         />
       </aside>
