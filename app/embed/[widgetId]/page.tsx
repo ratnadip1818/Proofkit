@@ -1,5 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { WallContent, type Testimonial } from "../wall-renderer";
+import {
+  WallContent,
+  CarouselContent,
+  MarqueeContent,
+  SingleQuoteContent,
+  type Testimonial,
+  type WidgetType,
+} from "../wall-renderer";
 
 export default async function EmbedPage({
   params,
@@ -7,21 +14,28 @@ export default async function EmbedPage({
 }: {
   params: Promise<{ widgetId: string }>;
   searchParams: Promise<{
+    type?: string;
     layout?: string;
     theme?: string;
     max?: string;
     ratings?: string;
     badge?: string;
+    featured?: string;
   }>;
 }) {
   const { widgetId } = await params;
   const sp = await searchParams;
 
+  const type: WidgetType =
+    sp.type === "carousel" || sp.type === "marquee" || sp.type === "single"
+      ? sp.type
+      : "wall";
   const layout = sp.layout === "grid" ? "grid" : "masonry";
   const theme = sp.theme === "dark" ? "dark" : "light";
   const showRatings = sp.ratings !== "false";
   const maxCount =
     sp.max === "3" || sp.max === "6" || sp.max === "9" ? Number(sp.max) : null;
+  const featuredIndex = sp.featured ? Math.max(0, parseInt(sp.featured, 10) || 0) : 0;
 
   const supabase = createAdminClient();
   const [{ data: testimonials }, { data: profile }] = await Promise.all([
@@ -47,14 +61,37 @@ export default async function EmbedPage({
 
   return (
     <>
-      <WallContent
-        testimonials={list}
-        layout={layout}
-        theme={theme}
-        showRatings={showRatings}
-        showBadge={showBadge}
-        maxCount={maxCount}
-      />
+      {type === "carousel" ? (
+        <CarouselContent
+          testimonials={list}
+          theme={theme}
+          showRatings={showRatings}
+          showBadge={showBadge}
+        />
+      ) : type === "marquee" ? (
+        <MarqueeContent
+          testimonials={list}
+          theme={theme}
+          showRatings={showRatings}
+          showBadge={showBadge}
+        />
+      ) : type === "single" ? (
+        <SingleQuoteContent
+          testimonial={list[featuredIndex] ?? list[0] ?? null}
+          theme={theme}
+          showRatings={showRatings}
+          showBadge={showBadge}
+        />
+      ) : (
+        <WallContent
+          testimonials={list}
+          layout={layout}
+          theme={theme}
+          showRatings={showRatings}
+          showBadge={showBadge}
+          maxCount={maxCount}
+        />
+      )}
 
       {/* Post height to parent for iframe auto-resize */}
       <script
