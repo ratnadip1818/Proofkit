@@ -8,6 +8,7 @@ interface FormRow {
   id: string;
   user_id: string;
   thank_you_message: string;
+  theme_color: string;
   collect_rating: boolean;
   require_consent: boolean;
 }
@@ -303,7 +304,8 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-[#E8743B] py-3 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
+        style={{ backgroundColor: form.theme_color }}
+        className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:brightness-90 hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Submitting…" : "Submit testimonial"}
       </button>

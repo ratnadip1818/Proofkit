@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ExternalLink, Trash2, ChevronRight } from "lucide-react";
+import { ExternalLink, Trash2, ChevronRight, Settings2 } from "lucide-react";
 import { createForm, deleteForm } from "../actions";
 
 const APP_URL =
@@ -123,13 +123,20 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
                   </div>
                 </div>
 
-                <div className="mt-4 border-t border-[#ECE7E0] pt-3">
+                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[#ECE7E0] pt-3">
                   <Link
                     href={`/dashboard/forms/${form.id}`}
                     className="flex items-center justify-between rounded-lg bg-[#FAF8F5] px-4 py-2.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#F0EBE3]"
                   >
                     <span>View testimonials</span>
                     <ChevronRight size={16} className="text-[#6B6B6B]" />
+                  </Link>
+                  <Link
+                    href={`/dashboard/forms/${form.id}/edit`}
+                    className="flex items-center justify-between rounded-lg bg-[#FAF8F5] px-4 py-2.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#F0EBE3]"
+                  >
+                    <span>Customize</span>
+                    <Settings2 size={16} className="text-[#6B6B6B]" />
                   </Link>
                 </div>
               </div>

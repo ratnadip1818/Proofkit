@@ -102,6 +102,34 @@ export async function deleteForm(id: string): Promise<void> {
   revalidatePath("/dashboard");
 }
 
+export interface UpdateFormInput {
+  headline: string;
+  prompt: string;
+  thank_you_message: string;
+  theme_color: string;
+  collect_rating: boolean;
+  require_consent: boolean;
+}
+
+export async function updateForm(
+  formId: string,
+  data: UpdateFormInput
+): Promise<{ error: string | null }> {
+  const { supabase, user } = await getAuthenticatedClient();
+  const { error } = await supabase
+    .from("forms")
+    .update(data)
+    .eq("id", formId)
+    .eq("user_id", user.id);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/forms");
+  revalidatePath(`/dashboard/forms/${formId}`);
+  revalidatePath(`/dashboard/forms/${formId}/edit`);
+
+  return { error: error?.message ?? null };
+}
+
 export async function updateProfile(
   fullName: string
 ): Promise<{ error: string | null }> {

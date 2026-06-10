@@ -8,6 +8,7 @@ interface FormRow {
   headline: string;
   prompt: string;
   thank_you_message: string;
+  theme_color: string;
   collect_rating: boolean;
   require_consent: boolean;
 }
@@ -23,7 +24,7 @@ export default async function CollectionPage({
   const { data: form } = await supabase
     .from("forms")
     .select(
-      "id, user_id, headline, prompt, thank_you_message, collect_rating, require_consent"
+      "id, user_id, headline, prompt, thank_you_message, theme_color, collect_rating, require_consent"
     )
     .eq("slug", slug)
     .single();
