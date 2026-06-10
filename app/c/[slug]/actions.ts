@@ -74,7 +74,7 @@ export async function submitTestimonial(
         process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "Blovi <hello@blovi.space>",
         to: ownerEmail,
         subject: `New testimonial from ${input.authorName}`,
         html: `
