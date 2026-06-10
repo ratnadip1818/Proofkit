@@ -7,7 +7,7 @@ import { ExternalLink, Trash2, ChevronRight } from "lucide-react";
 import { createForm, deleteForm } from "../actions";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://proofkit-three.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
 type FormRow = {
   id: string;

@@ -6,7 +6,7 @@ import TestimonialsPanel, { type Testimonial } from "../../testimonials-panel";
 import CopyLinkButton from "../../copy-link-button";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://proofkit-three.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
 export default async function FormDetailPage({
   params,

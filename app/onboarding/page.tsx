@@ -20,7 +20,7 @@ export default async function OnboardingPage() {
   if (profile?.full_name) redirect("/dashboard");
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://blovi.space";
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
   return <OnboardingFlow siteUrl={siteUrl} />;
 }

@@ -49,7 +49,7 @@ export async function submitTestimonial(
         ? "★".repeat(input.rating) + "☆".repeat(5 - input.rating)
         : null;
       const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ?? "https://blovi.space";
+        process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
       await resend.emails.send({
         from: "onboarding@resend.dev",

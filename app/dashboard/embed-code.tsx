@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://proofkit-three.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
 export default function EmbedCode({ userId }: { userId: string }) {
   const [copied, setCopied] = useState(false);

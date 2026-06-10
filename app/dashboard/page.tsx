@@ -8,7 +8,7 @@ import { type Testimonial } from "./testimonials-panel";
 import { ExternalLink } from "lucide-react";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://proofkit-three.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
