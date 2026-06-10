@@ -24,7 +24,7 @@ export default async function TestimonialsPage() {
     supabase
       .from("testimonials")
       .select(
-        "id, author_name, author_role, body_original, rating, status, created_at, avatar_url"
+        "id, author_name, author_role, body_original, body_improved, display_body, is_ai_improved, show_edited_badge, rating, status, created_at, avatar_url"
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),

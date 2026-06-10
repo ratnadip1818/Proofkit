@@ -17,6 +17,9 @@ import {
   hideTestimonial,
   deleteTestimonial,
   updateTestimonial,
+  improveTestimonial,
+  acceptImprovement,
+  revertImprovement,
 } from "./actions";
 
 export type Testimonial = {
@@ -24,6 +27,10 @@ export type Testimonial = {
   author_name: string;
   author_role: string | null;
   body_original: string;
+  body_improved: string | null;
+  display_body: string | null;
+  is_ai_improved: boolean;
+  show_edited_badge: boolean;
   rating: number | null;
   status: "pending" | "approved" | "hidden";
   created_at: string;
@@ -124,6 +131,11 @@ export default function TestimonialsPanel({
   const [searchQuery, setSearch]    = useState("");
   const [editingId, setEditingId]   = useState<string | null>(null);
   const [editText, setEditText]     = useState("");
+  const [improvingId, setImprovingId] = useState<string | null>(null);
+  const [improvements, setImprovements] = useState<
+    Record<string, { original: string; improved: string }>
+  >({});
+  const [improveErrors, setImproveErrors] = useState<Record<string, string>>({});
 
   // Keep local items in sync with fresh server data after router.refresh()
   useEffect(() => {
@@ -174,6 +186,68 @@ export default function TestimonialsPanel({
       () => updateTestimonial(id, trimmed)
     );
     setEditingId(null);
+  }
+
+  async function handleImprove(id: string) {
+    setImprovingId(id);
+    setImproveErrors((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    const result = await improveTestimonial(id);
+    if (result.error !== undefined) {
+      setImproveErrors((prev) => ({ ...prev, [id]: result.error }));
+    } else {
+      setImprovements((prev) => ({
+        ...prev,
+        [id]: { original: result.original, improved: result.improved },
+      }));
+      setItems((prev) =>
+        prev.map((x) =>
+          x.id === id
+            ? { ...x, is_ai_improved: true, body_improved: result.improved }
+            : x
+        )
+      );
+    }
+    setImprovingId(null);
+  }
+
+  async function handleAccept(id: string) {
+    const improvement = improvements[id];
+    if (!improvement) return;
+    setItems((prev) =>
+      prev.map((x) =>
+        x.id === id
+          ? { ...x, display_body: improvement.improved, show_edited_badge: true }
+          : x
+      )
+    );
+    setImprovements((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    await acceptImprovement(id);
+    router.refresh();
+  }
+
+  async function handleRevert(id: string) {
+    setItems((prev) =>
+      prev.map((x) =>
+        x.id === id
+          ? { ...x, display_body: x.body_original, show_edited_badge: false }
+          : x
+      )
+    );
+    setImprovements((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    await revertImprovement(id);
+    router.refresh();
   }
 
   /* ── Empty state ──────────────────────────────────────────── */
@@ -355,9 +429,16 @@ export default function TestimonialsPanel({
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
-                        {t.body_original}
-                      </p>
+                      <>
+                        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
+                          {t.display_body ?? t.body_original}
+                        </p>
+                        {t.show_edited_badge && (
+                          <span className="mt-2 inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-medium text-[#E8743B]">
+                            edited for clarity
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -410,6 +491,15 @@ export default function TestimonialsPanel({
                       Edit
                     </button>
                   )}
+                  {!isEditing && (
+                    <button
+                      disabled={isLoading || improvingId === t.id}
+                      onClick={() => handleImprove(t.id)}
+                      className="rounded-lg border border-[#E8743B] px-3 py-1 text-sm text-[#E8743B] transition-colors hover:bg-[#FFF4EE] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {improvingId === t.id ? "Improving…" : "✨ Improve"}
+                    </button>
+                  )}
                   <button
                     disabled={isLoading}
                     onClick={() =>
@@ -424,6 +514,47 @@ export default function TestimonialsPanel({
                     Delete
                   </button>
                 </div>
+
+                {improveErrors[t.id] && (
+                  <p className="mt-3 text-xs text-red-500">{improveErrors[t.id]}</p>
+                )}
+
+                {improvements[t.id] && (
+                  <div className="mt-4 border-t border-[#ECE7E0] pt-4">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-lg bg-[#FAF8F5] p-3">
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[#6B6B6B]">
+                          Original
+                        </p>
+                        <p className="text-sm leading-relaxed text-[#3f3f46]">
+                          {improvements[t.id].original}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-[#FFF4EE] p-3">
+                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[#E8743B]">
+                          Improved ✨
+                        </p>
+                        <p className="text-sm leading-relaxed text-[#1A1A1A]">
+                          {improvements[t.id].improved}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => handleAccept(t.id)}
+                        className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C]"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => handleRevert(t.id)}
+                        className="rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
+                      >
+                        Revert
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })

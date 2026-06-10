@@ -5,6 +5,7 @@ interface Testimonial {
   author_name: string;
   author_role: string | null;
   body_original: string;
+  display_body: string | null;
   rating: number | null;
   created_at: string;
 }
@@ -48,7 +49,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
           flexGrow: 1,
         }}
       >
-        {t.body_original}
+        {t.display_body ?? t.body_original}
       </p>
       <div>
         <p style={{ margin: 0, fontSize: "14px", fontWeight: 600, color: "#18181b" }}>
@@ -74,7 +75,9 @@ export default async function EmbedPage({
   const supabase = createAdminClient();
   const { data: testimonials } = await supabase
     .from("testimonials")
-    .select("id, author_name, author_role, body_original, rating, created_at")
+    .select(
+      "id, author_name, author_role, body_original, display_body, rating, created_at"
+    )
     .eq("user_id", widgetId)
     .eq("status", "approved")
     .order("created_at", { ascending: false });
