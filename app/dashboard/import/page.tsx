@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import ComingSoonCard from "../coming-soon-card";
 import ImportPanel from "./import-panel";
-import { Star, X as XIcon, Rocket } from "lucide-react";
 
 export default async function ImportPage() {
   const supabase = await createClient();
@@ -45,30 +43,6 @@ export default async function ImportPage() {
           </div>
 
           <ImportPanel />
-        </div>
-
-        <h2
-          className="mb-5 mt-10 text-lg font-bold text-[#1A1A1A]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          More import sources
-        </h2>
-        <div className="grid gap-5 sm:grid-cols-3">
-          <ComingSoonCard
-            icon={Star}
-            title="Import from Google Reviews"
-            description="Pull in your existing Google Business reviews automatically."
-          />
-          <ComingSoonCard
-            icon={XIcon}
-            title="Import from Twitter/X"
-            description="Bring in glowing mentions and replies from X."
-          />
-          <ComingSoonCard
-            icon={Rocket}
-            title="Import from Product Hunt"
-            description="Import reviews from your Product Hunt launch."
-          />
         </div>
       </div>
     </div>
