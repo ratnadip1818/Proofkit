@@ -12,8 +12,15 @@
   // Derive base URL from the script src so the widget works on any domain
   var baseUrl = currentScript.src.replace(/\/widget\.js(\?.*)?$/, "");
 
+  var params = [];
+  ["layout", "theme", "max", "ratings", "badge"].forEach(function (key) {
+    var val = currentScript.getAttribute("data-" + key);
+    if (val) params.push(key + "=" + encodeURIComponent(val));
+  });
+
   var iframe = document.createElement("iframe");
-  iframe.src = baseUrl + "/embed/" + userId;
+  iframe.src =
+    baseUrl + "/embed/" + userId + (params.length ? "?" + params.join("&") : "");
   iframe.setAttribute("scrolling", "no");
   iframe.setAttribute("allowtransparency", "true");
   iframe.setAttribute("frameborder", "0");

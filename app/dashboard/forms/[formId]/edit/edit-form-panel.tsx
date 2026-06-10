@@ -96,11 +96,11 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
       {/* Back + header */}
       <div className="mb-8">
         <Link
-          href={`/dashboard/forms/${form.id}`}
+          href="/dashboard/forms"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] transition-colors hover:text-[#1A1A1A]"
         >
           <ChevronLeft size={16} />
-          Back to form
+          Back to forms
         </Link>
         <h1
           className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"

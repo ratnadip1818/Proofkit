@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ComingSoonCard from "../coming-soon-card";
-import { Upload, Download, Star, X as XIcon, Rocket } from "lucide-react";
+import ImportPanel from "./import-panel";
+import { Star, X as XIcon, Rocket } from "lucide-react";
 
 export default async function ImportPage() {
   const supabase = await createClient();
@@ -43,25 +44,7 @@ export default async function ImportPage() {
             </code>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled
-              title="Coming soon"
-              className="flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2 text-sm font-medium text-[#A8A29E]"
-            >
-              <Upload size={15} />
-              Upload CSV
-            </button>
-            <a
-              href="/sample-testimonials.csv"
-              download
-              className="flex items-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
-            >
-              <Download size={15} />
-              Download sample CSV
-            </a>
-          </div>
+          <ImportPanel />
         </div>
 
         <h2

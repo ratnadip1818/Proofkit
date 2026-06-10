@@ -271,6 +271,47 @@ export async function updateForm(
   return { error: error?.message ?? null };
 }
 
+export interface ImportTestimonialRow {
+  author_name: string;
+  author_role: string | null;
+  body: string;
+  rating: number | null;
+}
+
+export async function importTestimonials(
+  rows: ImportTestimonialRow[]
+): Promise<{ error: string | null; count: number }> {
+  const { user } = await getAuthenticatedClient();
+
+  if (!rows.length) return { error: "No rows to import.", count: 0 };
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("testimonials")
+    .insert(
+      rows.map((row) => ({
+        user_id: user.id,
+        author_name: row.author_name,
+        author_role: row.author_role,
+        body_original: row.body,
+        display_body: row.body,
+        rating: row.rating,
+        status: "approved",
+        source: "csv",
+        consent: true,
+      }))
+    )
+    .select("id");
+
+  if (error) return { error: error.message, count: 0 };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/import");
+
+  return { error: null, count: data?.length ?? rows.length };
+}
+
 export async function updateProfile(
   fullName: string
 ): Promise<{ error: string | null }> {

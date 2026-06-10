@@ -310,7 +310,8 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-[#E8743B] py-3 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        style={{ backgroundColor: form.theme_color || "#E8743B" }}
+        className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:brightness-90 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Submitting…" : "Submit testimonial"}
       </button>

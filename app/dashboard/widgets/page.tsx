@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import EmbedCode from "../embed-code";
+import WidgetBuilder from "./widget-builder";
 import ComingSoonCard from "../coming-soon-card";
 import { Heart, GalleryHorizontal, PictureInPicture, BadgeCheck } from "lucide-react";
 
@@ -11,6 +11,13 @@ export default async function WidgetsPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_lifetime")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isLifetime = profile?.is_lifetime ?? false;
 
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
@@ -32,25 +39,7 @@ export default async function WidgetsPage() {
           Currently using: Wall of Love (script tag)
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-2">
-          <EmbedCode userId={user.id} />
-
-          <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-              Wall of Love preview
-            </h2>
-            <p className="mt-2 text-sm text-[#6B6B6B]">
-              This is how your approved testimonials look when embedded.
-            </p>
-            <div className="mt-4 overflow-hidden rounded-lg border border-[#ECE7E0] bg-[#FAF8F5]">
-              <iframe
-                src={`/embed/${user.id}`}
-                className="h-[360px] w-full"
-                title="Wall of Love preview"
-              />
-            </div>
-          </div>
-        </div>
+        <WidgetBuilder userId={user.id} isLifetime={isLifetime} />
 
         <h2
           className="mb-5 mt-10 text-lg font-bold text-[#1A1A1A]"
