@@ -1,5 +1,17 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { Check } from "lucide-react";
+
+// TODO: replace with the real Lemon Squeezy checkout URL for the lifetime deal
+const LEMON_SQUEEZY_URL = "#";
+
+const FEATURES = [
+  "Unlimited testimonial collection forms",
+  "Unlimited testimonials",
+  "Embeddable Wall of Love widget",
+  "Approve, hide, and edit testimonials",
+  "All future updates included",
+];
 
 export default async function BillingPage() {
   const supabase = await createClient();
@@ -9,6 +21,14 @@ export default async function BillingPage() {
 
   if (!user) redirect("/login");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_lifetime")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const isLifetime = profile?.is_lifetime ?? false;
+
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
       <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
@@ -17,19 +37,74 @@ export default async function BillingPage() {
             className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Billing
+            Billing &amp; License
           </h1>
           <p className="mt-1 text-sm text-[#6B6B6B]">
-            Manage your plan and payment details.
+            Manage your Blovi subscription.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center">
-          <p className="text-sm font-semibold text-[#1A1A1A]">Coming soon</p>
-          <p className="mt-1 text-sm text-[#6B6B6B]">
-            Billing and subscription management is on its way.
+        <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
+            Current plan
+          </h2>
+          <p
+            className="mt-2 text-lg font-bold text-[#1A1A1A]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Early Access — Lifetime Deal
           </p>
+
+          <div className="mt-5 rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] p-5">
+            {isLifetime ? (
+              <p className="flex items-center gap-2 text-sm font-semibold text-[#2E9E6B]">
+                <span aria-hidden="true">✅</span> Lifetime License Active
+              </p>
+            ) : (
+              <div>
+                <p className="text-sm text-[#6B6B6B]">
+                  Unlock lifetime access with a single one-time payment — no
+                  subscriptions, ever.
+                </p>
+                <a
+                  href={LEMON_SQUEEZY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105"
+                >
+                  $49 — Get Lifetime Access
+                </a>
+              </div>
+            )}
+          </div>
         </div>
+
+        <div className="mt-5 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
+            Features included
+          </h2>
+          <ul className="mt-4 space-y-2.5">
+            {FEATURES.map((feature) => (
+              <li
+                key={feature}
+                className="flex items-start gap-2 text-sm text-[#1A1A1A]"
+              >
+                <Check size={16} className="mt-0.5 shrink-0 text-[#2E9E6B]" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="mt-6 text-sm text-[#6B6B6B]">
+          Need help? Contact{" "}
+          <a
+            href="mailto:hello@blovi.space"
+            className="font-medium text-[#E8743B] hover:underline"
+          >
+            hello@blovi.space
+          </a>
+        </p>
       </div>
     </div>
   );

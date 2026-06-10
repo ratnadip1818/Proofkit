@@ -8,9 +8,9 @@ import Logo from "@/components/Logo";
 import {
   LayoutDashboard,
   MessageSquare,
-  LayoutList,
-  Blocks,
-  Import,
+  FileText,
+  Layers,
+  Upload,
   CreditCard,
   Settings,
   Menu,
@@ -20,9 +20,9 @@ import {
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Testimonials", icon: MessageSquare, href: "/dashboard/testimonials" },
-  { label: "Forms", icon: LayoutList, href: "/dashboard/forms" },
-  { label: "Widgets", icon: Blocks, href: "/dashboard/widgets" },
-  { label: "Import", icon: Import, href: "/dashboard/import" },
+  { label: "Forms", icon: FileText, href: "/dashboard/forms" },
+  { label: "Widgets", icon: Layers, href: "/dashboard/widgets" },
+  { label: "Import", icon: Upload, href: "/dashboard/import" },
   { label: "Billing", icon: CreditCard, href: "/dashboard/billing" },
   { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
@@ -46,7 +46,7 @@ function SidebarInner({
   return (
     <>
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <ul className="flex flex-col gap-0.5">
+        <ul className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => {
             const active = isActive(pathname, item.href);
             return (
