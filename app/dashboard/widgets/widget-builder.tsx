@@ -2,24 +2,25 @@
 
 import { useState } from "react";
 import { Copy, Check, ExternalLink } from "lucide-react";
+import { WallContent, type Testimonial, type WallLayout, type WallTheme } from "../../embed/wall-renderer";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
-type Layout = "masonry" | "grid";
-type Theme = "light" | "dark";
 type MaxOption = "3" | "6" | "9" | "all";
 
 function Toggle({
   checked,
   onChange,
   disabled,
+  title,
   label,
   description,
 }: {
   checked: boolean;
   onChange: (value: boolean) => void;
   disabled?: boolean;
+  title?: string;
   label: string;
   description: string;
 }) {
@@ -34,6 +35,7 @@ function Toggle({
         role="switch"
         aria-checked={checked}
         disabled={disabled}
+        title={title}
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           checked ? "bg-[#E8743B]" : "bg-[#ECE7E0]"
@@ -52,26 +54,30 @@ function Toggle({
 export default function WidgetBuilder({
   userId,
   isLifetime,
+  testimonials,
 }: {
   userId: string;
   isLifetime: boolean;
+  testimonials: Testimonial[];
 }) {
-  const [layout, setLayout] = useState<Layout>("masonry");
-  const [theme, setTheme] = useState<Theme>("light");
+  const [layout, setLayout] = useState<WallLayout>("masonry");
+  const [theme, setTheme] = useState<WallTheme>("light");
   const [max, setMax] = useState<MaxOption>("all");
   const [showRatings, setShowRatings] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
   const [copied, setCopied] = useState(false);
 
+  const maxCount = max === "all" ? null : Number(max);
+  const badgeOn = isLifetime ? showBadge : true;
+
   const params = new URLSearchParams();
   params.set("layout", layout);
   params.set("theme", theme);
   params.set("max", max);
-  params.set("ratings", showRatings ? "on" : "off");
-  if (isLifetime) params.set("badge", showBadge ? "on" : "off");
+  params.set("ratings", showRatings ? "true" : "false");
+  if (isLifetime) params.set("badge", showBadge ? "true" : "false");
   const query = params.toString();
 
-  const previewUrl = `/embed/${userId}?${query}`;
   const liveUrl = `${APP_URL}/embed/${userId}?${query}`;
 
   const dataAttrs = [
@@ -79,9 +85,9 @@ export default function WidgetBuilder({
     `data-layout="${layout}"`,
     `data-theme="${theme}"`,
     `data-max="${max}"`,
-    `data-ratings="${showRatings ? "on" : "off"}"`,
+    `data-ratings="${showRatings ? "true" : "false"}"`,
   ];
-  if (isLifetime) dataAttrs.push(`data-badge="${showBadge ? "on" : "off"}"`);
+  if (isLifetime) dataAttrs.push(`data-badge="${showBadge ? "true" : "false"}"`);
 
   const snippet = `<script src="${APP_URL}/widget.js" ${dataAttrs.join(" ")}></script>`;
 
@@ -106,7 +112,7 @@ export default function WidgetBuilder({
               [
                 { value: "masonry", label: "Masonry" },
                 { value: "grid", label: "Grid" },
-              ] as { value: Layout; label: string }[]
+              ] as { value: WallLayout; label: string }[]
             ).map((opt) => (
               <label
                 key={opt.value}
@@ -132,7 +138,7 @@ export default function WidgetBuilder({
               [
                 { value: "light", label: "Light" },
                 { value: "dark", label: "Dark" },
-              ] as { value: Theme; label: string }[]
+              ] as { value: WallTheme; label: string }[]
             ).map((opt) => (
               <label
                 key={opt.value}
@@ -175,42 +181,40 @@ export default function WidgetBuilder({
             description="Display star ratings on each testimonial"
           />
           <Toggle
-            checked={isLifetime ? showBadge : true}
+            checked={badgeOn}
             onChange={setShowBadge}
             disabled={!isLifetime}
+            title={!isLifetime ? "Upgrade to lifetime to remove" : undefined}
             label='Show "Powered by Blovi" badge'
             description={
               isLifetime
                 ? "Display attribution at the bottom of your wall"
-                : "Available on the lifetime plan"
+                : "Upgrade to lifetime to remove"
             }
           />
         </div>
 
         <div className="mt-5 border-t border-[#ECE7E0] pt-4">
           <p className="text-sm font-medium text-[#1A1A1A]">Embed code</p>
-          <div className="mt-2 flex items-start gap-2">
-            <code className="block min-w-0 flex-1 overflow-x-auto whitespace-nowrap rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2.5 font-mono text-xs text-[#1A1A1A]">
-              {snippet}
-            </code>
-            <button
-              onClick={handleCopy}
-              aria-label="Copy embed snippet"
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-3 py-2.5 text-xs font-medium text-[#6B6B6B] transition-all hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
-            >
-              {copied ? (
-                <>
-                  <Check size={13} className="text-[#2E9E6B]" strokeWidth={2.5} />
-                  <span className="text-[#2E9E6B]">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy size={13} />
-                  Copy
-                </>
-              )}
-            </button>
-          </div>
+          <code className="mt-2 block w-full overflow-x-auto whitespace-nowrap rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2.5 font-mono text-xs text-[#1A1A1A]">
+            {snippet}
+          </code>
+          <button
+            onClick={handleCopy}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[#E8743B] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C]"
+          >
+            {copied ? (
+              <>
+                <Check size={15} strokeWidth={2.5} />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy size={15} />
+                Copy embed code
+              </>
+            )}
+          </button>
         </div>
 
         <a
@@ -232,12 +236,14 @@ export default function WidgetBuilder({
         <p className="mt-2 text-sm text-[#6B6B6B]">
           This is how your Wall of Love looks with these settings.
         </p>
-        <div className="mt-4 overflow-hidden rounded-lg border border-[#ECE7E0]">
-          <iframe
-            key={query}
-            src={previewUrl}
-            className="h-[420px] w-full"
-            title="Widget preview"
+        <div className="mt-4 max-h-[480px] overflow-y-auto rounded-lg border border-[#ECE7E0]">
+          <WallContent
+            testimonials={testimonials}
+            layout={layout}
+            theme={theme}
+            showRatings={showRatings}
+            showBadge={badgeOn}
+            maxCount={maxCount}
           />
         </div>
       </div>

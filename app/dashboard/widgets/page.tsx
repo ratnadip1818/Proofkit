@@ -19,6 +19,15 @@ export default async function WidgetsPage() {
     .maybeSingle();
   const isLifetime = profile?.is_lifetime ?? false;
 
+  const { data: testimonials } = await supabase
+    .from("testimonials")
+    .select(
+      "id, author_name, author_role, body_original, display_body, rating, created_at"
+    )
+    .eq("user_id", user.id)
+    .eq("status", "approved")
+    .order("created_at", { ascending: false });
+
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
       <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
@@ -39,7 +48,11 @@ export default async function WidgetsPage() {
           Currently using: Wall of Love (script tag)
         </div>
 
-        <WidgetBuilder userId={user.id} isLifetime={isLifetime} />
+        <WidgetBuilder
+          userId={user.id}
+          isLifetime={isLifetime}
+          testimonials={testimonials ?? []}
+        />
 
         <h2
           className="mb-5 mt-10 text-lg font-bold text-[#1A1A1A]"
