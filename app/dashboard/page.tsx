@@ -82,7 +82,7 @@ export default async function DashboardPage() {
                     className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white"
                   >
                     <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
-                    <span className="truncate">/c/{form.slug}</span>
+                    <span className="truncate">{formUrl}</span>
                   </a>
                   <CopyLinkButton url={formUrl} />
                 </div>
