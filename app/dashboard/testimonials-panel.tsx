@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
-  Pencil,
   Copy,
   Check,
   MessageSquare,
@@ -16,7 +15,6 @@ import {
   approveTestimonial,
   hideTestimonial,
   deleteTestimonial,
-  updateTestimonial,
   improveTestimonial,
   acceptImprovement,
   revertImprovement,
@@ -129,8 +127,6 @@ export default function TestimonialsPanel({
   const [activeTab, setActiveTab]   = useState<Tab>("all");
   const [pendingId, setPendingId]   = useState<string | null>(null);
   const [searchQuery, setSearch]    = useState("");
-  const [editingId, setEditingId]   = useState<string | null>(null);
-  const [editText, setEditText]     = useState("");
   const [improvingId, setImprovingId] = useState<string | null>(null);
   const [improvements, setImprovements] = useState<
     Record<string, { original: string; improved: string }>
@@ -174,18 +170,6 @@ export default function TestimonialsPanel({
     } finally {
       setPendingId(null);
     }
-  }
-
-  async function handleSaveEdit(id: string) {
-    const trimmed = editText.trim();
-    if (!trimmed) return;
-    await runAction(
-      id,
-      (prev) =>
-        prev.map((x) => (x.id === id ? { ...x, body_original: trimmed } : x)),
-      () => updateTestimonial(id, trimmed)
-    );
-    setEditingId(null);
   }
 
   async function handleImprove(id: string) {
@@ -362,7 +346,6 @@ export default function TestimonialsPanel({
         ) : (
           filtered.map((t) => {
             const isLoading = pendingId === t.id;
-            const isEditing = editingId === t.id;
             const badge     = STATUS_BADGE[t.status];
 
             return (
@@ -403,42 +386,13 @@ export default function TestimonialsPanel({
                       </div>
                     </div>
 
-                    {isEditing ? (
-                      <div className="mt-3">
-                        <textarea
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          rows={4}
-                          autoFocus
-                          className="w-full resize-none rounded-lg border border-[#E8743B] px-3 py-2.5 text-sm leading-relaxed text-[#1A1A1A] outline-none ring-2 ring-[#E8743B]/20"
-                        />
-                        <div className="mt-2 flex gap-2">
-                          <button
-                            onClick={() => handleSaveEdit(t.id)}
-                            disabled={isLoading || !editText.trim()}
-                            className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {isLoading ? "Saving…" : "Save"}
-                          </button>
-                          <button
-                            onClick={() => setEditingId(null)}
-                            className="rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
-                          {t.display_body ?? t.body_original}
-                        </p>
-                        {t.show_edited_badge && (
-                          <span className="mt-2 inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-medium text-[#E8743B]">
-                            edited for clarity
-                          </span>
-                        )}
-                      </>
+                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
+                      {t.display_body ?? t.body_original}
+                    </p>
+                    {t.show_edited_badge && (
+                      <span className="mt-2 inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-medium text-[#E8743B]">
+                        edited for clarity
+                      </span>
                     )}
                   </div>
                 </div>
@@ -458,7 +412,7 @@ export default function TestimonialsPanel({
                           () => approveTestimonial(t.id)
                         )
                       }
-                      className="rounded-lg bg-[#2E9E6B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#268A5C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -481,25 +435,14 @@ export default function TestimonialsPanel({
                       Hide
                     </button>
                   )}
-                  {!isEditing && (
-                    <button
-                      disabled={isLoading}
-                      onClick={() => { setEditingId(t.id); setEditText(t.body_original); }}
-                      className="flex items-center gap-1.5 rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <Pencil size={12} />
-                      Edit
-                    </button>
-                  )}
-                  {!isEditing && (
-                    <button
-                      disabled={isLoading || improvingId === t.id}
-                      onClick={() => handleImprove(t.id)}
-                      className="rounded-lg border border-[#E8743B] px-3 py-1 text-sm text-[#E8743B] transition-colors hover:bg-[#FFF4EE] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {improvingId === t.id ? "Improving…" : "✨ Improve"}
-                    </button>
-                  )}
+                  <button
+                    disabled={isLoading || improvingId === t.id}
+                    onClick={() => handleImprove(t.id)}
+                    title="AI fixes grammar only — never changes meaning"
+                    className="rounded-lg border border-[#E8743B] px-3 py-1 text-sm text-[#E8743B] transition-colors hover:bg-[#FFF4EE] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {improvingId === t.id ? "Improving…" : "✨ Improve"}
+                  </button>
                   <button
                     disabled={isLoading}
                     onClick={() =>

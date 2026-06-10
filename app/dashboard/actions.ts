@@ -50,10 +50,17 @@ export async function deleteTestimonial(id: string): Promise<void> {
   revalidatePath("/dashboard/testimonials");
 }
 
+// Restricted to the AI improvement flow — free-text editing by founders is
+// disabled to preserve testimonial authenticity (see improveTestimonial /
+// acceptImprovement). Not exposed as a direct user action.
 export async function updateTestimonial(
   id: string,
-  newText: string
+  newText: string,
+  source: "ai_improvement"
 ): Promise<void> {
+  if (source !== "ai_improvement") {
+    throw new Error("updateTestimonial is restricted to the AI improvement flow.");
+  }
   const { supabase, user } = await getAuthenticatedClient();
   await supabase
     .from("testimonials")
