@@ -5,7 +5,7 @@ create table public.forms (
   headline text default 'Share your experience',
   prompt text default 'We would love to hear what you think!',
   thank_you_message text default 'Thank you for your feedback!',
-  theme_color text default '#000000',
+  theme_color text default '#E8743B',
   collect_photo boolean default true,
   collect_rating boolean default true,
   require_consent boolean default false,

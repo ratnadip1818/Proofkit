@@ -310,7 +310,12 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       <button
         type="submit"
         disabled={loading}
-        style={{ backgroundColor: form.theme_color || "#E8743B" }}
+        style={{
+          backgroundColor:
+            !form.theme_color || form.theme_color === "#000000"
+              ? "#E8743B"
+              : form.theme_color,
+        }}
         className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:brightness-90 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Submitting…" : "Submit testimonial"}
