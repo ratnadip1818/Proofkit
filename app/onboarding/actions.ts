@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 
 async function getUser() {
@@ -15,8 +16,9 @@ async function getUser() {
 export async function saveProfileName(
   fullName: string
 ): Promise<{ error: string | null }> {
-  const { supabase, user } = await getUser();
-  const { error } = await supabase.from("profiles").upsert({
+  const { user } = await getUser();
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").upsert({
     id: user.id,
     full_name: fullName,
     updated_at: new Date().toISOString(),
@@ -27,8 +29,9 @@ export async function saveProfileName(
 export async function saveHasCustomers(
   hasCustomers: boolean
 ): Promise<{ error: string | null }> {
-  const { supabase, user } = await getUser();
-  const { error } = await supabase.from("profiles").upsert({
+  const { user } = await getUser();
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").upsert({
     id: user.id,
     has_customers: hasCustomers,
     updated_at: new Date().toISOString(),

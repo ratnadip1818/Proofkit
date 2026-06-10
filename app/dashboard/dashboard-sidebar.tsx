@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   {
     label: "Testimonials",
     icon: MessageSquare,
-    href: "/dashboard#testimonials",
+    href: "/dashboard",
   },
   {
     label: "Collection Form",

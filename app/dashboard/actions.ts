@@ -105,8 +105,9 @@ export async function deleteForm(id: string): Promise<void> {
 export async function updateProfile(
   fullName: string
 ): Promise<{ error: string | null }> {
-  const { supabase, user } = await getAuthenticatedClient();
-  const { error } = await supabase.from("profiles").upsert({
+  const { user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").upsert({
     id: user.id,
     full_name: fullName,
     updated_at: new Date().toISOString(),

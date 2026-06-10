@@ -1,8 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Pencil, Copy, Check } from "lucide-react";
+import {
+  Search,
+  Pencil,
+  Copy,
+  Check,
+  MessageSquare,
+  Clock,
+  CheckCircle,
+  EyeOff,
+} from "lucide-react";
 import {
   approveTestimonial,
   hideTestimonial,
@@ -35,6 +44,12 @@ const STATUS_BADGE: Record<Tab, { label: string; cls: string }> = {
   pending:  { label: "Pending",  cls: "bg-amber-50  text-amber-700  ring-1 ring-inset ring-amber-500/25"  },
   approved: { label: "Approved", cls: "bg-green-50  text-green-700  ring-1 ring-inset ring-green-500/25"  },
   hidden:   { label: "Hidden",   cls: "bg-[#FAF8F5] text-[#6B6B6B] ring-1 ring-inset ring-[#ECE7E0]"     },
+};
+
+const STATUS_ICON: Record<Exclude<Tab, "all">, typeof Clock> = {
+  pending: Clock,
+  approved: CheckCircle,
+  hidden: EyeOff,
 };
 
 function Stars({ rating }: { rating: number }) {
@@ -103,22 +118,28 @@ export default function TestimonialsPanel({
   formUrl?: string | null;
 }) {
   const router = useRouter();
+  const [items, setItems]           = useState<Testimonial[]>(testimonials);
   const [activeTab, setActiveTab]   = useState<Tab>("all");
   const [pendingId, setPendingId]   = useState<string | null>(null);
   const [searchQuery, setSearch]    = useState("");
   const [editingId, setEditingId]   = useState<string | null>(null);
   const [editText, setEditText]     = useState("");
 
+  // Keep local items in sync with fresh server data after router.refresh()
+  useEffect(() => {
+    setItems(testimonials);
+  }, [testimonials]);
+
   const counts: Record<Tab, number> = {
-    all:      testimonials.length,
-    pending:  testimonials.filter((t) => t.status === "pending").length,
-    approved: testimonials.filter((t) => t.status === "approved").length,
-    hidden:   testimonials.filter((t) => t.status === "hidden").length,
+    all:      items.length,
+    pending:  items.filter((t) => t.status === "pending").length,
+    approved: items.filter((t) => t.status === "approved").length,
+    hidden:   items.filter((t) => t.status === "hidden").length,
   };
 
   const q = searchQuery.trim().toLowerCase();
 
-  const filtered = testimonials
+  const filtered = items
     .filter((t) => activeTab === "all" || t.status === activeTab)
     .filter(
       (t) =>
@@ -127,10 +148,16 @@ export default function TestimonialsPanel({
         t.body_original.toLowerCase().includes(q)
     );
 
-  async function runAction(id: string, fn: () => Promise<void>) {
+  // Optimistically update local state for instant feedback, then sync with server
+  async function runAction(
+    id: string,
+    optimisticUpdate: (prev: Testimonial[]) => Testimonial[],
+    action: () => Promise<void>
+  ) {
     setPendingId(id);
+    setItems(optimisticUpdate);
     try {
-      await fn();
+      await action();
       router.refresh();
     } finally {
       setPendingId(null);
@@ -140,7 +167,12 @@ export default function TestimonialsPanel({
   async function handleSaveEdit(id: string) {
     const trimmed = editText.trim();
     if (!trimmed) return;
-    await runAction(id, () => updateTestimonial(id, trimmed));
+    await runAction(
+      id,
+      (prev) =>
+        prev.map((x) => (x.id === id ? { ...x, body_original: trimmed } : x)),
+      () => updateTestimonial(id, trimmed)
+    );
     setEditingId(null);
   }
 
@@ -161,13 +193,11 @@ export default function TestimonialsPanel({
       return (
         <div className="rounded-2xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#E8743B]/10">
-            <svg className="h-5 w-5 text-[#E8743B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
+            <MessageSquare size={20} className="text-[#E8743B]" />
           </div>
           <p className="text-sm font-semibold text-[#1A1A1A]">No testimonials yet</p>
           <p className="mt-1 text-sm text-[#6B6B6B]">
-            Share your collection form link to start gathering feedback.
+            Share your collection form link to get started.
           </p>
           {formUrl && (
             <div className="mt-5 flex justify-center">
@@ -178,23 +208,23 @@ export default function TestimonialsPanel({
       );
     }
 
-    const labels: Record<Tab, string> = {
-      all:      "",
-      pending:  "pending",
-      approved: "approved",
-      hidden:   "hidden",
+    const COPY: Record<Exclude<Tab, "all">, string> = {
+      pending:  "New submissions will appear here.",
+      approved: "Approve testimonials to display them on your site.",
+      hidden:   "Hidden testimonials won't show on your widget.",
     };
+
+    const Icon = STATUS_ICON[activeTab];
 
     return (
       <div className="rounded-2xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center">
-        <p className="text-sm font-medium text-[#1A1A1A]">
-          No {labels[activeTab]} testimonials
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FAF8F5]">
+          <Icon size={20} className="text-[#6B6B6B]" />
+        </div>
+        <p className="text-sm font-semibold text-[#1A1A1A]">
+          No {activeTab} testimonials yet
         </p>
-        <p className="mt-1 text-sm text-[#6B6B6B]">
-          {activeTab === "pending"  && "New submissions will appear here for review."}
-          {activeTab === "approved" && "Approved testimonials show on your public widget."}
-          {activeTab === "hidden"   && "Hidden testimonials are removed from your widget."}
-        </p>
+        <p className="mt-1 text-sm text-[#6B6B6B]">{COPY[activeTab]}</p>
       </div>
     );
   }
@@ -237,17 +267,15 @@ export default function TestimonialsPanel({
               }`}
             >
               {label}
-              {counts[key] > 0 && (
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-xs font-semibold leading-none ${
-                    active
-                      ? "bg-white/20 text-white"
-                      : "bg-[#FAF8F5] text-[#6B6B6B]"
-                  }`}
-                >
-                  {counts[key]}
-                </span>
-              )}
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-xs font-semibold leading-none ${
+                  active
+                    ? "bg-white/20 text-white"
+                    : "bg-[#FAF8F5] text-[#6B6B6B]"
+                }`}
+              >
+                {counts[key]}
+              </span>
             </button>
           );
         })}
@@ -339,7 +367,16 @@ export default function TestimonialsPanel({
                   {t.status !== "approved" && (
                     <button
                       disabled={isLoading}
-                      onClick={() => runAction(t.id, () => approveTestimonial(t.id))}
+                      onClick={() =>
+                        runAction(
+                          t.id,
+                          (prev) =>
+                            prev.map((x) =>
+                              x.id === t.id ? { ...x, status: "approved" } : x
+                            ),
+                          () => approveTestimonial(t.id)
+                        )
+                      }
                       className="rounded-lg bg-[#2E9E6B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#268A5C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Approve
@@ -348,7 +385,16 @@ export default function TestimonialsPanel({
                   {t.status !== "hidden" && (
                     <button
                       disabled={isLoading}
-                      onClick={() => runAction(t.id, () => hideTestimonial(t.id))}
+                      onClick={() =>
+                        runAction(
+                          t.id,
+                          (prev) =>
+                            prev.map((x) =>
+                              x.id === t.id ? { ...x, status: "hidden" } : x
+                            ),
+                          () => hideTestimonial(t.id)
+                        )
+                      }
                       className="rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Hide
@@ -366,7 +412,13 @@ export default function TestimonialsPanel({
                   )}
                   <button
                     disabled={isLoading}
-                    onClick={() => runAction(t.id, () => deleteTestimonial(t.id))}
+                    onClick={() =>
+                      runAction(
+                        t.id,
+                        (prev) => prev.filter((x) => x.id !== t.id),
+                        () => deleteTestimonial(t.id)
+                      )
+                    }
                     className="ml-auto rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Delete

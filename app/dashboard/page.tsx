@@ -3,11 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import CreateFormButton from "./create-form-button";
 import EmbedCode from "./embed-code";
 import CopyLinkButton from "./copy-link-button";
-import TestimonialsSection, {
-  TestimonialsSkeleton,
-} from "./testimonials-section";
+import TestimonialsSection from "./testimonials-section";
+import { type Testimonial } from "./testimonials-panel";
 import { ExternalLink } from "lucide-react";
-import { Suspense } from "react";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL ?? "https://proofkit-three.vercel.app";
@@ -20,15 +18,25 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  const { data: form } = await supabase
-    .from("forms")
-    .select("id, slug")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  const [{ data: form }, { data: rawTestimonials }] = await Promise.all([
+    supabase
+      .from("forms")
+      .select("id, slug")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("testimonials")
+      .select(
+        "id, author_name, author_role, body_original, rating, status, created_at, avatar_url"
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
+  const testimonials = (rawTestimonials ?? []) as Testimonial[];
 
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
@@ -46,13 +54,16 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats + testimonials (streamed) */}
-        <Suspense fallback={<TestimonialsSkeleton />}>
-          <TestimonialsSection userId={user.id} formUrl={formUrl} />
-        </Suspense>
+        {/* Stats + testimonials — client component, tab state survives refresh */}
+        <section id="testimonials">
+          <TestimonialsSection testimonials={testimonials} formUrl={formUrl} />
+        </section>
 
         {/* Collection form + embed */}
-        <div id="collection-form" className="mt-10 grid gap-5 md:grid-cols-2">
+        <div
+          id="collection-form"
+          className="mt-10 grid gap-5 md:grid-cols-2"
+        >
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
               Collection form
