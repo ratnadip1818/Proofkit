@@ -1,11 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CreateFormButton from "./create-form-button";
 import EmbedCode from "./embed-code";
 import CopyLinkButton from "./copy-link-button";
-import TestimonialsSection from "./testimonials-section";
-import { type Testimonial } from "./testimonials-panel";
-import { ExternalLink } from "lucide-react";
+import StatsCards from "./stats-cards";
+import { ExternalLink, ArrowRight } from "lucide-react";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  const [{ data: form }, { data: rawTestimonials }] = await Promise.all([
+  const [{ data: form }, { data: testimonials }] = await Promise.all([
     supabase
       .from("forms")
       .select("id, slug")
@@ -26,44 +26,41 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle(),
-    supabase
-      .from("testimonials")
-      .select(
-        "id, author_name, author_role, body_original, rating, status, created_at, avatar_url"
-      )
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
+    supabase.from("testimonials").select("status").eq("user_id", user.id),
   ]);
 
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
-  const testimonials = (rawTestimonials ?? []) as Testimonial[];
 
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
       <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
         {/* Page header */}
-        <div className="mb-8">
-          <h1
-            className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
-            style={{ fontFamily: "var(--font-display)" }}
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1
+              className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Dashboard
+            </h1>
+            <p className="mt-1 text-sm text-[#6B6B6B]">
+              Manage your testimonials and collection form.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/testimonials"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#E8743B] transition-colors hover:text-[#CF5F2C]"
           >
-            Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-[#6B6B6B]">
-            Manage your testimonials and collection form.
-          </p>
+            View all testimonials
+            <ArrowRight size={16} />
+          </Link>
         </div>
 
-        {/* Stats + testimonials — client component, tab state survives refresh */}
-        <section id="testimonials">
-          <TestimonialsSection testimonials={testimonials} formUrl={formUrl} />
-        </section>
+        {/* Stats */}
+        <StatsCards testimonials={testimonials ?? []} />
 
         {/* Collection form + embed */}
-        <div
-          id="collection-form"
-          className="mt-10 grid gap-5 md:grid-cols-2"
-        >
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
               Collection form
@@ -100,7 +97,7 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <div id="embed">
+          <div>
             {form ? (
               <EmbedCode userId={user.id} />
             ) : (

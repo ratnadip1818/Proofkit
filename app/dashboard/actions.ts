@@ -22,6 +22,7 @@ export async function approveTestimonial(id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
 }
 
 export async function hideTestimonial(id: string): Promise<void> {
@@ -32,6 +33,7 @@ export async function hideTestimonial(id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
@@ -42,6 +44,7 @@ export async function deleteTestimonial(id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
 }
 
 export async function updateTestimonial(
@@ -55,6 +58,7 @@ export async function updateTestimonial(
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
 }
 
 export type CreateFormState = { error: string | null; done: boolean };
