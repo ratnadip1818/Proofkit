@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { submitTestimonial } from "./actions";
+import { submitTestimonial, uploadAvatar } from "./actions";
 
 interface FormRow {
   id: string;
@@ -55,6 +54,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
   const [body, setBody] = useState("");
   const [rating, setRating] = useState(0);
   const [consent, setConsent] = useState(false);
+  const [website, setWebsite] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -97,23 +97,16 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
     let avatarUrl: string | null = null;
     if (avatarFile) {
-      const supabase = createClient();
-      const ext = avatarFile.name.split(".").pop() ?? "jpg";
-      const path = `${form.user_id}/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from("avatars")
-        .upload(path, avatarFile, { contentType: avatarFile.type });
+      const uploadData = new FormData();
+      uploadData.append("file", avatarFile);
+      uploadData.append("userId", form.user_id);
+      const { url, error: uploadErr } = await uploadAvatar(uploadData);
       if (uploadErr) {
-        setError("Photo upload failed. You can still submit without a photo.");
+        setError(uploadErr);
         setLoading(false);
         return;
       }
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(path);
-      avatarUrl = publicUrl;
+      avatarUrl = url;
     }
 
     const { error: insertError } = await submitTestimonial({
@@ -125,6 +118,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       rating: form.collect_rating ? rating : null,
       consent,
       avatarUrl,
+      website,
     });
 
     if (insertError) {
@@ -166,6 +160,18 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Honeypot field — hidden from real users, bots tend to fill it in */}
+      <input
+        type="text"
+        name="website"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        style={{ display: "none" }}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+      />
+
       {/* Photo upload */}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-[#1A1A1A]">
