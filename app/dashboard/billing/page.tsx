@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Check } from "lucide-react";
-
-const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
+import PaddleCheckout from "@/components/PaddleCheckout";
 
 const FEATURES = [
   "Unlimited testimonial collection forms",
@@ -65,14 +64,9 @@ export default async function BillingPage() {
                   Unlock lifetime access with a single one-time payment — no
                   subscriptions, ever.
                 </p>
-                <a
-                  href={PADDLE_CHECKOUT_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105"
-                >
+                <PaddleCheckout className="mt-3 inline-flex items-center rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105">
                   $49 — Get Lifetime Access
-                </a>
+                </PaddleCheckout>
                 <p className="mt-2 text-xs text-[#6B6B6B]">
                   Secure checkout via Paddle · 30-day money-back guarantee
                 </p>

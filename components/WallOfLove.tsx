@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import FadeIn from "./FadeIn";
-
-const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
+import PaddleCheckout from "./PaddleCheckout";
 
 export default function WallOfLove() {
   return (
@@ -24,16 +22,13 @@ export default function WallOfLove() {
           </p>
 
           <div className="mt-10">
-            <Link
-              href={PADDLE_CHECKOUT_URL}
-              className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
-            >
+            <PaddleCheckout className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95">
               Get early access — $49
               <ArrowRight
                 size={18}
                 className="transition-transform group-hover:translate-x-1"
               />
-            </Link>
+            </PaddleCheckout>
           </div>
 
           {/* Placeholder grid to show what will go here */}
