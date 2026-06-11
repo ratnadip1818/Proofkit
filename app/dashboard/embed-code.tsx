@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, ExternalLink } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import UpgradeLock from "./upgrade-lock";
 
 const APP_URL =
@@ -17,7 +17,6 @@ export default function EmbedCode({
   const [copied, setCopied] = useState(false);
 
   const snippet = `<script src="${APP_URL}/widget.js" data-user="${userId}"></script>`;
-  const previewUrl = `${APP_URL}/embed/${userId}?demo=1`;
 
   async function handleCopy() {
     await navigator.clipboard.writeText(snippet);
@@ -61,16 +60,6 @@ export default function EmbedCode({
       </p>
 
       {locked ? <UpgradeLock>{codeBlock}</UpgradeLock> : codeBlock}
-
-      <a
-        href={previewUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-[#E8743B] transition-colors hover:text-[#CF5F2C]"
-      >
-        <ExternalLink size={14} />
-        Preview widget with sample testimonials
-      </a>
     </div>
   );
 }

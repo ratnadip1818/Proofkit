@@ -13,7 +13,7 @@
   var baseUrl = currentScript.src.replace(/\/widget\.js(\?.*)?$/, "");
 
   var params = [];
-  ["type", "layout", "theme", "max", "ratings", "badge", "featured"].forEach(function (key) {
+  ["type", "layout", "theme", "max", "ratings", "badge", "featured", "demo"].forEach(function (key) {
     var val = currentScript.getAttribute("data-" + key);
     if (val) params.push(key + "=" + encodeURIComponent(val));
   });

@@ -7,6 +7,7 @@ import CopyLinkButton from "./copy-link-button";
 import StatsCards from "./stats-cards";
 import TrialBanner from "./trial-banner";
 import UpgradeLock from "./upgrade-lock";
+import TestWidgetCard from "./test-widget-card";
 import { ExternalLink, ArrowRight } from "lucide-react";
 import { getPlanStatus, getTrialDaysLeft } from "@/lib/plan";
 
@@ -136,6 +137,12 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
+
+        {locked && (
+          <div className="mt-5">
+            <TestWidgetCard userId={user.id} />
+          </div>
+        )}
       </div>
     </div>
   );
