@@ -10,9 +10,11 @@ const APP_URL =
 export default function EmbedCode({
   userId,
   locked = false,
+  email,
 }: {
   userId: string;
   locked?: boolean;
+  email?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -59,7 +61,7 @@ export default function EmbedCode({
         Paste this snippet anywhere on your site to display your Wall of Love.
       </p>
 
-      {locked ? <UpgradeLock>{codeBlock}</UpgradeLock> : codeBlock}
+      {locked ? <UpgradeLock email={email}>{codeBlock}</UpgradeLock> : codeBlock}
     </div>
   );
 }

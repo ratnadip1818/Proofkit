@@ -5,9 +5,11 @@ import type { PlanStatus } from "@/lib/plan";
 export default function TrialBanner({
   status,
   daysLeft,
+  email,
 }: {
   status: PlanStatus;
   daysLeft: number;
+  email?: string;
 }) {
   if (status === "pro") return null;
 
@@ -38,7 +40,10 @@ export default function TrialBanner({
           </p>
         </div>
       </div>
-      <PaddleCheckout className="shrink-0 rounded-full bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#CF5F2C] hover:scale-105 active:scale-95">
+      <PaddleCheckout
+        email={email}
+        className="shrink-0 rounded-full bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#CF5F2C] hover:scale-105 active:scale-95"
+      >
         Unlock Pro — $49 once
       </PaddleCheckout>
     </div>

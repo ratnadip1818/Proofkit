@@ -16,7 +16,9 @@ import {
   Menu,
   X,
   LogOut,
+  Sparkles,
 } from "lucide-react";
+import type { PlanStatus } from "@/lib/plan";
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Testimonials", icon: MessageSquare, href: "/dashboard/testimonials" },
@@ -35,11 +37,15 @@ function isActive(pathname: string, itemHref: string): boolean {
 function SidebarInner({
   email,
   pathname,
+  planStatus,
+  daysLeft,
   onItemClick,
   onSignOut,
 }: {
   email: string | null;
   pathname: string;
+  planStatus: PlanStatus;
+  daysLeft: number;
   onItemClick: () => void;
   onSignOut: () => void;
 }) {
@@ -75,6 +81,23 @@ function SidebarInner({
         </ul>
       </nav>
       <div className="border-t border-[#ECE7E0] p-4">
+        {planStatus !== "pro" && (
+          <Link
+            href="/dashboard/billing"
+            onClick={onItemClick}
+            className="mb-3 block rounded-lg border border-[#E8743B]/25 bg-[#FFF4EE] px-3 py-2.5 transition-colors hover:border-[#E8743B]/50"
+          >
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-[#1A1A1A]">
+              <Sparkles size={12} className="text-[#E8743B]" />
+              {planStatus === "expired"
+                ? "Free preview ended"
+                : `Free preview — ${daysLeft} day${daysLeft === 1 ? "" : "s"} left`}
+            </p>
+            <p className="mt-0.5 text-[11px] font-semibold text-[#E8743B]">
+              Upgrade to Pro — $49 once →
+            </p>
+          </Link>
+        )}
         {email && (
           <div className="mb-3 flex items-center gap-2.5 rounded-lg bg-[#FAF8F5] px-3 py-2.5">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-xs font-bold text-[#E8743B]">
@@ -97,8 +120,12 @@ function SidebarInner({
 
 export default function DashboardSidebar({
   email,
+  planStatus,
+  daysLeft,
 }: {
   email: string | null;
+  planStatus: PlanStatus;
+  daysLeft: number;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -123,6 +150,8 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           pathname={pathname}
+          planStatus={planStatus}
+          daysLeft={daysLeft}
           onItemClick={() => {}}
           onSignOut={handleSignOut}
         />
@@ -172,6 +201,8 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           pathname={pathname}
+          planStatus={planStatus}
+          daysLeft={daysLeft}
           onItemClick={() => setMobileOpen(false)}
           onSignOut={handleSignOut}
         />

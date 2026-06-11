@@ -33,7 +33,7 @@ export default async function DashboardPage() {
     supabase.from("testimonials").select("status").eq("user_id", user.id),
     supabase
       .from("profiles")
-      .select("is_lifetime, created_at")
+      .select("is_lifetime, created_at, full_name")
       .eq("id", user.id)
       .maybeSingle(),
   ]);
@@ -44,6 +44,7 @@ export default async function DashboardPage() {
     : "trial";
   const daysLeft = profile ? getTrialDaysLeft(profile) : 0;
   const locked = planStatus !== "pro";
+  const firstName = profile?.full_name?.trim().split(/\s+/)[0] ?? null;
 
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
@@ -55,7 +56,7 @@ export default async function DashboardPage() {
               className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Dashboard
+              {firstName ? `Welcome back, ${firstName}` : "Dashboard"}
             </h1>
             <p className="mt-1 text-sm text-[#6B6B6B]">
               Manage your testimonials and collection form.
@@ -70,7 +71,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        <TrialBanner status={planStatus} daysLeft={daysLeft} />
+        <TrialBanner status={planStatus} daysLeft={daysLeft} email={user.email} />
 
         {/* Stats */}
         <StatsCards testimonials={testimonials ?? []} />
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
                   Share this link to collect testimonials.
                 </p>
                 {locked ? (
-                  <UpgradeLock message="Unlock collection">
+                  <UpgradeLock message="Unlock collection" email={user.email}>
                     <div className="mt-3 flex items-center gap-2">
                       <span className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2 font-mono text-xs text-[#1A1A1A]">
                         <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
@@ -127,7 +128,7 @@ export default async function DashboardPage() {
 
           <div>
             {form ? (
-              <EmbedCode userId={user.id} locked={locked} />
+              <EmbedCode userId={user.id} locked={locked} email={user.email} />
             ) : (
               <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-[#ECE7E0] bg-white p-6">
                 <p className="text-center text-sm text-[#6B6B6B]">

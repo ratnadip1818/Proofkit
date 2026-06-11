@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getPlanStatus } from "@/lib/plan";
 import WidgetBuilder from "./widget-builder";
 
 export default async function WidgetsPage() {
@@ -12,10 +13,11 @@ export default async function WidgetsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_lifetime")
+    .select("is_lifetime, created_at")
     .eq("id", user.id)
     .maybeSingle();
   const isLifetime = profile?.is_lifetime ?? false;
+  const locked = !profile || getPlanStatus(profile) !== "pro";
 
   const { data: testimonials } = await supabase
     .from("testimonials")
@@ -44,6 +46,7 @@ export default async function WidgetsPage() {
         <WidgetBuilder
           userId={user.id}
           isLifetime={isLifetime}
+          locked={locked}
           testimonials={testimonials ?? []}
         />
       </div>

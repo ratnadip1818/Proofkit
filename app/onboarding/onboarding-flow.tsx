@@ -9,20 +9,12 @@ import {
   getOrCreateForm,
 } from "./actions";
 
-interface Props {
-  siteUrl: string;
-}
-
-export default function OnboardingFlow({ siteUrl }: Props) {
+export default function OnboardingFlow() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
-  const [formSlug, setFormSlug] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const formLink = formSlug ? `${siteUrl}/c/${formSlug}` : "";
 
   async function handleNameSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,21 +40,14 @@ export default function OnboardingFlow({ siteUrl }: Props) {
       setLoading(false);
       return;
     }
-    const { slug, error: formError } = await getOrCreateForm();
+    const { error: formError } = await getOrCreateForm();
     if (formError) {
       setError(formError);
       setLoading(false);
       return;
     }
-    setFormSlug(slug);
     setLoading(false);
     setStep(3);
-  }
-
-  async function handleCopy() {
-    await navigator.clipboard.writeText(formLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
@@ -195,24 +180,31 @@ export default function OnboardingFlow({ siteUrl }: Props) {
                   className="text-xl font-bold text-[#1A1A1A]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Your collection form is ready!
+                  You&apos;re all set!
                 </h1>
                 <p className="mt-1 text-sm text-[#6B6B6B]">
-                  Share this link with your customers to collect testimonials.
+                  Your 3-day free preview starts now.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-3">
-                <span className="flex-1 truncate text-xs text-[#1A1A1A]">
-                  {formLink}
-                </span>
-                <button
-                  onClick={handleCopy}
-                  className="shrink-0 rounded-md bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C]"
-                >
-                  {copied ? "Copied!" : "Copy"}
-                </button>
-              </div>
+              <ul className="flex flex-col gap-3 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-4 text-sm text-[#1A1A1A]">
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
+                  Test the widget on your own site with sample testimonials
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
+                  Customize widget styles, themes and your collection form
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5" aria-hidden="true">🔒</span>
+                  <span>
+                    Collecting real testimonials &amp; your live embed unlock
+                    with Pro —{" "}
+                    <span className="font-semibold text-[#E8743B]">$49 once</span>
+                  </span>
+                </li>
+              </ul>
 
               <button
                 onClick={() => router.push("/dashboard")}

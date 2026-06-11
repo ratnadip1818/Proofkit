@@ -15,6 +15,7 @@ import {
   CarouselContent,
   MarqueeContent,
   SingleQuoteContent,
+  SAMPLE_TESTIMONIALS,
   type Testimonial,
   type WallLayout,
   type WallTheme,
@@ -79,10 +80,12 @@ function Toggle({
 export default function WidgetBuilder({
   userId,
   isLifetime,
+  locked = false,
   testimonials,
 }: {
   userId: string;
   isLifetime: boolean;
+  locked?: boolean;
   testimonials: Testimonial[];
 }) {
   const [widgetType, setWidgetType] = useState<WidgetType>("wall");
@@ -96,7 +99,11 @@ export default function WidgetBuilder({
 
   const maxCount = max === "all" ? null : Number(max);
   const badgeOn = isLifetime ? showBadge : true;
-  const featured = testimonials[featuredIndex] ?? testimonials[0] ?? null;
+  // Trial accounts have no collected testimonials yet — preview with samples
+  // so every style/theme choice is actually visible.
+  const usingSamples = testimonials.length === 0;
+  const previewList = usingSamples ? SAMPLE_TESTIMONIALS : testimonials;
+  const featured = previewList[featuredIndex] ?? previewList[0] ?? null;
 
   const params = new URLSearchParams();
   params.set("type", widgetType);
@@ -108,6 +115,7 @@ export default function WidgetBuilder({
   params.set("ratings", showRatings ? "true" : "false");
   if (widgetType === "single") params.set("featured", String(featuredIndex));
   if (isLifetime) params.set("badge", showBadge ? "true" : "false");
+  if (locked) params.set("demo", "1");
   const query = params.toString();
 
   const liveUrl = `${APP_URL}/embed/${userId}?${query}`;
@@ -122,6 +130,7 @@ export default function WidgetBuilder({
   );
   if (widgetType === "single") dataAttrs.push(`data-featured="${featuredIndex}"`);
   if (isLifetime) dataAttrs.push(`data-badge="${showBadge ? "true" : "false"}"`);
+  if (locked) dataAttrs.push(`data-demo="1"`);
 
   const snippet = `<script src="${APP_URL}/widget.js" ${dataAttrs.join(" ")}></script>`;
 
@@ -238,21 +247,16 @@ export default function WidgetBuilder({
               <select
                 value={featuredIndex}
                 onChange={(e) => setFeaturedIndex(Number(e.target.value))}
-                disabled={testimonials.length === 0}
                 className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 disabled:opacity-50"
               >
-                {testimonials.length === 0 ? (
-                  <option>No testimonials yet</option>
-                ) : (
-                  testimonials.map((t, i) => (
-                    <option key={t.id} value={i}>
-                      {t.author_name} — &ldquo;
-                      {(t.display_body ?? t.body_original).slice(0, 40)}
-                      {(t.display_body ?? t.body_original).length > 40 ? "…" : ""}
-                      &rdquo;
-                    </option>
-                  ))
-                )}
+                {previewList.map((t, i) => (
+                  <option key={t.id} value={i}>
+                    {t.author_name} — &ldquo;
+                    {(t.display_body ?? t.body_original).slice(0, 40)}
+                    {(t.display_body ?? t.body_original).length > 40 ? "…" : ""}
+                    &rdquo;
+                  </option>
+                ))}
               </select>
             </div>
           )}
@@ -308,6 +312,12 @@ export default function WidgetBuilder({
                 {snippet}
               </code>
             </div>
+            {locked && (
+              <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                Test mode — this snippet shows sample testimonials on your
+                site. Upgrade to Pro to display your real ones.
+              </p>
+            )}
           </div>
 
           <a
@@ -334,7 +344,9 @@ export default function WidgetBuilder({
             </span>
           </div>
           <p className="mt-2 text-sm text-[#6B6B6B]">
-            This is how your widget looks with these settings.
+            {usingSamples
+              ? "Previewing with sample testimonials — your real ones will appear here once collected."
+              : "This is how your widget looks with these settings."}
           </p>
           <div className="mt-4 overflow-hidden rounded-xl border border-[#ECE7E0] shadow-sm">
             <div className="flex items-center gap-1.5 border-b border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2">
@@ -345,7 +357,7 @@ export default function WidgetBuilder({
             <div className="max-h-[480px] overflow-y-auto">
             {widgetType === "wall" && (
               <WallContent
-                testimonials={testimonials}
+                testimonials={previewList}
                 layout={layout}
                 theme={theme}
                 showRatings={showRatings}
@@ -355,7 +367,7 @@ export default function WidgetBuilder({
             )}
             {widgetType === "carousel" && (
               <CarouselContent
-                testimonials={testimonials}
+                testimonials={previewList}
                 theme={theme}
                 showRatings={showRatings}
                 showBadge={badgeOn}
@@ -363,7 +375,7 @@ export default function WidgetBuilder({
             )}
             {widgetType === "marquee" && (
               <MarqueeContent
-                testimonials={testimonials}
+                testimonials={previewList}
                 theme={theme}
                 showRatings={showRatings}
                 showBadge={badgeOn}

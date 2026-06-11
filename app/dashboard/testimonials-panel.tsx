@@ -130,6 +130,7 @@ export default function TestimonialsPanel({
   const [pendingId, setPendingId]   = useState<string | null>(null);
   const [searchQuery, setSearch]    = useState("");
   const [improvingId, setImprovingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [improvements, setImprovements] = useState<
     Record<string, { original: string; improved: string }>
   >({});
@@ -448,16 +449,33 @@ export default function TestimonialsPanel({
                   </ShimmerButton>
                   <button
                     disabled={isLoading}
-                    onClick={() =>
+                    onClick={() => {
+                      // Two-step confirm: first click arms, second click deletes
+                      if (confirmDeleteId !== t.id) {
+                        setConfirmDeleteId(t.id);
+                        setTimeout(
+                          () =>
+                            setConfirmDeleteId((cur) =>
+                              cur === t.id ? null : cur
+                            ),
+                          3000
+                        );
+                        return;
+                      }
+                      setConfirmDeleteId(null);
                       runAction(
                         t.id,
                         (prev) => prev.filter((x) => x.id !== t.id),
                         () => deleteTestimonial(t.id)
-                      )
-                    }
-                    className="ml-auto rounded-full border border-red-200 px-3.5 py-1.5 text-xs font-medium text-red-500 transition-all duration-200 hover:border-red-300 hover:bg-red-50 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      );
+                    }}
+                    className={`ml-auto rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 ${
+                      confirmDeleteId === t.id
+                        ? "bg-red-500 font-semibold text-white hover:bg-red-600"
+                        : "border border-red-200 text-red-500 hover:border-red-300 hover:bg-red-50"
+                    }`}
                   >
-                    Delete
+                    {confirmDeleteId === t.id ? "Confirm delete?" : "Delete"}
                   </button>
                 </div>
 

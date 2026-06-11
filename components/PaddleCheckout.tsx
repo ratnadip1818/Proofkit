@@ -6,9 +6,11 @@ import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 export default function PaddleCheckout({
   children,
   className,
+  email,
 }: {
   children: React.ReactNode;
   className?: string;
+  email?: string;
 }) {
   const [paddle, setPaddle] = useState<Paddle | undefined>(undefined);
 
@@ -29,6 +31,9 @@ export default function PaddleCheckout({
           quantity: 1,
         },
       ],
+      // Lock checkout to the account email so the webhook can match the
+      // payment back to this user (it looks accounts up by email).
+      ...(email ? { customer: { email } } : {}),
     });
   };
 
