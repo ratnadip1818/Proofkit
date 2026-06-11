@@ -17,8 +17,6 @@ import {
   X,
   LogOut,
 } from "lucide-react";
-import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
-
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Testimonials", icon: MessageSquare, href: "/dashboard/testimonials" },
@@ -117,13 +115,10 @@ export default function DashboardSidebar({
     <>
       {/* Desktop sidebar — fixed */}
       <aside className="hidden md:flex fixed left-0 top-0 z-30 h-screen w-64 flex-col border-r border-[#ECE7E0] bg-white">
-        <div className="flex h-20 shrink-0 flex-col justify-center gap-1 border-b border-[#ECE7E0] bg-[#FAF8F5]/60 px-6">
+        <div className="flex h-16 shrink-0 items-center border-b border-[#ECE7E0] bg-[#FAF8F5]/60 px-6">
           <Link href="/dashboard" aria-label="Blovi dashboard">
             <Logo />
           </Link>
-          <AnimatedShinyText className="text-[11px] font-semibold uppercase tracking-widest">
-            ✦ AI-powered workspace
-          </AnimatedShinyText>
         </div>
         <SidebarInner
           email={email}
