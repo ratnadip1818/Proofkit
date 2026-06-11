@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import FadeIn from "./FadeIn";
 
+const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
+
 export default function FinalCTA() {
   return (
     <section className="w-full bg-white py-24 px-5 md:px-10">
@@ -28,9 +30,8 @@ export default function FinalCTA() {
           </p>
 
           <div className="mt-10">
-            {/* TODO: replace with Paddle checkout URL */}
             <Link
-              href="/signup"
+              href={PADDLE_CHECKOUT_URL}
               className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
             >
               Get Blovi now

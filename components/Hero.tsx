@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
+const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
+
 const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 const fadeUp = (delay = 0) => ({
@@ -98,9 +100,8 @@ export default function Hero() {
           {...fadeUp(0.26)}
           className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
         >
-          {/* TODO: replace with Paddle checkout URL */}
           <Link
-            href="/signup"
+            href={PADDLE_CHECKOUT_URL}
             className="group flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
           >
             Get Blovi for $49

@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Check } from "lucide-react";
 
-// TODO: replace with the real Lemon Squeezy checkout URL for the lifetime deal
-const LEMON_SQUEEZY_URL = "#";
+const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
 
 const FEATURES = [
   "Unlimited testimonial collection forms",
@@ -67,13 +66,16 @@ export default async function BillingPage() {
                   subscriptions, ever.
                 </p>
                 <a
-                  href={LEMON_SQUEEZY_URL}
+                  href={PADDLE_CHECKOUT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105"
                 >
                   $49 — Get Lifetime Access
                 </a>
+                <p className="mt-2 text-xs text-[#6B6B6B]">
+                  Secure checkout via Paddle · 30-day money-back guarantee
+                </p>
               </div>
             )}
           </div>

@@ -9,6 +9,8 @@ export const metadata = {
   title: "Pricing — Blovi",
 };
 
+const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
+
 const FEATURES = [
   "Unlimited text testimonials",
   "AI-powered improvement button",
@@ -149,9 +151,8 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                {/* TODO: replace with Paddle checkout URL */}
                 <Link
-                  href="/signup"
+                  href={PADDLE_CHECKOUT_URL}
                   className="mt-8 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
                 >
                   Get Blovi — $49
@@ -248,9 +249,8 @@ export default function PricingPage() {
                 Ready to stop paying monthly?
               </h2>
               <div className="mt-8">
-                {/* TODO: replace with Paddle checkout URL */}
                 <Link
-                  href="/signup"
+                  href={PADDLE_CHECKOUT_URL}
                   className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
                 >
                   Get Blovi for $49

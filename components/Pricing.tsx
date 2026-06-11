@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import FadeIn from "./FadeIn";
 
+const PADDLE_CHECKOUT_URL = `https://buy.paddle.com/product/${process.env.NEXT_PUBLIC_PADDLE_PRICE_ID}`;
+
 const FEATURES = [
   "Unlimited text testimonials",
   "AI-powered improvement button",
@@ -78,9 +80,8 @@ export default function Pricing() {
             </ul>
 
             {/* CTA */}
-            {/* TODO: replace with Paddle checkout URL */}
             <Link
-              href="/signup"
+              href={PADDLE_CHECKOUT_URL}
               className="mt-7 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
             >
               Get Blovi — $49
