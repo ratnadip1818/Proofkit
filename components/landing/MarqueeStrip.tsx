@@ -20,13 +20,13 @@ function Row({ outline = false }: { outline?: boolean }) {
         <span key={item} className="flex shrink-0 items-center gap-6 md:gap-10">
           <span
             className={`whitespace-nowrap text-2xl font-extrabold uppercase tracking-tight md:text-4xl ${
-              outline ? "text-outline" : "text-white"
+              outline ? "text-outline" : "text-[#16161D]"
             }`}
             style={{ fontFamily: "var(--font-display)" }}
           >
             {item}
           </span>
-          <span className="text-xl text-[#E8743B] md:text-3xl" aria-hidden="true">
+          <span className="text-xl text-white md:text-3xl" aria-hidden="true">
             ✦
           </span>
         </span>
@@ -65,11 +65,8 @@ export default function MarqueeStrip() {
   }, []);
 
   return (
-    <div
-      ref={bandRef}
-      className="relative w-full overflow-hidden py-8 [background:linear-gradient(to_bottom,#FAF8F5_50%,#16161D_50%)]"
-    >
-      <div className="rotate-[-1.5deg] scale-[1.03] bg-[#16161D] py-5 shadow-xl md:py-7">
+    <div ref={bandRef} className="relative w-full overflow-hidden bg-[#16161D] py-8">
+      <div className="rotate-[-1.5deg] scale-[1.03] bg-[#E8743B] py-5 shadow-[0_24px_64px_rgba(232,116,59,0.3)] md:py-7">
         <div className="marquee-skew">
           <div
             className="animate-marquee-x flex w-max"
