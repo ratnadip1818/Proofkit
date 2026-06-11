@@ -38,16 +38,16 @@ export default function Navbar() {
             Features
           </Link>
           <Link
-            href="#pricing"
-            className="text-sm font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
-          >
-            Pricing
-          </Link>
-          <Link
             href="#faq"
             className="text-sm font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
           >
             FAQ
+          </Link>
+          <Link
+            href="/pricing"
+            className="text-sm font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+          >
+            Pricing
           </Link>
         </div>
 
