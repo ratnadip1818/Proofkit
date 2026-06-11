@@ -60,7 +60,7 @@ export default async function DashboardPage() {
         <StatsCards testimonials={testimonials ?? []} />
 
         {/* Collection form + embed */}
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
               Collection form

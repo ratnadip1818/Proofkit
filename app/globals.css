@@ -34,6 +34,25 @@ body {
   /* Fonts */
   --font-display: var(--font-jakarta), "Inter Tight", sans-serif;
   --font-sans: var(--font-inter), Arial, sans-serif;
+
+  /* Magic UI animations */
+  --animate-shimmer-slide: shimmer-slide 2.2s infinite;
+  --animate-shiny-text: shiny-text 4s ease-in-out infinite;
+}
+
+@keyframes shimmer-slide {
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes shiny-text {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 body {

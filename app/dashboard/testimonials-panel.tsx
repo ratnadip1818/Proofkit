@@ -19,6 +19,8 @@ import {
   acceptImprovement,
   revertImprovement,
 } from "./actions";
+import { BlurFade } from "@/components/magicui/blur-fade";
+import { ShimmerButton } from "@/components/magicui/shimmer-button";
 
 export type Testimonial = {
   id: string;
@@ -75,13 +77,13 @@ function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string | null })
       <img
         src={avatarUrl}
         alt={name}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
+        className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-[#ECE7E0]"
       />
     );
   }
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-sm font-bold text-[#E8743B]"
+      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-base font-bold text-[#E8743B]"
       aria-hidden="true"
     >
       {name.trim().charAt(0).toUpperCase()}
@@ -344,14 +346,14 @@ export default function TestimonialsPanel({
         {filtered.length === 0 ? (
           <EmptyState />
         ) : (
-          filtered.map((t) => {
+          filtered.map((t, i) => {
             const isLoading = pendingId === t.id;
             const badge     = STATUS_BADGE[t.status];
 
             return (
+              <BlurFade key={t.id} delay={Math.min(i, 8) * 0.05}>
               <div
-                key={t.id}
-                className="group rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm transition-all duration-150 hover:border-[#D9D3CB] hover:shadow-md"
+                className="group rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm transition-all duration-200 hover:border-[#D9D3CB] hover:shadow-md"
                 style={{ opacity: isLoading ? 0.55 : 1 }}
               >
                 {/* Card header */}
@@ -361,7 +363,7 @@ export default function TestimonialsPanel({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-semibold text-[#1A1A1A]">
+                        <p className="text-base font-semibold text-[#1A1A1A]">
                           {t.author_name}
                         </p>
                         {t.author_role && (
@@ -386,7 +388,7 @@ export default function TestimonialsPanel({
                       </div>
                     </div>
 
-                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[#3f3f46]">
+                    <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-[#3f3f46]">
                       {t.display_body ?? t.body_original}
                     </p>
                     {t.show_edited_badge && (
@@ -412,7 +414,7 @@ export default function TestimonialsPanel({
                           () => approveTestimonial(t.id)
                         )
                       }
-                      className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-full bg-[#E8743B] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CF5F2C] hover:scale-105 hover:shadow active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -430,19 +432,20 @@ export default function TestimonialsPanel({
                           () => hideTestimonial(t.id)
                         )
                       }
-                      className="rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-full border border-[#ECE7E0] bg-[#FAF8F5] px-3.5 py-1.5 text-xs font-medium text-[#6B6B6B] transition-all duration-200 hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Hide
                     </button>
                   )}
-                  <button
+                  <ShimmerButton
                     disabled={isLoading || improvingId === t.id}
                     onClick={() => handleImprove(t.id)}
                     title="AI fixes grammar only — never changes meaning"
-                    className="rounded-lg border border-[#E8743B] px-3 py-1 text-sm text-[#E8743B] transition-colors hover:bg-[#FFF4EE] disabled:cursor-not-allowed disabled:opacity-50"
+                    shimmerColor="rgba(232,116,59,0.35)"
+                    className="rounded-full border border-[#E8743B] px-3.5 py-1.5 text-xs font-semibold text-[#E8743B] transition-all duration-200 hover:bg-[#FFF4EE] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {improvingId === t.id ? "Improving…" : "✨ Improve"}
-                  </button>
+                  </ShimmerButton>
                   <button
                     disabled={isLoading}
                     onClick={() =>
@@ -452,7 +455,7 @@ export default function TestimonialsPanel({
                         () => deleteTestimonial(t.id)
                       )
                     }
-                    className="ml-auto rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ml-auto rounded-full border border-red-200 px-3.5 py-1.5 text-xs font-medium text-red-500 transition-all duration-200 hover:border-red-300 hover:bg-red-50 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Delete
                   </button>
@@ -499,6 +502,7 @@ export default function TestimonialsPanel({
                   </div>
                 )}
               </div>
+              </BlurFade>
             );
           })
         )}

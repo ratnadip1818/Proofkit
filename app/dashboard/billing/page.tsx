@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Check } from "lucide-react";
 import PaddleCheckout from "@/components/PaddleCheckout";
+import { BorderBeam } from "@/components/magicui/border-beam";
+import { Confetti } from "@/components/magicui/confetti";
 
 const FEATURES = [
   "Unlimited testimonial collection forms",
@@ -53,26 +55,32 @@ export default async function BillingPage() {
             Early Access — Lifetime Deal
           </p>
 
-          <div className="mt-5 rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] p-5">
-            {isLifetime ? (
-              <p className="flex items-center gap-2 text-sm font-semibold text-[#2E9E6B]">
+          {isLifetime ? (
+            <div className="relative mt-5 overflow-hidden rounded-xl border border-green-200 bg-green-50 p-5">
+              <Confetti />
+              <p className="relative flex items-center gap-2 text-sm font-semibold text-[#2E9E6B]">
                 <span aria-hidden="true">✅</span> Lifetime License Active
               </p>
-            ) : (
-              <div>
-                <p className="text-sm text-[#6B6B6B]">
-                  Unlock lifetime access with a single one-time payment — no
-                  subscriptions, ever.
-                </p>
-                <PaddleCheckout className="mt-3 inline-flex items-center rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105">
-                  $49 — Get Lifetime Access
-                </PaddleCheckout>
-                <p className="mt-2 text-xs text-[#6B6B6B]">
-                  Secure checkout via Paddle · 30-day money-back guarantee
-                </p>
-              </div>
-            )}
-          </div>
+              <p className="relative mt-1.5 text-xs text-[#2E9E6B]/80">
+                Thanks for being an early supporter — enjoy every feature,
+                forever.
+              </p>
+            </div>
+          ) : (
+            <div className="relative mt-5 overflow-hidden rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] p-5">
+              <BorderBeam duration={8} />
+              <p className="text-sm text-[#6B6B6B]">
+                Unlock lifetime access with a single one-time payment — no
+                subscriptions, ever.
+              </p>
+              <PaddleCheckout className="mt-3 inline-flex items-center rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105">
+                $49 — Get Lifetime Access
+              </PaddleCheckout>
+              <p className="mt-2 text-xs text-[#6B6B6B]">
+                Secure checkout via Paddle · 30-day money-back guarantee
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="mt-5 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">

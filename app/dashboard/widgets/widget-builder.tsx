@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, ExternalLink } from "lucide-react";
+import {
+  Copy,
+  Check,
+  ExternalLink,
+  LayoutGrid,
+  GalleryHorizontal,
+  Rows3,
+  Quote,
+} from "lucide-react";
 import {
   WallContent,
   CarouselContent,
@@ -12,17 +20,18 @@ import {
   type WallTheme,
   type WidgetType,
 } from "../../embed/wall-renderer";
+import { BlurFade } from "@/components/magicui/blur-fade";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
 type MaxOption = "3" | "6" | "9" | "all";
 
-const WIDGET_TYPES: { value: WidgetType; label: string }[] = [
-  { value: "wall", label: "Wall of Love" },
-  { value: "carousel", label: "Carousel" },
-  { value: "marquee", label: "Marquee" },
-  { value: "single", label: "Single Quote" },
+const WIDGET_TYPES: { value: WidgetType; label: string; icon: typeof LayoutGrid }[] = [
+  { value: "wall", label: "Wall of Love", icon: LayoutGrid },
+  { value: "carousel", label: "Carousel", icon: GalleryHorizontal },
+  { value: "marquee", label: "Marquee", icon: Rows3 },
+  { value: "single", label: "Single Quote", icon: Quote },
 ];
 
 function Toggle({
@@ -124,18 +133,19 @@ export default function WidgetBuilder({
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-5 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm">
         {WIDGET_TYPES.map((t) => (
           <button
             key={t.value}
             type="button"
             onClick={() => setWidgetType(t.value)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
               widgetType === t.value
-                ? "bg-[#E8743B] text-white"
-                : "border border-[#ECE7E0] bg-white text-[#6B6B6B] hover:text-[#1A1A1A]"
+                ? "bg-[#E8743B] text-white shadow-sm"
+                : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
             }`}
           >
+            <t.icon size={15} />
             {t.label}
           </button>
         ))}
@@ -269,26 +279,35 @@ export default function WidgetBuilder({
           </div>
 
           <div className="mt-5 border-t border-[#ECE7E0] pt-4">
-            <p className="text-sm font-medium text-[#1A1A1A]">Embed code</p>
-            <code className="mt-2 block w-full overflow-x-auto whitespace-nowrap rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2.5 font-mono text-xs text-[#1A1A1A]">
-              {snippet}
-            </code>
-            <button
-              onClick={handleCopy}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[#E8743B] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C]"
-            >
-              {copied ? (
-                <>
-                  <Check size={15} strokeWidth={2.5} />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy size={15} />
-                  Copy embed code
-                </>
-              )}
-            </button>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-[#1A1A1A]">Embed code</p>
+              <button
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#E8743B] transition-all duration-200 hover:bg-[#FFF4EE] active:scale-95"
+              >
+                {copied ? (
+                  <>
+                    <Check size={13} strokeWidth={2.5} className="text-[#2E9E6B]" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy size={13} />
+                    Copy
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="mt-2 overflow-hidden rounded-lg bg-[#16161D]">
+              <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+              </div>
+              <code className="block w-full overflow-x-auto whitespace-pre-wrap break-all px-3 py-3 font-mono text-xs leading-relaxed text-[#ECE7E0]">
+                {snippet}
+              </code>
+            </div>
           </div>
 
           <a
@@ -303,14 +322,27 @@ export default function WidgetBuilder({
         </div>
 
         {/* Live preview */}
+        <BlurFade delay={0.1}>
         <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-            Live preview
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
+              Live preview
+            </h2>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-[#2E9E6B]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#2E9E6B]" />
+              Live
+            </span>
+          </div>
           <p className="mt-2 text-sm text-[#6B6B6B]">
             This is how your widget looks with these settings.
           </p>
-          <div className="mt-4 max-h-[480px] overflow-y-auto rounded-lg border border-[#ECE7E0]">
+          <div className="mt-4 overflow-hidden rounded-xl border border-[#ECE7E0] shadow-sm">
+            <div className="flex items-center gap-1.5 border-b border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+            </div>
+            <div className="max-h-[480px] overflow-y-auto">
             {widgetType === "wall" && (
               <WallContent
                 testimonials={testimonials}
@@ -345,8 +377,10 @@ export default function WidgetBuilder({
                 showBadge={badgeOn}
               />
             )}
+            </div>
           </div>
         </div>
+        </BlurFade>
       </div>
     </div>
   );

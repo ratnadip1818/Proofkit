@@ -15,7 +15,9 @@ import {
   Settings,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
+import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -54,12 +56,18 @@ function SidebarInner({
                 <Link
                   href={item.href}
                   onClick={onItemClick}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
+                  className={`relative flex items-center gap-3 rounded-lg py-2.5 pl-3 pr-3 text-sm font-medium transition-all duration-200 ${
                     active
                       ? "bg-[#FFF4EE] text-[#E8743B]"
-                      : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
+                      : "text-[#6B6B6B] hover:translate-x-0.5 hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
                   }`}
                 >
+                  {active && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#E8743B]"
+                    />
+                  )}
                   <item.icon size={18} strokeWidth={active ? 2.5 : 2} />
                   {item.label}
                 </Link>
@@ -70,12 +78,18 @@ function SidebarInner({
       </nav>
       <div className="border-t border-[#ECE7E0] p-4">
         {email && (
-          <p className="mb-3 truncate text-xs text-[#6B6B6B]">{email}</p>
+          <div className="mb-3 flex items-center gap-2.5 rounded-lg bg-[#FAF8F5] px-3 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-xs font-bold text-[#E8743B]">
+              {email.charAt(0).toUpperCase()}
+            </div>
+            <p className="truncate text-xs font-medium text-[#1A1A1A]">{email}</p>
+          </div>
         )}
         <button
           onClick={onSignOut}
-          className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm font-medium text-[#6B6B6B] transition-all duration-200 hover:border-[#1A1A1A]/20 hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
         >
+          <LogOut size={15} />
           Sign out
         </button>
       </div>
@@ -103,10 +117,13 @@ export default function DashboardSidebar({
     <>
       {/* Desktop sidebar — fixed */}
       <aside className="hidden md:flex fixed left-0 top-0 z-30 h-screen w-64 flex-col border-r border-[#ECE7E0] bg-white">
-        <div className="flex h-16 shrink-0 items-center border-b border-[#ECE7E0] px-6">
+        <div className="flex h-20 shrink-0 flex-col justify-center gap-1 border-b border-[#ECE7E0] bg-[#FAF8F5]/60 px-6">
           <Link href="/dashboard" aria-label="Blovi dashboard">
             <Logo />
           </Link>
+          <AnimatedShinyText className="text-[11px] font-semibold uppercase tracking-widest">
+            ✦ AI-powered workspace
+          </AnimatedShinyText>
         </div>
         <SidebarInner
           email={email}
