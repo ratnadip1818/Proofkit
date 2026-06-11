@@ -34,6 +34,7 @@ body {
   /* Fonts */
   --font-display: var(--font-jakarta), "Inter Tight", sans-serif;
   --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-serif-accent: var(--font-serif), Georgia, serif;
 
   /* Magic UI animations */
   --animate-shimmer-slide: shimmer-slide 2.2s infinite;
@@ -60,4 +61,84 @@ body {
   color: #1A1A1A;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: #E8743B;
+  color: #fff;
+}
+
+/* ---------- Lenis smooth scroll ---------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ---------- Landing page utilities ---------- */
+
+/* Film-grain overlay (SVG noise) */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.06'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Horizontal marquee (content duplicated once in markup) */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-x {
+  animation: marquee-x var(--marquee-duration, 28s) linear infinite;
+}
+
+/* Vertical marquee column (content duplicated once in markup) */
+@keyframes marquee-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-marquee-y {
+  animation: marquee-y var(--marquee-duration, 32s) linear infinite;
+}
+
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-x,
+  .animate-marquee-y {
+    animation-play-state: paused;
+  }
+}
+
+/* Outlined display type for oversized background words */
+.text-outline {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.22);
+  color: transparent;
 }
