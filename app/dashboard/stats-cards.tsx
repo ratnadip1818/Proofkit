@@ -62,7 +62,7 @@ export default function StatsCards({
               </div>
             </div>
             <p
-              className="mt-3 text-4xl font-extrabold tracking-tight text-[#1A1A1A]"
+              className="mt-3 text-4xl font-extrabold tracking-tight text-[#E8743B]"
               style={{ fontFamily: "var(--font-display)" }}
             >
               <NumberTicker value={counts[key]} />
