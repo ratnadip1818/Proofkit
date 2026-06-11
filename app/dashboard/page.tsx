@@ -5,7 +5,10 @@ import CreateFormButton from "./create-form-button";
 import EmbedCode from "./embed-code";
 import CopyLinkButton from "./copy-link-button";
 import StatsCards from "./stats-cards";
+import TrialBanner from "./trial-banner";
+import UpgradeLock from "./upgrade-lock";
 import { ExternalLink, ArrowRight } from "lucide-react";
+import { getPlanStatus, getTrialDaysLeft } from "@/lib/plan";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
@@ -18,7 +21,7 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  const [{ data: form }, { data: testimonials }] = await Promise.all([
+  const [{ data: form }, { data: testimonials }, { data: profile }] = await Promise.all([
     supabase
       .from("forms")
       .select("id, slug")
@@ -27,9 +30,19 @@ export default async function DashboardPage() {
       .limit(1)
       .maybeSingle(),
     supabase.from("testimonials").select("status").eq("user_id", user.id),
+    supabase
+      .from("profiles")
+      .select("is_lifetime, created_at")
+      .eq("id", user.id)
+      .maybeSingle(),
   ]);
 
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
+  const planStatus = profile
+    ? getPlanStatus(profile)
+    : "trial";
+  const daysLeft = profile ? getTrialDaysLeft(profile) : 0;
+  const locked = planStatus !== "pro";
 
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
@@ -56,6 +69,8 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
+        <TrialBanner status={planStatus} daysLeft={daysLeft} />
+
         {/* Stats */}
         <StatsCards testimonials={testimonials ?? []} />
 
@@ -71,18 +86,30 @@ export default async function DashboardPage() {
                 <p className="text-sm text-[#6B6B6B]">
                   Share this link to collect testimonials.
                 </p>
-                <div className="mt-3 flex items-center gap-2">
-                  <a
-                    href={formUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white"
-                  >
-                    <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
-                    <span className="truncate">{formUrl}</span>
-                  </a>
-                  <CopyLinkButton url={formUrl} />
-                </div>
+                {locked ? (
+                  <UpgradeLock message="Unlock collection">
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2 font-mono text-xs text-[#1A1A1A]">
+                        <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
+                        <span className="truncate">{formUrl}</span>
+                      </span>
+                      <CopyLinkButton url={formUrl} />
+                    </div>
+                  </UpgradeLock>
+                ) : (
+                  <div className="mt-3 flex items-center gap-2">
+                    <a
+                      href={formUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white"
+                    >
+                      <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
+                      <span className="truncate">{formUrl}</span>
+                    </a>
+                    <CopyLinkButton url={formUrl} />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="mt-4">
@@ -99,7 +126,7 @@ export default async function DashboardPage() {
 
           <div>
             {form ? (
-              <EmbedCode userId={user.id} />
+              <EmbedCode userId={user.id} locked={locked} />
             ) : (
               <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-[#ECE7E0] bg-white p-6">
                 <p className="text-center text-sm text-[#6B6B6B]">

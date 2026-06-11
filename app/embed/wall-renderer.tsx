@@ -37,6 +37,45 @@ export type WallLayout = "masonry" | "grid";
 export type WallTheme = "light" | "dark";
 export type WidgetType = "wall" | "carousel" | "marquee" | "single";
 
+export const SAMPLE_TESTIMONIALS: Testimonial[] = [
+  {
+    id: "sample-1",
+    author_name: "Maria K.",
+    author_role: "Founder, Lume",
+    body_original: "I love this app — it saved me so much time. Highly recommend!",
+    display_body: "I love this app — it saved me so much time. Highly recommend!",
+    rating: 5,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "sample-2",
+    author_name: "Tom W.",
+    author_role: "Indie hacker",
+    body_original: "Honestly, I didn't expect to use it this much — it's that good.",
+    display_body: "Honestly, I didn't expect to use it this much — it's that good.",
+    rating: 5,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "sample-3",
+    author_name: "Devon R.",
+    author_role: "Freelance designer",
+    body_original: "Setup was super quick, and the wall looks amazing on my site.",
+    display_body: "Setup was super quick, and the wall looks amazing on my site.",
+    rating: 5,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "sample-4",
+    author_name: "Priya S.",
+    author_role: "Agency owner",
+    body_original: "Finally a tool I don't pay monthly for.",
+    display_body: "Finally a tool I don't pay monthly for.",
+    rating: 5,
+    created_at: new Date().toISOString(),
+  },
+];
+
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 export const THEME: Record<WallTheme, ThemeColors> = {
@@ -151,6 +190,39 @@ function EmptyState({ colors }: { colors: ThemeColors }) {
     <p style={{ textAlign: "center", color: colors.emptyText, fontSize: "14px" }}>
       No testimonials yet.
     </p>
+  );
+}
+
+export function ExpiredPlaceholder({ theme }: { theme: WallTheme }) {
+  const colors = THEME[theme];
+  return (
+    <div
+      style={{
+        fontFamily: FONT,
+        padding: "32px 16px",
+        background: colors.pageBg,
+        textAlign: "center",
+      }}
+    >
+      <p style={{ margin: 0, fontSize: "14px", color: colors.emptyText }}>
+        This Blovi widget is paused.
+      </p>
+      <a
+        href="https://www.blovi.space/pricing"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-block",
+          marginTop: "10px",
+          fontSize: "13px",
+          fontWeight: 600,
+          color: colors.accent,
+          textDecoration: "none",
+        }}
+      >
+        Site owner: upgrade to re-enable →
+      </a>
+    </div>
   );
 }
 

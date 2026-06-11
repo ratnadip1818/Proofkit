@@ -1,9 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getPlanStatus } from "@/lib/plan";
 import {
   WallContent,
   CarouselContent,
   MarqueeContent,
   SingleQuoteContent,
+  ExpiredPlaceholder,
+  SAMPLE_TESTIMONIALS,
   type Testimonial,
   type WidgetType,
 } from "../wall-renderer";
@@ -21,10 +24,12 @@ export default async function EmbedPage({
     ratings?: string;
     badge?: string;
     featured?: string;
+    demo?: string;
   }>;
 }) {
   const { widgetId } = await params;
   const sp = await searchParams;
+  const isDemo = sp.demo === "1";
 
   const type: WidgetType =
     sp.type === "carousel" || sp.type === "marquee" || sp.type === "single"
@@ -49,7 +54,7 @@ export default async function EmbedPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("profiles")
-      .select("is_lifetime")
+      .select("is_lifetime, created_at")
       .eq("id", widgetId)
       .maybeSingle(),
   ]);
@@ -57,7 +62,11 @@ export default async function EmbedPage({
   const isLifetime = profile?.is_lifetime ?? false;
   const showBadge = !isLifetime || sp.badge !== "false";
 
-  const list = (testimonials ?? []) as Testimonial[];
+  if (!isDemo && profile && getPlanStatus(profile) === "expired") {
+    return <ExpiredPlaceholder theme={theme} />;
+  }
+
+  const list = isDemo ? SAMPLE_TESTIMONIALS : ((testimonials ?? []) as Testimonial[]);
 
   return (
     <>

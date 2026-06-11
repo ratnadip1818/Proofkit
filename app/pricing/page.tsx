@@ -49,7 +49,7 @@ const FAQS = [
   },
   {
     q: "Is there a free trial?",
-    a: "No free trial, but we offer a 30-day money-back guarantee. Not happy? Full refund.",
+    a: "Yes — every new account gets a free 3-day preview where you can see the widget rendered with sample testimonials on your own site. Collecting real testimonials and the live embed unlock with the $49 one-time payment. We also offer a 30-day money-back guarantee after purchase.",
   },
   {
     q: "What payment methods are accepted?",
@@ -153,7 +153,10 @@ export default function PricingPage() {
                   Get Blovi — $49
                 </PaddleCheckout>
 
-                <p className="mt-4 text-center text-sm text-[#6B6B6B]">
+                <p className="mt-4 text-center text-sm font-medium text-[#E8743B]">
+                  ✦ New accounts get a free 3-day widget preview
+                </p>
+                <p className="mt-1 text-center text-sm text-[#6B6B6B]">
                   30-day money-back guarantee · No questions asked
                 </p>
                 <p className="mt-2 text-center text-xs text-[#9CA3AF]">
