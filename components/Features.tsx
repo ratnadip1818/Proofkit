@@ -1,36 +1,43 @@
-import { MessageSquare, LayoutGrid, Code2, ClipboardList, CheckSquare, Zap } from "lucide-react";
+import {
+  Star,
+  Sparkles,
+  LayoutGrid,
+  Layers,
+  ClipboardList,
+  Mail,
+} from "lucide-react";
 import FadeIn from "./FadeIn";
 
 const FEATURES = [
   {
-    icon: MessageSquare,
-    title: "Text Testimonials",
-    desc: "Collect written reviews with star ratings, author name, and role. Customise the form with your own thank-you message and optional consent checkbox.",
+    icon: Star,
+    title: "Text testimonials with star ratings",
+    desc: "Collect name, role, photo, rating and written feedback.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI improvement button",
+    desc: "One click polishes grammar and clarity. Original always preserved.",
   },
   {
     icon: LayoutGrid,
-    title: "Wall of Love Widget",
-    desc: "A clean masonry-style embed that auto-updates as you approve new testimonials. One script tag, works anywhere.",
+    title: "Wall of Love widget",
+    desc: "Embed a beautiful masonry grid on any website with one script tag.",
+  },
+  {
+    icon: Layers,
+    title: "Multiple widget styles",
+    desc: "Wall of Love, Carousel, Marquee, Single Quote — all included.",
   },
   {
     icon: ClipboardList,
-    title: "Shareable Collection Form",
-    desc: "Share a unique link with customers. They submit directly — no account needed on their end. You stay in control of what goes live.",
+    title: "Shareable collection form",
+    desc: "Custom headline, colors and prompts. Mobile friendly.",
   },
   {
-    icon: CheckSquare,
-    title: "Approve / Hide / Delete",
-    desc: "Every submission lands in your dashboard. Review each one and approve, hide, or delete with a single click before it shows on your site.",
-  },
-  {
-    icon: Code2,
-    title: "One-Line Embed",
-    desc: "Paste one script tag anywhere — plain HTML, Framer, Webflow, or any no-code tool. Your Wall of Love appears instantly and auto-resizes.",
-  },
-  {
-    icon: Zap,
-    title: "Lightweight & Fast",
-    desc: "The embed script is tiny and loads in an iframe with no layout shift. Built to stay out of the way of your site's performance.",
+    icon: Mail,
+    title: "Email notifications",
+    desc: "Get notified instantly when a new testimonial is submitted.",
   },
 ];
 
@@ -46,10 +53,10 @@ export default function Features() {
             className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Everything you need for v1.
+            Everything you need, built in.
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-center text-lg text-[#6B6B6B]">
-            No fluff. Just the core tools to collect, curate, and display
+            No fluff. Just the core tools to collect, polish, and display
             testimonials — working today.
           </p>
         </FadeIn>

@@ -11,18 +11,18 @@ interface BarData {
 
 const BARS: BarData[] = [
   {
-    label: "Cheapest rival (WiserReview $9/mo)",
+    label: "WiserReview — $9/mo",
     years: [108, 216, 324],
     color: "#ECE7E0",
   },
   {
-    label: "Average rival (Senja $29/mo)",
-    years: [348, 696, 1044],
+    label: "Testimonial.to — $25/mo",
+    years: [300, 600, 900],
     color: "#D4CEC7",
   },
   {
-    label: "Premium rival (Testimonial.to $60/mo)",
-    years: [720, 1440, 2160],
+    label: "Senja — $29/mo",
+    years: [348, 696, 1044],
     color: "#BFBAB2",
   },
   {
@@ -33,7 +33,7 @@ const BARS: BarData[] = [
   },
 ];
 
-const MAX = 2160;
+const MAX = 1044;
 
 export default function CostComparison() {
   return (
@@ -53,7 +53,7 @@ export default function CostComparison() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-center text-lg text-[#6B6B6B]">
             Most testimonial tools cost{" "}
-            <strong className="text-[#1A1A1A]">$108–$960 per year</strong>.
+            <strong className="text-[#1A1A1A]">$108–$348 per year</strong>.
             Blovi is $49 — total. For life.
           </p>
         </FadeIn>
@@ -69,11 +69,11 @@ export default function CostComparison() {
                 className="mt-3 text-[2.5rem] font-extrabold text-[#1A1A1A]"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                $9–$80
+                $9–$29
               </p>
               <p className="mt-1 text-base text-[#6B6B6B]">per month, forever</p>
               <p className="mt-3 text-sm text-[#6B6B6B]">
-                = $108–$960 per year, every year
+                = $108–$348 per year, every year
               </p>
             </div>
 

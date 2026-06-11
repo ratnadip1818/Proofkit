@@ -6,19 +6,19 @@ const STEPS = [
     num: "01",
     icon: Link2,
     title: "Collect",
-    desc: "Share your unique Blovi link with customers. They fill out a short form — name, role, rating, and their testimonial. No login needed on their end.",
+    desc: "Share your collection form link with customers. They fill out a short form — name, role, rating, and their testimonial. No login needed on their end.",
   },
   {
     num: "02",
     icon: CheckSquare,
-    title: "Curate",
-    desc: "Every submission lands in your inbox. Review, approve, or hide testimonials with a single click. Full control over what goes live.",
+    title: "Polish",
+    desc: "Approve testimonials in your dashboard, and improve any of them with one click using AI. The original is always preserved.",
   },
   {
     num: "03",
     icon: Code2,
     title: "Embed",
-    desc: "Paste one script tag anywhere — your site, Notion, Framer, Webflow, or any no-code tool. Your Wall of Love appears instantly and auto-resizes.",
+    desc: "Paste one script tag — your Wall of Love (or Carousel, Marquee, Single Quote) appears on your site instantly and auto-resizes.",
   },
 ];
 

@@ -6,28 +6,36 @@ import FadeIn from "./FadeIn";
 
 const FAQS = [
   {
-    q: "Is it really a one-time payment?",
-    a: "Yes. You pay $49 once and Blovi is yours for life — no renewals, no annual billing, no surprise charges. That's the whole deal.",
+    q: "Is this really a one-time payment?",
+    a: "Yes. Pay $49 once and use Blovi forever. No hidden fees, no renewal.",
   },
   {
-    q: "What does 'lifetime' mean exactly?",
-    a: "Lifetime means as long as Blovi exists as a product, you have full access. You'll receive all feature updates and improvements at no extra cost.",
+    q: "What does ‘lifetime’ mean?",
+    a: "You get access for the lifetime of Blovi. If we ever shut down (unlikely), we'll give you 6 months notice.",
   },
   {
-    q: "How do I migrate from Senja or Testimonial.to?",
-    a: "Currently you can paste existing testimonials manually into Blovi using the collection form. CSV import and direct platform imports are on the roadmap.",
+    q: "Is there a free trial?",
+    a: "No free trial, but we offer a 30-day money-back guarantee. Not happy? Full refund, no questions.",
   },
   {
-    q: "Are there any limits or hidden fees?",
-    a: "V1 supports text testimonials — no limit on how many you collect. Video testimonials are on the roadmap. No per-domain fees, no per-seat charges, no usage caps.",
+    q: "What payment methods are accepted?",
+    a: "All major credit/debit cards via Paddle.",
   },
   {
-    q: "What happens to my testimonials if I cancel?",
-    a: "You don't cancel — there's nothing to cancel. Your one-time payment means you own access permanently. Your data is yours.",
+    q: "Can I use this for multiple websites?",
+    a: "Yes. One account works on unlimited websites.",
   },
   {
-    q: "Does the embed work on my platform?",
-    a: "Yes. The embed is a lightweight script tag that works on any HTML page, Framer, Webflow, WordPress, Ghost, Notion (embed block), and more. If it can run JavaScript, it runs Blovi.",
+    q: "Do you have video testimonials?",
+    a: "Not yet. Text testimonials with photos are supported now. Video is on the roadmap.",
+  },
+  {
+    q: "What makes Blovi different from Senja?",
+    a: "Blovi has an AI improvement button Senja doesn't have. And Blovi is $49 once vs $29/month forever.",
+  },
+  {
+    q: "How do I get support?",
+    a: "Email hello@blovi.space. We reply within 24 hours.",
   },
 ];
 

@@ -25,7 +25,7 @@ export default function RefundPage() {
                 30-Day Money-Back Guarantee
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                We offer a <strong className="text-[#1A1A1A]">full refund within 30 days</strong> of purchase, no questions asked. If Blovi isn't the right fit for you, we don't want to keep your money.
+                We offer a <strong className="text-[#1A1A1A]">full refund within 30 days</strong> of purchase, no questions asked. If Blovi isn&apos;t the right fit for you, we don&apos;t want to keep your money.
               </p>
             </section>
 
@@ -40,18 +40,18 @@ export default function RefundPage() {
                 <li>
                   Email{" "}
                   <a
-                    href="mailto:ratnadipubale01@gmail.com"
+                    href="mailto:hello@blovi.space"
                     className="text-[#E8743B] hover:underline"
                   >
-                    ratnadipubale01@gmail.com
+                    hello@blovi.space
                   </a>{" "}
-                  with the subject line "Refund Request"
+                  with the subject line &quot;Refund Request&quot;
                 </li>
                 <li>Include the email address associated with your Blovi account</li>
                 <li>Include your payment receipt or order ID if you have it</li>
               </ol>
               <p className="text-[#6B6B6B] leading-relaxed mt-3">
-                We'll confirm your refund request within 1–2 business days.
+                We&apos;ll confirm your refund request within 1–2 business days.
               </p>
             </section>
 
@@ -60,7 +60,7 @@ export default function RefundPage() {
                 Processing Time
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                Approved refunds are processed within <strong className="text-[#1A1A1A]">5–7 business days</strong>. The time for the refund to appear on your statement depends on your payment provider and bank.
+                Approved refunds are processed within <strong className="text-[#1A1A1A]">5–7 business days</strong> via Paddle, our payment processor. The time for the refund to appear on your statement depends on your payment provider and bank.
               </p>
             </section>
 
@@ -69,7 +69,7 @@ export default function RefundPage() {
                 After 30 Days
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                Refund requests made after the 30-day window are reviewed on a case-by-case basis. We're a small indie product and we genuinely want every customer to be happy — reach out and we'll do our best to find a fair resolution.
+                Refund requests made after the 30-day window are reviewed on a case-by-case basis. We&apos;re a small indie product and we genuinely want every customer to be happy — reach out and we&apos;ll do our best to find a fair resolution.
               </p>
             </section>
 
@@ -80,10 +80,10 @@ export default function RefundPage() {
               <p className="text-[#6B6B6B] leading-relaxed">
                 Any questions?{" "}
                 <a
-                  href="mailto:ratnadipubale01@gmail.com"
+                  href="mailto:hello@blovi.space"
                   className="text-[#E8743B] hover:underline"
                 >
-                  ratnadipubale01@gmail.com
+                  hello@blovi.space
                 </a>
               </p>
             </section>

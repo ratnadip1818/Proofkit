@@ -1,11 +1,10 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import LogoStrip from "@/components/LogoStrip";
-import CostComparison from "@/components/CostComparison";
-import ProblemSolution from "@/components/ProblemSolution";
+import UniqueFeature from "@/components/UniqueFeature";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
-import Personas from "@/components/Personas";
+import CostComparison from "@/components/CostComparison";
 import WallOfLove from "@/components/WallOfLove";
 import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
@@ -19,11 +18,10 @@ export default function LandingPage() {
       <main className="w-full overflow-x-hidden flex flex-col flex-1">
         <Hero />
         <LogoStrip />
-        <CostComparison />
-        <ProblemSolution />
+        <UniqueFeature />
         <HowItWorks />
         <Features />
-        <Personas />
+        <CostComparison />
         <WallOfLove />
         <Pricing />
         <FAQ />

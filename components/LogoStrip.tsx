@@ -9,8 +9,7 @@ export default function LogoStrip() {
             className="text-center text-lg font-semibold text-[#6B6B6B]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Built for indie founders who are tired of paying monthly for simple
-            tools.
+            Built for indie founders, bootstrappers, agencies and freelancers
           </p>
         </FadeIn>
       </div>

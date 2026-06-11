@@ -1,21 +1,18 @@
 import Link from "next/link";
-import { Check, Clock } from "lucide-react";
+import { Check } from "lucide-react";
 import FadeIn from "./FadeIn";
 
-const FEATURES_NOW = [
+const FEATURES = [
   "Unlimited text testimonials",
+  "AI-powered improvement button",
+  "Wall of Love embed widget",
+  "Carousel, Marquee & Single Quote widgets",
   "Shareable collection form",
-  "Embeddable Wall of Love widget",
-  "Approve / hide / delete dashboard",
-  "Star ratings & author profiles",
-  "One-line embed script",
+  "Form customization (colors, headline, prompt)",
+  "CSV import",
+  "Email notifications",
   "Lifetime access — pay once",
   "All future updates included",
-];
-
-const FEATURES_SOON = [
-  "Video testimonials",
-  "Platform imports (Twitter/X, Google, etc.)",
 ];
 
 export default function Pricing() {
@@ -63,16 +60,16 @@ export default function Pricing() {
                 </span>
               </div>
               <p className="mt-1 text-lg font-semibold text-[#6B6B6B]">
-                one time payment
+                one-time payment
               </p>
               <p className="mt-1 text-sm text-[#2E9E6B] font-medium">
-                vs $108–$960/yr with competitors
+                vs $300–$350/year with competitors
               </p>
             </div>
 
-            {/* What's included now */}
+            {/* What's included */}
             <ul className="mt-8 space-y-3">
-              {FEATURES_NOW.map((f) => (
+              {FEATURES.map((f) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-[#1A1A1A]">
                   <Check size={16} className="shrink-0 text-[#2E9E6B]" strokeWidth={2.5} />
                   {f}
@@ -80,33 +77,17 @@ export default function Pricing() {
               ))}
             </ul>
 
-            {/* Coming soon */}
-            <div className="mt-6 rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] px-4 py-4">
-              <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">
-                <Clock size={12} />
-                Coming soon — included when ready
-              </p>
-              <ul className="space-y-2">
-                {FEATURES_SOON.map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-[#6B6B6B]">
-                    <Clock size={14} className="shrink-0 text-[#6B6B6B]" strokeWidth={2} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
             {/* CTA */}
-            {/* TODO: wire up payment — currently links to free signup */}
+            {/* TODO: replace with Paddle checkout URL */}
             <Link
               href="/signup"
               className="mt-7 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
             >
-              Get Blovi — $49 once
+              Get Blovi — $49
             </Link>
 
             <p className="mt-3 text-center text-xs text-[#6B6B6B]">
-              No subscription · No per-seat fees · Pay once, use forever
+              30-day money-back guarantee
             </p>
           </div>
         </FadeIn>

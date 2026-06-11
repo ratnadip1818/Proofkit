@@ -28,11 +28,12 @@ export default function FinalCTA() {
           </p>
 
           <div className="mt-10">
+            {/* TODO: replace with Paddle checkout URL */}
             <Link
               href="/signup"
               className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
             >
-              Get Blovi — $49 once
+              Get Blovi now
               <ArrowRight
                 size={20}
                 className="transition-transform group-hover:translate-x-1"

@@ -1,0 +1,124 @@
+import Link from "next/link";
+import { Mail, CreditCard, ShieldCheck } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import FadeIn from "@/components/FadeIn";
+
+export const metadata = {
+  title: "Contact — Blovi",
+};
+
+const CARDS = [
+  {
+    icon: Mail,
+    title: "General support",
+    desc: "Questions about your account, a bug you've spotted, or how something works.",
+    email: "hello@blovi.space",
+  },
+  {
+    icon: CreditCard,
+    title: "Billing & refunds",
+    desc: "Payment issues, receipts, or requesting a refund within your 30-day window.",
+    email: "hello@blovi.space",
+    link: { href: "/refund", label: "View refund policy" },
+  },
+  {
+    icon: ShieldCheck,
+    title: "Privacy & data",
+    desc: "Access, export, or delete your account data, or ask how we handle it.",
+    email: "hello@blovi.space",
+    link: { href: "/privacy", label: "View privacy policy" },
+  },
+];
+
+export default function ContactPage() {
+  return (
+    <div className="w-full min-h-screen overflow-x-hidden flex flex-col">
+      <Navbar />
+      <main className="w-full overflow-x-hidden flex flex-col flex-1 bg-[#FAF8F5]">
+        <section className="w-full pt-20 pb-16 px-5 md:px-10 text-center">
+          <div className="mx-auto w-full max-w-[1200px]">
+            <FadeIn>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#E8743B] mb-4">
+                Contact
+              </p>
+              <h1
+                className="text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-tight text-[#1A1A1A]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Get in touch.
+              </h1>
+              <p className="mx-auto mt-5 max-w-lg text-lg text-[#6B6B6B]">
+                Blovi is built and run by a solo founder. Email us and
+                we&apos;ll get back to you within 24 hours.
+              </p>
+            </FadeIn>
+          </div>
+        </section>
+
+        <section className="w-full pb-24 px-5 md:px-10">
+          <div className="mx-auto w-full max-w-[1200px]">
+            <div className="grid gap-6 md:grid-cols-3">
+              {CARDS.map((card, i) => (
+                <FadeIn key={card.title} delay={i * 0.08}>
+                  <div className="h-full rounded-2xl border border-[#ECE7E0] bg-white p-8">
+                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#E8743B]/10">
+                      <card.icon size={20} className="text-[#E8743B]" />
+                    </div>
+                    <h2
+                      className="text-lg font-bold text-[#1A1A1A] mb-2"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {card.title}
+                    </h2>
+                    <p className="text-sm text-[#6B6B6B] leading-relaxed mb-4">
+                      {card.desc}
+                    </p>
+                    <a
+                      href={`mailto:${card.email}`}
+                      className="block text-sm font-semibold text-[#E8743B] hover:underline"
+                    >
+                      {card.email}
+                    </a>
+                    {card.link && (
+                      <Link
+                        href={card.link.href}
+                        className="mt-2 block text-sm text-[#6B6B6B] underline transition-colors hover:text-[#1A1A1A]"
+                      >
+                        {card.link.label}
+                      </Link>
+                    )}
+                  </div>
+                </FadeIn>
+              ))}
+            </div>
+
+            <FadeIn delay={0.24}>
+              <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm">
+                <Link
+                  href="/privacy"
+                  className="text-[#6B6B6B] underline transition-colors hover:text-[#1A1A1A]"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="/terms"
+                  className="text-[#6B6B6B] underline transition-colors hover:text-[#1A1A1A]"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  href="/refund"
+                  className="text-[#6B6B6B] underline transition-colors hover:text-[#1A1A1A]"
+                >
+                  Refund Policy
+                </Link>
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}

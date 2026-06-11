@@ -17,12 +17,12 @@ export default function WallOfLove() {
             Be one of our first customers.
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-lg text-[#6B6B6B]">
-            Blovi is freshly launched. Early customers get the lifetime deal
-            at $49 — and their testimonial featured right here.
+            Blovi is freshly launched. Early customers get the $49 lifetime
+            deal — and their testimonial featured right here.
           </p>
 
           <div className="mt-10">
-            {/* TODO: wire up payment — currently links to free signup */}
+            {/* TODO: replace with Paddle checkout URL */}
             <Link
               href="/signup"
               className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"

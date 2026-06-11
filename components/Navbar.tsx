@@ -51,13 +51,21 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* CTA */}
-        <Link
-          href="/signup"
-          className="rounded-full bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 active:scale-95 shadow-sm"
-        >
-          Get the $49 deal
-        </Link>
+        {/* Right side */}
+        <div className="flex items-center gap-4 md:gap-6">
+          <Link
+            href="/login"
+            className="hidden text-sm font-medium text-[#6B6B6B] transition-colors hover:text-[#1A1A1A] sm:inline"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-full bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 active:scale-95 shadow-sm"
+          >
+            Get Blovi — $49
+          </Link>
+        </div>
       </nav>
     </header>
   );
