@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import PaddleCheckout from "@/components/PaddleCheckout";
 import Reveal from "./Reveal";
+import LiveWidgetDemo from "./LiveWidgetDemo";
 
 function SkeletonCard({ seed }: { seed: number }) {
   return (
@@ -101,6 +102,8 @@ export default function WallOfLoveMarquee() {
           <p className="mt-6 text-center text-xs text-[#6B6B6B]">
             Your testimonial could be here.
           </p>
+
+          <LiveWidgetDemo />
         </Reveal>
       </div>
     </section>
