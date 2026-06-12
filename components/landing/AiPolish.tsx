@@ -20,22 +20,31 @@ export default function AiPolish() {
     if (!section || prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
+      // Hide everything before first paint — otherwise elements render
+      // visible and "blink out" one by one as their tween starts
+      gsap.set(".polish-original", { autoAlpha: 0, x: -40 });
+      gsap.set(".polish-button", { autoAlpha: 0, scale: 0 });
+      gsap.set(".polish-result", { autoAlpha: 0, x: 40 });
+      gsap.set(".polish-badge", { autoAlpha: 0, scale: 0, rotate: -12 });
+      gsap.set(".polish-chip", { autoAlpha: 0, y: 16 });
+      // Seed the polished card with the messy text so the scramble reveals
+      // the clean version once, instead of re-scrambling visible text
+      if (polishedRef.current) {
+        polishedRef.current.textContent = `“${ORIGINAL}”`;
+      }
+
       const tl = gsap.timeline({
         defaults: { ease: "power3.out" },
         scrollTrigger: { trigger: ".polish-stage", start: "top 70%", once: true },
       });
 
-      tl.fromTo(
-        ".polish-original",
-        { autoAlpha: 0, x: -40 },
-        { autoAlpha: 1, x: 0, duration: 0.7 },
-      )
-        .fromTo(
+      tl.to(".polish-original", { autoAlpha: 1, x: 0, duration: 0.7 })
+        .to(
           ".polish-button",
-          { autoAlpha: 0, scale: 0 },
           { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(2.2)" },
           "-=0.2",
         )
+        .to(".polish-result", { autoAlpha: 1, x: 0, duration: 0.7 }, "-=0.1")
         .to(".polish-button", {
           scale: 1.18,
           duration: 0.18,
@@ -43,12 +52,6 @@ export default function AiPolish() {
           repeat: 1,
           ease: "power2.inOut",
         })
-        .fromTo(
-          ".polish-result",
-          { autoAlpha: 0, x: 40 },
-          { autoAlpha: 1, x: 0, duration: 0.7 },
-          "-=0.1",
-        )
         .to(
           polishedRef.current,
           {
@@ -59,17 +62,15 @@ export default function AiPolish() {
               speed: 0.5,
             },
           },
-          "-=0.3",
+          "-=0.1",
         )
-        .fromTo(
+        .to(
           ".polish-badge",
-          { autoAlpha: 0, scale: 0, rotate: -12 },
           { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.5, ease: "back.out(2)" },
           "-=0.5",
         )
-        .fromTo(
+        .to(
           ".polish-chip",
-          { autoAlpha: 0, y: 16 },
           { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.08 },
           "-=1.2",
         );
