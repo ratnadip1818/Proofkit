@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPlanStatus, getTrialDaysLeft, type PlanStatus } from "@/lib/plan";
 import DashboardSidebar from "./dashboard-sidebar";
@@ -12,19 +13,20 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let planStatus: PlanStatus = "trial";
-  let daysLeft = 0;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_lifetime, created_at")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (profile) {
-      planStatus = getPlanStatus(profile);
-      daysLeft = getTrialDaysLeft(profile);
-    }
-  }
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_lifetime, created_at, full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  // Onboarding is complete once a name is saved — until then, every
+  // dashboard route funnels back through the onboarding flow.
+  if (!profile?.full_name) redirect("/onboarding");
+
+  const planStatus: PlanStatus = getPlanStatus(profile);
+  const daysLeft = getTrialDaysLeft(profile);
 
   return (
     <div className="min-h-screen bg-[#FAF8F5]">

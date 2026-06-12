@@ -50,13 +50,33 @@ export async function POST(request: Request) {
     if (customerId) {
       const customer = await paddle.customers.get(customerId);
       const user = await findUserByEmail(customer.email);
+      const supabase = createAdminClient();
 
       if (user) {
-        const supabase = createAdminClient();
         await supabase
           .from("profiles")
-          .update({ is_lifetime: true })
-          .eq("id", user.id);
+          .upsert({ id: user.id, is_lifetime: true });
+      } else {
+        // Buyer paid from the landing page without an account — create one,
+        // unlock it, and email an invite so they can set a password.
+        const siteUrl =
+          process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
+        const { data: invited, error: inviteError } =
+          await supabase.auth.admin.inviteUserByEmail(customer.email, {
+            redirectTo: `${siteUrl}/auth/callback`,
+          });
+
+        if (inviteError || !invited?.user) {
+          // Non-200 makes Paddle retry instead of dropping the payment
+          return NextResponse.json(
+            { error: "Failed to provision account for buyer" },
+            { status: 500 }
+          );
+        }
+
+        await supabase
+          .from("profiles")
+          .upsert({ id: invited.user.id, is_lifetime: true });
       }
     }
   }
