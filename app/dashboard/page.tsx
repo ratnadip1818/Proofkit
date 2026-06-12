@@ -6,7 +6,6 @@ import EmbedCode from "./embed-code";
 import CopyLinkButton from "./copy-link-button";
 import StatsCards from "./stats-cards";
 import FreePlanBanner from "./free-plan-banner";
-import TestWidgetCard from "./test-widget-card";
 import { ExternalLink, ArrowRight } from "lucide-react";
 
 const APP_URL =
@@ -39,9 +38,6 @@ export default async function DashboardPage() {
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
   const isLifetime = profile?.is_lifetime ?? false;
   const firstName = profile?.full_name?.trim().split(/\s+/)[0] ?? null;
-  const approvedCount = (testimonials ?? []).filter(
-    (t) => t.status === "approved"
-  ).length;
 
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
@@ -124,11 +120,6 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {approvedCount === 0 && (
-          <div className="mt-5">
-            <TestWidgetCard userId={user.id} />
-          </div>
-        )}
       </div>
     </div>
   );
