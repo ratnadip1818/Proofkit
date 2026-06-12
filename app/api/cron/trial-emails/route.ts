@@ -6,12 +6,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 const HOUR = 60 * 60 * 1000;
 
 /**
- * Daily cron (vercel.json): trial lifecycle emails.
+ * Daily cron (vercel.json): free-plan lifecycle emails.
  *
  * Runs once a day, so 24h-wide windows mean each account receives each
  * email exactly once — no sent-flag bookkeeping needed:
- *   - created 48–72h ago  -> "your preview ends today" reminder
- *   - created 72–96h ago  -> "your preview has ended" notice
+ *   - created 48–72h ago  -> day-2 nudge (get set up, what Pro unlocks)
+ *   - created 72–96h ago  -> day-3 upsell (unlimited testimonials pitch)
  */
 
 function emailShell(heading: string, body: string, cta: string) {
@@ -32,19 +32,19 @@ function emailShell(heading: string, body: string, cta: string) {
 
 const TEMPLATES = {
   endsToday: {
-    subject: "Your Blovi preview ends today",
+    subject: "Getting the most out of Blovi",
     html: emailShell(
-      "Your free preview ends today",
-      "You've had a chance to see how your Wall of Love looks. Unlock testimonial collection and your live embed before your preview ends — it's a single $49 payment, yours forever.",
-      "Unlock Blovi — $49 once"
+      "How's your Wall of Love coming along?",
+      "You're on the free plan: collect as many testimonials as you like, and your widget shows the 3 most recent. When you're ready, one $49 payment unlocks unlimited testimonials, every widget style, and badge removal — forever.",
+      "Unlock everything — $49 once"
     ),
   },
   expired: {
-    subject: "Your Blovi preview has ended — here's what you're missing",
+    subject: "Show every testimonial you've earned",
     html: emailShell(
-      "Your free preview has ended",
-      "Your widget link is paused and testimonial collection is locked. One $49 payment turns everything back on for life — no monthly fees, all future updates included.",
-      "Reactivate for $49 — once"
+      "Your widget only shows 3 of your testimonials",
+      "Social proof works best in volume. Upgrade once for $49 and your wall shows every approved testimonial, plus Carousel, Marquee and Single Quote widgets — no monthly fees, all future updates included.",
+      "Upgrade — $49 once"
     ),
   },
 };

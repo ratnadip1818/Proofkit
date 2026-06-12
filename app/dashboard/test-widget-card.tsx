@@ -10,7 +10,7 @@ const STEPS = [
   "Copy the test snippet below.",
   "Paste it into your website's HTML, where you want the widget to appear.",
   "Reload your site — you'll see 9 sample testimonials so you can preview the look and feel.",
-  "When you upgrade, swap this for your live embed snippet to show your real testimonials.",
+  "Once you've approved real testimonials, swap this for your live embed snippet from the Widgets page.",
 ];
 
 export default function TestWidgetCard({ userId }: { userId: string }) {

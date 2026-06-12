@@ -9,7 +9,9 @@ import {
   GalleryHorizontal,
   Rows3,
   Quote,
+  Lock,
 } from "lucide-react";
+import PaddleCheckout from "@/components/PaddleCheckout";
 import {
   WallContent,
   CarouselContent,
@@ -80,12 +82,12 @@ function Toggle({
 export default function WidgetBuilder({
   userId,
   isLifetime,
-  locked = false,
+  email,
   testimonials,
 }: {
   userId: string;
   isLifetime: boolean;
-  locked?: boolean;
+  email?: string;
   testimonials: Testimonial[];
 }) {
   const [widgetType, setWidgetType] = useState<WidgetType>("wall");
@@ -99,8 +101,8 @@ export default function WidgetBuilder({
 
   const maxCount = max === "all" ? null : Number(max);
   const badgeOn = isLifetime ? showBadge : true;
-  // Trial accounts have no collected testimonials yet — preview with samples
-  // so every style/theme choice is actually visible.
+  // No approved testimonials yet — preview with samples so every
+  // style/theme choice is actually visible.
   const usingSamples = testimonials.length === 0;
   const previewList = usingSamples ? SAMPLE_TESTIMONIALS : testimonials;
   const featured = previewList[featuredIndex] ?? previewList[0] ?? null;
@@ -115,7 +117,6 @@ export default function WidgetBuilder({
   params.set("ratings", showRatings ? "true" : "false");
   if (widgetType === "single") params.set("featured", String(featuredIndex));
   if (isLifetime) params.set("badge", showBadge ? "true" : "false");
-  if (locked) params.set("demo", "1");
   const query = params.toString();
 
   const liveUrl = `${APP_URL}/embed/${userId}?${query}`;
@@ -130,7 +131,6 @@ export default function WidgetBuilder({
   );
   if (widgetType === "single") dataAttrs.push(`data-featured="${featuredIndex}"`);
   if (isLifetime) dataAttrs.push(`data-badge="${showBadge ? "true" : "false"}"`);
-  if (locked) dataAttrs.push(`data-demo="1"`);
 
   const snippet = `<script src="${APP_URL}/widget.js" ${dataAttrs.join(" ")}></script>`;
 
@@ -143,21 +143,41 @@ export default function WidgetBuilder({
   return (
     <div>
       <div className="mb-5 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm">
-        {WIDGET_TYPES.map((t) => (
-          <button
-            key={t.value}
-            type="button"
-            onClick={() => setWidgetType(t.value)}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
-              widgetType === t.value
-                ? "bg-[#E8743B] text-white shadow-sm"
-                : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
-            }`}
-          >
-            <t.icon size={15} />
-            {t.label}
-          </button>
-        ))}
+        {WIDGET_TYPES.map((t) => {
+          // Free tier: only Wall of Love — other types open checkout
+          const typeLocked = !isLifetime && t.value !== "wall";
+          if (typeLocked) {
+            return (
+              <PaddleCheckout
+                key={t.value}
+                email={email}
+                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-[#9CA3AF] transition-all duration-200 hover:bg-[#FFF4EE] hover:text-[#E8743B]"
+              >
+                <t.icon size={15} />
+                {t.label}
+                <span className="flex items-center gap-1 rounded-full bg-[#E8743B]/10 px-2 py-0.5 text-[10px] font-bold text-[#E8743B]">
+                  <Lock size={9} />
+                  Upgrade to unlock
+                </span>
+              </PaddleCheckout>
+            );
+          }
+          return (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setWidgetType(t.value)}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                widgetType === t.value
+                  ? "bg-[#E8743B] text-white shadow-sm"
+                  : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
+              }`}
+            >
+              <t.icon size={15} />
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -312,10 +332,10 @@ export default function WidgetBuilder({
                 {snippet}
               </code>
             </div>
-            {locked && (
+            {!isLifetime && (
               <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
-                Test mode — this snippet shows sample testimonials on your
-                site. Upgrade to Pro to display your real ones.
+                Free plan — your widget shows your 3 most recent approved
+                testimonials. Upgrade for unlimited.
               </p>
             )}
           </div>

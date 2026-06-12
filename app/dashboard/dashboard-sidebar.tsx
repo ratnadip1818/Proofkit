@@ -18,7 +18,6 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
-import type { PlanStatus } from "@/lib/plan";
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Testimonials", icon: MessageSquare, href: "/dashboard/testimonials" },
@@ -37,15 +36,13 @@ function isActive(pathname: string, itemHref: string): boolean {
 function SidebarInner({
   email,
   pathname,
-  planStatus,
-  daysLeft,
+  isLifetime,
   onItemClick,
   onSignOut,
 }: {
   email: string | null;
   pathname: string;
-  planStatus: PlanStatus;
-  daysLeft: number;
+  isLifetime: boolean;
   onItemClick: () => void;
   onSignOut: () => void;
 }) {
@@ -81,7 +78,7 @@ function SidebarInner({
         </ul>
       </nav>
       <div className="border-t border-[#ECE7E0] p-4">
-        {planStatus !== "pro" && (
+        {!isLifetime && (
           <Link
             href="/dashboard/billing"
             onClick={onItemClick}
@@ -89,12 +86,10 @@ function SidebarInner({
           >
             <p className="flex items-center gap-1.5 text-xs font-semibold text-[#1A1A1A]">
               <Sparkles size={12} className="text-[#E8743B]" />
-              {planStatus === "expired"
-                ? "Free preview ended"
-                : `Free preview — ${daysLeft} day${daysLeft === 1 ? "" : "s"} left`}
+              Free plan — 3 testimonials on widget
             </p>
             <p className="mt-0.5 text-[11px] font-semibold text-[#E8743B]">
-              Upgrade to Pro — $49 once →
+              Upgrade for unlimited — $49 once →
             </p>
           </Link>
         )}
@@ -120,12 +115,10 @@ function SidebarInner({
 
 export default function DashboardSidebar({
   email,
-  planStatus,
-  daysLeft,
+  isLifetime,
 }: {
   email: string | null;
-  planStatus: PlanStatus;
-  daysLeft: number;
+  isLifetime: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -150,8 +143,7 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           pathname={pathname}
-          planStatus={planStatus}
-          daysLeft={daysLeft}
+          isLifetime={isLifetime}
           onItemClick={() => {}}
           onSignOut={handleSignOut}
         />
@@ -201,8 +193,7 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           pathname={pathname}
-          planStatus={planStatus}
-          daysLeft={daysLeft}
+          isLifetime={isLifetime}
           onItemClick={() => setMobileOpen(false)}
           onSignOut={handleSignOut}
         />

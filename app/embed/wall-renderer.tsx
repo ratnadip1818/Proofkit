@@ -238,39 +238,6 @@ function EmptyState({ colors }: { colors: ThemeColors }) {
   );
 }
 
-export function ExpiredPlaceholder({ theme }: { theme: WallTheme }) {
-  const colors = THEME[theme];
-  return (
-    <div
-      style={{
-        fontFamily: FONT,
-        padding: "32px 16px",
-        background: colors.pageBg,
-        textAlign: "center",
-      }}
-    >
-      <p style={{ margin: 0, fontSize: "14px", color: colors.emptyText }}>
-        This Blovi widget is paused.
-      </p>
-      <a
-        href="https://www.blovi.space/pricing"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: "inline-block",
-          marginTop: "10px",
-          fontSize: "13px",
-          fontWeight: 600,
-          color: colors.accent,
-          textDecoration: "none",
-        }}
-      >
-        Site owner: upgrade to re-enable →
-      </a>
-    </div>
-  );
-}
-
 function BadgeLink({ colors }: { colors: ThemeColors }) {
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>

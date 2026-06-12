@@ -29,17 +29,6 @@ export async function submitTestimonial(
   const supabase = await createClient();
   const admin = createAdminClient();
 
-  // Collection is a Pro feature — enforce server-side, not just in the UI
-  const { data: ownerProfile } = await admin
-    .from("profiles")
-    .select("is_lifetime")
-    .eq("id", input.userId)
-    .maybeSingle();
-
-  if (!ownerProfile?.is_lifetime) {
-    return { error: "This form isn't accepting submissions yet." };
-  }
-
   // Rate limit: cap submissions per form within a 1 hour window
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count } = await admin

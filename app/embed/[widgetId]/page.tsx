@@ -1,11 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getPlanStatus } from "@/lib/plan";
+import { FREE_WIDGET_TESTIMONIAL_LIMIT } from "@/lib/limits";
 import {
   WallContent,
   CarouselContent,
   MarqueeContent,
   SingleQuoteContent,
-  ExpiredPlaceholder,
   SAMPLE_TESTIMONIALS,
   type Testimonial,
   type WidgetType,
@@ -31,7 +30,7 @@ export default async function EmbedPage({
   const sp = await searchParams;
   const isDemo = sp.demo === "1";
 
-  const type: WidgetType =
+  const requestedType: WidgetType =
     sp.type === "carousel" || sp.type === "marquee" || sp.type === "single"
       ? sp.type
       : "wall";
@@ -54,7 +53,7 @@ export default async function EmbedPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("profiles")
-      .select("is_lifetime, created_at")
+      .select("is_lifetime")
       .eq("id", widgetId)
       .maybeSingle(),
   ]);
@@ -62,11 +61,16 @@ export default async function EmbedPage({
   const isLifetime = profile?.is_lifetime ?? false;
   const showBadge = !isLifetime || sp.badge !== "false";
 
-  if (!isDemo && profile && getPlanStatus(profile) === "expired") {
-    return <ExpiredPlaceholder theme={theme} />;
-  }
-
-  const list = isDemo ? SAMPLE_TESTIMONIALS : ((testimonials ?? []) as Testimonial[]);
+  // Free tier: Wall of Love only, capped at the most recent approved
+  // testimonials (enforced here, not just in the dashboard UI)
+  const type: WidgetType = isLifetime || isDemo ? requestedType : "wall";
+  const approved = (testimonials ?? []) as Testimonial[];
+  const capped = !isDemo && !isLifetime && approved.length > FREE_WIDGET_TESTIMONIAL_LIMIT;
+  const list = isDemo
+    ? SAMPLE_TESTIMONIALS
+    : isLifetime
+      ? approved
+      : approved.slice(0, FREE_WIDGET_TESTIMONIAL_LIMIT);
 
   return (
     <>
@@ -100,6 +104,24 @@ export default async function EmbedPage({
           showBadge={showBadge}
           maxCount={maxCount}
         />
+      )}
+
+      {capped && (
+        <div style={{ textAlign: "center", paddingBottom: "12px" }}>
+          <a
+            href="https://www.blovi.space/pricing"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: "11px",
+              color: theme === "dark" ? "#a1a1aa" : "#9ca3af",
+              textDecoration: "none",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            }}
+          >
+            Showing {FREE_WIDGET_TESTIMONIAL_LIMIT} of {approved.length} — upgrade for unlimited
+          </a>
+        </div>
       )}
 
       {/* Post height to parent for iframe auto-resize */}

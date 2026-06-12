@@ -183,24 +183,23 @@ export default function OnboardingFlow() {
                   You&apos;re all set!
                 </h1>
                 <p className="mt-1 text-sm text-[#6B6B6B]">
-                  Your 3-day free preview starts now.
+                  You&apos;re on the free plan — start collecting right away.
                 </p>
               </div>
 
               <ul className="flex flex-col gap-3 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-4 text-sm text-[#1A1A1A]">
                 <li className="flex items-start gap-2.5">
                   <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
-                  Test the widget on your own site with sample testimonials
+                  Share your collection form and gather real testimonials
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
-                  Customize widget styles, themes and your collection form
+                  Embed your Wall of Love — shows your 3 most recent
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="mt-0.5" aria-hidden="true">🔒</span>
                   <span>
-                    Collecting real testimonials &amp; your live embed unlock
-                    with Pro —{" "}
+                    Unlimited testimonials &amp; all widget styles with Pro —{" "}
                     <span className="font-semibold text-[#E8743B]">$49 once</span>
                   </span>
                 </li>

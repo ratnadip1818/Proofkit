@@ -48,8 +48,8 @@ const FAQS = [
     a: "You get access for the lifetime of Blovi. If we ever shut down, we'll give 6 months notice.",
   },
   {
-    q: "Is there a free trial?",
-    a: "Yes — every new account gets a free 3-day preview where you can see the widget rendered with sample testimonials on your own site. Collecting real testimonials and the live embed unlock with the $49 one-time payment. We also offer a 30-day money-back guarantee after purchase.",
+    q: "Is there a free plan?",
+    a: "Yes — the free plan lets you collect testimonials and embed a Wall of Love showing your 3 most recent. The $49 one-time payment unlocks unlimited testimonials, all widget styles (Carousel, Marquee, Single Quote), and badge removal. Plus a 30-day money-back guarantee.",
   },
   {
     q: "What payment methods are accepted?",
@@ -154,7 +154,7 @@ export default function PricingPage() {
                 </PaddleCheckout>
 
                 <p className="mt-4 text-center text-sm font-medium text-[#E8743B]">
-                  ✦ New accounts get a free 3-day widget preview
+                  ✦ Free plan available — collect testimonials, show your 3 best
                 </p>
                 <p className="mt-1 text-center text-sm text-[#6B6B6B]">
                   30-day money-back guarantee · No questions asked
