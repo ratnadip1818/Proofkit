@@ -22,6 +22,7 @@ import {
   type WallLayout,
   type WallTheme,
   type WidgetType,
+  type WidgetRadius,
 } from "../../embed/wall-renderer";
 import { BlurFade } from "@/components/magicui/blur-fade";
 
@@ -90,9 +91,12 @@ export default function WidgetBuilder({
   email?: string;
   testimonials: Testimonial[];
 }) {
+  const DEFAULT_ACCENT = "#E8743B";
   const [widgetType, setWidgetType] = useState<WidgetType>("wall");
   const [layout, setLayout] = useState<WallLayout>("masonry");
   const [theme, setTheme] = useState<WallTheme>("light");
+  const [accent, setAccent] = useState(DEFAULT_ACCENT);
+  const [radius, setRadius] = useState<WidgetRadius>("rounded");
   const [max, setMax] = useState<MaxOption>("all");
   const [showRatings, setShowRatings] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
@@ -115,6 +119,8 @@ export default function WidgetBuilder({
   }
   params.set("theme", theme);
   params.set("ratings", showRatings ? "true" : "false");
+  if (accent !== DEFAULT_ACCENT) params.set("accent", accent.replace("#", ""));
+  if (radius !== "rounded") params.set("radius", radius);
   if (widgetType === "single") params.set("featured", String(featuredIndex));
   if (isLifetime) params.set("badge", showBadge ? "true" : "false");
   const query = params.toString();
@@ -129,6 +135,8 @@ export default function WidgetBuilder({
     `data-theme="${theme}"`,
     `data-ratings="${showRatings ? "true" : "false"}"`
   );
+  if (accent !== DEFAULT_ACCENT) dataAttrs.push(`data-accent="${accent.replace("#", "")}"`);
+  if (radius !== "rounded") dataAttrs.push(`data-radius="${radius}"`);
   if (widgetType === "single") dataAttrs.push(`data-featured="${featuredIndex}"`);
   if (isLifetime) dataAttrs.push(`data-badge="${showBadge ? "true" : "false"}"`);
 
@@ -238,6 +246,64 @@ export default function WidgetBuilder({
                   {opt.label}
                 </label>
               ))}
+            </div>
+            <p className="mt-2 text-xs text-[#6B6B6B]">
+              Tip: use{" "}
+              <code className="rounded bg-[#FAF8F5] px-1 py-0.5 font-mono text-[11px]">
+                data-theme=&quot;auto&quot;
+              </code>{" "}
+              in the snippet to match your site automatically.
+            </p>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-end gap-6">
+            <div>
+              <p className="text-sm font-medium text-[#1A1A1A]">Brand color</p>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="color"
+                  value={accent}
+                  onChange={(e) => setAccent(e.target.value)}
+                  aria-label="Accent color"
+                  className="h-9 w-12 cursor-pointer rounded-lg border border-[#ECE7E0] bg-white p-1"
+                />
+                <span className="font-mono text-xs text-[#6B6B6B]">{accent}</span>
+                {accent !== DEFAULT_ACCENT && (
+                  <button
+                    type="button"
+                    onClick={() => setAccent(DEFAULT_ACCENT)}
+                    className="text-xs font-medium text-[#6B6B6B] underline underline-offset-2 hover:text-[#1A1A1A]"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-[#1A1A1A]">Corners</p>
+              <div className="mt-2 flex gap-4">
+                {(
+                  [
+                    { value: "sharp", label: "Sharp" },
+                    { value: "rounded", label: "Rounded" },
+                    { value: "pill", label: "Soft" },
+                  ] as { value: WidgetRadius; label: string }[]
+                ).map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-2 text-sm text-[#1A1A1A]"
+                  >
+                    <input
+                      type="radio"
+                      name="radius"
+                      checked={radius === opt.value}
+                      onChange={() => setRadius(opt.value)}
+                      className="accent-[#E8743B]"
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -374,7 +440,11 @@ export default function WidgetBuilder({
               <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
             </div>
-            <div className="max-h-[480px] overflow-y-auto">
+            <div
+              className={`max-h-[480px] overflow-y-auto ${
+                theme === "dark" ? "bg-[#16161D]" : "bg-white"
+              }`}
+            >
             {widgetType === "wall" && (
               <WallContent
                 testimonials={previewList}
@@ -383,6 +453,8 @@ export default function WidgetBuilder({
                 showRatings={showRatings}
                 showBadge={badgeOn}
                 maxCount={maxCount}
+                accent={accent}
+                radius={radius}
               />
             )}
             {widgetType === "carousel" && (
@@ -391,6 +463,8 @@ export default function WidgetBuilder({
                 theme={theme}
                 showRatings={showRatings}
                 showBadge={badgeOn}
+                accent={accent}
+                radius={radius}
               />
             )}
             {widgetType === "marquee" && (
@@ -399,6 +473,8 @@ export default function WidgetBuilder({
                 theme={theme}
                 showRatings={showRatings}
                 showBadge={badgeOn}
+                accent={accent}
+                radius={radius}
               />
             )}
             {widgetType === "single" && (
@@ -407,6 +483,8 @@ export default function WidgetBuilder({
                 theme={theme}
                 showRatings={showRatings}
                 showBadge={badgeOn}
+                accent={accent}
+                radius={radius}
               />
             )}
             </div>

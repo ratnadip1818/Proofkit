@@ -97,16 +97,24 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
     let avatarUrl: string | null = null;
     if (avatarFile) {
-      const uploadData = new FormData();
-      uploadData.append("file", avatarFile);
-      uploadData.append("userId", form.user_id);
-      const { url, error: uploadErr } = await uploadAvatar(uploadData);
-      if (uploadErr) {
-        setError(uploadErr);
+      try {
+        const uploadData = new FormData();
+        uploadData.append("file", avatarFile);
+        uploadData.append("userId", form.user_id);
+        const { url, error: uploadErr } = await uploadAvatar(uploadData);
+        if (uploadErr) {
+          setError(uploadErr);
+          setLoading(false);
+          return;
+        }
+        avatarUrl = url;
+      } catch {
+        // Server action failures (e.g. body too large) reject the promise —
+        // without this catch the form hangs on "Submitting…" forever
+        setError("Photo upload failed. Try a smaller image, or remove it.");
         setLoading(false);
         return;
       }
-      avatarUrl = url;
     }
 
     const { error: insertError } = await submitTestimonial({

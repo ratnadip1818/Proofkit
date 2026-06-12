@@ -20,7 +20,7 @@ export default async function WidgetsPage() {
   const { data: testimonials } = await supabase
     .from("testimonials")
     .select(
-      "id, author_name, author_role, body_original, display_body, rating, created_at"
+      "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url"
     )
     .eq("user_id", user.id)
     .eq("status", "approved")

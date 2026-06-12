@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 export interface Testimonial {
   id: string;
@@ -10,6 +10,7 @@ export interface Testimonial {
   display_body: string | null;
   rating: number | null;
   created_at: string;
+  avatar_url?: string | null;
 }
 
 export interface ThemeColors {
@@ -36,6 +37,43 @@ export interface ThemeColors {
 export type WallLayout = "masonry" | "grid";
 export type WallTheme = "light" | "dark";
 export type WidgetType = "wall" | "carousel" | "marquee" | "single";
+export type WidgetRadius = "sharp" | "rounded" | "pill";
+
+export const RADIUS_PX: Record<WidgetRadius, number> = {
+  sharp: 4,
+  rounded: 12,
+  pill: 22,
+};
+
+export interface WidgetStyle {
+  colors: ThemeColors;
+  radius: number;
+}
+
+/**
+ * Resolve theme colors with an optional brand accent so the widget can
+ * match the host site instead of always being Blovi-orange.
+ */
+export function buildStyle(
+  theme: WallTheme,
+  accent?: string,
+  radius: WidgetRadius = "rounded"
+): WidgetStyle {
+  const base = THEME[theme];
+  const colors: ThemeColors = accent
+    ? {
+        ...base,
+        accent,
+        starOn: theme === "light" ? accent : base.starOn,
+        avatarText: theme === "light" ? accent : base.avatarText,
+        avatarBg:
+          theme === "light"
+            ? `color-mix(in srgb, ${accent} 12%, white)`
+            : base.avatarBg,
+      }
+    : base;
+  return { colors, radius: RADIUS_PX[radius] };
+}
 
 export const SAMPLE_TESTIMONIALS: Testimonial[] = [
   {
@@ -145,7 +183,7 @@ export const THEME: Record<WallTheme, ThemeColors> = {
     arrowText: "#3f3f46",
   },
   dark: {
-    pageBg: "#16161D",
+    pageBg: "transparent",
     cardBg: "#1F1F28",
     cardBorder: "#2A2A35",
     text: "#ffffff",
@@ -201,13 +239,35 @@ function Stars({
 
 function Avatar({
   name,
+  avatarUrl,
   colors,
   size = 40,
 }: {
   name: string;
+  avatarUrl?: string | null;
   colors: ThemeColors;
   size?: number;
 }) {
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={avatarUrl}
+        alt={name}
+        width={size}
+        height={size}
+        loading="lazy"
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          flexShrink: 0,
+          border: `1px solid ${colors.cardBorder}`,
+        }}
+      />
+    );
+  }
   const initial = name.trim().charAt(0).toUpperCase() || "?";
   return (
     <div
@@ -268,23 +328,44 @@ function TestimonialCard({
   t,
   showRatings,
   colors,
+  radius,
 }: {
   t: Testimonial;
   showRatings: boolean;
   colors: ThemeColors;
+  radius: number;
 }) {
   return (
     <div
+      className="blovi-card"
       style={{
+        position: "relative",
         background: colors.cardBg,
         border: `1px solid ${colors.cardBorder}`,
-        borderRadius: "12px",
+        borderRadius: `${radius}px`,
         padding: "20px",
         display: "flex",
         flexDirection: "column",
         breakInside: "avoid",
+        overflow: "hidden",
       }}
     >
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "6px",
+          right: "14px",
+          fontSize: "52px",
+          lineHeight: 1,
+          fontFamily: "Georgia, serif",
+          color: colors.accent,
+          opacity: 0.14,
+          pointerEvents: "none",
+        }}
+      >
+        ”
+      </span>
       {showRatings && t.rating !== null && (
         <Stars rating={t.rating} colors={colors} />
       )}
@@ -292,24 +373,27 @@ function TestimonialCard({
         style={{
           margin: "0 0 16px 0",
           fontSize: "14px",
-          lineHeight: "1.6",
+          lineHeight: "1.65",
           color: colors.text,
           flexGrow: 1,
         }}
       >
         {t.display_body ?? t.body_original}
       </p>
-      <div>
-        <p
-          style={{ margin: 0, fontSize: "14px", fontWeight: 600, color: colors.name }}
-        >
-          {t.author_name}
-        </p>
-        {t.author_role && (
-          <p style={{ margin: "2px 0 0", fontSize: "13px", color: colors.role }}>
-            {t.author_role}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={34} />
+        <div style={{ minWidth: 0 }}>
+          <p
+            style={{ margin: 0, fontSize: "13.5px", fontWeight: 700, color: colors.name }}
+          >
+            {t.author_name}
           </p>
-        )}
+          {t.author_role && (
+            <p style={{ margin: "1px 0 0", fontSize: "12px", color: colors.role }}>
+              {t.author_role}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -322,6 +406,8 @@ export function WallContent({
   showRatings,
   showBadge,
   maxCount,
+  accent,
+  radius = "rounded",
 }: {
   testimonials: Testimonial[];
   layout: WallLayout;
@@ -329,8 +415,10 @@ export function WallContent({
   showRatings: boolean;
   showBadge: boolean;
   maxCount: number | null;
+  accent?: string;
+  radius?: WidgetRadius;
 }) {
-  const colors = THEME[theme];
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const list = maxCount !== null ? testimonials.slice(0, maxCount) : testimonials;
 
   return (
@@ -346,14 +434,25 @@ export function WallContent({
           }}
         >
           {list.map((t) => (
-            <TestimonialCard key={t.id} t={t} showRatings={showRatings} colors={colors} />
+            <TestimonialCard
+              key={t.id}
+              t={t}
+              showRatings={showRatings}
+              colors={colors}
+              radius={radiusPx}
+            />
           ))}
         </div>
       ) : (
         <div style={{ columns: "280px", columnGap: "16px" }}>
           {list.map((t) => (
             <div key={t.id} style={{ marginBottom: "16px" }}>
-              <TestimonialCard t={t} showRatings={showRatings} colors={colors} />
+              <TestimonialCard
+                t={t}
+                showRatings={showRatings}
+                colors={colors}
+                radius={radiusPx}
+              />
             </div>
           ))}
         </div>
@@ -391,22 +490,34 @@ export function CarouselContent({
   theme,
   showRatings,
   showBadge,
+  accent,
+  radius = "rounded",
 }: {
   testimonials: Testimonial[];
   theme: WallTheme;
   showRatings: boolean;
   showBadge: boolean;
+  accent?: string;
+  radius?: WidgetRadius;
 }) {
-  const colors = THEME[theme];
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
-    if (testimonials.length <= 1) return;
+    if (testimonials.length <= 1 || paused) return;
+    // Respect reduced-motion: no autoplay (arrows/dots still work)
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
     const timer = setInterval(() => {
       setIndex((i) => (i + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [testimonials.length]);
+  }, [testimonials.length, paused]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -429,9 +540,30 @@ export function CarouselContent({
   const safeIndex = index % testimonials.length;
 
   return (
-    <div style={{ fontFamily: FONT, padding: "24px 16px", background: colors.pageBg }}>
+    <div
+      style={{ fontFamily: FONT, padding: "24px 16px", background: colors.pageBg }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={(e) => {
+        touchStartX.current = e.touches[0]?.clientX ?? null;
+        setPaused(true);
+      }}
+      onTouchEnd={(e) => {
+        const start = touchStartX.current;
+        touchStartX.current = null;
+        setPaused(false);
+        if (start === null) return;
+        const delta = (e.changedTouches[0]?.clientX ?? start) - start;
+        if (Math.abs(delta) < 40) return;
+        setIndex((i) =>
+          delta < 0
+            ? (i + 1) % testimonials.length
+            : (i - 1 + testimonials.length) % testimonials.length
+        );
+      }}
+    >
       <div style={{ position: "relative", maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ overflow: "hidden", borderRadius: "12px" }}>
+        <div style={{ overflow: "hidden", borderRadius: `${radiusPx}px` }}>
           <div
             style={{
               display: "flex",
@@ -445,13 +577,13 @@ export function CarouselContent({
                   style={{
                     background: colors.cardBg,
                     border: `1px solid ${colors.cardBorder}`,
-                    borderRadius: "12px",
+                    borderRadius: `${radiusPx}px`,
                     padding: "28px 24px",
                     textAlign: "center",
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
-                    <Avatar name={t.author_name} colors={colors} />
+                    <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} />
                   </div>
                   {showRatings && t.rating !== null && (
                     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -529,13 +661,17 @@ export function MarqueeContent({
   theme,
   showRatings,
   showBadge,
+  accent,
+  radius = "rounded",
 }: {
   testimonials: Testimonial[];
   theme: WallTheme;
   showRatings: boolean;
   showBadge: boolean;
+  accent?: string;
+  radius?: WidgetRadius;
 }) {
-  const colors = THEME[theme];
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
 
   if (testimonials.length === 0) {
     return (
@@ -568,6 +704,9 @@ export function MarqueeContent({
         .proofkit-marquee-track:hover {
           animation-play-state: paused;
         }
+        @media (prefers-reduced-motion: reduce) {
+          .proofkit-marquee-track { animation: none; }
+        }
       `}</style>
       <div
         className="proofkit-marquee-track"
@@ -582,7 +721,7 @@ export function MarqueeContent({
               gap: "10px",
               background: colors.cardBg,
               border: `1px solid ${colors.cardBorder}`,
-              borderRadius: "12px",
+              borderRadius: `${radiusPx}px`,
               padding: "12px 16px",
               height: "96px",
               width: "280px",
@@ -590,7 +729,7 @@ export function MarqueeContent({
               boxSizing: "border-box",
             }}
           >
-            <Avatar name={t.author_name} colors={colors} size={36} />
+            <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} />
             <div style={{ overflow: "hidden", minWidth: 0 }}>
               <p
                 style={{
@@ -640,13 +779,17 @@ export function SingleQuoteContent({
   theme,
   showRatings,
   showBadge,
+  accent,
+  radius = "rounded",
 }: {
   testimonial: Testimonial | null;
   theme: WallTheme;
   showRatings: boolean;
   showBadge: boolean;
+  accent?: string;
+  radius?: WidgetRadius;
 }) {
-  const colors = THEME[theme];
+  const { colors } = buildStyle(theme, accent, radius);
 
   if (!testimonial) {
     return (
@@ -678,7 +821,7 @@ export function SingleQuoteContent({
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginTop: "8px" }}>
-          <Avatar name={testimonial.author_name} colors={colors} />
+          <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} />
           <div style={{ textAlign: "left" }}>
             <p style={{ margin: 0, fontWeight: 600, color: colors.name }}>{testimonial.author_name}</p>
             {testimonial.author_role && (

@@ -8,6 +8,7 @@ import {
   SAMPLE_TESTIMONIALS,
   type Testimonial,
   type WidgetType,
+  type WidgetRadius,
 } from "../wall-renderer";
 
 export default async function EmbedPage({
@@ -24,6 +25,8 @@ export default async function EmbedPage({
     badge?: string;
     featured?: string;
     demo?: string;
+    accent?: string;
+    radius?: string;
   }>;
 }) {
   const { widgetId } = await params;
@@ -40,13 +43,18 @@ export default async function EmbedPage({
   const maxCount =
     sp.max === "3" || sp.max === "6" || sp.max === "9" ? Number(sp.max) : null;
   const featuredIndex = sp.featured ? Math.max(0, parseInt(sp.featured, 10) || 0) : 0;
+  // Brand accent: 6-digit hex only (with or without #) — anything else is ignored
+  const accentHex = (sp.accent ?? "").replace(/^#/, "");
+  const accent = /^[0-9a-fA-F]{6}$/.test(accentHex) ? `#${accentHex}` : undefined;
+  const radius: WidgetRadius =
+    sp.radius === "sharp" || sp.radius === "pill" ? sp.radius : "rounded";
 
   const supabase = createAdminClient();
   const [{ data: testimonials }, { data: profile }] = await Promise.all([
     supabase
       .from("testimonials")
       .select(
-        "id, author_name, author_role, body_original, display_body, rating, created_at"
+        "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url"
       )
       .eq("user_id", widgetId)
       .eq("status", "approved")
@@ -74,12 +82,27 @@ export default async function EmbedPage({
 
   return (
     <>
+      {/* Card hover lift + reduced-motion manners, shared by all types */}
+      <style>{`
+        .blovi-card { transition: transform .25s ease, box-shadow .25s ease; }
+        .blovi-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .blovi-card { transition: none; }
+          .blovi-card:hover { transform: none; box-shadow: none; }
+        }
+      `}</style>
+
       {type === "carousel" ? (
         <CarouselContent
           testimonials={list}
           theme={theme}
           showRatings={showRatings}
           showBadge={showBadge}
+          accent={accent}
+          radius={radius}
         />
       ) : type === "marquee" ? (
         <MarqueeContent
@@ -87,6 +110,8 @@ export default async function EmbedPage({
           theme={theme}
           showRatings={showRatings}
           showBadge={showBadge}
+          accent={accent}
+          radius={radius}
         />
       ) : type === "single" ? (
         <SingleQuoteContent
@@ -94,6 +119,8 @@ export default async function EmbedPage({
           theme={theme}
           showRatings={showRatings}
           showBadge={showBadge}
+          accent={accent}
+          radius={radius}
         />
       ) : (
         <WallContent
@@ -103,6 +130,8 @@ export default async function EmbedPage({
           showRatings={showRatings}
           showBadge={showBadge}
           maxCount={maxCount}
+          accent={accent}
+          radius={radius}
         />
       )}
 
