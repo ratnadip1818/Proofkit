@@ -6,32 +6,40 @@ import Reveal from "./Reveal";
 
 const FAQS = [
   {
+    q: "How does Blovi work?",
+    a: "Share your collection form link with customers, approve the testimonials that come in, and paste one line of code on your site to show your Wall of Love. New approved testimonials appear automatically — no code changes needed.",
+  },
+  {
+    q: "Is there a free plan?",
+    a: "Yes. The free plan includes up to 3 testimonials, your own collection form, and the Wall of Love embed widget with a small \"Powered by Blovi\" badge. No credit card needed.",
+  },
+  {
     q: "Is this really a one-time payment?",
-    a: "Yes. Pay $49 once and use Blovi forever. No hidden fees, no renewal.",
+    a: "Yes. Pay $49 once and use Blovi forever — no hidden fees, no renewal. It unlocks unlimited testimonials, all four widget styles, AI polishing, and badge removal.",
   },
   {
     q: "What does ‘lifetime’ mean?",
     a: "You get access for the lifetime of Blovi. If we ever shut down (unlikely), we'll give you 6 months notice.",
   },
   {
-    q: "Is there a free trial?",
-    a: "No free trial, but we offer a 30-day money-back guarantee. Not happy? Full refund, no questions.",
+    q: "What does the AI polish do?",
+    a: "One click fixes grammar, clarity and typos in a testimonial — without changing your customer's meaning. The original is always kept side by side, and you choose to accept or revert. Available on the lifetime plan.",
+  },
+  {
+    q: "Will the widget work on my website?",
+    a: "Yes — any site where you can paste an embed snippet: WordPress, Webflow, Framer, Shopify, Carrd, plain HTML and more. It auto-fits its height, matches light or dark sites (even automatically), can use your brand color, and lazy-loads so it never slows your page. One account works on unlimited websites.",
+  },
+  {
+    q: "Can my customers add photos?",
+    a: "Yes. Your collection form has an optional photo upload, and photos appear next to testimonials in your widget. Video testimonials are on the roadmap.",
+  },
+  {
+    q: "Can I import testimonials I already have?",
+    a: "Yes — upload a CSV and your existing testimonials are imported, ready to approve and display.",
   },
   {
     q: "What payment methods are accepted?",
-    a: "All major credit/debit cards via Paddle.",
-  },
-  {
-    q: "Can I use this for multiple websites?",
-    a: "Yes. One account works on unlimited websites.",
-  },
-  {
-    q: "Do you have video testimonials?",
-    a: "Not yet. Text testimonials with photos are supported now. Video is on the roadmap.",
-  },
-  {
-    q: "What makes Blovi different?",
-    a: "Blovi includes AI-powered testimonial polishing for a one-time payment of $49 — no recurring subscription required. Most testimonial tools charge a monthly fee forever.",
+    a: "All major credit and debit cards, processed securely by Paddle. Every purchase is covered by a 30-day money-back guarantee — full refund, no questions.",
   },
   {
     q: "How do I get support?",

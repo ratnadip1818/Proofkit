@@ -39,28 +39,32 @@ const COMPARISON_ROWS: { feature: string; blovi: CellValue; senja: CellValue }[]
 
 const FAQS = [
   {
+    q: "Is there a free plan?",
+    a: "Yes — the free plan includes up to 3 testimonials, your own collection form, and the Wall of Love embed widget with a small \"Powered by Blovi\" badge. No credit card needed.",
+  },
+  {
     q: "Is this really a one-time payment?",
-    a: "Yes. Pay $49 once, use Blovi forever. No renewal, no hidden fees.",
+    a: "Yes. Pay $49 once, use Blovi forever. No renewal, no hidden fees. It unlocks unlimited testimonials, all four widget styles, AI polishing, and badge removal.",
+  },
+  {
+    q: "What happens when I reach the free plan's limit?",
+    a: "Your collection form politely pauses at 3 testimonials, and everything you've collected stays safe. Upgrade once for $49 and collection reopens with no limits — your existing testimonials carry over.",
   },
   {
     q: "What does lifetime mean?",
     a: "You get access for the lifetime of Blovi. If we ever shut down, we'll give 6 months notice.",
   },
   {
-    q: "Is there a free plan?",
-    a: "Yes — the free plan includes up to 3 testimonials and a Wall of Love embed. The $49 one-time payment unlocks unlimited testimonials, all widget styles (Carousel, Marquee, Single Quote), AI improvement, and badge removal. Plus a 30-day money-back guarantee.",
-  },
-  {
     q: "What payment methods are accepted?",
-    a: "All major credit and debit cards via Paddle. Secure checkout.",
+    a: "All major credit and debit cards, processed securely by Paddle. Every purchase is covered by a 30-day money-back guarantee.",
   },
   {
     q: "Can I use this on multiple websites?",
-    a: "Yes. One account, unlimited websites.",
+    a: "Yes. One account, unlimited websites — the widget works anywhere you can paste an embed snippet.",
   },
   {
     q: "Do you have video testimonials?",
-    a: "Not yet. Text testimonials with photos supported now. Video is on the roadmap.",
+    a: "Not yet. Text testimonials with photos are supported now. Video is on the roadmap.",
   },
   {
     q: "What makes Blovi different?",
