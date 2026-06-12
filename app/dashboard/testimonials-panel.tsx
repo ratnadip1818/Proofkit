@@ -21,6 +21,7 @@ import {
 } from "./actions";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import PaddleCheckout from "@/components/PaddleCheckout";
 
 export type Testimonial = {
   id: string;
@@ -120,9 +121,13 @@ function CopyButton({ url }: { url: string }) {
 export default function TestimonialsPanel({
   testimonials,
   formUrl,
+  isLifetime = true,
+  email,
 }: {
   testimonials: Testimonial[];
   formUrl?: string | null;
+  isLifetime?: boolean;
+  email?: string;
 }) {
   const router = useRouter();
   const [items, setItems]           = useState<Testimonial[]>(testimonials);
@@ -438,15 +443,27 @@ export default function TestimonialsPanel({
                       Hide
                     </button>
                   )}
-                  <ShimmerButton
-                    disabled={isLoading || improvingId === t.id}
-                    onClick={() => handleImprove(t.id)}
-                    title="AI fixes grammar only — never changes meaning"
-                    shimmerColor="rgba(232,116,59,0.35)"
-                    className="rounded-full border border-[#E8743B] px-3.5 py-1.5 text-xs font-semibold text-[#E8743B] transition-all duration-200 hover:bg-[#FFF4EE] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {improvingId === t.id ? "Improving…" : "✨ Improve"}
-                  </ShimmerButton>
+                  {isLifetime ? (
+                    <ShimmerButton
+                      disabled={isLoading || improvingId === t.id}
+                      onClick={() => handleImprove(t.id)}
+                      title="AI fixes grammar only — never changes meaning"
+                      shimmerColor="rgba(232,116,59,0.35)"
+                      className="rounded-full border border-[#E8743B] px-3.5 py-1.5 text-xs font-semibold text-[#E8743B] transition-all duration-200 hover:bg-[#FFF4EE] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {improvingId === t.id ? "Improving…" : "✨ Improve"}
+                    </ShimmerButton>
+                  ) : (
+                    <PaddleCheckout
+                      email={email}
+                      className="flex items-center gap-1.5 rounded-full border border-[#E8743B]/50 px-3.5 py-1.5 text-xs font-semibold text-[#E8743B] transition-all duration-200 hover:bg-[#FFF4EE] hover:scale-105 active:scale-95"
+                    >
+                      ✨ Improve
+                      <span className="rounded-full bg-[#E8743B]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase">
+                        Pro
+                      </span>
+                    </PaddleCheckout>
+                  )}
                   <button
                     disabled={isLoading}
                     onClick={() => {

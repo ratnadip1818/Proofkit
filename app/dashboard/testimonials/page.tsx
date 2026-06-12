@@ -13,7 +13,7 @@ export default async function TestimonialsPage() {
 
   if (!user) redirect("/login");
 
-  const [{ data: form }, { data: rawTestimonials }] = await Promise.all([
+  const [{ data: form }, { data: rawTestimonials }, { data: profile }] = await Promise.all([
     supabase
       .from("forms")
       .select("slug")
@@ -28,6 +28,11 @@ export default async function TestimonialsPage() {
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select("is_lifetime")
+      .eq("id", user.id)
+      .maybeSingle(),
   ]);
 
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
@@ -48,7 +53,12 @@ export default async function TestimonialsPage() {
           </p>
         </div>
 
-        <TestimonialsPanel testimonials={testimonials} formUrl={formUrl} />
+        <TestimonialsPanel
+          testimonials={testimonials}
+          formUrl={formUrl}
+          isLifetime={profile?.is_lifetime ?? false}
+          email={user.email}
+        />
       </div>
     </div>
   );

@@ -80,6 +80,17 @@ export async function improveTestimonial(
 ): Promise<ImproveTestimonialResult> {
   const { supabase, user } = await getAuthenticatedClient();
 
+  // AI improvement is a Pro feature — enforce server-side, not just in the UI
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_lifetime")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.is_lifetime) {
+    return { error: "AI improvement is a Pro feature — upgrade to unlock it." };
+  }
+
   const { data: testimonial, error: fetchError } = await supabase
     .from("testimonials")
     .select("body_original")

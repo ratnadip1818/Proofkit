@@ -21,7 +21,7 @@ export default async function FormDetailPage({
 
   if (!user) redirect("/login");
 
-  const [{ data: form }, { data: testimonials }] = await Promise.all([
+  const [{ data: form }, { data: testimonials }, { data: profile }] = await Promise.all([
     supabase
       .from("forms")
       .select("id, slug, headline")
@@ -36,6 +36,11 @@ export default async function FormDetailPage({
       .eq("form_id", formId)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select("is_lifetime")
+      .eq("id", user.id)
+      .maybeSingle(),
   ]);
 
   if (!form) notFound();
@@ -76,6 +81,8 @@ export default async function FormDetailPage({
 
         <TestimonialsPanel
           testimonials={(testimonials ?? []) as Testimonial[]}
+          isLifetime={profile?.is_lifetime ?? false}
+          email={user.email}
         />
       </div>
     </div>
