@@ -19,5 +19,5 @@ export default async function OnboardingPage() {
 
   if (profile?.full_name) redirect("/dashboard");
 
-  return <OnboardingFlow />;
+  return <OnboardingFlow email={user.email} />;
 }

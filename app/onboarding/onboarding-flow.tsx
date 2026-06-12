@@ -3,18 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Check, Sparkles } from "lucide-react";
+import PaddleCheckout from "@/components/PaddleCheckout";
+import { Confetti } from "@/components/magicui/confetti";
 import {
   saveProfileName,
   saveHasCustomers,
   getOrCreateForm,
 } from "./actions";
 
-export default function OnboardingFlow() {
+export default function OnboardingFlow({ email }: { email?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const firstName = name.trim().split(/\s+/)[0] || null;
 
   async function handleNameSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,7 +57,7 @@ export default function OnboardingFlow() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-5 md:px-10">
-      <div className="w-full max-w-md">
+      <div className={`w-full transition-all duration-500 ${step === 3 ? "max-w-2xl" : "max-w-md"}`}>
         {/* Progress bar */}
         <div className="mb-8">
           <div className="mb-2 flex justify-between text-xs text-[#6B6B6B]">
@@ -86,10 +91,10 @@ export default function OnboardingFlow() {
                   className="text-xl font-bold text-[#1A1A1A]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  What&apos;s your name?
+                  What should we call you?
                 </h1>
                 <p className="mt-1 text-sm text-[#6B6B6B]">
-                  We&apos;ll personalise your experience.
+                  Just your name — takes 30 seconds to get set up.
                 </p>
               </div>
               <input
@@ -123,10 +128,10 @@ export default function OnboardingFlow() {
                   className="text-xl font-bold text-[#1A1A1A]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Do you have existing customers?
+                  {firstName ? `Nice to meet you, ${firstName}!` : "Nice to meet you!"}
                 </h1>
                 <p className="mt-1 text-sm text-[#6B6B6B]">
-                  This helps us tailor your setup.
+                  Do you already have customers you could ask for a testimonial?
                 </p>
               </div>
               {error && (
@@ -138,16 +143,22 @@ export default function OnboardingFlow() {
                 <button
                   onClick={() => handleHasCustomers(true)}
                   disabled={loading}
-                  className="flex-1 rounded-lg border-2 border-[#ECE7E0] py-4 text-sm font-semibold text-[#1A1A1A] transition-all hover:border-[#E8743B] hover:text-[#E8743B] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 rounded-lg border-2 border-[#ECE7E0] px-3 py-4 transition-all hover:border-[#E8743B] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Yes
+                  <span className="block text-sm font-semibold text-[#1A1A1A]">Yes</span>
+                  <span className="mt-1 block text-xs text-[#6B6B6B]">
+                    I can ask for testimonials today
+                  </span>
                 </button>
                 <button
                   onClick={() => handleHasCustomers(false)}
                   disabled={loading}
-                  className="flex-1 rounded-lg border-2 border-[#ECE7E0] py-4 text-sm font-semibold text-[#1A1A1A] transition-all hover:border-[#E8743B] hover:text-[#E8743B] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 rounded-lg border-2 border-[#ECE7E0] px-3 py-4 transition-all hover:border-[#E8743B] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Not yet
+                  <span className="block text-sm font-semibold text-[#1A1A1A]">Not yet</span>
+                  <span className="mt-1 block text-xs text-[#6B6B6B]">
+                    I&apos;ll set everything up first
+                  </span>
                 </button>
               </div>
               {loading && (
@@ -159,58 +170,99 @@ export default function OnboardingFlow() {
           )}
 
           {step === 3 && (
-            <div className="flex flex-col gap-5">
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#E8743B]/10">
-                  <svg
-                    className="h-6 w-6 text-[#E8743B]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
+            <div className="relative flex flex-col gap-6 overflow-hidden">
+              <Confetti />
+
+              <div className="relative text-center">
                 <h1
-                  className="text-xl font-bold text-[#1A1A1A]"
+                  className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  You&apos;re all set!
+                  You&apos;re in{firstName ? `, ${firstName}` : ""}! 🎉
                 </h1>
-                <p className="mt-1 text-sm text-[#6B6B6B]">
-                  You&apos;re on the free plan — start collecting right away.
+                <p className="mt-1.5 text-sm text-[#6B6B6B]">
+                  Your collection form is ready. Pick how you want to start:
                 </p>
               </div>
 
-              <ul className="flex flex-col gap-3 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-4 text-sm text-[#1A1A1A]">
-                <li className="flex items-start gap-2.5">
-                  <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
-                  Collect up to 3 testimonials with your form — free
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
-                  Embed your Wall of Love on any website
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="mt-0.5" aria-hidden="true">🔒</span>
-                  <span>
-                    Unlimited testimonials &amp; all widget styles with Pro —{" "}
-                    <span className="font-semibold text-[#E8743B]">$49 once</span>
-                  </span>
-                </li>
-              </ul>
+              <div className="relative grid gap-4 sm:grid-cols-2">
+                {/* Free — current plan */}
+                <div className="flex flex-col rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] p-5 text-left">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold text-[#1A1A1A]">Free</p>
+                    <span className="rounded-full bg-[#2E9E6B]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#2E9E6B]">
+                      Your plan
+                    </span>
+                  </div>
+                  <p
+                    className="mt-1 text-3xl font-extrabold text-[#1A1A1A]"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    $0
+                  </p>
+                  <ul className="mb-5 mt-3 flex flex-col gap-2 text-[13px] text-[#1A1A1A]">
+                    {[
+                      "Up to 3 testimonials",
+                      "Your collection form link",
+                      "Wall of Love embed widget",
+                      '"Powered by Blovi" badge',
+                    ].map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <Check size={14} className="mt-0.5 shrink-0 text-[#2E9E6B]" strokeWidth={2.5} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => router.push("/dashboard")}
+                    className="mt-auto w-full rounded-lg bg-[#1A1A1A] py-3 text-sm font-semibold text-white transition-all hover:bg-[#333] hover:scale-[1.02]"
+                  >
+                    Start collecting →
+                  </button>
+                </div>
 
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="w-full rounded-lg bg-[#1A1A1A] py-3 text-sm font-semibold text-white transition-all hover:bg-[#333] hover:scale-[1.02]"
-              >
-                Go to dashboard →
-              </button>
+                {/* Lifetime */}
+                <div className="flex flex-col rounded-xl border-2 border-[#E8743B] bg-white p-5 text-left shadow-[0_12px_36px_rgba(232,116,59,0.15)]">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold text-[#E8743B]">Lifetime</p>
+                    <span className="rounded-full bg-[#E8743B] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      Pay once
+                    </span>
+                  </div>
+                  <p
+                    className="mt-1 text-3xl font-extrabold text-[#1A1A1A]"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    $49{" "}
+                    <span className="text-sm font-medium text-[#6B6B6B]">
+                      once, yours forever
+                    </span>
+                  </p>
+                  <ul className="mb-5 mt-3 flex flex-col gap-2 text-[13px] text-[#1A1A1A]">
+                    {[
+                      "Unlimited testimonials",
+                      "All 4 widget styles",
+                      "One-click AI polish",
+                      "Remove the Blovi badge",
+                    ].map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <Sparkles size={14} className="mt-0.5 shrink-0 text-[#E8743B]" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <PaddleCheckout
+                    email={email}
+                    className="mt-auto w-full rounded-lg bg-[#E8743B] py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C]"
+                  >
+                    Upgrade now — $49
+                  </PaddleCheckout>
+                </div>
+              </div>
+
+              <p className="relative text-center text-xs text-[#6B6B6B]">
+                30-day money-back guarantee · Upgrade anytime from your dashboard
+              </p>
             </div>
           )}
         </div>
