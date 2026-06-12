@@ -92,7 +92,7 @@ export default function Image() {
             fontWeight: 700,
           }}
         >
-          ✦ $49 lifetime deal — no subscription
+          $49 lifetime deal — no subscription
         </div>
       </div>
     ),
