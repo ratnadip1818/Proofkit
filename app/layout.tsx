@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -24,6 +25,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.blovi.space"),
   title: "Blovi — Collect Testimonials. Pay Once. Keep Them Forever.",
   description:
     "Blovi helps indie founders, agencies, and freelancers collect text testimonials and embed a beautiful Wall of Love — for a single $49 payment, not another monthly subscription.",
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Blovi — Collect Testimonials. Pay Once.",
     description: "Collect testimonials and embed a Wall of Love for a single $49 lifetime payment.",
-    url: "https://blovi.space",
+    url: "https://www.blovi.space",
     siteName: "Blovi",
     type: "website",
   },
@@ -55,7 +57,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jakarta.variable} ${instrumentSerif.variable} antialiased h-full`}
     >
-      <body className="w-full min-h-screen overflow-x-hidden">{children}</body>
+      <body className="w-full min-h-screen overflow-x-hidden">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
