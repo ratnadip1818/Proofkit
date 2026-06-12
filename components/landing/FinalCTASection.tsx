@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import PaddleCheckout from "@/components/PaddleCheckout";
 import { gsap, prefersReducedMotion } from "./gsap";
 import { useIsoLayoutEffect } from "./use-iso-layout-effect";
 
@@ -118,10 +118,13 @@ export default function FinalCTASection() {
         </p>
 
         <div className="cta-fade mt-10">
-          <PaddleCheckout className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-lg font-bold text-[#1A1A1A] shadow-[0_24px_64px_rgba(22,22,29,0.3)] transition-all hover:scale-[1.04] hover:shadow-[0_28px_72px_rgba(22,22,29,0.4)] active:scale-95">
+          <Link
+            href="/signup"
+            className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-lg font-bold text-[#1A1A1A] shadow-[0_24px_64px_rgba(22,22,29,0.3)] transition-all hover:scale-[1.04] hover:shadow-[0_28px_72px_rgba(22,22,29,0.4)] active:scale-95"
+          >
             Get Blovi now
             <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
-          </PaddleCheckout>
+          </Link>
         </div>
 
         <p className="cta-fade mt-6 text-sm text-white/80">

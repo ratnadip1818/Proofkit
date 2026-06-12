@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import PaddleCheckout from "@/components/PaddleCheckout";
 import Reveal from "./Reveal";
 
 export default function WallOfLoveMarquee() {
@@ -27,10 +27,13 @@ export default function WallOfLoveMarquee() {
             — and their testimonial featured right here.
           </p>
           <div className="mt-9 text-center">
-            <PaddleCheckout className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.03] hover:bg-[#CF5F2C] active:scale-95">
+            <Link
+              href="/signup"
+              className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.03] hover:bg-[#CF5F2C] active:scale-95"
+            >
               Get early access — $49
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-            </PaddleCheckout>
+            </Link>
           </div>
         </Reveal>
 

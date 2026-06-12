@@ -1,9 +1,9 @@
+import Link from "next/link";
 import { Check, X, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FadeIn from "@/components/FadeIn";
 import PricingFAQ from "@/components/PricingFAQ";
-import PaddleCheckout from "@/components/PaddleCheckout";
 
 export const metadata = {
   title: "Pricing — Blovi",
@@ -149,9 +149,12 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                <PaddleCheckout className="mt-8 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95">
+                <Link
+                  href="/signup"
+                  className="mt-8 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
+                >
                   Get Blovi — $49
-                </PaddleCheckout>
+                </Link>
 
                 <p className="mt-4 text-center text-sm font-medium text-[#E8743B]">
                   ✦ Free plan available — collect testimonials, show your 3 best
@@ -247,10 +250,13 @@ export default function PricingPage() {
                 Ready to stop paying monthly?
               </h2>
               <div className="mt-8">
-                <PaddleCheckout className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95">
+                <Link
+                  href="/signup"
+                  className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
+                >
                   Get Blovi for $49
                   <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
-                </PaddleCheckout>
+                </Link>
               </div>
             </FadeIn>
           </div>

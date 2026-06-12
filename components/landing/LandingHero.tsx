@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
-import PaddleCheckout from "@/components/PaddleCheckout";
 import { gsap, prefersReducedMotion } from "./gsap";
 import { useIsoLayoutEffect } from "./use-iso-layout-effect";
 
@@ -190,10 +189,13 @@ export default function LandingHero() {
         </p>
 
         <div className="hero-fade mt-9 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-          <PaddleCheckout className="group flex w-full items-center justify-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-[0_10px_28px_rgba(232,116,59,0.3)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] active:scale-95 sm:w-auto">
+          <Link
+            href="/signup"
+            className="group flex w-full items-center justify-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-[0_10px_28px_rgba(232,116,59,0.3)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] active:scale-95 sm:w-auto"
+          >
             Get Blovi for $49
             <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-          </PaddleCheckout>
+          </Link>
           <Link
             href="/signup"
             className="flex w-full items-center justify-center rounded-full border border-[#1A1A1A]/15 px-8 py-4 text-base font-semibold text-[#1A1A1A] transition-all hover:border-[#1A1A1A]/35 hover:bg-white sm:w-auto"

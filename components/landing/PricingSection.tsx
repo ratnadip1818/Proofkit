@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
-import PaddleCheckout from "@/components/PaddleCheckout";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import Reveal from "./Reveal";
 
@@ -101,9 +101,12 @@ export default function PricingSection() {
               ))}
             </ul>
 
-            <PaddleCheckout className="mt-8 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(232,116,59,0.4)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] active:scale-95">
+            <Link
+              href="/signup"
+              className="mt-8 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(232,116,59,0.4)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] active:scale-95"
+            >
               Get Blovi — $49
-            </PaddleCheckout>
+            </Link>
 
             <p className="mt-4 text-center text-xs text-[#6B6B6B]">
               30-day money-back guarantee · Secure checkout via Paddle
