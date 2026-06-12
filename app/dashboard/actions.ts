@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { FREE_TESTIMONIAL_LIMIT } from "@/lib/limits";
 
 const DAILY_AI_IMPROVEMENT_LIMIT = 50;
 
@@ -292,11 +293,28 @@ export interface ImportTestimonialRow {
 export async function importTestimonials(
   rows: ImportTestimonialRow[]
 ): Promise<{ error: string | null; count: number }> {
-  const { user } = await getAuthenticatedClient();
+  const { supabase, user } = await getAuthenticatedClient();
 
   if (!rows.length) return { error: "No rows to import.", count: 0 };
 
   const admin = createAdminClient();
+
+  // Free plan: 3 testimonials total
+  const [{ data: profile }, { count: existing }] = await Promise.all([
+    supabase.from("profiles").select("is_lifetime").eq("id", user.id).maybeSingle(),
+    admin
+      .from("testimonials")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id),
+  ]);
+
+  if (!profile?.is_lifetime && (existing ?? 0) + rows.length > FREE_TESTIMONIAL_LIMIT) {
+    const remaining = Math.max(0, FREE_TESTIMONIAL_LIMIT - (existing ?? 0));
+    return {
+      error: `Free plan is limited to ${FREE_TESTIMONIAL_LIMIT} testimonials (${remaining} slot${remaining === 1 ? "" : "s"} left). Upgrade for unlimited.`,
+      count: 0,
+    };
+  }
   const { data, error } = await admin
     .from("testimonials")
     .insert(

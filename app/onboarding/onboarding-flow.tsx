@@ -190,11 +190,11 @@ export default function OnboardingFlow() {
               <ul className="flex flex-col gap-3 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-4 text-sm text-[#1A1A1A]">
                 <li className="flex items-start gap-2.5">
                   <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
-                  Share your collection form and gather real testimonials
+                  Collect up to 3 testimonials with your form — free
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="mt-0.5 text-[#2E9E6B]" aria-hidden="true">✓</span>
-                  Embed your Wall of Love — shows your 3 most recent
+                  Embed your Wall of Love on any website
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="mt-0.5" aria-hidden="true">🔒</span>

@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { FREE_TESTIMONIAL_LIMIT } from "@/lib/limits";
 import CollectionForm from "./collection-form";
 
 interface FormRow {
@@ -30,6 +32,44 @@ export default async function CollectionPage({
     .single();
 
   if (!form) notFound();
+
+  // Free plan holds 3 testimonials total — show a friendly closed state
+  // instead of letting visitors fill a form that will reject them
+  const admin = createAdminClient();
+  const [{ data: ownerProfile }, { count }] = await Promise.all([
+    admin.from("profiles").select("is_lifetime").eq("id", form.user_id).maybeSingle(),
+    admin
+      .from("testimonials")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", form.user_id),
+  ]);
+
+  if (!ownerProfile?.is_lifetime && (count ?? 0) >= FREE_TESTIMONIAL_LIMIT) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-5 md:px-10 py-12">
+        <div className="w-full max-w-lg rounded-2xl border border-[#ECE7E0] bg-white p-8 text-center shadow-sm">
+          <h1
+            className="text-2xl font-bold text-[#1A1A1A]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            This form isn&apos;t accepting new testimonials right now
+          </h1>
+          <p className="mt-3 text-sm text-[#6B6B6B]">
+            Thanks for wanting to share — please check back later.
+          </p>
+          <p className="mt-6 text-xs text-[#6B6B6B]">
+            Are you the owner?{" "}
+            <a
+              href="/dashboard/billing"
+              className="font-semibold text-[#E8743B] hover:underline"
+            >
+              Upgrade for unlimited testimonials
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-5 md:px-10 py-12">

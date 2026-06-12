@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend } from "@/lib/resend";
+import { FREE_TESTIMONIAL_LIMIT } from "@/lib/limits";
 
 interface SubmitTestimonialInput {
   formId: string;
@@ -28,6 +29,19 @@ export async function submitTestimonial(
 
   const supabase = await createClient();
   const admin = createAdminClient();
+
+  // Free plan: 3 testimonials total — enforce server-side
+  const [{ data: ownerProfile }, { count: totalCount }] = await Promise.all([
+    admin.from("profiles").select("is_lifetime").eq("id", input.userId).maybeSingle(),
+    admin
+      .from("testimonials")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", input.userId),
+  ]);
+
+  if (!ownerProfile?.is_lifetime && (totalCount ?? 0) >= FREE_TESTIMONIAL_LIMIT) {
+    return { error: "This form isn't accepting new testimonials right now." };
+  }
 
   // Rate limit: cap submissions per form within a 1 hour window
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();

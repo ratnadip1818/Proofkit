@@ -7,13 +7,14 @@ import { Confetti } from "@/components/magicui/confetti";
 import { FREE_WIDGET_TESTIMONIAL_LIMIT } from "@/lib/limits";
 
 const FREE_LIMITS = [
-  `Widget shows your ${FREE_WIDGET_TESTIMONIAL_LIMIT} most recent approved testimonials`,
+  `Up to ${FREE_WIDGET_TESTIMONIAL_LIMIT} testimonials total`,
   "Wall of Love widget only (Carousel, Marquee & Single Quote locked)",
+  "AI improvement locked",
   '"Powered by Blovi" badge on your widget',
 ];
 
 const LIFETIME_FEATURES = [
-  "Unlimited testimonials on your widget",
+  "Unlimited testimonials",
   "All widget types — Wall of Love, Carousel, Marquee, Single Quote",
   'Removable "Powered by Blovi" badge',
   "Unlimited testimonial collection forms",

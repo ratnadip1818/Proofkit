@@ -10,10 +10,11 @@ export default function FreePlanBanner({ email }: { email?: string }) {
         </span>
         <div>
           <p className="text-sm font-semibold text-[#1A1A1A]">
-            You&apos;re on the free plan — 3 testimonials max on your widget.
+            You&apos;re on the free plan — up to 3 testimonials.
           </p>
           <p className="text-xs text-[#6B6B6B]">
-            Upgrade to unlock unlimited testimonials and all widget types.
+            Upgrade to unlock unlimited testimonials, all widget types, and AI
+            improvement.
           </p>
         </div>
       </div>

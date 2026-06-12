@@ -35,15 +35,15 @@ const TEMPLATES = {
     subject: "Getting the most out of Blovi",
     html: emailShell(
       "How's your Wall of Love coming along?",
-      "You're on the free plan: collect as many testimonials as you like, and your widget shows the 3 most recent. When you're ready, one $49 payment unlocks unlimited testimonials, every widget style, and badge removal — forever.",
+      "You're on the free plan with up to 3 testimonials. When you're ready, one $49 payment unlocks unlimited testimonials, every widget style, AI improvement, and badge removal — forever.",
       "Unlock everything — $49 once"
     ),
   },
   expired: {
     subject: "Show every testimonial you've earned",
     html: emailShell(
-      "Your widget only shows 3 of your testimonials",
-      "Social proof works best in volume. Upgrade once for $49 and your wall shows every approved testimonial, plus Carousel, Marquee and Single Quote widgets — no monthly fees, all future updates included.",
+      "Your free plan holds 3 testimonials",
+      "Social proof works best in volume. Upgrade once for $49 and collect unlimited testimonials, show them all, and unlock Carousel, Marquee and Single Quote widgets — no monthly fees, all future updates included.",
       "Upgrade — $49 once"
     ),
   },

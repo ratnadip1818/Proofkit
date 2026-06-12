@@ -1,7 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /** Free-tier limits — lifetime ($49 once) removes all of them. */
-export const FREE_WIDGET_TESTIMONIAL_LIMIT = 3;
+// Free accounts can hold 3 testimonials TOTAL (collection + import are
+// capped server-side); the widget cap is kept as a second line of defense.
+export const FREE_TESTIMONIAL_LIMIT = 3;
+export const FREE_WIDGET_TESTIMONIAL_LIMIT = FREE_TESTIMONIAL_LIMIT;
 export const FREE_LOCKED_WIDGET_TYPES = ["carousel", "marquee", "single"] as const;
 
 export interface UserLimits {

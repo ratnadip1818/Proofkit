@@ -86,7 +86,7 @@ function SidebarInner({
           >
             <p className="flex items-center gap-1.5 text-xs font-semibold text-[#1A1A1A]">
               <Sparkles size={12} className="text-[#E8743B]" />
-              Free plan — 3 testimonials on widget
+              Free plan — up to 3 testimonials
             </p>
             <p className="mt-0.5 text-[11px] font-semibold text-[#E8743B]">
               Upgrade for unlimited — $49 once →

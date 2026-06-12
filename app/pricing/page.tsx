@@ -49,7 +49,7 @@ const FAQS = [
   },
   {
     q: "Is there a free plan?",
-    a: "Yes — the free plan lets you collect testimonials and embed a Wall of Love showing your 3 most recent. The $49 one-time payment unlocks unlimited testimonials, all widget styles (Carousel, Marquee, Single Quote), and badge removal. Plus a 30-day money-back guarantee.",
+    a: "Yes — the free plan includes up to 3 testimonials and a Wall of Love embed. The $49 one-time payment unlocks unlimited testimonials, all widget styles (Carousel, Marquee, Single Quote), AI improvement, and badge removal. Plus a 30-day money-back guarantee.",
   },
   {
     q: "What payment methods are accepted?",
@@ -157,7 +157,7 @@ export default function PricingPage() {
                 </Link>
 
                 <p className="mt-4 text-center text-sm font-medium text-[#E8743B]">
-                  ✦ Free plan available — collect testimonials, show your 3 best
+                  ✦ Free plan available — up to 3 testimonials, no card needed
                 </p>
                 <p className="mt-1 text-center text-sm text-[#6B6B6B]">
                   30-day money-back guarantee · No questions asked

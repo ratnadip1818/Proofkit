@@ -400,8 +400,7 @@ export default function WidgetBuilder({
             </div>
             {!isLifetime && (
               <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
-                Free plan — your widget shows your 3 most recent approved
-                testimonials. Upgrade for unlimited.
+                Free plan — up to 3 testimonials. Upgrade for unlimited.
               </p>
             )}
           </div>
