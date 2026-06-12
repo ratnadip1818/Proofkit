@@ -112,18 +112,19 @@ export default function AiPolish() {
             className="mx-auto max-w-3xl text-center text-[clamp(2rem,5vw,3.75rem)] font-extrabold leading-[1.05] tracking-tight text-white"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            The feature Senja{" "}
+            One-click AI polish,{" "}
             <span
               className="font-normal italic text-[#E8743B]"
               style={{ fontFamily: "var(--font-serif-accent)" }}
             >
-              doesn&apos;t have.
+              built in.
             </span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-center text-base leading-relaxed text-[#9CA3AF] md:text-lg">
-            One click to polish any testimonial. AI fixes grammar, clarity and
-            typos — without changing the customer&apos;s meaning. The original is
-            always shown side by side. You decide what to keep.
+            Turn rough customer feedback into polished social proof instantly.
+            AI fixes grammar, clarity and typos — without changing the
+            customer&apos;s meaning. The original is always shown side by side.
+            You decide what to keep.
           </p>
         </Reveal>
 

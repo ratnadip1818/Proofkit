@@ -51,9 +51,9 @@ export default function PricingSection() {
               </span>
             </h2>
             <p className="mt-5 max-w-md text-base leading-relaxed text-[#9CA3AF] md:text-lg">
-              No tiers, no asterisks, no usage caps. Pay once — own it forever.
-              While competitors charge $29 every month, you pay $49 exactly
-              once.
+              Start free with up to 3 testimonials. When you&apos;re ready, pay
+              $49 exactly once and own everything forever — while competitors
+              charge $29 every month.
             </p>
             <div className="mt-8 flex flex-col gap-3 text-sm text-[#9CA3AF]">
               <span>✓ 30-day money-back guarantee</span>
@@ -110,6 +110,17 @@ export default function PricingSection() {
 
             <p className="mt-4 text-center text-xs text-[#6B6B6B]">
               30-day money-back guarantee · Secure checkout via Paddle
+            </p>
+
+            <p className="mt-5 border-t border-[#ECE7E0] pt-4 text-center text-sm text-[#6B6B6B]">
+              Just exploring?{" "}
+              <Link
+                href="/signup"
+                className="font-semibold text-[#E8743B] hover:underline"
+              >
+                Start free
+              </Link>{" "}
+              — up to 3 testimonials, Wall of Love widget, Blovi branding.
             </p>
           </div>
         </Reveal>

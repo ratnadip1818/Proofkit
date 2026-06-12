@@ -30,8 +30,8 @@ const FAQS = [
     a: "Not yet. Text testimonials with photos are supported now. Video is on the roadmap.",
   },
   {
-    q: "What makes Blovi different from Senja?",
-    a: "Blovi has an AI improvement button Senja doesn't have. And Blovi is $49 once vs $29/month forever.",
+    q: "What makes Blovi different?",
+    a: "Blovi includes AI-powered testimonial polishing for a one-time payment of $49 — no recurring subscription required. Most testimonial tools charge a monthly fee forever.",
   },
   {
     q: "How do I get support?",

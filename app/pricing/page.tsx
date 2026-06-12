@@ -28,7 +28,6 @@ type CellValue = boolean | string;
 const COMPARISON_ROWS: { feature: string; blovi: CellValue; senja: CellValue }[] = [
   { feature: "Price", blovi: "$49 once", senja: "$29/month" },
   { feature: "Text testimonials", blovi: true, senja: true },
-  { feature: "AI improvement", blovi: true, senja: false },
   { feature: "Wall of Love widget", blovi: true, senja: true },
   { feature: "Multiple widget styles", blovi: true, senja: true },
   { feature: "Collection form", blovi: true, senja: true },
@@ -64,8 +63,8 @@ const FAQS = [
     a: "Not yet. Text testimonials with photos supported now. Video is on the roadmap.",
   },
   {
-    q: "What makes Blovi different from Senja?",
-    a: "AI improvement button Senja doesn't have. And $49 once vs $29/month forever.",
+    q: "What makes Blovi different?",
+    a: "Blovi includes AI-powered testimonial polishing for a one-time payment of $49 — no recurring subscription required. Most testimonial tools charge a monthly fee forever.",
   },
   {
     q: "How do I get support?",
@@ -104,17 +103,71 @@ export default function PricingPage() {
                 Simple, honest pricing
               </h1>
               <p className="mx-auto mt-4 max-w-lg text-lg text-[#6B6B6B]">
-                One plan. Everything included. No surprises.
+                Start free. One $49 payment unlocks everything — forever.
               </p>
             </FadeIn>
           </div>
         </section>
 
-        {/* PRICING CARD */}
+        {/* PRICING CARDS */}
         <section className="w-full pb-24 px-5 md:px-10">
-          <div className="mx-auto w-full max-w-lg">
-            <FadeIn delay={0.08}>
+          <div className="mx-auto grid w-full max-w-4xl items-start gap-6 md:grid-cols-2">
+            <FadeIn delay={0.05}>
               <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm sm:p-10">
+                <div className="text-center">
+                  <span className="inline-block rounded-full bg-[#FAF8F5] px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">
+                    Free plan
+                  </span>
+                  <div className="mt-4 flex items-start justify-center gap-1">
+                    <span
+                      className="mt-3 text-2xl font-bold text-[#6B6B6B]"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      $
+                    </span>
+                    <span
+                      className="text-[5rem] font-extrabold leading-none text-[#1A1A1A]"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      0
+                    </span>
+                  </div>
+                  <p className="mt-2 text-base text-[#6B6B6B]">
+                    no credit card needed
+                  </p>
+                </div>
+
+                <div className="my-8 border-t border-[#ECE7E0]" />
+
+                <ul className="space-y-3">
+                  {[
+                    "Up to 3 testimonials",
+                    "Wall of Love embed widget",
+                    "Shareable collection form",
+                    '"Powered by Blovi" badge',
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-3 text-sm text-[#1A1A1A]">
+                      <Check size={16} className="shrink-0 text-[#2E9E6B]" strokeWidth={2.5} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href="/signup"
+                  className="mt-8 flex w-full items-center justify-center rounded-full border border-[#1A1A1A]/15 py-4 text-base font-semibold text-[#1A1A1A] transition-all hover:border-[#1A1A1A]/35 hover:bg-[#FAF8F5]"
+                >
+                  Start free
+                </Link>
+
+                <p className="mt-4 text-center text-sm text-[#6B6B6B]">
+                  Upgrade anytime — your testimonials carry over
+                </p>
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.08}>
+              <div className="rounded-2xl border-2 border-[#E8743B] bg-white p-8 shadow-sm sm:p-10">
                 <div className="text-center">
                   <span className="inline-block rounded-full bg-[#E8743B]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#E8743B]">
                     Lifetime deal
