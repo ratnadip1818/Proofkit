@@ -21,7 +21,21 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Logged-in users don't need the auth pages — send them to the dashboard
+  const path = request.nextUrl.pathname
+  if (user && ['/login', '/signup', '/forgot-password'].includes(path)) {
+    const redirect = NextResponse.redirect(new URL('/dashboard', request.url))
+    // carry over any refreshed auth cookies
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirect.cookies.set(cookie)
+    })
+    return redirect
+  }
+
   return supabaseResponse
 }
 

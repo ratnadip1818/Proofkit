@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PaddleCheckout({
   children,
@@ -12,6 +14,7 @@ export default function PaddleCheckout({
   className?: string;
   email?: string;
 }) {
+  const router = useRouter();
   const [paddle, setPaddle] = useState<Paddle | undefined>(undefined);
 
   useEffect(() => {
@@ -23,7 +26,24 @@ export default function PaddleCheckout({
     });
   }, []);
 
-  const openCheckout = () => {
+  const openCheckout = async () => {
+    // Lock checkout to the account email so the webhook can match the
+    // payment back to this user (it looks accounts up by email).
+    let customerEmail = email;
+    if (!customerEmail) {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user?.email) {
+        // Anonymous visitor (e.g. landing page CTA): create the account
+        // first, then upgrade from the dashboard
+        router.push("/signup");
+        return;
+      }
+      customerEmail = user.email;
+    }
+
     paddle?.Checkout.open({
       items: [
         {
@@ -31,9 +51,10 @@ export default function PaddleCheckout({
           quantity: 1,
         },
       ],
-      // Lock checkout to the account email so the webhook can match the
-      // payment back to this user (it looks accounts up by email).
-      ...(email ? { customer: { email } } : {}),
+      customer: { email: customerEmail },
+      settings: {
+        successUrl: "https://www.blovi.space/dashboard/billing",
+      },
     });
   };
 

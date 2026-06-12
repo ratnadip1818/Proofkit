@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingHero from "@/components/landing/LandingHero";
@@ -12,7 +13,17 @@ import FAQSection from "@/components/landing/FAQSection";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
-export default function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string }>;
+}) {
+  // Supabase auth links (email confirm, OAuth) fall back to the Site URL
+  // when the redirect URL isn't allow-listed — rescue the auth code so the
+  // user still gets logged in instead of stranded on the landing page.
+  const { code } = await searchParams;
+  if (code) redirect(`/auth/callback?code=${encodeURIComponent(code)}`);
+
   return (
     <SmoothScroll>
       <div className="flex min-h-screen w-full flex-col overflow-x-clip">
