@@ -60,6 +60,9 @@ export default function AiPolish() {
               text: `“${POLISHED}”`,
               chars: "lowerCase",
               speed: 0.5,
+              // keep the string at its final length the whole time so the
+              // card never reflows mid-scramble
+              tweenLength: false,
             },
           },
           "-=0.1",
@@ -160,12 +163,22 @@ export default function AiPolish() {
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E8743B]">
               AI-improved
             </p>
-            <p
-              ref={polishedRef}
-              className="text-base leading-relaxed text-[#1A1A1A] md:text-lg"
-            >
-              &ldquo;{POLISHED}&rdquo;
-            </p>
+            {/* Invisible copy of the final text reserves the exact height at
+                every breakpoint, so the card can't resize during the scramble */}
+            <div className="relative">
+              <p
+                className="invisible text-base leading-relaxed md:text-lg"
+                aria-hidden="true"
+              >
+                &ldquo;{POLISHED}&rdquo;
+              </p>
+              <p
+                ref={polishedRef}
+                className="absolute inset-0 text-base leading-relaxed text-[#1A1A1A] md:text-lg"
+              >
+                &ldquo;{POLISHED}&rdquo;
+              </p>
+            </div>
           </div>
         </div>
 
