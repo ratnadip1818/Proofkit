@@ -1,57 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import PaddleCheckout from "@/components/PaddleCheckout";
 import Reveal from "./Reveal";
-import LiveWidgetDemo from "./LiveWidgetDemo";
-
-function SkeletonCard({ seed }: { seed: number }) {
-  return (
-    <div className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-5">
-      <div className="flex gap-0.5 text-xs text-[#E8743B]/60">★★★★★</div>
-      <div className="mt-3 space-y-1.5">
-        <div className="h-2 rounded bg-[#ECE7E0]" style={{ width: `${70 + ((seed * 9) % 25)}%` }} />
-        <div className="h-2 rounded bg-[#ECE7E0]" style={{ width: `${50 + ((seed * 13) % 35)}%` }} />
-        <div className="h-2 rounded bg-[#ECE7E0]" style={{ width: `${60 + ((seed * 7) % 28)}%` }} />
-      </div>
-      <div className="mt-4 flex items-center gap-2">
-        <div className="h-6 w-6 rounded-full bg-[#ECE7E0]" />
-        <div className="h-2 w-20 rounded bg-[#ECE7E0]" />
-      </div>
-    </div>
-  );
-}
-
-function Column({
-  seeds,
-  duration,
-  reverse = false,
-  className = "",
-}: {
-  seeds: number[];
-  duration: string;
-  reverse?: boolean;
-  className?: string;
-}) {
-  return (
-    <div className={`h-full overflow-hidden ${className}`}>
-      <div
-        className={`animate-marquee-y flex flex-col gap-4 ${reverse ? "marquee-reverse" : ""}`}
-        style={{ "--marquee-duration": duration } as React.CSSProperties}
-      >
-        {/* duplicated for a seamless loop */}
-        <div className="flex flex-col gap-4 pb-4">
-          {seeds.map((s) => (
-            <SkeletonCard key={s} seed={s} />
-          ))}
-        </div>
-        <div className="flex flex-col gap-4 pb-4" aria-hidden="true">
-          {seeds.map((s) => (
-            <SkeletonCard key={s} seed={s} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function WallOfLoveMarquee() {
   return (
@@ -85,26 +34,6 @@ export default function WallOfLoveMarquee() {
           </div>
         </Reveal>
 
-        {/* Scrolling placeholder columns */}
-        <Reveal delay={0.12}>
-          <div
-            className="relative mt-16 grid h-[380px] grid-cols-2 gap-4 opacity-60 md:h-[440px] md:grid-cols-3"
-            style={{
-              maskImage:
-                "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
-            }}
-            aria-hidden="true"
-          >
-            <Column seeds={[1, 2, 3, 4]} duration="34s" />
-            <Column seeds={[5, 6, 7, 8]} duration="28s" reverse />
-            <Column seeds={[9, 10, 11, 12]} duration="38s" className="hidden md:block" />
-          </div>
-          <p className="mt-6 text-center text-xs text-[#6B6B6B]">
-            Your testimonial could be here.
-          </p>
-
-          <LiveWidgetDemo />
-        </Reveal>
       </div>
     </section>
   );

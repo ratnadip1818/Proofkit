@@ -50,9 +50,7 @@ export default function LandingNavbar() {
               B
             </span>
             <span
-              className={`text-lg font-bold tracking-tight transition-colors duration-500 ${
-                scrolled ? "text-[#1A1A1A]" : "text-white"
-              }`}
+              className="text-lg font-bold tracking-tight text-[#1A1A1A] transition-colors duration-500"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Blovi
@@ -64,11 +62,7 @@ export default function LandingNavbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  scrolled
-                    ? "text-[#6B6B6B] hover:bg-[#1A1A1A]/5 hover:text-[#1A1A1A]"
-                    : "text-white/60 hover:bg-white/10 hover:text-white"
-                }`}
+                className="rounded-full px-4 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:bg-[#1A1A1A]/5 hover:text-[#1A1A1A]"
               >
                 {link.label}
               </Link>
@@ -78,21 +72,13 @@ export default function LandingNavbar() {
           <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className={`hidden rounded-full px-4 py-2 text-sm font-medium transition-colors sm:inline-block ${
-                scrolled
-                  ? "text-[#6B6B6B] hover:text-[#1A1A1A]"
-                  : "text-white/60 hover:text-white"
-              }`}
+              className="hidden rounded-full px-4 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:text-[#1A1A1A] sm:inline-block"
             >
               Sign in
             </Link>
             <Link
               href="/signup"
-              className={`group hidden items-center gap-1.5 rounded-full py-2.5 pl-5 pr-4 text-sm font-semibold text-white transition-all sm:flex ${
-                scrolled
-                  ? "bg-[#1A1A1A] hover:bg-[#E8743B]"
-                  : "bg-[#E8743B] hover:bg-[#CF5F2C]"
-              }`}
+              className="group hidden items-center gap-1.5 rounded-full bg-[#1A1A1A] py-2.5 pl-5 pr-4 text-sm font-semibold text-white transition-all hover:bg-[#E8743B] sm:flex"
             >
               Get Blovi — $49
               <ArrowRight
@@ -102,11 +88,7 @@ export default function LandingNavbar() {
             </Link>
 
             <button
-              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors md:hidden ${
-                scrolled
-                  ? "text-[#1A1A1A] hover:bg-[#1A1A1A]/5"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-[#1A1A1A] transition-colors hover:bg-[#1A1A1A]/5 md:hidden"
               onClick={() => setOpen(true)}
               aria-label="Open menu"
               aria-expanded={open}

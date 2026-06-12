@@ -65,7 +65,7 @@ export default function MarqueeStrip() {
   }, []);
 
   return (
-    <div ref={bandRef} className="relative w-full overflow-hidden bg-[#16161D] py-8">
+    <div ref={bandRef} className="relative w-full overflow-hidden bg-[#FAF8F5] py-8">
       <div className="rotate-[-1.5deg] scale-[1.03] bg-[#E8743B] py-5 shadow-[0_24px_64px_rgba(232,116,59,0.3)] md:py-7">
         <div className="marquee-skew">
           <div
