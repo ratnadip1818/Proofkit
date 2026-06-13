@@ -103,12 +103,37 @@
   var skeleton = document.createElement("div");
   if (typeAttr === "marquee") {
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:flex;gap:12px;padding:12px 16px;height:96px;background:" + skeletonBg + ";border:1px solid " + skeletonBorder + ";border-radius:" + skeletonRadius + ";align-items:center;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    skeleton.style.cssText = "display:flex;gap:12px;padding:16px 0;height:128px;background:transparent;border:none;box-sizing:border-box;overflow:hidden;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
     skeleton.innerHTML =
-      '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
-      '<div style="flex-1;min-width:0;width:100%;">' +
-        '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
-        '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
+      '<div style="display:flex;gap:12px;width:max-content;flex-shrink:0;">' +
+        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
+          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
+          '<div style="flex:1;min-width:0;width:100%;">' +
+            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
+            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
+          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
+          '<div style="flex:1;min-width:0;width:100%;">' +
+            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
+            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
+          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
+          '<div style="flex:1;min-width:0;width:100%;">' +
+            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
+            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
+          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
+          '<div style="flex:1;min-width:0;width:100%;">' +
+            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
+            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
+          '</div>' +
+        '</div>' +
       '</div>';
   } else if (typeAttr === "carousel") {
     skeleton.className = "proofkit-skeleton-loader";
@@ -121,7 +146,7 @@
       '<div class="proofkit-skeleton-line" style="width:60px;height:8px;margin:4px auto 0;"></div>';
   } else if (typeAttr === "single") {
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:flex;flex-direction:column;gap:12px;padding:32px 24px;max-width:560px;margin:0 auto;background:" + skeletonBg + ";border:1px solid " + skeletonBorder + ";border-radius:" + skeletonRadius + ";animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;box-sizing:border-box;text-align:center;align-items:center;";
+    skeleton.style.cssText = "display:flex;flex-direction:column;gap:12px;padding:32px 24px;max-width:560px;margin:0 auto;background:transparent;border:none;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;box-sizing:border-box;text-align:center;align-items:center;";
     skeleton.innerHTML =
       '<div style="font-size:48px;line-height:1;color:' + skeletonFill + ';font-family:Georgia,serif;margin-bottom:-10px;">“</div>' +
       '<div class="proofkit-skeleton-line" style="width:85%;height:14px;margin:8px auto 0;"></div>' +
