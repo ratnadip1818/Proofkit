@@ -91,8 +91,8 @@ function SidebarInner({
 
   return (
     <div className="flex h-full flex-col bg-white">
-      {/* Brand Header */}
-      <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-[#ECE7E0]/40">
+      {/* Brand Header — hidden on mobile since mobile drawer renders its own header with close button */}
+      <div className="hidden md:flex h-16 shrink-0 items-center justify-between px-6 border-b border-[#ECE7E0]/40">
         <Link href="/dashboard" aria-label="Blovi dashboard">
           <Logo />
         </Link>
