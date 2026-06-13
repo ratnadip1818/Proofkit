@@ -79,6 +79,32 @@ export async function POST(request: Request) {
           .upsert({ id: invited.user.id, is_lifetime: true });
       }
     }
+  } else if (event?.eventType === EventName.AdjustmentCreated) {
+    const customerId = event.data.customerId;
+
+    if (customerId) {
+      try {
+        const customer = await paddle.customers.get(customerId);
+        console.log(`Processing refund webhook for customer: ${customer.email} (${customerId})`);
+
+        const user = await findUserByEmail(customer.email);
+        if (user) {
+          const supabase = createAdminClient();
+          await supabase
+            .from("profiles")
+            .upsert({ id: user.id, is_lifetime: false });
+          console.log(`Successfully revoked lifetime access for user: ${user.id} (${customer.email})`);
+        } else {
+          console.log(`No registered user found for refunded email: ${customer.email}`);
+        }
+      } catch (err: any) {
+        console.error(`Error processing refund: ${err.message || err}`);
+        return NextResponse.json(
+          { error: "Failed to process refund webhook" },
+          { status: 500 }
+        );
+      }
+    }
   }
 
   return NextResponse.json({ received: true }, { status: 200 });

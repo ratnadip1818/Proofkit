@@ -367,3 +367,86 @@ export async function deleteAccount(): Promise<never> {
 
   redirect("/");
 }
+
+export interface ImportSingleTestimonialData {
+  author_name: string;
+  author_role: string | null;
+  body: string;
+  rating: number | null;
+  avatar_url: string | null;
+  source: string;
+}
+
+export async function importSingleTestimonial(
+  data: ImportSingleTestimonialData
+): Promise<{ error: string | null; success: boolean }> {
+  const { supabase, user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  // Free plan limit check
+  const [{ data: profile }, { count: existing }] = await Promise.all([
+    supabase.from("profiles").select("is_lifetime").eq("id", user.id).maybeSingle(),
+    admin
+      .from("testimonials")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id),
+  ]);
+
+  if (!profile?.is_lifetime && (existing ?? 0) + 1 > FREE_TESTIMONIAL_LIMIT) {
+    return {
+      error: `Free plan is limited to ${FREE_TESTIMONIAL_LIMIT} testimonials. Upgrade for unlimited.`,
+      success: false,
+    };
+  }
+
+  const { error } = await admin.from("testimonials").insert({
+    user_id: user.id,
+    author_name: data.author_name,
+    author_role: data.author_role,
+    body_original: data.body,
+    display_body: data.body,
+    rating: data.rating,
+    avatar_url: data.avatar_url,
+    status: "approved",
+    source: data.source,
+    consent: true,
+  });
+
+  if (error) return { error: error.message, success: false };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/import");
+
+  return { error: null, success: true };
+}
+
+export async function updateTestimonialTags(
+  id: string,
+  tags: string[]
+): Promise<{ error: string | null; success: boolean }> {
+  const { supabase, user } = await getAuthenticatedClient();
+
+  // Clean, trim, and format tags (lowercase, limit size)
+  const cleaned = tags
+    .map((t) => t.trim().toLowerCase())
+    .filter((t) => t.length > 0 && t.length <= 30);
+  const uniqueTags = Array.from(new Set(cleaned));
+
+  const { error } = await supabase
+    .from("testimonials")
+    .update({ tags: uniqueTags })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message, success: false };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/widgets");
+
+  return { error: null, success: true };
+}
+

@@ -1,9 +1,14 @@
 import Link from "next/link";
 
 const PRODUCT_LINKS = [
-  { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/features", label: "Features" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/faq", label: "FAQ" },
+];
+
+const COMPANY_LINKS = [
+  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -17,7 +22,7 @@ export default function LandingFooter() {
   return (
     <footer className="relative w-full overflow-hidden bg-[#16161D]" role="contentinfo">
       <div className="mx-auto w-full max-w-[1200px] px-5 pt-20 md:px-10">
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
+        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
             <Link href="/" aria-label="Blovi home" className="inline-flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8743B] text-base font-extrabold text-white">
@@ -41,6 +46,23 @@ export default function LandingFooter() {
             </p>
             <nav className="flex flex-col gap-3.5 text-sm" aria-label="Product">
               {PRODUCT_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-[#9CA3AF] transition-colors hover:text-white"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div>
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#6B6B6B]">
+              Company
+            </p>
+            <nav className="flex flex-col gap-3.5 text-sm" aria-label="Company">
+              {COMPANY_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

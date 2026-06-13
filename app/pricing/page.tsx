@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Check, X, ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SmoothScroll from "@/components/landing/SmoothScroll";
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import LandingFooter from "@/components/landing/LandingFooter";
 import FadeIn from "@/components/FadeIn";
 import PricingFAQ from "@/components/PricingFAQ";
 
@@ -93,11 +94,12 @@ function ComparisonCell({ value, accent }: { value: CellValue; accent?: boolean 
 
 export default function PricingPage() {
   return (
-    <div className="w-full min-h-screen overflow-x-hidden flex flex-col">
-      <Navbar />
-      <main className="w-full overflow-x-hidden flex flex-col flex-1 bg-[#FAF8F5]">
-        {/* HERO */}
-        <section className="w-full pt-20 pb-12 px-5 md:px-10 text-center">
+    <SmoothScroll>
+      <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-[#FAF8F5]">
+        <LandingNavbar />
+        <main className="flex w-full flex-1 flex-col">
+          {/* HERO */}
+          <section className="w-full pt-36 pb-12 px-5 md:px-10 text-center md:pt-44">
           <div className="mx-auto w-full max-w-[1200px]">
             <FadeIn>
               <h1
@@ -318,8 +320,9 @@ export default function PricingPage() {
             </FadeIn>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <LandingFooter />
+      </div>
+    </SmoothScroll>
   );
 }

@@ -54,7 +54,7 @@ export default async function EmbedPage({
     supabase
       .from("testimonials")
       .select(
-        "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url"
+        "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url, tags"
       )
       .eq("user_id", widgetId)
       .eq("status", "approved")
@@ -153,18 +153,49 @@ export default async function EmbedPage({
         </div>
       )}
 
-      {/* Post height to parent for iframe auto-resize */}
+      {/* Hidden container for testimonials data to safely pass to the parent page schema builder */}
+      <div
+        id="proofkit-schema-data"
+        style={{ display: "none" }}
+        data-testimonials={JSON.stringify(
+          list.map((t) => ({
+            author_name: t.author_name,
+            body: t.display_body ?? t.body_original,
+            rating: t.rating,
+            created_at: t.created_at,
+          }))
+        )}
+      />
+
+      {/* Post height and schema data to parent */}
       <script
         dangerouslySetInnerHTML={{
           __html: `
+            let lastWidth = window.innerWidth;
             function sendHeight() {
               window.parent.postMessage(
                 { type: "proofkit-resize", height: document.body.scrollHeight },
                 "*"
               );
             }
-            window.addEventListener("load", sendHeight);
-            window.addEventListener("resize", sendHeight);
+            window.addEventListener("load", () => {
+              sendHeight();
+              try {
+                const dataEl = document.getElementById("proofkit-schema-data");
+                if (dataEl) {
+                  const testimonials = JSON.parse(dataEl.getAttribute("data-testimonials"));
+                  window.parent.postMessage({ type: "proofkit-schema", testimonials }, "*");
+                }
+              } catch (e) {
+                console.error("Failed to send schema testimonials", e);
+              }
+            });
+            window.addEventListener("resize", () => {
+              if (window.innerWidth !== lastWidth) {
+                lastWidth = window.innerWidth;
+                sendHeight();
+              }
+            });
             if (document.fonts) document.fonts.ready.then(sendHeight);
           `,
         }}

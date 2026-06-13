@@ -73,17 +73,104 @@
       container.style.minHeight = "0";
     }
 
-    // Auto-resize: embed page posts its scroll height via postMessage
+    function injectJsonLdSchema(testimonials) {
+      if (!testimonials || !testimonials.length) return;
+      if (document.getElementById("blovi-schema")) return;
+
+      var productName = "Product";
+      if (document.title) {
+        var parts = document.title.split(/ - | \| | \u2013 | \u2014 /);
+        if (parts[0]) productName = parts[0].trim();
+      } else {
+        productName = window.location.hostname || "Product";
+      }
+
+      var reviews = [];
+      var ratingsSum = 0;
+      var ratingsCount = 0;
+
+      for (var i = 0; i < testimonials.length; i++) {
+        var t = testimonials[i];
+        var ratingVal = Number(t.rating);
+        var hasRating = !isNaN(ratingVal) && t.rating !== null && t.rating !== undefined;
+
+        var reviewObj = {
+          "@type": "Review",
+          "author": {
+            "@type": "Person",
+            "name": t.author_name || "Anonymous"
+          },
+          "reviewBody": t.body || ""
+        };
+
+        if (t.created_at) {
+          try {
+            reviewObj.datePublished = new Date(t.created_at).toISOString().split("T")[0];
+          } catch (e) {
+            // ignore malformed dates
+          }
+        }
+
+        if (hasRating) {
+          reviewObj.reviewRating = {
+            "@type": "Rating",
+            "ratingValue": ratingVal,
+            "bestRating": 5,
+            "worstRating": 1
+          };
+          ratingsSum += ratingVal;
+          ratingsCount++;
+        }
+
+        reviews.push(reviewObj);
+      }
+
+      var schema = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": productName,
+        "description": "Reviews and testimonials for " + productName + "."
+      };
+
+      if (ratingsCount > 0) {
+        schema.aggregateRating = {
+          "@type": "AggregateRating",
+          "ratingValue": (ratingsSum / ratingsCount).toFixed(1),
+          "reviewCount": ratingsCount,
+          "bestRating": 5,
+          "worstRating": 1
+        };
+      }
+
+      if (reviews.length > 0) {
+        schema.review = reviews;
+      }
+
+      var script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.id = "blovi-schema";
+      script.text = JSON.stringify(schema);
+      document.head.appendChild(script);
+    }
+
+    // Handle incoming messages from iframe
     window.addEventListener("message", function (event) {
+      if (!event.data || event.source !== iframe.contentWindow) return;
+
       if (
-        event.data &&
         event.data.type === "proofkit-resize" &&
         typeof event.data.height === "number" &&
-        event.data.height > 0 &&
-        event.source === iframe.contentWindow
+        event.data.height > 0
       ) {
         iframe.style.height = event.data.height + 16 + "px"; // +16 for bottom padding
         reveal();
+      }
+
+      if (
+        event.data.type === "proofkit-schema" &&
+        Array.isArray(event.data.testimonials)
+      ) {
+        injectJsonLdSchema(event.data.testimonials);
       }
     });
     iframe.addEventListener("load", function () {

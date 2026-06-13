@@ -32,6 +32,15 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
+      {
+        source: "/embed/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=10, s-maxage=60, stale-while-revalidate=300",
+          },
+        ],
+      },
     ];
   },
 };

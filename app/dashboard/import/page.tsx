@@ -26,22 +26,6 @@ export default async function ImportPage() {
         </div>
 
         <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-            CSV import
-          </h2>
-          <p className="mt-2 text-sm text-[#6B6B6B]">
-            Bulk-add testimonials by uploading a CSV file.
-          </p>
-
-          <div className="mt-4 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-4">
-            <p className="text-sm font-medium text-[#1A1A1A]">
-              Expected columns
-            </p>
-            <code className="mt-2 block overflow-x-auto rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 font-mono text-xs text-[#1A1A1A]">
-              name, role, testimonial, rating
-            </code>
-          </div>
-
           <ImportPanel />
         </div>
       </div>

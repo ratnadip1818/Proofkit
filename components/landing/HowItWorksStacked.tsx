@@ -88,14 +88,14 @@ const STEPS = [
       icon: "text-white",
     },
     visual: (
-      <div className="w-full max-w-[300px] overflow-hidden rounded-2xl bg-[#16161D] shadow-2xl">
+      <div className="w-full max-w-[280px] overflow-hidden rounded-2xl bg-[#16161D] shadow-2xl">
         <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
           <span className="h-2 w-2 rounded-full bg-white/20" />
           <span className="h-2 w-2 rounded-full bg-white/20" />
           <span className="h-2 w-2 rounded-full bg-white/20" />
           <span className="ml-2 text-[9px] text-white/40">index.html</span>
         </div>
-        <pre className="overflow-x-auto p-4 text-[10px] leading-relaxed">
+        <pre className="overflow-x-auto p-4 text-[9px] leading-relaxed md:text-[10px]">
           <code>
             <span className="text-[#9CA3AF]">{"<!-- one line, that's it -->"}</span>
             {"\n"}
@@ -178,7 +178,7 @@ export default function HowItWorksStacked() {
               style={{ top: `calc(96px + ${i * 28}px)` }}
             >
               <div
-                className={`grid items-center gap-8 rounded-3xl p-8 shadow-[0_24px_64px_rgba(26,26,26,0.10)] md:grid-cols-2 md:p-14 ${step.theme.card}`}
+                className={`grid items-center gap-8 rounded-3xl p-6 sm:p-8 shadow-[0_24px_64px_rgba(26,26,26,0.10)] md:grid-cols-2 md:p-14 ${step.theme.card}`}
               >
                 <div>
                   <span

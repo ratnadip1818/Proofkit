@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Mail, CreditCard, ShieldCheck } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SmoothScroll from "@/components/landing/SmoothScroll";
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import LandingFooter from "@/components/landing/LandingFooter";
 import FadeIn from "@/components/FadeIn";
 
 export const metadata = {
@@ -33,10 +34,11 @@ const CARDS = [
 
 export default function ContactPage() {
   return (
-    <div className="w-full min-h-screen overflow-x-hidden flex flex-col">
-      <Navbar />
-      <main className="w-full overflow-x-hidden flex flex-col flex-1 bg-[#FAF8F5]">
-        <section className="w-full pt-20 pb-16 px-5 md:px-10 text-center">
+    <SmoothScroll>
+      <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-[#FAF8F5]">
+        <LandingNavbar />
+        <main className="flex w-full flex-1 flex-col">
+          <section className="w-full pt-36 pb-16 px-5 md:px-10 text-center md:pt-44">
           <div className="mx-auto w-full max-w-[1200px]">
             <FadeIn>
               <p className="text-xs font-semibold uppercase tracking-widest text-[#E8743B] mb-4">
@@ -117,8 +119,9 @@ export default function ContactPage() {
             </FadeIn>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <LandingFooter />
+      </div>
+    </SmoothScroll>
   );
 }

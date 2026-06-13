@@ -11,6 +11,7 @@ export interface Testimonial {
   rating: number | null;
   created_at: string;
   avatar_url?: string | null;
+  tags?: string[] | null;
 }
 
 export interface ThemeColors {
@@ -324,6 +325,36 @@ function BadgeLink({ colors }: { colors: ThemeColors }) {
   );
 }
 
+function VerifiedBadge({ id }: { id: string }) {
+  if (id.startsWith("sample-")) return null;
+  return (
+    <a
+      href={`/verify/${id}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Verified by Blovi"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#2E9E6B",
+        cursor: "pointer",
+        textDecoration: "none",
+      }}
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        style={{ display: "block" }}
+      >
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+      </svg>
+    </a>
+  );
+}
+
 function TestimonialCard({
   t,
   showRatings,
@@ -384,9 +415,18 @@ function TestimonialCard({
         <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={34} />
         <div style={{ minWidth: 0 }}>
           <p
-            style={{ margin: 0, fontSize: "13.5px", fontWeight: 700, color: colors.name }}
+            style={{
+              margin: 0,
+              fontSize: "13.5px",
+              fontWeight: 700,
+              color: colors.name,
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
           >
             {t.author_name}
+            <VerifiedBadge id={t.id} />
           </p>
           {t.author_role && (
             <p style={{ margin: "1px 0 0", fontSize: "12px", color: colors.role }}>
@@ -419,21 +459,108 @@ export function WallContent({
   radius?: WidgetRadius;
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // Extract all unique tags present in testimonials
+  const allTags = Array.from(
+    new Set(testimonials.flatMap((t) => t.tags || []))
+  ).filter(Boolean);
+
   const list = maxCount !== null ? testimonials.slice(0, maxCount) : testimonials;
+
+  // Filter list by selected tag
+  const filteredList = selectedTag
+    ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
+    : list;
+
+  // Whenever selectedTag changes, send height resize message to parent frame
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.parent.postMessage(
+        { type: "proofkit-resize", height: document.body.scrollHeight },
+        "*"
+      );
+    }
+  }, [selectedTag, filteredList.length]);
+
+  const count = filteredList.length;
+  const containerMaxWidth =
+    count === 1 ? "450px" :
+    count === 2 ? "820px" :
+    count === 3 ? "1140px" :
+    "100%";
 
   return (
     <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
-      {list.length === 0 ? (
+      {/* Dynamic Tag Filter Pills */}
+      {allTags.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px",
+            justifyContent: "center",
+            marginBottom: "24px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedTag(null)}
+            style={{
+              fontFamily: FONT,
+              fontSize: "12.5px",
+              fontWeight: 500,
+              padding: "6px 14px",
+              borderRadius: "9999px",
+              cursor: "pointer",
+              border: `1px solid ${selectedTag === null ? colors.accent : colors.cardBorder}`,
+              background: selectedTag === null ? colors.accent : colors.cardBg,
+              color: selectedTag === null ? (colors.accent === "#ffffff" ? "#1F1F28" : "#ffffff") : colors.text,
+              transition: "all 0.15s ease",
+            }}
+          >
+            All
+          </button>
+          {allTags.map((tag) => {
+            const isSelected = selectedTag === tag;
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setSelectedTag(tag)}
+                style={{
+                  fontFamily: FONT,
+                  fontSize: "12.5px",
+                  fontWeight: 500,
+                  padding: "6px 14px",
+                  borderRadius: "9999px",
+                  cursor: "pointer",
+                  border: `1px solid ${isSelected ? colors.accent : colors.cardBorder}`,
+                  background: isSelected ? colors.accent : colors.cardBg,
+                  color: isSelected ? (colors.accent === "#ffffff" ? "#1F1F28" : "#ffffff") : colors.text,
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
       ) : layout === "grid" ? (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
             gap: "16px",
+            maxWidth: containerMaxWidth,
+            margin: "0 auto",
           }}
         >
-          {list.map((t) => (
+          {filteredList.map((t) => (
             <TestimonialCard
               key={t.id}
               t={t}
@@ -444,8 +571,15 @@ export function WallContent({
           ))}
         </div>
       ) : (
-        <div style={{ columns: "280px", columnGap: "16px" }}>
-          {list.map((t) => (
+        <div
+          style={{
+            columns: "280px",
+            columnGap: "16px",
+            maxWidth: containerMaxWidth,
+            margin: "0 auto",
+          }}
+        >
+          {filteredList.map((t) => (
             <div key={t.id} style={{ marginBottom: "16px" }}>
               <TestimonialCard
                 t={t}
@@ -593,7 +727,20 @@ export function CarouselContent({
                   <p style={{ fontSize: "15px", lineHeight: 1.6, color: colors.text, margin: "8px 0 16px" }}>
                     {t.display_body ?? t.body_original}
                   </p>
-                  <p style={{ margin: 0, fontWeight: 600, color: colors.name }}>{t.author_name}</p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontWeight: 600,
+                      color: colors.name,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {t.author_name}
+                    <VerifiedBadge id={t.id} />
+                  </p>
                   {t.author_role && (
                     <p style={{ margin: "2px 0 0", fontSize: "13px", color: colors.role }}>
                       {t.author_role}
@@ -740,9 +887,15 @@ export function MarqueeContent({
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
                 }}
               >
-                {t.author_name}
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {t.author_name}
+                </span>
+                <VerifiedBadge id={t.id} />
               </p>
               {showRatings && t.rating !== null && (
                 <Stars rating={t.rating} colors={colors} size={11} marginBottom={2} />
@@ -823,7 +976,20 @@ export function SingleQuoteContent({
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginTop: "8px" }}>
           <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} />
           <div style={{ textAlign: "left" }}>
-            <p style={{ margin: 0, fontWeight: 600, color: colors.name }}>{testimonial.author_name}</p>
+            <p
+              style={{
+                margin: 0,
+                fontWeight: 600,
+                color: colors.name,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+              }}
+            >
+              {testimonial.author_name}
+              <VerifiedBadge id={testimonial.id} />
+            </p>
             {testimonial.author_role && (
               <p style={{ margin: "2px 0 0", fontSize: "13px", color: colors.role }}>
                 {testimonial.author_role}

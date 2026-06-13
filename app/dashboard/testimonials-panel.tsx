@@ -10,6 +10,9 @@ import {
   Clock,
   CheckCircle,
   EyeOff,
+  Plus,
+  X,
+  Tag,
 } from "lucide-react";
 import {
   approveTestimonial,
@@ -18,6 +21,7 @@ import {
   improveTestimonial,
   acceptImprovement,
   revertImprovement,
+  updateTestimonialTags,
 } from "./actions";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
@@ -36,6 +40,7 @@ export type Testimonial = {
   status: "pending" | "approved" | "hidden";
   created_at: string;
   avatar_url: string | null;
+  tags: string[] | null;
 };
 
 type Tab = "all" | "pending" | "approved" | "hidden";
@@ -140,6 +145,69 @@ export default function TestimonialsPanel({
     Record<string, { original: string; improved: string }>
   >({});
   const [improveErrors, setImproveErrors] = useState<Record<string, string>>({});
+
+  const [activeTagInputId, setActiveTagInputId] = useState<string | null>(null);
+  const [newTagText, setNewTagText] = useState("");
+
+  async function handleRemoveTag(testimonialId: string, tagToRemove: string) {
+    const testimonial = items.find((x) => x.id === testimonialId);
+    if (!testimonial) return;
+
+    const currentTags = testimonial.tags || [];
+    const updatedTags = currentTags.filter((tg) => tg !== tagToRemove);
+
+    // Optimistically update local state
+    setItems((prev) =>
+      prev.map((x) =>
+        x.id === testimonialId ? { ...x, tags: updatedTags } : x
+      )
+    );
+
+    const res = await updateTestimonialTags(testimonialId, updatedTags);
+    if (res.error) {
+      // Revert if error
+      setItems((prev) =>
+        prev.map((x) =>
+          x.id === testimonialId ? { ...x, tags: currentTags } : x
+        )
+      );
+    } else {
+      router.refresh();
+    }
+  }
+
+  async function handleSaveTag(testimonialId: string) {
+    setActiveTagInputId(null);
+    const tag = newTagText.trim().toLowerCase();
+    if (!tag) return;
+
+    const testimonial = items.find((x) => x.id === testimonialId);
+    if (!testimonial) return;
+
+    const currentTags = testimonial.tags || [];
+    if (currentTags.includes(tag)) return;
+
+    const updatedTags = [...currentTags, tag];
+
+    // Optimistically update local state
+    setItems((prev) =>
+      prev.map((x) =>
+        x.id === testimonialId ? { ...x, tags: updatedTags } : x
+      )
+    );
+
+    const res = await updateTestimonialTags(testimonialId, updatedTags);
+    if (res.error) {
+      // Revert if error
+      setItems((prev) =>
+        prev.map((x) =>
+          x.id === testimonialId ? { ...x, tags: currentTags } : x
+        )
+      );
+    } else {
+      router.refresh();
+    }
+  }
 
   // Keep local items in sync with fresh server data after router.refresh()
   useEffect(() => {
@@ -402,6 +470,58 @@ export default function TestimonialsPanel({
                         edited for clarity
                       </span>
                     )}
+
+                    {/* Tags inline manager */}
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      {(t.tags || []).map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 rounded-full bg-[#FAF8F5] border border-[#ECE7E0] pl-2.5 pr-1.5 py-0.5 text-xs font-medium text-[#6B6B6B]"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(t.id, tag)}
+                            className="rounded-full p-0.5 text-[#9CA3AF] hover:bg-red-50 hover:text-red-500 transition-colors"
+                            title={`Remove tag ${tag}`}
+                          >
+                            <X size={10} />
+                          </button>
+                        </span>
+                      ))}
+                      
+                      {activeTagInputId === t.id ? (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSaveTag(t.id);
+                          }}
+                          className="inline-flex items-center"
+                        >
+                          <input
+                            type="text"
+                            placeholder="new tag..."
+                            value={newTagText}
+                            onChange={(e) => setNewTagText(e.target.value)}
+                            onBlur={() => handleSaveTag(t.id)}
+                            autoFocus
+                            className="rounded-full px-2.5 py-0.5 text-xs border border-[#E8743B] bg-white outline-none w-20 text-[#1A1A1A]"
+                          />
+                        </form>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTagInputId(t.id);
+                            setNewTagText("");
+                          }}
+                          className="inline-flex items-center gap-1 rounded-full border border-dashed border-[#ECE7E0] px-2.5 py-0.5 text-xs font-medium text-[#9CA3AF] hover:border-[#E8743B] hover:text-[#E8743B] transition-colors"
+                        >
+                          <Plus size={10} />
+                          tag
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 

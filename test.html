@@ -1,13 +1,266 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Test ProofKit Widget</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Flow — Fictional Preview Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --bg: #FAF9F6;
+      --fg: #1A1A1A;
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --card-bg: #FFFFFF;
+      --border: #E5E7EB;
+      --text-muted: #6B7280;
+    }
+
+    /* Dark theme support for Aura Flow */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0B0F19;
+        --fg: #F9FAFB;
+        --card-bg: #111827;
+        --border: #1F2937;
+        --text-muted: #9CA3AF;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navbar styling */
+    header {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      background-color: var(--card-bg);
+    }
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--fg);
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 6rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+    }
+
+    /* Testimonials wrapper */
+    .testimonials-section {
+      border-top: 1px solid var(--border);
+      padding-top: 5rem;
+      margin-bottom: 5rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+    }
+
+    /* Instructions box for testing */
+    .test-banner {
+      background-color: var(--card-bg);
+      border: 1px dashed var(--primary);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .test-banner h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    .test-banner ul {
+      list-style-position: inside;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    .test-banner code {
+      background-color: rgba(79, 70, 229, 0.05);
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-family: monospace;
+      color: var(--primary);
+    }
+  </style>
 </head>
 <body>
-  <h1>My Website</h1>
-  <p>Here are my testimonials:</p>
 
-  <script src="https://www.blovi.space/widget.js" data-user="88053190-87df-406a-a2bd-75bf926a0343"></script>
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <div class="brand-dot"></div>
+        Aura Flow
+      </a>
+      <ul class="nav-links">
+        <li><a href="#">Product</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+      <a href="#" class="btn">Start Free</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero section of our fictional product -->
+    <section class="hero">
+      <span class="badge">Next-gen Workflows</span>
+      <h1>Build faster without changing your tools</h1>
+      <p>Aura Flow automates your developer feedback loop, integrates with your favorite editors, and streamlines local staging.</p>
+      <a href="#" class="btn" style="padding: 1rem 2rem; font-size: 1rem;">Try Aura Flow Today</a>
+    </section>
+
+    <!-- Testimonials Preview Section -->
+    <section class="testimonials-section">
+      <div class="test-banner">
+        <h3>✦ Widget Embed Test Console</h3>
+        <p>This is a completely independent preview page containing no styling ties to the Blovi app. To test your widget here:</p>
+        <ul>
+          <li>Open <code>test.html</code> in your editor.</li>
+          <li>Find the script tag below (at the bottom of the page).</li>
+          <li>Replace <code>data-user="..."</code> with your own userId.</li>
+          <li>You can also customize attributes like <code>data-type</code> (wall, carousel, marquee, single), <code>data-theme</code> (light, dark, auto), <code>data-accent</code> (hex), etc.</li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <h2>Trusted by creators worldwide</h2>
+        <p>Here's what our community says about Aura Flow</p>
+      </div>
+
+      <!-- WIDGET EMBED CONTAINER -->
+      <div class="widget-embed-container">
+        <!-- 
+          The script tag below will load the widget from your local Next.js dev server.
+          Change the src to "https://www.blovi.space/widget.js" if you want to test from production.
+        -->
+        <script src="/widget.js" data-user="6e037975-54db-4705-b239-28ef18f95eb8" data-type="wall" data-layout="grid" data-max="3" data-theme="dark" data-ratings="true" data-radius="pill"></script>
+      </div>
+    </section>
+  </main>
 
 </body>
 </html>

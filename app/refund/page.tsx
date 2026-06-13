@@ -1,5 +1,6 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SmoothScroll from "@/components/landing/SmoothScroll";
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata = {
   title: "Refund Policy — Blovi",
@@ -7,9 +8,10 @@ export const metadata = {
 
 export default function RefundPage() {
   return (
-    <div className="w-full min-h-screen bg-[#FAF8F5]">
-      <Navbar />
-      <main className="mx-auto w-full max-w-[1200px] px-5 md:px-10 py-16">
+    <SmoothScroll>
+      <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-[#FAF8F5]">
+        <LandingNavbar />
+        <main className="mx-auto w-full max-w-[1200px] px-5 md:px-10 pb-16 pt-36 md:pt-44 flex-1">
         <div className="max-w-2xl">
           <p className="text-sm text-[#6B6B6B] mb-2">Last updated: June 2026</p>
           <h1
@@ -89,8 +91,9 @@ export default function RefundPage() {
             </section>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <LandingFooter />
+      </div>
+    </SmoothScroll>
   );
 }
