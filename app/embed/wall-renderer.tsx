@@ -718,7 +718,7 @@ export function CarouselContent({
                     background: colors.cardBg,
                     border: `1px solid ${colors.cardBorder}`,
                     borderRadius: `${radiusPx}px`,
-                    padding: "28px 24px",
+                    padding: "28px 48px",
                     textAlign: "center",
                   }}
                 >
