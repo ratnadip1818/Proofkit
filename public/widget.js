@@ -159,17 +159,21 @@
         '</div>' +
       '</div>';
   } else {
-    skeleton.className = "proofkit-skeleton-loader";
-    skeleton.innerHTML =
-      '<div class="proofkit-skeleton-header">' +
-        '<div class="proofkit-skeleton-circle"></div>' +
-        '<div>' +
-          '<div class="proofkit-skeleton-line proofkit-skeleton-name"></div>' +
-          '<div class="proofkit-skeleton-line proofkit-skeleton-role"></div>' +
+    var cardHtml = 
+      '<div style="display:flex;flex-direction:column;gap:12px;padding:24px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;">' +
+        '<div style="display:flex;align-items:center;gap:12px;">' +
+          '<div class="proofkit-skeleton-circle"></div>' +
+          '<div>' +
+            '<div class="proofkit-skeleton-line proofkit-skeleton-name"></div>' +
+            '<div class="proofkit-skeleton-line proofkit-skeleton-role"></div>' +
+          '</div>' +
         '</div>' +
-      '</div>' +
-      '<div class="proofkit-skeleton-line proofkit-skeleton-body1"></div>' +
-      '<div class="proofkit-skeleton-line proofkit-skeleton-body2"></div>';
+        '<div class="proofkit-skeleton-line proofkit-skeleton-body1"></div>' +
+        '<div class="proofkit-skeleton-line proofkit-skeleton-body2"></div>' +
+      '</div>';
+    skeleton.className = "proofkit-skeleton-loader";
+    skeleton.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;width:100%;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    skeleton.innerHTML = cardHtml + cardHtml + cardHtml;
   }
   container.appendChild(skeleton);
 
