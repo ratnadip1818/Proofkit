@@ -239,7 +239,7 @@
         <h3>✦ Widget Embed Test Console</h3>
         <p>This is a completely independent preview page containing no styling ties to the Blovi app. To test your widget here:</p>
         <ul>
-          <li>Open <code>test.html</code> in your editor.</li>
+          <li>Open <code>public/test.html</code> in your editor.</li>
           <li>Find the script tag below (at the bottom of the page).</li>
           <li>Replace <code>data-user="..."</code> with your own userId.</li>
           <li>You can also customize attributes like <code>data-type</code> (wall, carousel, marquee, single), <code>data-theme</code> (light, dark, auto), <code>data-accent</code> (hex), etc.</li>
@@ -254,10 +254,9 @@
       <!-- WIDGET EMBED CONTAINER -->
       <div class="widget-embed-container">
         <!-- 
-          The script tag below will load the widget from your local Next.js dev server.
-          Change the src to "https://www.blovi.space/widget.js" if you want to test from production.
+          The script tag below will load the widget from the relative path of the local server.
         -->
-        <script src="https://www.blovi.space/widget.js" data-user="6e037975-54db-4705-b239-28ef18f95eb8" data-type="carousel" data-theme="light" data-ratings="true" data-badge="true"></script>
+        <script src="/widget.js" data-user="6e037975-54db-4705-b239-28ef18f95eb8" data-type="wall" data-layout="grid" data-max="3" data-theme="dark" data-ratings="true" data-radius="pill"></script>
       </div>
     </section>
   </main>
