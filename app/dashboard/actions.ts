@@ -377,6 +377,72 @@ export interface ImportSingleTestimonialData {
   source: string;
 }
 
+async function downloadAndUploadAvatar(
+  userId: string,
+  externalUrl: string | null
+): Promise<string | null> {
+  if (!externalUrl) return null;
+  if (externalUrl.includes("/storage/v1/object/public/avatars/")) {
+    return externalUrl;
+  }
+
+  try {
+    const res = await fetch(externalUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!res.ok) {
+      console.warn(`Failed to fetch avatar from ${externalUrl}: status ${res.status}`);
+      return externalUrl;
+    }
+
+    const contentType = res.headers.get("content-type") || "image/png";
+    if (!contentType.startsWith("image/")) {
+      console.warn(`Invalid content type from ${externalUrl}: ${contentType}`);
+      return externalUrl;
+    }
+
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length > 2 * 1024 * 1024) {
+      console.warn(`Avatar from ${externalUrl} exceeds 2MB limit: ${buffer.length} bytes`);
+      return externalUrl;
+    }
+
+    let ext = "png";
+    if (contentType.includes("jpeg") || contentType.includes("jpg")) ext = "jpg";
+    else if (contentType.includes("webp")) ext = "webp";
+    else if (contentType.includes("gif")) ext = "gif";
+
+    const admin = createAdminClient();
+    const filename = `${userId}/imported-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: uploadError } = await admin.storage
+      .from("avatars")
+      .upload(filename, buffer, {
+        contentType,
+        cacheControl: "31536000",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("Failed to upload fetched avatar to Supabase:", uploadError.message);
+      return externalUrl;
+    }
+
+    const {
+      data: { publicUrl },
+    } = admin.storage.from("avatars").getPublicUrl(filename);
+
+    return publicUrl;
+  } catch (err: any) {
+    console.error(`Failed to self-host avatar from ${externalUrl}:`, err.message || err);
+    return externalUrl;
+  }
+}
+
 export async function importSingleTestimonial(
   data: ImportSingleTestimonialData
 ): Promise<{ error: string | null; success: boolean }> {
@@ -399,6 +465,12 @@ export async function importSingleTestimonial(
     };
   }
 
+  // Self-host avatar if present
+  let finalAvatarUrl = data.avatar_url;
+  if (data.avatar_url && data.avatar_url.startsWith("http")) {
+    finalAvatarUrl = await downloadAndUploadAvatar(user.id, data.avatar_url);
+  }
+
   const { error } = await admin.from("testimonials").insert({
     user_id: user.id,
     author_name: data.author_name,
@@ -406,7 +478,7 @@ export async function importSingleTestimonial(
     body_original: data.body,
     display_body: data.body,
     rating: data.rating,
-    avatar_url: data.avatar_url,
+    avatar_url: finalAvatarUrl,
     status: "approved",
     source: data.source,
     consent: true,

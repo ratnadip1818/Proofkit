@@ -126,7 +126,7 @@ async function runTest() {
     }
 
     const t = rows[0];
-    if (t.author_name !== "Atish" || t.body_original !== "Blovi is absolutely fantastic! Highly recommended." || t.source !== "manual" || t.rating !== 5 || !t.avatar_url.includes("unavatar.io/producthunt/atish")) {
+    if (t.author_name !== "Atish" || t.body_original !== "Blovi is absolutely fantastic! Highly recommended." || t.source !== "manual" || t.rating !== 5 || !t.avatar_url.includes("supabase.co/storage")) {
       throw new Error(`FAIL: Testimonial fields mismatch: ${JSON.stringify(t)}`);
     }
 

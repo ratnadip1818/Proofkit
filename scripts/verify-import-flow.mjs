@@ -117,7 +117,7 @@ async function runTest() {
     }
 
     const t = rows[0];
-    if (t.author_name !== "jack" || t.body_original !== "just setting up my twttr" || t.source !== "manual" || t.rating !== 5 || !t.avatar_url.includes("unavatar.io")) {
+    if (t.author_name !== "jack" || t.body_original !== "just setting up my twttr" || t.source !== "manual" || t.rating !== 5 || !t.avatar_url.includes("supabase.co/storage")) {
       throw new Error(`FAIL: Testimonial fields mismatch: ${JSON.stringify(t)}`);
     }
 
