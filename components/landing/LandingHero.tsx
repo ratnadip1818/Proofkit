@@ -158,16 +158,9 @@ export default function LandingHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-[92svh] w-full flex-col items-center justify-center bg-[#FAF8F5] px-5 pb-20 pt-32 md:px-10 overflow-hidden"
+      className="relative flex min-h-[92svh] w-full flex-col items-center justify-center bg-[#FAF8F5] px-5 pb-20 pt-32 md:px-10"
     >
-      {/* Background SVG grid pattern */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#ECE7E0_1px,transparent_1px),linear-gradient(to_bottom,#ECE7E0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-[0.25]" />
-      
-      {/* Animated glowing mesh gradients */}
-      <div className="pointer-events-none absolute left-1/4 top-10 h-72 w-72 rounded-full bg-gradient-to-r from-[#E8743B]/10 to-[#FEBC2E]/5 blur-3xl animate-pulse" style={{ animationDuration: "8s" }} />
-      <div className="pointer-events-none absolute right-1/4 bottom-20 h-96 w-96 rounded-full bg-gradient-to-r from-[#FEBC2E]/10 to-[#E8743B]/5 blur-3xl animate-pulse" style={{ animationDuration: "12s" }} />
-
-      <div className="mx-auto flex w-full max-w-[880px] flex-col items-center text-center relative z-10">
+      <div className="mx-auto flex w-full max-w-[880px] flex-col items-center text-center">
         <div className="hero-fade">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#E8743B]/30 bg-[#E8743B]/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#E8743B] md:text-xs">
             Pay once · Own it forever
@@ -180,7 +173,7 @@ export default function LandingHero() {
         >
           Customer praise,{" "}
           <span
-            className="font-semibold italic bg-gradient-to-r from-[#E8743B] via-[#F97316] to-[#EA580C] bg-clip-text text-transparent"
+            className="font-normal italic text-[#E8743B]"
             style={{ fontFamily: "var(--font-serif-accent)" }}
           >
             beautifully
@@ -215,52 +208,42 @@ export default function LandingHero() {
           Free plan available · No credit card · 30-day money-back guarantee
         </p>
 
-        {/* Live polish demo — macOS window style */}
+        {/* Live polish demo — quiet, product-like */}
         <div
           ref={cardRef}
           aria-live="polite"
-          className="mt-14 w-full max-w-[650px] rounded-2xl border border-white/60 bg-white/70 shadow-[0_22px_70px_rgba(26,26,26,0.08)] backdrop-blur-md p-0 overflow-hidden"
+          className="mt-14 w-full max-w-[640px] rounded-2xl border border-[#ECE7E0] bg-white p-7 text-left shadow-[0_18px_50px_rgba(26,26,26,0.07)] md:p-9"
         >
-          {/* macOS window bar */}
-          <div className="flex items-center gap-1.5 border-b border-[#ECE7E0]/60 bg-[#FAF8F5]/80 px-5 py-3">
-            <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
-            <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
-            <span className="h-3 w-3 rounded-full bg-[#28C840]" />
-            <span className="mx-auto text-[10px] font-semibold text-[#6B6B6B]/80 tracking-wide uppercase select-none">blovi-ai-polish.dmg</span>
+          <div className="relative mb-4 h-5">
+            <p className="hero-label-before absolute inset-x-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6B6B6B]">
+              Your customer wrote
+            </p>
+            <p className="hero-label-after absolute inset-x-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E8743B] opacity-0">
+              Blovi polished it
+            </p>
           </div>
 
-          <div className="p-7 md:p-9 text-left">
-            <div className="relative mb-4 h-5">
-              <p className="hero-label-before absolute inset-x-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6B6B6B]">
-                Your customer wrote
-              </p>
-              <p className="hero-label-after absolute inset-x-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E8743B] opacity-0">
-                Blovi polished it
-              </p>
-            </div>
+          <p
+            ref={quoteRef}
+            className="min-h-[3.4em] text-xl font-semibold leading-snug tracking-[-0.01em] text-[#1A1A1A] md:text-2xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {`“${quote.messy}”`}
+          </p>
 
-            <p
-              ref={quoteRef}
-              className="min-h-[3.4em] text-xl font-semibold leading-snug tracking-[-0.01em] text-[#1A1A1A] md:text-2xl"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {`“${quote.messy}”`}
+          <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#ECE7E0] pt-5">
+            <p className="text-sm text-[#6B6B6B]">
+              <span className="text-[#E8743B]">★★★★★</span>
+              {"  "}— {quote.name}, {quote.role}
             </p>
-
-            <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#ECE7E0]/60 pt-5">
-              <p className="text-sm text-[#6B6B6B]">
-                <span className="text-[#E8743B]">★★★★★</span>
-                {"  "}— {quote.name}, {quote.role}
-              </p>
-              <button
-                onClick={polish}
-                aria-label="Polish this testimonial with AI"
-                className="hero-polish-btn flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[#16161D] px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-[#E8743B] hover:scale-105 active:scale-95 shadow-md shadow-black/10"
-              >
-                <Sparkles size={13} />
-                Polish with AI
-              </button>
-            </div>
+            <button
+              onClick={polish}
+              aria-label="Polish this testimonial with AI"
+              className="hero-polish-btn flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-[#16161D] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#E8743B]"
+            >
+              <Sparkles size={13} />
+              Polish with AI
+            </button>
           </div>
         </div>
       </div>
