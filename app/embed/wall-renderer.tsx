@@ -250,10 +250,16 @@ function Avatar({
   size?: number;
 }) {
   if (avatarUrl) {
+    let optimizedUrl = avatarUrl;
+    if (avatarUrl.includes("/storage/v1/object/public/avatars/")) {
+      const doubleSize = size * 2;
+      optimizedUrl = `${avatarUrl}?width=${doubleSize}&height=${doubleSize}&resize=contain`;
+    }
+
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={avatarUrl}
+        src={optimizedUrl}
         alt={name}
         width={size}
         height={size}

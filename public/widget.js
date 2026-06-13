@@ -30,9 +30,9 @@
       if (!bg) return "light";
       var rgb = bg.match(/\d+(\.\d+)?/g);
       if (!rgb) return "light";
-      var luminance =
+      var bgLuminance =
         0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
-      return luminance < 128 ? "dark" : "light";
+      return bgLuminance < 128 ? "dark" : "light";
     } catch (e) {
       return "light";
     }
@@ -48,9 +48,77 @@
     }
   );
 
+  var typeAttr = currentScript.getAttribute("data-type") || "wall";
+  var isDark = resolveTheme(currentScript.getAttribute("data-theme")) === "dark";
+  var skeletonBg = isDark ? "#1F1F28" : "#ffffff";
+  var skeletonBorder = isDark ? "#2A2A35" : "#e4e4e7";
+  var skeletonFill = isDark ? "#2A2A35" : "#f4f4f5";
+
+  // Setup smart height placeholders for CLS reduction
+  var initialHeight = "400";
+  var containerMinHeight = "120px";
+  if (typeAttr === "marquee") {
+    initialHeight = "130";
+    containerMinHeight = "128px";
+  } else if (typeAttr === "single") {
+    initialHeight = "280";
+    containerMinHeight = "280px";
+  } else if (typeAttr === "carousel") {
+    initialHeight = "340";
+    containerMinHeight = "340px";
+  } else if (typeAttr === "wall") {
+    initialHeight = "500";
+    containerMinHeight = "500px";
+  }
+
   var container = document.createElement("div");
-  container.style.cssText = "width:100%;min-height:120px;";
+  container.style.cssText = "width:100%;min-height:" + containerMinHeight + ";position:relative;";
   currentScript.parentNode.insertBefore(container, currentScript.nextSibling);
+
+  // Add skeleton animation and styles
+  var skeletonStyle = document.createElement("style");
+  skeletonStyle.textContent =
+    "@keyframes proofkit-skeleton-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.35; } } " +
+    ".proofkit-skeleton-loader { " +
+      "display: flex; flex-direction: column; gap: 12px; padding: 24px; width: 100%; " +
+      "background: " + skeletonBg + "; border: 1px solid " + skeletonBorder + "; " +
+      "border-radius: 12px; animation: proofkit-skeleton-pulse 1.5s ease-in-out infinite; " +
+      "box-sizing: border-box; " +
+    "} " +
+    ".proofkit-skeleton-header { display: flex; align-items: center; gap: 12px; } " +
+    ".proofkit-skeleton-circle { width: 40px; height: 40px; border-radius: 50%; background: " + skeletonFill + "; } " +
+    ".proofkit-skeleton-line { height: 12px; background: " + skeletonFill + "; border-radius: 4px; } " +
+    ".proofkit-skeleton-name { width: 100px; } " +
+    ".proofkit-skeleton-role { width: 60px; height: 8px; margin-top: 4px; } " +
+    ".proofkit-skeleton-body1 { width: 90%; height: 12px; margin-top: 8px; } " +
+    ".proofkit-skeleton-body2 { width: 75%; height: 12px; }";
+  document.head.appendChild(skeletonStyle);
+
+  // Render type-aware skeleton loaders
+  var skeleton = document.createElement("div");
+  if (typeAttr === "marquee") {
+    skeleton.className = "proofkit-skeleton-loader";
+    skeleton.style.cssText = "display:flex;gap:12px;padding:12px 16px;height:96px;background:" + skeletonBg + ";border:1px solid " + skeletonBorder + ";border-radius:12px;align-items:center;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    skeleton.innerHTML =
+      '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
+      '<div style="flex-1;min-width:0;width:100%;">' +
+        '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
+      '</div>';
+  } else {
+    skeleton.className = "proofkit-skeleton-loader";
+    skeleton.innerHTML =
+      '<div class="proofkit-skeleton-header">' +
+        '<div class="proofkit-skeleton-circle"></div>' +
+        '<div>' +
+          '<div class="proofkit-skeleton-line proofkit-skeleton-name"></div>' +
+          '<div class="proofkit-skeleton-line proofkit-skeleton-role"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="proofkit-skeleton-line proofkit-skeleton-body1"></div>' +
+      '<div class="proofkit-skeleton-line proofkit-skeleton-body2"></div>';
+  }
+  container.appendChild(skeleton);
 
   function mount() {
     var iframe = document.createElement("iframe");
@@ -63,13 +131,17 @@
     iframe.setAttribute("loading", "lazy");
     iframe.style.cssText =
       "width:100%;border:none;display:block;overflow:hidden;opacity:0;transition:opacity 0.5s ease, height 0.2s ease;";
-    iframe.height = "400"; // sensible fallback until resize message arrives
+    iframe.height = initialHeight;
 
     var revealed = false;
     function reveal() {
       if (revealed) return;
       revealed = true;
       iframe.style.opacity = "1";
+      // Remove skeleton loader once iframe resolves its height
+      if (skeleton && skeleton.parentNode) {
+        skeleton.parentNode.removeChild(skeleton);
+      }
       container.style.minHeight = "0";
     }
 
