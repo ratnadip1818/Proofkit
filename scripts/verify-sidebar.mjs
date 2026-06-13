@@ -60,61 +60,6 @@ async function runTest() {
     await page.waitForNavigation({ waitUntil: "networkidle0" });
     await new Promise(r => setTimeout(r, 2000));
 
-    // Verify search input exists
-    console.log("Verifying search input presence...");
-    const searchInput = await page.$('input[placeholder="Search..."]');
-    if (!searchInput) {
-      throw new Error("FAIL: Search input not found in sidebar.");
-    }
-    console.log("✅ Search input found!");
-
-    // Test shortcut Cmd/Ctrl + K focuses input
-    console.log("Testing shortcut keyboard focus (Ctrl+K)...");
-    await page.keyboard.down("Control");
-    await page.keyboard.press("k");
-    await page.keyboard.up("Control");
-    await new Promise(r => setTimeout(r, 500));
-
-    const activeElementTag = await page.evaluate(() => document.activeElement.tagName.toLowerCase());
-    const activePlaceholder = await page.evaluate(() => document.activeElement.getAttribute("placeholder"));
-    if (activeElementTag !== "input" || activePlaceholder !== "Search...") {
-      throw new Error(`FAIL: Search input was not focused. Active element: <${activeElementTag} placeholder="${activePlaceholder}">`);
-    }
-    console.log("✅ Keyboard shortcut focus verified successfully!");
-
-    // Test search filtering: type "Settings"
-    console.log("Testing search filtering for 'Settings'...");
-    await page.type('input[placeholder="Search..."]', "Settings");
-    await new Promise(r => setTimeout(r, 800));
-
-    // Verify "Settings" is visible, but others like "Overview" are hidden
-    const visibleTexts = await page.evaluate(() => {
-      const links = Array.from(document.querySelectorAll("aside a"));
-      return links
-        .filter(l => l.offsetParent !== null)
-        .map(l => l.textContent.trim());
-    });
-    console.log("Visible sidebar links during search:", visibleTexts);
-    if (!visibleTexts.includes("Settings")) {
-      throw new Error("FAIL: 'Settings' link should be visible when searching for it.");
-    }
-    if (visibleTexts.includes("Overview") || visibleTexts.includes("Forms")) {
-      throw new Error("FAIL: Other navigation links should be filtered out by search.");
-    }
-    console.log("✅ Search filtering verified!");
-
-    // Clear search
-    console.log("Clearing search input...");
-    await page.evaluate(() => {
-      const input = document.querySelector('input[placeholder="Search..."]');
-      if (input) {
-        input.value = "";
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-    });
-    await new Promise(r => setTimeout(r, 1000));
-
     // Verify Profile Card displays the name "Sidebar QA Tester"
     console.log("Checking profile card name...");
     const profileName = await page.evaluate(() => {

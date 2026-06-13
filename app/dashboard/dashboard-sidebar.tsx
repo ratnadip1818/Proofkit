@@ -7,17 +7,12 @@ import { createClient } from "@/lib/supabase/client";
 import Logo from "@/components/Logo";
 import {
   LayoutDashboard,
-  MessageSquare,
-  FileText,
-  Layers,
-  Upload,
   CreditCard,
   Settings,
   Menu,
   X,
   LogOut,
   Sparkles,
-  Search,
   ChevronDown,
   Plus,
 } from "lucide-react";
@@ -25,13 +20,6 @@ import {
 interface SubItem {
   label: string;
   href: string;
-}
-
-interface NavItem {
-  label: string;
-  icon: any;
-  href?: string;
-  subItems?: SubItem[];
 }
 
 function SidebarInner({
@@ -48,10 +36,8 @@ function SidebarInner({
   onSignOut: () => void;
 }) {
   const pathname = usePathname();
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [recentReviews, setRecentReviews] = useState<any[]>([]);
@@ -72,18 +58,6 @@ function SidebarInner({
     loadRecent();
   }, []);
 
-  // Keyboard shortcut listener to focus search (Cmd/Ctrl + K or S)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "s")) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -102,20 +76,6 @@ function SidebarInner({
     { label: "Widgets", href: "/dashboard/widgets" },
     { label: "Import", href: "/dashboard/import" },
   ];
-
-  const matchesSearch = (text: string) =>
-    text.toLowerCase().includes(searchQuery.toLowerCase());
-
-  // Filter sub-items
-  const filteredSubItems = subItems.filter((sub) => matchesSearch(sub.label));
-
-  // Determine visibility based on search query
-  const showDashboardGroup = matchesSearch("Dashboard") || filteredSubItems.length > 0;
-  const showBilling = matchesSearch("Billing");
-  const showSettings = matchesSearch("Settings");
-
-  // Force expand the dashboard submenu if the user is actively searching
-  const isExpanded = searchQuery ? true : isDashboardExpanded;
 
   // Determine if Dashboard is currently the active top-level area
   const isDashboardActive = subItems.some((sub) => pathname === sub.href);
@@ -138,126 +98,97 @@ function SidebarInner({
         </Link>
       </div>
 
-      {/* Navigation and Search Content */}
+      {/* Navigation Content */}
       <div className="flex-1 overflow-y-auto py-4">
-        {/* Mockup Search Field */}
-        <div className="px-3.5 mb-4">
-          <div className="relative flex items-center">
-            <Search className="absolute left-3 text-[#6B6B6B]" size={14} />
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/60 py-2.5 pl-9 pr-12 text-xs font-semibold text-[#1A1A1A] placeholder-[#6B6B6B] transition-all focus:border-[#E8743B]/40 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#E8743B]/20"
-            />
-            <div className="absolute right-2.5 flex items-center gap-0.5 pointer-events-none select-none">
-              <span className="flex h-5 w-5 items-center justify-center rounded-md border border-[#ECE7E0] bg-white text-[9px] font-bold text-[#6B6B6B] shadow-[0_1px_1px_rgba(0,0,0,0.02)]">
-                ⌘
-              </span>
-              <span className="flex h-5 w-5 items-center justify-center rounded-md border border-[#ECE7E0] bg-white text-[9px] font-bold text-[#6B6B6B] shadow-[0_1px_1px_rgba(0,0,0,0.02)]">
-                K
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* MAIN Menu Items */}
         <div className="px-3.5">
           <div className="text-[10px] font-bold text-[#6B6B6B]/80 uppercase tracking-wider mb-2.5 pl-3">
             Main
           </div>
           <nav className="flex flex-col gap-1">
-            {showDashboardGroup && (
-              <div className="flex flex-col">
-                <button
-                  onClick={() => setIsDashboardExpanded(!isDashboardExpanded)}
-                  className={`w-full flex items-center justify-between rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
-                    isDashboardActive
-                      ? "bg-[#FAF8F5] text-[#1A1A1A]"
-                      : "text-[#6B6B6B] hover:bg-[#FAF8F5]/60 hover:text-[#1A1A1A]"
+            <div className="flex flex-col">
+              <button
+                onClick={() => setIsDashboardExpanded(!isDashboardExpanded)}
+                className={`w-full flex items-center justify-between rounded-xl py-2 px-3 text-sm font-semibold transition-all cursor-pointer ${
+                  isDashboardActive
+                    ? "bg-[#FAF8F5] text-[#1A1A1A]"
+                    : "text-[#6B6B6B] hover:bg-[#FAF8F5]/60 hover:text-[#1A1A1A]"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <LayoutDashboard size={18} strokeWidth={2.2} />
+                  <span>Dashboard</span>
+                </div>
+                <ChevronDown
+                  size={14}
+                  className={`text-[#6B6B6B] transition-transform duration-200 ${
+                    isDashboardExpanded ? "" : "-rotate-90"
                   }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <LayoutDashboard size={18} strokeWidth={2.2} />
-                    <span>Dashboard</span>
-                  </div>
-                  <ChevronDown
-                    size={14}
-                    className={`text-[#6B6B6B] transition-transform duration-200 ${
-                      isExpanded ? "" : "-rotate-90"
-                    }`}
-                  />
-                </button>
+                />
+              </button>
 
-                {/* Tree Sub-items */}
-                {isExpanded && filteredSubItems.length > 0 && (
-                  <div className="relative ml-[23px] mt-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
-                    {filteredSubItems.map((sub, idx) => {
-                      const active = pathname === sub.href;
-                      const isLast = idx === filteredSubItems.length - 1;
-                      return (
-                        <div key={sub.href} className="relative pl-[17px] py-1">
-                          {/* Curved tree connection line */}
-                          <div className="absolute left-[-17px] top-0 bottom-0 w-[17px] pointer-events-none">
-                            {isLast ? (
-                              <div className="absolute left-0 top-0 h-1/2 w-full border-l border-b border-[#ECE7E0] rounded-bl-[6px]" />
-                            ) : (
-                              <>
-                                <div className="absolute left-0 top-0 bottom-0 border-l border-[#ECE7E0]" />
-                                <div className="absolute left-0 top-0 h-1/2 w-full border-b border-[#ECE7E0] rounded-bl-[6px]" />
-                              </>
-                            )}
-                          </div>
-                          <Link
-                            href={sub.href}
-                            onClick={onItemClick}
-                            className={`block text-xs font-semibold py-1.5 px-2.5 rounded-lg transition-all ${
-                              active
-                                ? "bg-[#FFF4EE] text-[#E8743B]"
-                                : "text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FAF8F5]/40"
-                            }`}
-                          >
-                            {sub.label}
-                          </Link>
+              {/* Tree Sub-items */}
+              {isDashboardExpanded && (
+                <div className="relative ml-[23px] mt-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                  {subItems.map((sub, idx) => {
+                    const active = pathname === sub.href;
+                    const isLast = idx === subItems.length - 1;
+                    return (
+                      <div key={sub.href} className="relative pl-[17px] py-1">
+                        {/* Curved tree connection line */}
+                        <div className="absolute left-[-17px] top-0 bottom-0 w-[17px] pointer-events-none">
+                          {isLast ? (
+                            <div className="absolute left-0 top-0 h-1/2 w-full border-l border-b border-[#ECE7E0] rounded-bl-[6px]" />
+                          ) : (
+                            <>
+                              <div className="absolute left-0 top-0 bottom-0 border-l border-[#ECE7E0]" />
+                              <div className="absolute left-0 top-0 h-1/2 w-full border-b border-[#ECE7E0] rounded-bl-[6px]" />
+                            </>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
+                        <Link
+                          href={sub.href}
+                          onClick={onItemClick}
+                          className={`block text-xs font-semibold py-1.5 px-2.5 rounded-lg transition-all ${
+                            active
+                              ? "bg-[#FFF4EE] text-[#E8743B]"
+                              : "text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FAF8F5]/40"
+                          }`}
+                        >
+                          {sub.label}
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
-            {showBilling && (
-              <Link
-                href="/dashboard/billing"
-                onClick={onItemClick}
-                className={`flex items-center gap-2.5 rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
-                  pathname === "/dashboard/billing"
-                    ? "bg-[#FFF4EE] text-[#E8743B]"
-                    : "text-[#6B6B6B] hover:bg-[#FAF8F5]/60 hover:text-[#1A1A1A]"
-                }`}
-              >
-                <CreditCard size={18} strokeWidth={2.2} />
-                <span>Billing</span>
-              </Link>
-            )}
+            <Link
+              href="/dashboard/billing"
+              onClick={onItemClick}
+              className={`flex items-center gap-2.5 rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
+                pathname === "/dashboard/billing"
+                  ? "bg-[#FFF4EE] text-[#E8743B]"
+                  : "text-[#6B6B6B] hover:bg-[#FAF8F5]/60 hover:text-[#1A1A1A]"
+              }`}
+            >
+              <CreditCard size={18} strokeWidth={2.2} />
+              <span>Billing</span>
+            </Link>
 
-            {showSettings && (
-              <Link
-                href="/dashboard/settings"
-                onClick={onItemClick}
-                className={`flex items-center gap-2.5 rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
-                  pathname === "/dashboard/settings"
-                    ? "bg-[#FFF4EE] text-[#E8743B]"
-                    : "text-[#6B6B6B] hover:bg-[#FAF8F5]/60 hover:text-[#1A1A1A]"
-                }`}
-              >
-                <Settings size={18} strokeWidth={2.2} />
-                <span>Settings</span>
-              </Link>
-            )}
+            <Link
+              href="/dashboard/settings"
+              onClick={onItemClick}
+              className={`flex items-center gap-2.5 rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
+                pathname === "/dashboard/settings"
+                  ? "bg-[#FFF4EE] text-[#E8743B]"
+                  : "text-[#6B6B6B] hover:bg-[#FAF8F5]/60 hover:text-[#1A1A1A]"
+              }`}
+            >
+              <Settings size={18} strokeWidth={2.2} />
+              <span>Settings</span>
+            </Link>
           </nav>
         </div>
 
