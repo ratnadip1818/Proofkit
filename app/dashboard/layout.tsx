@@ -28,10 +28,11 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-[#FAF8F5]">
       <DashboardSidebar
         email={user?.email ?? null}
-        isLifetime={profile.is_lifetime ?? false}
+        fullName={profile?.full_name ?? null}
+        isLifetime={profile?.is_lifetime ?? false}
       />
       {/* Offset: sidebar width on md+, top bar height on mobile */}
-      <main className="md:pl-64 pt-14 md:pt-0 min-h-screen">
+      <main className="md:pl-72 pt-14 md:pt-6 md:pr-6 md:pb-6 min-h-screen">
         {children}
       </main>
     </div>
