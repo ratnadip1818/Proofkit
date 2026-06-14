@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Copy,
   Check,
@@ -93,7 +93,7 @@ export default function WidgetBuilder({
 }) {
   const DEFAULT_ACCENT = "#E8743B";
   const [widgetType, setWidgetType] = useState<WidgetType>("wall");
-  const [layout, setLayout] = useState<WallLayout>("grid");
+  const [layout, setLayout] = useState<string>("grid");
   const [theme, setTheme] = useState<WallTheme>("light");
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [radius, setRadius] = useState<WidgetRadius>("rounded");
@@ -102,6 +102,14 @@ export default function WidgetBuilder({
   const [showBadge, setShowBadge] = useState(true);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (widgetType === "single") {
+      setLayout("card");
+    } else if (widgetType === "wall") {
+      setLayout("grid");
+    }
+  }, [widgetType]);
 
   const maxCount = max === "all" ? null : Number(max);
   const badgeOn = isLifetime ? showBadge : true;
@@ -114,14 +122,16 @@ export default function WidgetBuilder({
   const params = new URLSearchParams();
   params.set("type", widgetType);
   if (widgetType === "wall") {
-    params.set("layout", layout);
+    params.set("layout", "grid");
     params.set("max", max);
+  } else if (widgetType === "single") {
+    params.set("layout", layout);
+    params.set("featured", String(featuredIndex));
   }
   params.set("theme", theme);
   params.set("ratings", showRatings ? "true" : "false");
   if (accent !== DEFAULT_ACCENT) params.set("accent", accent.replace("#", ""));
   if (radius !== "rounded") params.set("radius", radius);
-  if (widgetType === "single") params.set("featured", String(featuredIndex));
   if (isLifetime) params.set("badge", showBadge ? "true" : "false");
   const query = params.toString();
 
@@ -129,7 +139,9 @@ export default function WidgetBuilder({
 
   const dataAttrs = [`data-user="${userId}"`, `data-type="${widgetType}"`];
   if (widgetType === "wall") {
-    dataAttrs.push(`data-layout="${layout}"`, `data-max="${max}"`);
+    dataAttrs.push('data-layout="grid"', `data-max="${max}"`);
+  } else if (widgetType === "single") {
+    dataAttrs.push(`data-layout="${layout}"`, `data-featured="${featuredIndex}"`);
   }
   dataAttrs.push(
     `data-theme="${theme}"`,
@@ -137,7 +149,6 @@ export default function WidgetBuilder({
   );
   if (accent !== DEFAULT_ACCENT) dataAttrs.push(`data-accent="${accent.replace("#", "")}"`);
   if (radius !== "rounded") dataAttrs.push(`data-radius="${radius}"`);
-  if (widgetType === "single") dataAttrs.push(`data-featured="${featuredIndex}"`);
   if (isLifetime) dataAttrs.push(`data-badge="${showBadge ? "true" : "false"}"`);
 
   const snippet = `<script src="${APP_URL}/widget.js" ${dataAttrs.join(" ")}></script>`;
@@ -300,24 +311,50 @@ export default function WidgetBuilder({
           )}
 
           {widgetType === "single" && (
-            <div className="mt-4 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[#1A1A1A]">
-                Featured testimonial
-              </label>
-              <select
-                value={featuredIndex}
-                onChange={(e) => setFeaturedIndex(Number(e.target.value))}
-                className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 disabled:opacity-50"
-              >
-                {previewList.map((t, i) => (
-                  <option key={t.id} value={i}>
-                    {t.author_name} — &ldquo;
-                    {(t.display_body ?? t.body_original).slice(0, 40)}
-                    {(t.display_body ?? t.body_original).length > 40 ? "…" : ""}
-                    &rdquo;
-                  </option>
-                ))}
-              </select>
+            <div className="mt-4 flex flex-col gap-3.5">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-[#1A1A1A]">
+                  Featured testimonial
+                </label>
+                <select
+                  value={featuredIndex}
+                  onChange={(e) => setFeaturedIndex(Number(e.target.value))}
+                  className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 disabled:opacity-50"
+                >
+                  {previewList.map((t, i) => (
+                    <option key={t.id} value={i}>
+                      {t.author_name} — &ldquo;
+                      {(t.display_body ?? t.body_original).slice(0, 40)}
+                      {(t.display_body ?? t.body_original).length > 40 ? "…" : ""}
+                      &rdquo;
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-[#1A1A1A]">Layout Variant</p>
+                <div className="mt-2 flex gap-5">
+                  {[
+                    { value: "card", label: "Featured Card" },
+                    { value: "minimal", label: "Minimalist Editorial" },
+                  ].map((opt) => (
+                    <label
+                      key={opt.value}
+                      className="flex items-center gap-2 text-sm text-[#1A1A1A] cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="single-layout"
+                        checked={(layout === "minimal" ? "minimal" : "card") === opt.value}
+                        onChange={() => setLayout(opt.value)}
+                        className="accent-[#E8743B]"
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -418,48 +455,49 @@ export default function WidgetBuilder({
                 theme === "dark" ? "bg-[#16161D]" : "bg-white"
               }`}
             >
-            {widgetType === "wall" && (
-              <WallContent
-                testimonials={previewList}
-                layout={layout}
-                theme={theme}
-                showRatings={showRatings}
-                showBadge={badgeOn}
-                maxCount={maxCount}
-                accent={accent}
-                radius={radius}
-              />
-            )}
-            {widgetType === "carousel" && (
-              <CarouselContent
-                testimonials={previewList}
-                theme={theme}
-                showRatings={showRatings}
-                showBadge={badgeOn}
-                accent={accent}
-                radius={radius}
-              />
-            )}
-            {widgetType === "marquee" && (
-              <MarqueeContent
-                testimonials={previewList}
-                theme={theme}
-                showRatings={showRatings}
-                showBadge={badgeOn}
-                accent={accent}
-                radius={radius}
-              />
-            )}
-            {widgetType === "single" && (
-              <SingleQuoteContent
-                testimonial={featured}
-                theme={theme}
-                showRatings={showRatings}
-                showBadge={badgeOn}
-                accent={accent}
-                radius={radius}
-              />
-            )}
+              {widgetType === "wall" && (
+                <WallContent
+                  testimonials={previewList}
+                  layout={layout as WallLayout}
+                  theme={theme}
+                  showRatings={showRatings}
+                  showBadge={badgeOn}
+                  maxCount={maxCount}
+                  accent={accent}
+                  radius={radius}
+                />
+              )}
+              {widgetType === "carousel" && (
+                <CarouselContent
+                  testimonials={previewList}
+                  theme={theme}
+                  showRatings={showRatings}
+                  showBadge={badgeOn}
+                  accent={accent}
+                  radius={radius}
+                />
+              )}
+              {widgetType === "marquee" && (
+                <MarqueeContent
+                  testimonials={previewList}
+                  theme={theme}
+                  showRatings={showRatings}
+                  showBadge={badgeOn}
+                  accent={accent}
+                  radius={radius}
+                />
+              )}
+              {widgetType === "single" && (
+                <SingleQuoteContent
+                  testimonial={featured}
+                  theme={theme}
+                  showRatings={showRatings}
+                  showBadge={badgeOn}
+                  accent={accent}
+                  radius={radius}
+                  layout={layout as "card" | "minimal"}
+                />
+              )}
             </div>
           </div>
         </div>

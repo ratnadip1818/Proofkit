@@ -27,6 +27,7 @@ export async function approveTestimonial(id: string): Promise<void> {
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 }
 
 export async function hideTestimonial(id: string): Promise<void> {
@@ -38,6 +39,7 @@ export async function hideTestimonial(id: string): Promise<void> {
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
@@ -49,6 +51,7 @@ export async function deleteTestimonial(id: string): Promise<void> {
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 }
 
 // Restricted to the AI improvement flow — free-text editing by founders is
@@ -70,6 +73,7 @@ export async function updateTestimonial(
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 }
 
 export type ImproveTestimonialResult =
@@ -154,6 +158,7 @@ export async function improveTestimonial(
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 
   return { original: body_original, improved };
 }
@@ -181,6 +186,7 @@ export async function acceptImprovement(id: string): Promise<void> {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 }
 
 export async function revertImprovement(id: string): Promise<void> {
@@ -206,6 +212,7 @@ export async function revertImprovement(id: string): Promise<void> {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
+  revalidatePath("/embed/" + user.id);
 }
 
 // TODO: Add ANTHROPIC_API_KEY to Vercel environment variables at vercel.com/project/settings/environment-variables
@@ -337,6 +344,7 @@ export async function importTestimonials(
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
   revalidatePath("/dashboard/import");
+  revalidatePath("/embed/" + user.id);
 
   return { error: null, count: data?.length ?? rows.length };
 }
@@ -489,6 +497,7 @@ export async function importSingleTestimonial(
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
   revalidatePath("/dashboard/import");
+  revalidatePath("/embed/" + user.id);
 
   return { error: null, success: true };
 }
@@ -518,6 +527,7 @@ export async function updateTestimonialTags(
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/testimonials");
   revalidatePath("/dashboard/widgets");
+  revalidatePath("/embed/" + user.id);
 
   return { error: null, success: true };
 }

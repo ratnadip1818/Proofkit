@@ -12,7 +12,7 @@ const FEATURES = [
   {
     icon: Star,
     title: "Text testimonials with star ratings",
-    desc: "Collect name, role, photo, rating and written feedback.",
+    desc: "Collect name, role, avatar, rating and written feedback.",
   },
   {
     icon: Sparkles,
@@ -22,7 +22,7 @@ const FEATURES = [
   {
     icon: LayoutGrid,
     title: "Wall of Love widget",
-    desc: "Embed a beautiful masonry grid on any website with one script tag.",
+    desc: "Embed a beautiful grid layout on any website with one script tag.",
   },
   {
     icon: Layers,

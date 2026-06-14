@@ -59,21 +59,46 @@
   if (radiusAttr === "sharp") skeletonRadius = "4px";
   else if (radiusAttr === "pill") skeletonRadius = "22px";
 
+  var showBadgeAttr = currentScript.getAttribute("data-badge");
+  var badgeVisible = showBadgeAttr !== "false";
+
   // Setup smart height placeholders for CLS reduction
   var initialHeight = "400";
   var containerMinHeight = "120px";
   if (typeAttr === "marquee") {
-    initialHeight = "280";
-    containerMinHeight = "280px";
+    if (badgeVisible) {
+      initialHeight = "348";
+      containerMinHeight = "348px";
+    } else {
+      initialHeight = "288";
+      containerMinHeight = "288px";
+    }
   } else if (typeAttr === "single") {
-    initialHeight = "280";
-    containerMinHeight = "280px";
+    if (badgeVisible) {
+      initialHeight = "340";
+      containerMinHeight = "340px";
+    } else {
+      initialHeight = "280";
+      containerMinHeight = "280px";
+    }
   } else if (typeAttr === "carousel") {
-    initialHeight = "340";
-    containerMinHeight = "340px";
+    if (badgeVisible) {
+      initialHeight = "374";
+      containerMinHeight = "374px";
+    } else {
+      initialHeight = "328";
+      containerMinHeight = "328px";
+    }
   } else if (typeAttr === "wall") {
-    initialHeight = "500";
-    containerMinHeight = "500px";
+    var maxAttr = currentScript.getAttribute("data-max");
+    var extraHeight = badgeVisible ? 46 : 0;
+    if (maxAttr === "3") {
+      initialHeight = String(280 + extraHeight);
+      containerMinHeight = (280 + extraHeight) + "px";
+    } else {
+      initialHeight = String(530 + extraHeight);
+      containerMinHeight = (530 + extraHeight) + "px";
+    }
   }
 
   var container = document.createElement("div");
@@ -99,6 +124,12 @@
     ".proofkit-skeleton-body2 { width: 75%; height: 12px; }";
   document.head.appendChild(skeletonStyle);
 
+  // Define reusable badge skeleton html
+  var badgeSkeletonHtml = badgeVisible ?
+    '<div style="display:flex;justify-content:center;margin-top:20px;width:100%;">' +
+      '<div style="width:120px;height:24px;border-radius:999px;background:' + skeletonFill + ';opacity:0.6;"></div>' +
+    '</div>' : '';
+
   // Render type-aware skeleton loaders
   var skeleton = document.createElement("div");
   if (typeAttr === "marquee") {
@@ -118,14 +149,28 @@
         '</div>' +
       '</div>';
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:flex;gap:12px;padding:16px 0;height:272px;background:transparent;border:none;box-sizing:border-box;overflow:hidden;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
-    skeleton.innerHTML =
-      '<div style="display:flex;gap:12px;width:max-content;flex-shrink:0;">' +
+    skeleton.style.cssText = "display:flex;flex-direction:column;padding:16px 0;height:" + (badgeVisible ? "348px" : "288px") + ";background:transparent;border:none;box-sizing:border-box;overflow:hidden;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    
+    var marqueeTrackHtml =
+      '<div style="display:flex;gap:12px;width:max-content;flex-shrink:0;padding:8px 0;">' +
         marqueeCardHtml + marqueeCardHtml + marqueeCardHtml + marqueeCardHtml + marqueeCardHtml +
       '</div>';
+    
+    skeleton.innerHTML = marqueeTrackHtml + (badgeVisible ?
+      '<div style="display:flex;justify-content:center;margin-top:12px;width:100%;">' +
+        '<div style="margin-top:20px;width:120px;height:26px;border-radius:999px;background:' + skeletonFill + ';opacity:0.6;"></div>' +
+      '</div>' : '');
   } else if (typeAttr === "carousel") {
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:block;padding:24px 16px;width:100%;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    skeleton.style.cssText = "display:block;padding:24px 16px;width:100%;height:" + (badgeVisible ? "374px" : "328px") + ";background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    
+    var dotsSkeletonHtml = 
+      '<div style="display:flex;justify-content:center;gap:6px;margin-top:16px;">' +
+        '<div style="width:18px;height:8px;border-radius:4px;background:' + skeletonFill + ';opacity:0.6;"></div>' +
+        '<div style="width:8px;height:8px;border-radius:4px;background:' + skeletonFill + ';opacity:0.35;"></div>' +
+        '<div style="width:8px;height:8px;border-radius:4px;background:' + skeletonFill + ';opacity:0.35;"></div>' +
+      '</div>';
+
     skeleton.innerHTML =
       '<div style="display:flex;flex-direction:column;gap:12px;padding:20px 32px;height:240px;max-width:480px;margin:0 auto;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;text-align:center;align-items:center;position:relative;overflow:hidden;">' +
         '<div style="position:absolute;top:6px;right:18px;font-size:64px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.14;pointer-events:none;">”</div>' +
@@ -134,23 +179,50 @@
         '<div class="proofkit-skeleton-line" style="width:60%;margin:0 auto;"></div>' +
         '<div class="proofkit-skeleton-line" style="width:100px;margin:auto auto 0;"></div>' +
         '<div class="proofkit-skeleton-line" style="width:60px;height:8px;margin:4px auto 0;"></div>' +
-      '</div>';
+      '</div>' + 
+      dotsSkeletonHtml + 
+      badgeSkeletonHtml;
   } else if (typeAttr === "single") {
+    var layoutAttr = currentScript.getAttribute("data-layout") || "card";
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:block;padding:32px 24px;width:100%;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
-    skeleton.innerHTML =
-      '<div style="display:flex;flex-direction:column;gap:12px;padding:36px 32px;max-width:560px;margin:0 auto;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;text-align:center;align-items:center;position:relative;overflow:hidden;">' +
-        '<div style="position:absolute;top:6px;right:18px;font-size:64px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.14;pointer-events:none;">”</div>' +
-        '<div class="proofkit-skeleton-line" style="width:85%;height:14px;margin:8px auto 0;"></div>' +
-        '<div class="proofkit-skeleton-line" style="width:70%;height:14px;margin:0 auto;"></div>' +
-        '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;width:100%;">' +
-          '<div class="proofkit-skeleton-circle" style="flex-shrink:0;"></div>' +
-          '<div style="text-align:left;">' +
-            '<div class="proofkit-skeleton-line" style="width:80px;height:12px;"></div>' +
-            '<div class="proofkit-skeleton-line" style="width:50px;height:8px;margin-top:4px;"></div>' +
+    skeleton.style.cssText = "display:block;padding:32px 24px;width:100%;height:" + (badgeVisible ? "340px" : "280px") + ";background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    
+    var singleInnerHtml = "";
+    if (layoutAttr === "minimal") {
+      singleInnerHtml =
+        '<div style="display:flex;flex-direction:column;gap:12px;padding:36px 24px;max-width:560px;margin:0 auto;background:transparent;border:none;box-sizing:border-box;text-align:center;align-items:center;position:relative;overflow:hidden;">' +
+          '<div style="font-size:64px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.2;margin-bottom:8px;">“</div>' +
+          '<div class="proofkit-skeleton-line" style="width:85%;height:14px;margin:0 auto;"></div>' +
+          '<div class="proofkit-skeleton-line" style="width:70%;height:14px;margin:0 auto;"></div>' +
+          '<div style="width:48px;height:1px;background:' + skeletonBorder + ';margin:12px auto 0;"></div>' +
+          '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;margin-top:12px;">' +
+            '<div class="proofkit-skeleton-circle" style="width:44px;height:44px;flex-shrink:0;"></div>' +
+            '<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;">' +
+              '<div class="proofkit-skeleton-line" style="width:80px;height:12px;"></div>' +
+              '<div class="proofkit-skeleton-line" style="width:50px;height:8px;"></div>' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-      '</div>';
+        '</div>';
+    } else {
+      singleInnerHtml =
+        '<div style="display:flex;flex-direction:column;gap:12px;padding:36px 32px;max-width:560px;margin:0 auto;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;text-align:center;align-items:center;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.02),0 1px 3px rgba(0,0,0,0.02);">' +
+          '<div style="position:absolute;top:6px;left:16px;font-size:80px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.12;pointer-events:none;">“</div>' +
+          '<div class="proofkit-skeleton-line" style="width:85%;height:14px;margin:8px auto 0;"></div>' +
+          '<div class="proofkit-skeleton-line" style="width:70%;height:14px;margin:0 auto;"></div>' +
+          '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;width:100%;">' +
+            '<div class="proofkit-skeleton-circle" style="flex-shrink:0;"></div>' +
+            '<div style="text-align:left;">' +
+              '<div class="proofkit-skeleton-line" style="width:80px;height:12px;"></div>' +
+              '<div class="proofkit-skeleton-line" style="width:50px;height:8px;margin-top:4px;"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+    
+    skeleton.innerHTML = singleInnerHtml + (badgeVisible ?
+      '<div style="display:flex;justify-content:center;margin-top:12px;width:100%;">' +
+        '<div style="margin-top:8px;width:120px;height:26px;border-radius:999px;background:' + skeletonFill + ';opacity:0.6;"></div>' +
+      '</div>' : '');
   } else {
     var cardHtml = 
       '<div style="display:flex;flex-direction:column;gap:12px;padding:24px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;">' +
@@ -165,8 +237,23 @@
         '<div class="proofkit-skeleton-line proofkit-skeleton-body2"></div>' +
       '</div>';
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;width:100%;padding:16px;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
-    skeleton.innerHTML = cardHtml + cardHtml + cardHtml;
+    skeleton.style.cssText = "display:flex;flex-direction:column;gap:16px;width:100%;padding:16px;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    
+    var maxAttr = currentScript.getAttribute("data-max");
+    var cardsToRender = 6;
+    if (maxAttr === "3") {
+      cardsToRender = 3;
+    }
+    var cardsGridHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;width:100%;">';
+    for (var i = 0; i < cardsToRender; i++) {
+      cardsGridHtml += cardHtml;
+    }
+    cardsGridHtml += '</div>';
+    
+    skeleton.innerHTML = cardsGridHtml + (badgeVisible ?
+      '<div style="display:flex;justify-content:center;margin-top:12px;width:100%;">' +
+        '<div style="margin-top:8px;width:120px;height:26px;border-radius:999px;background:' + skeletonFill + ';opacity:0.6;"></div>' +
+      '</div>' : '');
   }
   container.appendChild(skeleton);
 

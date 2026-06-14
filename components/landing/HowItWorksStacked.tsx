@@ -21,20 +21,75 @@ const STEPS = [
       icon: "text-[#E8743B]",
     },
     visual: (
-      <div className="w-full max-w-[280px] space-y-2.5 rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-5">
-        <p className="text-xs font-bold text-[#1A1A1A]">Share your experience ✦</p>
-        <div className="h-8 rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 text-[10px] text-[#6B6B6B]">
-          Maria Kowalski
+      <div className="w-full max-w-[280px] space-y-3 rounded-2xl border border-[#ECE7E0] bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] text-left">
+        {/* Photo upload */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[9px] font-semibold text-[#1A1A1A]">
+            Your photo <span className="font-normal text-[#6B6B6B]">(optional)</span>
+          </label>
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FAF8F5] border border-[#ECE7E0]">
+              <svg
+                className="h-3.5 w-3.5 text-[#D9D3CB]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+            </div>
+            <div className="rounded border border-[#ECE7E0] bg-white px-2 py-0.5 text-[8px] font-medium text-[#6B6B6B]">
+              Upload photo
+            </div>
+          </div>
         </div>
-        <div className="h-8 rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 text-[10px] text-[#6B6B6B]">
-          Founder, Lume
+
+        {/* Name input */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[9px] font-semibold text-[#1A1A1A]">
+            Your name <span className="text-red-500">*</span>
+          </label>
+          <div className="rounded-md border border-[#ECE7E0] bg-[#FAF8F5] px-2.5 py-1.5 text-[9px] text-[#6B6B6B]">
+            Maria Kowalski
+          </div>
         </div>
-        <div className="flex gap-1 text-sm text-[#E8743B]">★★★★★</div>
-        <div className="h-14 rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 text-[10px] text-[#6B6B6B]">
-          luv this app, saved me so much time…
+
+        {/* Role input */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[9px] font-semibold text-[#1A1A1A]">
+            Your role <span className="font-normal text-[#6B6B6B]">(optional)</span>
+          </label>
+          <div className="rounded-md border border-[#ECE7E0] bg-[#FAF8F5] px-2.5 py-1.5 text-[9px] text-[#6B6B6B]">
+            Founder, Lume
+          </div>
         </div>
-        <div className="rounded-lg bg-[#E8743B] py-2 text-center text-[10px] font-bold text-white">
-          Submit
+
+        {/* Rating input */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[9px] font-semibold text-[#1A1A1A]">
+            Rating <span className="text-red-500">*</span>
+          </label>
+          <div className="flex gap-0.5 text-xs text-[#E8743B]">★★★★★</div>
+        </div>
+
+        {/* Testimonial input */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[9px] font-semibold text-[#1A1A1A]">
+            Your testimonial <span className="text-red-500">*</span>
+          </label>
+          <div className="h-12 rounded-md border border-[#ECE7E0] bg-[#FAF8F5] px-2.5 py-1 text-[9px] leading-relaxed text-[#6B6B6B] overflow-hidden">
+            luv this app, saved me so much time…
+          </div>
+        </div>
+
+        {/* Submit button */}
+        <div className="rounded-md bg-[#E8743B] py-2 text-center text-[9px] font-bold text-white shadow-sm">
+          Submit testimonial
         </div>
       </div>
     ),
@@ -130,8 +185,8 @@ export default function HowItWorksStacked() {
           ease: "none",
           scrollTrigger: {
             trigger: cards[i + 1],
-            start: "top bottom",
-            end: "top top+=120",
+            start: "top center",
+            end: "top top+=240",
             scrub: true,
           },
         });

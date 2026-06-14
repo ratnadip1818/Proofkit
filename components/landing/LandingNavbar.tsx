@@ -34,10 +34,10 @@ export default function LandingNavbar() {
     <>
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-6 md:pt-4">
         <nav
-          className={`mx-auto flex h-14 max-w-[1200px] items-center justify-between rounded-full px-4 transition-all duration-500 md:px-6 ${
+          className={`mx-auto flex h-14 max-w-[1200px] items-center justify-between rounded-full px-4 transition-all duration-500 md:px-6 border border-[#ECE7E0] ${
             scrolled
-              ? "border border-[#ECE7E0] bg-[#FAF8F5]/85 shadow-[0_8px_32px_rgba(26,26,26,0.08)] backdrop-blur-xl"
-              : "border border-transparent bg-transparent"
+              ? "bg-[#FAF8F5]/90 shadow-[0_8px_32px_rgba(26,26,26,0.08)] backdrop-blur-xl"
+              : "bg-[#FAF8F5]/50 backdrop-blur-md"
           }`}
           aria-label="Main navigation"
         >

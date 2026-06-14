@@ -47,7 +47,7 @@ export default function FinalCTASection() {
   return (
     <section
       ref={sectionRef}
-      className="grain relative w-full overflow-hidden bg-[#E8743B] px-5 py-32 md:px-10 md:py-44"
+      className="grain relative w-full overflow-hidden bg-[#000000] px-5 py-32 md:px-10 md:py-44"
     >
       {/* Oversized outline wordmark drifting behind */}
       <div
@@ -60,7 +60,7 @@ export default function FinalCTASection() {
               {Array.from({ length: 4 }).map((_, i) => (
                 <span
                   key={i}
-                  className="px-8 text-[22vw] font-extrabold leading-none text-white/10 md:text-[16vw]"
+                  className="px-8 text-[22vw] font-extrabold leading-none text-white/5 md:text-[16vw]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   Blovi✦
@@ -120,7 +120,7 @@ export default function FinalCTASection() {
         <div className="cta-fade mt-10">
           <Link
             href="/signup"
-            className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-lg font-bold text-[#1A1A1A] shadow-[0_24px_64px_rgba(22,22,29,0.3)] transition-all hover:scale-[1.04] hover:shadow-[0_28px_72px_rgba(22,22,29,0.4)] active:scale-95"
+            className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-bold text-white shadow-[0_24px_64px_rgba(232,116,59,0.25)] transition-all hover:scale-[1.04] hover:bg-[#CF5F2C] hover:shadow-[0_28px_72px_rgba(232,116,59,0.35)] active:scale-95"
           >
             Get Blovi now
             <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />

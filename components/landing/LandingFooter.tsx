@@ -20,7 +20,7 @@ const LEGAL_LINKS = [
 
 export default function LandingFooter() {
   return (
-    <footer className="relative w-full overflow-hidden bg-[#16161D]" role="contentinfo">
+    <footer className="relative w-full overflow-hidden bg-[#000000]" role="contentinfo">
       <div className="mx-auto w-full max-w-[1200px] px-5 pt-20 md:px-10">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>

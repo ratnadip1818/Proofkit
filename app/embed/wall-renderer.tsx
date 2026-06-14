@@ -1,18 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { type Testimonial, SAMPLE_TESTIMONIALS } from "./constants";
 
-export interface Testimonial {
-  id: string;
-  author_name: string;
-  author_role: string | null;
-  body_original: string;
-  display_body: string | null;
-  rating: number | null;
-  created_at: string;
-  avatar_url?: string | null;
-  tags?: string[] | null;
-}
+export type { Testimonial };
+export { SAMPLE_TESTIMONIALS };
+
 
 export interface ThemeColors {
   pageBg: string;
@@ -76,89 +69,6 @@ export function buildStyle(
   return { colors, radius: RADIUS_PX[radius] };
 }
 
-export const SAMPLE_TESTIMONIALS: Testimonial[] = [
-  {
-    id: "sample-1",
-    author_name: "Maria K.",
-    author_role: "Founder, Lume",
-    body_original: "I love this app — it saved me so much time. Highly recommend!",
-    display_body: "I love this app — it saved me so much time. Highly recommend!",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-2",
-    author_name: "Tom W.",
-    author_role: "Indie hacker",
-    body_original: "Honestly, I didn't expect to use it this much — it's that good.",
-    display_body: "Honestly, I didn't expect to use it this much — it's that good.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-3",
-    author_name: "Devon R.",
-    author_role: "Freelance designer",
-    body_original: "Setup was super quick, and the wall looks amazing on my site.",
-    display_body: "Setup was super quick, and the wall looks amazing on my site.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-4",
-    author_name: "Priya S.",
-    author_role: "Agency owner",
-    body_original: "Finally a tool I don't pay monthly for.",
-    display_body: "Finally a tool I don't pay monthly for.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-5",
-    author_name: "Ana L.",
-    author_role: "Course creator",
-    body_original: "Exactly what my course site needed — looks so clean.",
-    display_body: "Exactly what my course site needed — looks so clean.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-6",
-    author_name: "Jordan B.",
-    author_role: "Marketing lead",
-    body_original: "Our conversion rate went up after adding this wall to the homepage.",
-    display_body: "Our conversion rate went up after adding this wall to the homepage.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-7",
-    author_name: "Sofia M.",
-    author_role: "Shop owner",
-    body_original: "Customers trust us more now that they can see real reviews.",
-    display_body: "Customers trust us more now that they can see real reviews.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-8",
-    author_name: "Liam P.",
-    author_role: "SaaS founder",
-    body_original: "The AI polish feature turns messy feedback into great copy instantly.",
-    display_body: "The AI polish feature turns messy feedback into great copy instantly.",
-    rating: 4,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "sample-9",
-    author_name: "Hana T.",
-    author_role: "Consultant",
-    body_original: "Took five minutes to set up and it just works.",
-    display_body: "Took five minutes to set up and it just works.",
-    rating: 5,
-    created_at: new Date().toISOString(),
-  },
-];
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -1356,25 +1266,33 @@ export function MarqueeContent({
         }
       `}</style>
       <div
-        className="proofkit-marquee-track"
-        style={{ display: "flex", gap: "12px", width: "max-content" }}
+        style={{
+          overflow: "hidden",
+          WebkitMaskImage: "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)",
+          maskImage: "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)",
+        }}
       >
-        {items.map((t, i) => (
-          <div
-            key={`${t.id}-${i}`}
-            className="proofkit-marquee-card-wrapper"
-            onClick={() => setActiveModalTestimonial(t)}
-          >
-            <TestimonialCard
-              t={t}
-              showRatings={showRatings}
-              colors={colors}
-              radius={radiusPx}
-              index={i}
-              onReadMore={setActiveModalTestimonial}
-            />
-          </div>
-        ))}
+        <div
+          className="proofkit-marquee-track"
+          style={{ display: "flex", gap: "12px", width: "max-content" }}
+        >
+          {items.map((t, i) => (
+            <div
+              key={`${t.id}-${i}`}
+              className="proofkit-marquee-card-wrapper"
+              onClick={() => setActiveModalTestimonial(t)}
+            >
+              <TestimonialCard
+                t={t}
+                showRatings={showRatings}
+                colors={colors}
+                radius={radiusPx}
+                index={i}
+                onReadMore={setActiveModalTestimonial}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {showBadge && (
@@ -1403,6 +1321,7 @@ export function SingleQuoteContent({
   showBadge,
   accent,
   radius = "rounded",
+  layout = "card",
 }: {
   testimonial: Testimonial | null;
   theme: WallTheme;
@@ -1410,6 +1329,7 @@ export function SingleQuoteContent({
   showBadge: boolean;
   accent?: string;
   radius?: WidgetRadius;
+  layout?: "card" | "minimal";
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
 
@@ -1421,6 +1341,92 @@ export function SingleQuoteContent({
     );
   }
 
+  const text = testimonial.display_body ?? testimonial.body_original;
+  const isShort = text.length < 120;
+
+  if (layout === "minimal") {
+    const fontSize = isShort ? "22px" : "18px";
+    return (
+      <div
+        style={{
+          fontFamily: FONT,
+          padding: "36px 24px",
+          background: colors.pageBg,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "560px",
+            margin: "0 auto",
+            position: "relative",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              fontSize: "64px",
+              lineHeight: 1,
+              fontFamily: "Georgia, serif",
+              color: colors.accent,
+              opacity: 0.2,
+              display: "block",
+              marginBottom: "8px",
+            }}
+          >
+            “
+          </span>
+          <p
+            style={{
+              fontSize,
+              lineHeight: "1.7",
+              color: colors.text,
+              fontWeight: 500,
+              margin: "0 0 24px 0",
+              fontStyle: isShort ? "italic" : "normal",
+            }}
+          >
+            {text}
+          </p>
+          {showRatings && testimonial.rating !== null && (
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+              <Stars rating={testimonial.rating} colors={colors} />
+            </div>
+          )}
+          <div style={{ width: "48px", height: "1px", background: colors.cardBorder, margin: "0 auto 20px auto" }} />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+            <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={44} />
+            <div>
+              <p
+                style={{
+                  margin: 0,
+                  fontWeight: 700,
+                  fontSize: "15px",
+                  color: colors.name,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "4px",
+                }}
+              >
+                {testimonial.author_name}
+                <VerifiedBadge id={testimonial.id} />
+              </p>
+              {testimonial.author_role && (
+                <p style={{ margin: "2px 0 0", fontSize: "12.5px", color: colors.role }}>
+                  {testimonial.author_role}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+        {showBadge && <BadgeLink colors={colors} />}
+      </div>
+    );
+  }
+
+  // "card" layout
+  const fontSize = isShort ? "20px" : "18px";
   return (
     <div
       style={{
@@ -1448,28 +1454,37 @@ export function SingleQuoteContent({
           aria-hidden="true"
           style={{
             position: "absolute",
-            top: "6px",
-            right: "18px",
-            fontSize: "64px",
+            top: "-10px",
+            left: "16px",
+            fontSize: "80px",
             lineHeight: 1,
             fontFamily: "Georgia, serif",
             color: colors.accent,
-            opacity: 0.14,
+            opacity: 0.12,
             pointerEvents: "none",
           }}
         >
-          ”
+          “
         </span>
-        <p style={{ fontSize: "17px", lineHeight: "1.65", color: colors.text, fontWeight: 500, margin: "0 0 20px 0" }}>
-          {testimonial.display_body ?? testimonial.body_original}
+        <p
+          style={{
+            fontSize,
+            lineHeight: "1.75",
+            color: colors.text,
+            fontWeight: 500,
+            margin: "12px 0 20px 0",
+            fontStyle: isShort ? "italic" : "normal",
+          }}
+        >
+          {text}
         </p>
         {showRatings && testimonial.rating !== null && (
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
             <Stars rating={testimonial.rating} colors={colors} />
           </div>
         )}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginTop: "8px" }}>
-          <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginTop: "8px" }}>
+          <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={38} />
           <div style={{ textAlign: "left" }}>
             <p
               style={{
@@ -1479,7 +1494,7 @@ export function SingleQuoteContent({
                 color: colors.name,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 gap: "4px",
               }}
             >
@@ -1487,7 +1502,7 @@ export function SingleQuoteContent({
               <VerifiedBadge id={testimonial.id} />
             </p>
             {testimonial.author_role && (
-              <p style={{ margin: "2px 0 0", fontSize: "13px", color: colors.role }}>
+              <p style={{ margin: "2px 0 0", fontSize: "12.5px", color: colors.role }}>
                 {testimonial.author_role}
               </p>
             )}

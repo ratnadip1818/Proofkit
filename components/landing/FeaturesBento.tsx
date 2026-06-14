@@ -7,23 +7,53 @@ const WALL_CARDS = [
   { name: "Maria K.", body: "Saved me so much time. Highly recommend to any founder!" },
   { name: "Devon R.", body: "Set up in five minutes. Looks great on my portfolio." },
   { name: "Priya S.", body: "Our agency clients love seeing the wall on their sites." },
-  { name: "Tom W.", body: "The AI polish button is genuinely magic." },
-  { name: "Ana L.", body: "Exactly what my course site needed." },
-  { name: "Sam B.", body: "Pay once and forget about it. Perfect." },
 ];
 
 const WIDGET_STYLES = ["Wall of Love", "Carousel", "Marquee", "Single Quote"];
 
 function MiniCard({ name, body }: { name: string; body: string }) {
   return (
-    <div className="rounded-xl border border-[#ECE7E0] bg-white p-3.5">
-      <div className="flex gap-0.5 text-[9px] text-[#E8743B]">★★★★★</div>
-      <p className="mt-1.5 text-[11px] leading-relaxed text-[#6B6B6B]">{body}</p>
-      <div className="mt-2.5 flex items-center gap-1.5">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FFF4EE] text-[8px] font-bold text-[#E8743B]">
+    <div className="relative flex flex-col h-[220px] p-5 bg-white border border-[#e4e4e7] rounded-xl text-left overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02),_0_1px_3px_rgba(0,0,0,0.02)]">
+      {/* Decorative quote mark */}
+      <span
+        aria-hidden="true"
+        className="absolute top-1 right-3 text-[52px] leading-none font-serif text-[#E8743B] opacity-10 pointer-events-none select-none"
+      >
+        ”
+      </span>
+
+      {/* Star rating */}
+      <div className="flex gap-0.5 text-xs text-[#f59e0b] mb-3">
+        ★★★★★
+      </div>
+
+      {/* Testimonial body */}
+      <p className="flex-1 text-[13.5px] leading-[1.65] text-[#3f3f46] overflow-hidden line-clamp-4">
+        {body}
+      </p>
+
+      {/* Author details */}
+      <div className="mt-4 flex items-center gap-2.5">
+        <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[#FFF4EE] text-[13.6px] font-bold text-[#E8743B]">
           {name.charAt(0)}
         </span>
-        <span className="text-[10px] font-semibold text-[#1A1A1A]">{name}</span>
+        <div className="min-w-0">
+          <p className="flex items-center gap-1 text-[13px] font-bold text-[#18181b] truncate">
+            {name}
+            <span className="inline-flex items-center text-[#2E9E6B]" title="Verified customer">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="block"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
+            </span>
+          </p>
+          <p className="text-[11px] text-[#71717a] truncate">Verified customer</p>
+        </div>
       </div>
     </div>
   );
@@ -62,18 +92,22 @@ export default function FeaturesBento() {
           {/* Wall of Love — large card */}
           <Reveal className="md:col-span-2" y={48}>
             <div className={`${CARD_BASE} h-full p-7 md:p-9`}>
-              <h3 className="text-xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
-                Wall of Love widget
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
+                  Wall of Love widget
+                </h3>
+                <span className="rounded-full bg-[#E8743B]/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#E8743B]">
+                  Preview
+                </span>
+              </div>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-[#6B6B6B]">
-                Embed a beautiful masonry grid on any website with one script
+                Embed a beautiful grid layout on any website with one script
                 tag. It auto-resizes and matches your brand.
               </p>
-              <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {WALL_CARDS.map((card) => (
                   <MiniCard key={card.name} {...card} />
                 ))}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#FAF8F5] to-transparent transition-opacity duration-300 group-hover:opacity-0" />
               </div>
             </div>
           </Reveal>
@@ -161,10 +195,10 @@ export default function FeaturesBento() {
                 </div>
               </div>
               <h3 className="mt-4 text-xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
-                Ratings, photos &amp; alerts
+                Ratings, avatars &amp; alerts
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-[#6B6B6B]">
-                Collect star ratings and photos, and get an email the moment a
+                Collect star ratings and customer avatars, and get an email the moment a
                 new testimonial lands.
               </p>
               <div className="mt-auto pt-6">
