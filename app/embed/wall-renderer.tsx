@@ -750,7 +750,48 @@ export function WallContent({
     }
   }
 
-  // Whenever selectedTag, filteredList.length, page or visibleCount changes, send height resize message to parent frame
+  const [windowWidth, setWindowWidth] = useState<number>(1200);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setWindowWidth(window.innerWidth);
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
+  let numCols = 3;
+  if (windowWidth < 600) {
+    numCols = 1;
+  } else if (windowWidth < 900) {
+    numCols = 2;
+  }
+
+  // Distribute testimonials across columns for Masonry layout
+  const masonryColumns: Testimonial[][] = Array.from({ length: numCols }, () => []);
+  if (layout === "masonry") {
+    const colHeights = Array(numCols).fill(0);
+    renderedList.forEach((t) => {
+      let minColIdx = 0;
+      let minHeight = colHeights[0];
+      for (let i = 1; i < numCols; i++) {
+        if (colHeights[i] < minHeight) {
+          minHeight = colHeights[i];
+          minColIdx = i;
+        }
+      }
+      masonryColumns[minColIdx].push(t);
+      const text = t.display_body ?? t.body_original ?? "";
+      const charPerLine = 35;
+      const lineHeight = 23;
+      const lines = Math.ceil(text.length / charPerLine) || 1;
+      const estHeight = 160 + lines * lineHeight;
+      colHeights[minColIdx] += estHeight;
+    });
+  }
+
+  // Whenever selectedTag, filteredList.length, page, visibleCount or numCols changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
@@ -761,7 +802,7 @@ export function WallContent({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length, page, visibleCount]);
+  }, [selectedTag, filteredList.length, page, visibleCount, numCols]);
 
   const containerMaxWidth = "880px";
  
@@ -898,25 +939,41 @@ export function WallContent({
       ) : (
         <div
           style={{
-            columns: "280px",
-            columnGap: "16px",
+            display: "flex",
+            gap: "16px",
+            justifyContent: "center",
             maxWidth: containerMaxWidth,
             margin: "0 auto",
           }}
         >
-          {renderedList.map((t, idx) => (
-            <div key={t.id} style={{ marginBottom: "16px" }}>
-              <TestimonialCard
-                t={t}
-                showRatings={showRatings}
-                colors={colors}
-                radius={radiusPx}
-                layout={layout}
-                index={idx}
-                onReadMore={setActiveModalTestimonial}
-              />
-            </div>
-          ))}
+          {masonryColumns
+            .filter((col) => col.length > 0)
+            .map((col, colIdx) => (
+              <div
+                key={colIdx}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                  flex: numCols === 1 ? "1 1 100%" : "0 0 280px",
+                  maxWidth: numCols === 1 ? "100%" : "280px",
+                }}
+              >
+                {col.map((t, idx) => (
+                  <div key={t.id}>
+                    <TestimonialCard
+                      t={t}
+                      showRatings={showRatings}
+                      colors={colors}
+                      radius={radiusPx}
+                      layout={layout}
+                      index={idx}
+                      onReadMore={setActiveModalTestimonial}
+                    />
+                  </div>
+                ))}
+              </div>
+            ))}
         </div>
       )}
 
