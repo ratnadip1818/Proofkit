@@ -10,6 +10,9 @@ import {
   Rows3,
   Quote,
   Lock,
+  Smartphone,
+  Tablet,
+  Monitor,
 } from "lucide-react";
 import PaddleCheckout from "@/components/PaddleCheckout";
 import {
@@ -25,6 +28,7 @@ import {
   type WidgetRadius,
 } from "../../embed/wall-renderer";
 import { BlurFade } from "@/components/magicui/blur-fade";
+import { motion } from "framer-motion";
 
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
@@ -56,7 +60,7 @@ function Toggle({
   return (
     <div className="flex items-center justify-between gap-4">
       <div>
-        <p className="text-sm font-medium text-[#1A1A1A]">{label}</p>
+        <p className="text-sm font-semibold text-[#1A1A1A]">{label}</p>
         <p className="text-xs text-[#6B6B6B]">{description}</p>
       </div>
       <button
@@ -66,12 +70,12 @@ function Toggle({
         disabled={disabled}
         title={title}
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`relative h-6 w-11 shrink-0 rounded-full transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40 ${
           checked ? "bg-[#E8743B]" : "bg-[#ECE7E0]"
         }`}
       >
         <span
-          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-300 ${
             checked ? "translate-x-5" : "translate-x-0"
           }`}
         />
@@ -102,6 +106,7 @@ export default function WidgetBuilder({
   const [showBadge, setShowBadge] = useState(true);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [previewWidth, setPreviewWidth] = useState<"100%" | "768px" | "380px">("100%");
 
   useEffect(() => {
     if (widgetType === "single") {
@@ -113,8 +118,6 @@ export default function WidgetBuilder({
 
   const maxCount = max === "all" ? null : Number(max);
   const badgeOn = isLifetime ? showBadge : true;
-  // No approved testimonials yet — preview with samples so every
-  // style/theme choice is actually visible.
   const usingSamples = testimonials.length === 0;
   const previewList = usingSamples ? SAMPLE_TESTIMONIALS : testimonials;
   const featured = previewList[featuredIndex] ?? previewList[0] ?? null;
@@ -161,22 +164,22 @@ export default function WidgetBuilder({
 
   return (
     <div>
-      <div className="mb-5 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm">
+      {/* Sliding Segmented Widget Switcher */}
+      <div className="mb-6 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm relative z-0">
         {WIDGET_TYPES.map((t) => {
-          // Free tier: only Wall of Love — other types open checkout
           const typeLocked = !isLifetime && t.value !== "wall";
           if (typeLocked) {
             return (
               <PaddleCheckout
                 key={t.value}
                 email={email}
-                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-[#9CA3AF] transition-all duration-200 hover:bg-[#FFF4EE] hover:text-[#E8743B]"
+                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-[#9CA3AF] transition-all duration-200 hover:bg-[#FFF4EE] hover:text-[#E8743B] cursor-pointer"
               >
                 <t.icon size={15} />
                 {t.label}
                 <span className="flex items-center gap-1 rounded-full bg-[#E8743B]/10 px-2 py-0.5 text-[10px] font-bold text-[#E8743B]">
                   <Lock size={9} />
-                  Upgrade to unlock
+                  Unlock
                 </span>
               </PaddleCheckout>
             );
@@ -186,12 +189,19 @@ export default function WidgetBuilder({
               key={t.value}
               type="button"
               onClick={() => setWidgetType(t.value)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+              className={`relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 z-10 ${
                 widgetType === t.value
-                  ? "bg-[#E8743B] text-white shadow-sm"
-                  : "text-[#6B6B6B] hover:bg-[#FAF8F5] hover:text-[#1A1A1A]"
+                  ? "text-white"
+                  : "text-[#6B6B6B] hover:text-[#1A1A1A]"
               }`}
             >
+              {widgetType === t.value && (
+                <motion.div
+                  layoutId="active-widget-type"
+                  className="absolute inset-0 bg-[#E8743B] rounded-lg -z-10 shadow-sm"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                />
+              )}
               <t.icon size={15} />
               {t.label}
             </button>
@@ -199,189 +209,251 @@ export default function WidgetBuilder({
         })}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        {/* Settings + embed code */}
-        <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-            Widget settings
-          </h2>
-
-
-
-          <div className="mt-4">
-            <p className="text-sm font-medium text-[#1A1A1A]">Theme</p>
-            <div className="mt-2 flex gap-5">
-              {(
-                [
-                  { value: "light", label: "Light" },
-                  { value: "dark", label: "Dark" },
-                ] as { value: WallTheme; label: string }[]
-              ).map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex items-center gap-2 text-sm text-[#1A1A1A]"
-                >
-                  <input
-                    type="radio"
-                    name="theme"
-                    checked={theme === opt.value}
-                    onChange={() => setTheme(opt.value)}
-                    className="accent-[#E8743B]"
-                  />
-                  {opt.label}
-                </label>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-[#6B6B6B]">
-              Tip: use{" "}
-              <code className="rounded bg-[#FAF8F5] px-1 py-0.5 font-mono text-[11px]">
-                data-theme=&quot;auto&quot;
-              </code>{" "}
-              in the snippet to match your site automatically.
-            </p>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-end gap-6">
-            <div>
-              <p className="text-sm font-medium text-[#1A1A1A]">Brand color</p>
-              <div className="mt-2 flex items-center gap-2">
-                <input
-                  type="color"
-                  value={accent}
-                  onChange={(e) => setAccent(e.target.value)}
-                  aria-label="Accent color"
-                  className="h-9 w-12 cursor-pointer rounded-lg border border-[#ECE7E0] bg-white p-1"
-                />
-                <span className="font-mono text-xs text-[#6B6B6B]">{accent}</span>
-                {accent !== DEFAULT_ACCENT && (
-                  <button
-                    type="button"
-                    onClick={() => setAccent(DEFAULT_ACCENT)}
-                    className="text-xs font-medium text-[#6B6B6B] underline underline-offset-2 hover:text-[#1A1A1A]"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[#1A1A1A]">Corners</p>
-              <div className="mt-2 flex gap-4">
-                {(
-                  [
-                    { value: "sharp", label: "Sharp" },
-                    { value: "rounded", label: "Rounded" },
-                    { value: "pill", label: "Soft" },
-                  ] as { value: WidgetRadius; label: string }[]
-                ).map((opt) => (
-                  <label
-                    key={opt.value}
-                    className="flex items-center gap-2 text-sm text-[#1A1A1A]"
-                  >
-                    <input
-                      type="radio"
-                      name="radius"
-                      checked={radius === opt.value}
-                      onChange={() => setRadius(opt.value)}
-                      className="accent-[#E8743B]"
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {widgetType === "wall" && (
-            <div className="mt-4 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[#1A1A1A]">
-                Max testimonials to show
-              </label>
-              <select
-                value={max}
-                onChange={(e) => setMax(e.target.value as MaxOption)}
-                className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
-              >
-                <option value="3">3</option>
-                <option value="6">6</option>
-                <option value="9">9</option>
-                <option value="all">All</option>
-              </select>
-            </div>
-          )}
-
-          {widgetType === "single" && (
-            <div className="mt-4 flex flex-col gap-3.5">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#1A1A1A]">
-                  Featured testimonial
-                </label>
-                <select
-                  value={featuredIndex}
-                  onChange={(e) => setFeaturedIndex(Number(e.target.value))}
-                  className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 disabled:opacity-50"
-                >
-                  {previewList.map((t, i) => (
-                    <option key={t.id} value={i}>
-                      {t.author_name} — &ldquo;
-                      {(t.display_body ?? t.body_original).slice(0, 40)}
-                      {(t.display_body ?? t.body_original).length > 40 ? "…" : ""}
-                      &rdquo;
-                    </option>
-                  ))}
-                </select>
-              </div>
-
+      <div className="grid gap-6 lg:grid-cols-12 items-start">
+        {/* Settings Sidebar */}
+        <div className="lg:col-span-5 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col gap-6">
+          {/* Section 1: Theme & Shape */}
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B6B6B] border-b border-[#ECE7E0] pb-2">
+              1. Theme & Shape
+            </h2>
+            <div className="mt-4 flex flex-col gap-4">
+              {/* Visual Theme Card Selectors */}
               <div>
-                <p className="text-sm font-medium text-[#1A1A1A]">Layout Variant</p>
-                <div className="mt-2 flex gap-5">
-                  {[
-                    { value: "card", label: "Featured Card" },
-                    { value: "minimal", label: "Minimalist Editorial" },
-                  ].map((opt) => (
-                    <label
+                <p className="text-sm font-semibold text-[#1A1A1A]">Theme</p>
+                <div className="mt-2 flex gap-4">
+                  {(
+                    [
+                      { value: "light", label: "Light" },
+                      { value: "dark", label: "Dark" },
+                    ] as { value: WallTheme; label: string }[]
+                  ).map((opt) => (
+                    <button
                       key={opt.value}
-                      className="flex items-center gap-2 text-sm text-[#1A1A1A] cursor-pointer"
+                      type="button"
+                      onClick={() => setTheme(opt.value)}
+                      className={`flex-1 flex flex-col items-center gap-2.5 rounded-xl border p-3 text-center transition-all duration-200 ${
+                        theme === opt.value
+                          ? "border-[#E8743B] bg-[#FFF4EE]/30 ring-1 ring-[#E8743B]"
+                          : "border-[#ECE7E0] bg-white hover:border-[#1A1A1A]/20"
+                      }`}
                     >
-                      <input
-                        type="radio"
-                        name="single-layout"
-                        checked={(layout === "minimal" ? "minimal" : "card") === opt.value}
-                        onChange={() => setLayout(opt.value)}
-                        className="accent-[#E8743B]"
-                      />
-                      {opt.label}
-                    </label>
+                      {/* Miniature card mockup */}
+                      <div className={`w-full h-12 rounded-lg border p-2 flex flex-col gap-1 transition-all ${
+                        opt.value === "dark" 
+                          ? "bg-[#16161D] border-white/5" 
+                          : "bg-white border-[#ECE7E0]"
+                      }`}>
+                        <div className="flex items-center gap-1">
+                          <div className="h-2 w-2 rounded-full bg-[#E8743B]/20" />
+                          <div className={`h-1 w-6 rounded ${opt.value === "dark" ? "bg-white/20" : "bg-zinc-800"}`} />
+                        </div>
+                        <div className={`h-0.5 w-full rounded ${opt.value === "dark" ? "bg-white/10" : "bg-zinc-100"}`} />
+                        <div className={`h-0.5 w-4/5 rounded ${opt.value === "dark" ? "bg-white/10" : "bg-zinc-100"}`} />
+                      </div>
+                      <span className="text-xs font-semibold text-[#1A1A1A]">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-[#6B6B6B]">
+                  Tip: use{" "}
+                  <code className="rounded bg-[#FAF8F5] px-1 py-0.5 font-mono text-[10px] text-zinc-600">
+                    data-theme=&quot;auto&quot;
+                  </code>{" "}
+                  in the snippet to automatically match user preferences.
+                </p>
+              </div>
+
+              {/* Visual Corner Radius Option Cards */}
+              <div>
+                <p className="text-sm font-semibold text-[#1A1A1A]">Corners</p>
+                <div className="mt-2 flex gap-3">
+                  {(
+                    [
+                      { value: "sharp", label: "Sharp", borderRadius: "rounded-none" },
+                      { value: "rounded", label: "Rounded", borderRadius: "rounded-md" },
+                      { value: "pill", label: "Soft", borderRadius: "rounded-xl" },
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setRadius(opt.value)}
+                      className={`flex-1 flex flex-col items-center gap-2 rounded-xl border p-2.5 text-center transition-all duration-200 ${
+                        radius === opt.value
+                          ? "border-[#E8743B] bg-[#FFF4EE]/30 ring-1 ring-[#E8743B]"
+                          : "border-[#ECE7E0] bg-white hover:border-[#1A1A1A]/20"
+                      }`}
+                    >
+                      <div className="w-8 h-8 flex items-center justify-center">
+                        <div className={`w-5 h-5 border-2 border-dashed transition-all ${
+                          radius === opt.value ? "border-[#E8743B]" : "border-zinc-300"
+                        } ${opt.borderRadius}`} />
+                      </div>
+                      <span className="text-xs font-semibold text-[#1A1A1A]">{opt.label}</span>
+                    </button>
                   ))}
                 </div>
               </div>
             </div>
-          )}
-
-          <div className="mt-5 flex flex-col gap-4 border-t border-[#ECE7E0] pt-4">
-            <Toggle
-              checked={showRatings}
-              onChange={setShowRatings}
-              label="Show ratings"
-              description="Display star ratings on each testimonial"
-            />
-            <Toggle
-              checked={badgeOn}
-              onChange={setShowBadge}
-              disabled={!isLifetime}
-              title={!isLifetime ? "Upgrade to lifetime to remove" : undefined}
-              label='Show "Powered by Blovi" badge'
-              description={
-                isLifetime
-                  ? "Display attribution at the bottom of your widget"
-                  : "Upgrade to lifetime to remove"
-              }
-            />
           </div>
 
-          <div className="mt-5 border-t border-[#ECE7E0] pt-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[#1A1A1A]">Embed code</p>
+          {/* Section 2: Colors & Style */}
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B6B6B] border-b border-[#ECE7E0] pb-2">
+              2. Branding & Appearance
+            </h2>
+            <div className="mt-4 flex flex-col gap-4">
+              {/* Preset Palette + Picker */}
+              <div>
+                <p className="text-sm font-semibold text-[#1A1A1A]">Brand Color</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2.5">
+                  {[
+                    { value: "#E8743B", label: "Blovi Orange" },
+                    { value: "#6366F1", label: "Indigo Ink" },
+                    { value: "#10B981", label: "Emerald Mint" },
+                    { value: "#EC4899", label: "Crimson Rose" },
+                    { value: "#18181B", label: "Obsidian Slate" },
+                  ].map((color) => (
+                    <button
+                      key={color.value}
+                      type="button"
+                      onClick={() => setAccent(color.value)}
+                      title={color.label}
+                      className={`h-6 w-6 rounded-full border border-white shadow-sm ring-1 transition-all duration-250 hover:scale-110 ${
+                        accent === color.value
+                          ? "ring-[#1A1A1A] scale-105"
+                          : "ring-[#ECE7E0]"
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                    />
+                  ))}
+
+                  {/* Custom color selector */}
+                  <div className="relative flex items-center gap-1.5 pl-2 border-l border-zinc-200">
+                    <input
+                      type="color"
+                      value={accent}
+                      onChange={(e) => setAccent(e.target.value)}
+                      aria-label="Custom brand accent color"
+                      className="h-7 w-9 cursor-pointer rounded border border-[#ECE7E0] bg-white p-0.5"
+                    />
+                    <span className="font-mono text-xs text-[#6B6B6B] lowercase select-all">{accent}</span>
+                    {accent !== DEFAULT_ACCENT && (
+                      <button
+                        type="button"
+                        onClick={() => setAccent(DEFAULT_ACCENT)}
+                        className="text-xs font-semibold text-zinc-500 underline underline-offset-2 hover:text-[#1A1A1A]"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Options & Limits */}
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B6B6B] border-b border-[#ECE7E0] pb-2">
+              3. Options & Limits
+            </h2>
+            <div className="mt-4 flex flex-col gap-4">
+              {widgetType === "wall" && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-[#1A1A1A]">
+                    Max testimonials to show
+                  </label>
+                  <select
+                    value={max}
+                    onChange={(e) => setMax(e.target.value as MaxOption)}
+                    className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                  >
+                    <option value="3">3</option>
+                    <option value="6">6</option>
+                    <option value="9">9</option>
+                    <option value="all">All</option>
+                  </select>
+                </div>
+              )}
+
+              {widgetType === "single" && (
+                <div className="flex flex-col gap-3.5">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-[#1A1A1A]">
+                      Featured testimonial
+                    </label>
+                    <select
+                      value={featuredIndex}
+                      onChange={(e) => setFeaturedIndex(Number(e.target.value))}
+                      className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 disabled:opacity-50"
+                    >
+                      {previewList.map((t, i) => (
+                        <option key={t.id} value={i}>
+                          {t.author_name} — &ldquo;
+                          {(t.display_body ?? t.body_original).slice(0, 40)}
+                          {(t.display_body ?? t.body_original).length > 40 ? "…" : ""}
+                          &rdquo;
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-[#1A1A1A]">Layout Variant</p>
+                    <div className="mt-2 flex gap-4">
+                      {[
+                        { value: "card", label: "Featured Card" },
+                        { value: "minimal", label: "Minimalist Editorial" },
+                      ].map((opt) => (
+                        <label
+                          key={opt.value}
+                          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-[#ECE7E0] bg-white p-2.5 text-center text-xs font-semibold cursor-pointer select-none transition-all hover:border-[#1A1A1A]/20"
+                        >
+                          <input
+                            type="radio"
+                            name="single-layout"
+                            checked={(layout === "minimal" ? "minimal" : "card") === opt.value}
+                            onChange={() => setLayout(opt.value)}
+                            className="accent-[#E8743B]"
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Toggle controls */}
+              <div className="flex flex-col gap-4 pt-2">
+                <Toggle
+                  checked={showRatings}
+                  onChange={setShowRatings}
+                  label="Show ratings"
+                  description="Display star ratings on each testimonial"
+                />
+                <Toggle
+                  checked={badgeOn}
+                  onChange={setShowBadge}
+                  disabled={!isLifetime}
+                  title={!isLifetime ? "Upgrade to lifetime to remove" : undefined}
+                  label='Show "Powered by Blovi" badge'
+                  description={
+                    isLifetime
+                      ? "Display attribution at the bottom of your widget"
+                      : "Upgrade to lifetime to remove"
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Embed Code IDE Terminal Snippet */}
+          <div className="mt-2 border-t border-[#ECE7E0] pt-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-[#1A1A1A]">Embed code</p>
               <button
                 onClick={handleCopy}
                 className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#E8743B] transition-all duration-200 hover:bg-[#FFF4EE] active:scale-95"
@@ -399,18 +471,47 @@ export default function WidgetBuilder({
                 )}
               </button>
             </div>
-            <div className="mt-2 overflow-hidden rounded-lg bg-[#16161D]">
-              <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+            
+            {/* macOS IDE editor container */}
+            <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#0A0A0B] shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+              <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-4 py-2 select-none">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
+                </div>
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                  integration snippet
+                </span>
+                <div className="w-10" />
               </div>
-              <code className="block w-full overflow-x-auto whitespace-pre-wrap break-all px-3 py-3 font-mono text-xs leading-relaxed text-[#ECE7E0]">
-                {snippet}
-              </code>
+              
+              <div className="flex font-mono text-[11px] leading-relaxed text-[#ECE7E0] p-4 overflow-x-auto whitespace-pre">
+                {/* Mock line numbers */}
+                <div className="flex flex-col text-zinc-600 select-none text-right pr-4 border-r border-white/5 mr-4 font-semibold">
+                  <span>1</span>
+                  <span>2</span>
+                </div>
+                {/* Highlighted code snippet */}
+                <div className="flex-1 select-all break-all whitespace-pre-wrap">
+                  <span className="text-[#E8743B]">&lt;script</span>{" "}
+                  <span className="text-[#FEBC2E]">src</span>=<span className="text-[#27C93F]">&quot;{APP_URL}/widget.js&quot;</span>
+                  {dataAttrs.map((attr, idx) => {
+                    const [key, val] = attr.split("=");
+                    return (
+                      <span key={idx}>
+                        <br />
+                        {"  "}
+                        <span className="text-[#FEBC2E]">{key}</span>=<span className="text-[#27C93F]">{val}</span>
+                      </span>
+                    );
+                  })}
+                  <span className="text-[#E8743B]">&gt;&lt;/script&gt;</span>
+                </div>
+              </div>
             </div>
             {!isLifetime && (
-              <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+              <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
                 Free plan — up to 3 testimonials. Upgrade for unlimited.
               </p>
             )}
@@ -420,88 +521,124 @@ export default function WidgetBuilder({
             href={liveUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
+            className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2 text-sm font-semibold text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
           >
             <ExternalLink size={15} />
             View live widget
           </a>
         </div>
 
-        {/* Live preview */}
-        <BlurFade delay={0.1}>
-        <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
+        {/* Live Preview Column (Sticky) */}
+        <div className="lg:col-span-7 lg:sticky lg:top-8 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-              Live preview
-            </h2>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-[#2E9E6B]">
+            {/* Device Sizing Selector */}
+            <div className="flex items-center gap-1 rounded-lg border border-[#ECE7E0] bg-white p-0.5 shadow-sm">
+              {(
+                [
+                  { value: "100%", label: "Desktop", icon: Monitor },
+                  { value: "768px", label: "Tablet", icon: Tablet },
+                  { value: "380px", label: "Mobile", icon: Smartphone },
+                ] as const
+              ).map((size) => (
+                <button
+                  key={size.value}
+                  type="button"
+                  onClick={() => setPreviewWidth(size.value)}
+                  className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
+                    previewWidth === size.value
+                      ? "bg-[#E8743B] text-white shadow-sm"
+                      : "text-[#6B6B6B] hover:text-[#1A1A1A]"
+                  }`}
+                >
+                  <size.icon size={13} />
+                  {size.label}
+                </button>
+              ))}
+            </div>
+
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-[#2E9E6B]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#2E9E6B]" />
-              Live
+              Live Preview
             </span>
           </div>
-          <p className="mt-2 text-sm text-[#6B6B6B]">
-            {usingSamples
-              ? "Previewing with sample testimonials — your real ones will appear here once collected."
-              : "This is how your widget looks with these settings."}
-          </p>
-          <div className="mt-4 overflow-hidden rounded-xl border border-[#ECE7E0] shadow-sm">
-            <div className="flex items-center gap-1.5 border-b border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+
+          {/* Designer Dotted Grid Canvas */}
+          <BlurFade delay={0.1}>
+            <div className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1.2px,transparent_1.2px)] [background-size:16px_16px] pointer-events-none opacity-80 z-0" />
+              
+              {/* Mock Browser Frame */}
+              <div
+                className={`mx-auto overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg transition-all duration-500 ease-out relative z-10`}
+                style={{ width: previewWidth }}
+              >
+                {/* macOS Browser Header bar */}
+                <div className="flex items-center justify-between border-b border-[#ECE7E0] bg-[#FAF8F5] px-4 py-2 select-none">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
+                  </div>
+                  <div className="mx-4 flex-1 max-w-[280px] rounded bg-white border border-[#ECE7E0] py-0.5 px-3 text-[10px] text-center text-zinc-400 select-all font-mono truncate">
+                    blovi.space/embed/{userId.slice(0, 8)}...
+                  </div>
+                  <div className="w-10" />
+                </div>
+
+                {/* Inner Preview Content */}
+                <div
+                  className={`max-h-[480px] overflow-y-auto ${
+                    theme === "dark" ? "bg-[#16161D]" : "bg-white"
+                  }`}
+                >
+                  {widgetType === "wall" && (
+                    <WallContent
+                      testimonials={previewList}
+                      layout={layout as WallLayout}
+                      theme={theme}
+                      showRatings={showRatings}
+                      showBadge={badgeOn}
+                      maxCount={maxCount}
+                      accent={accent}
+                      radius={radius}
+                    />
+                  )}
+                  {widgetType === "carousel" && (
+                    <CarouselContent
+                      testimonials={previewList}
+                      theme={theme}
+                      showRatings={showRatings}
+                      showBadge={badgeOn}
+                      accent={accent}
+                      radius={radius}
+                    />
+                  )}
+                  {widgetType === "marquee" && (
+                    <MarqueeContent
+                      testimonials={previewList}
+                      theme={theme}
+                      showRatings={showRatings}
+                      showBadge={badgeOn}
+                      accent={accent}
+                      radius={radius}
+                    />
+                  )}
+                  {widgetType === "single" && (
+                    <SingleQuoteContent
+                      testimonial={featured}
+                      theme={theme}
+                      showRatings={showRatings}
+                      showBadge={badgeOn}
+                      accent={accent}
+                      radius={radius}
+                      layout={layout as "card" | "minimal"}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
-            <div
-              className={`max-h-[480px] overflow-y-auto ${
-                theme === "dark" ? "bg-[#16161D]" : "bg-white"
-              }`}
-            >
-              {widgetType === "wall" && (
-                <WallContent
-                  testimonials={previewList}
-                  layout={layout as WallLayout}
-                  theme={theme}
-                  showRatings={showRatings}
-                  showBadge={badgeOn}
-                  maxCount={maxCount}
-                  accent={accent}
-                  radius={radius}
-                />
-              )}
-              {widgetType === "carousel" && (
-                <CarouselContent
-                  testimonials={previewList}
-                  theme={theme}
-                  showRatings={showRatings}
-                  showBadge={badgeOn}
-                  accent={accent}
-                  radius={radius}
-                />
-              )}
-              {widgetType === "marquee" && (
-                <MarqueeContent
-                  testimonials={previewList}
-                  theme={theme}
-                  showRatings={showRatings}
-                  showBadge={badgeOn}
-                  accent={accent}
-                  radius={radius}
-                />
-              )}
-              {widgetType === "single" && (
-                <SingleQuoteContent
-                  testimonial={featured}
-                  theme={theme}
-                  showRatings={showRatings}
-                  showBadge={badgeOn}
-                  accent={accent}
-                  radius={radius}
-                  layout={layout as "card" | "minimal"}
-                />
-              )}
-            </div>
-          </div>
+          </BlurFade>
         </div>
-        </BlurFade>
       </div>
     </div>
   );
