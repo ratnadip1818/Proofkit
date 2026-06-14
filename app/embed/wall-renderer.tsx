@@ -1288,6 +1288,8 @@ export function MarqueeContent({
   }
   const items = [...multipliedItems, ...multipliedItems];
   const duration = Math.max(15, multipliedItems.length * 4);
+  const singleStepWidth = 280 + 12; // card width (280) + gap (12)
+  const totalShiftPx = multipliedItems.length * singleStepWidth;
 
   return (
     <div
@@ -1300,8 +1302,8 @@ export function MarqueeContent({
     >
       <style>{`
         @keyframes proofkit-marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
+          from { transform: translate3d(0, 0, 0); }
+          to { transform: translate3d(-${totalShiftPx}px, 0, 0); }
         }
         .proofkit-marquee-track {
           animation: proofkit-marquee ${duration}s linear infinite;
