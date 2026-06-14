@@ -763,16 +763,8 @@ export function WallContent({
     }
   }, [selectedTag, filteredList.length, page, visibleCount]);
 
-  const displayCount = layout === "grid"
-    ? (pagesArray[currentPage]?.length || 0)
-    : renderedList.length;
-
-  const containerMaxWidth =
-    displayCount === 1 ? "450px" :
-    displayCount === 2 ? "820px" :
-    displayCount === 3 ? "1080px" :
-    "100%";
-
+  const containerMaxWidth = "880px";
+ 
   return (
     <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
       <style>{`
@@ -785,17 +777,23 @@ export function WallContent({
           margin: 0 auto;
         }
         .blovi-flex-card-wrapper {
-          flex: 0 0 calc(33.333% - 11px);
+          flex: 0 0 280px;
           max-width: 280px;
           box-sizing: border-box;
         }
         @media (max-width: 900px) {
+          .blovi-flex-grid {
+            max-width: 580px;
+          }
           .blovi-flex-card-wrapper {
-            flex: 0 0 calc(50% - 8px);
+            flex: 0 0 280px;
             max-width: 280px;
           }
         }
         @media (max-width: 600px) {
+          .blovi-flex-grid {
+            max-width: 100%;
+          }
           .blovi-flex-card-wrapper {
             flex: 1 1 100%;
             max-width: 100%;
