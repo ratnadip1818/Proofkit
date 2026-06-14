@@ -6,6 +6,8 @@ import EmbedCode from "./embed-code";
 import CopyLinkButton from "./copy-link-button";
 import StatsCards from "./stats-cards";
 import FreePlanBanner from "./free-plan-banner";
+import GettingStarted from "./getting-started";
+import RecentFeed from "./recent-feed";
 import { ExternalLink, ArrowRight } from "lucide-react";
 
 const APP_URL =
@@ -27,7 +29,10 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle(),
-    supabase.from("testimonials").select("status").eq("user_id", user.id),
+    supabase
+      .from("testimonials")
+      .select("id, status, rating, display_body, author_name, author_role, avatar_url, created_at")
+      .eq("user_id", user.id),
     supabase
       .from("profiles")
       .select("is_lifetime, created_at, full_name")
@@ -69,6 +74,19 @@ export default async function DashboardPage() {
         {/* Stats */}
         <StatsCards testimonials={testimonials ?? []} />
 
+        {/* Roadmap & Recent Testimonials */}
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+          <GettingStarted
+            hasForm={!!form}
+            hasTestimonials={(testimonials ?? []).length > 0}
+            hasApproved={(testimonials ?? []).some((t) => t.status === "approved")}
+          />
+          <RecentFeed
+            testimonials={testimonials ?? []}
+            formUrl={formUrl}
+          />
+        </div>
+
         {/* Collection form + embed */}
         <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
@@ -86,7 +104,7 @@ export default async function DashboardPage() {
                     href={formUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white"
+                    className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2.5 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white"
                   >
                     <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
                     <span className="truncate">{formUrl}</span>
