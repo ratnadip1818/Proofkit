@@ -366,12 +366,23 @@ function TestimonialCard({
   showRatings,
   colors,
   radius,
+  layout,
+  index = 0,
+  onReadMore,
 }: {
   t: Testimonial;
   showRatings: boolean;
   colors: ThemeColors;
   radius: number;
+  layout?: WallLayout;
+  index?: number;
+  onReadMore?: (t: Testimonial) => void;
 }) {
+  const text = t.display_body ?? t.body_original;
+  const isGrid = layout === "grid";
+  const threshold = isGrid ? 140 : 320;
+  const shouldClamp = text.length > threshold;
+
   return (
     <div
       className="blovi-card"
@@ -386,6 +397,9 @@ function TestimonialCard({
         breakInside: "avoid",
         overflow: "hidden",
         boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
+        height: isGrid ? "240px" : "auto",
+        boxSizing: "border-box",
+        animationDelay: `${index * 0.05}s`,
       }}
     >
       <span
@@ -407,17 +421,64 @@ function TestimonialCard({
       {showRatings && t.rating !== null && (
         <Stars rating={t.rating} colors={colors} />
       )}
-      <p
-        style={{
-          margin: "0 0 16px 0",
-          fontSize: "14px",
-          lineHeight: "1.65",
-          color: colors.text,
-          flexGrow: 1,
-        }}
-      >
-        {t.display_body ?? t.body_original}
-      </p>
+      
+      {shouldClamp ? (
+        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, marginBottom: "16px" }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "14px",
+              lineHeight: "1.65",
+              color: colors.text,
+              display: "-webkit-box",
+              WebkitLineClamp: isGrid ? 4 : 8,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {text}
+          </p>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReadMore?.(t);
+            }}
+            style={{
+              alignSelf: "flex-start",
+              background: "none",
+              border: "none",
+              padding: "4px 0 0 0",
+              margin: 0,
+              fontSize: "13px",
+              fontWeight: 600,
+              color: colors.accent,
+              cursor: "pointer",
+              fontFamily: FONT,
+              textDecoration: "none",
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            Read more
+          </button>
+        </div>
+      ) : (
+        <p
+          style={{
+            margin: "0 0 16px 0",
+            fontSize: "14px",
+            lineHeight: "1.65",
+            color: colors.text,
+            flexGrow: 1,
+          }}
+        >
+          {text}
+        </p>
+      )}
+
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={34} />
         <div style={{ minWidth: 0 }}>
@@ -446,6 +507,188 @@ function TestimonialCard({
   );
 }
 
+function TestimonialModal({
+  t,
+  onClose,
+  colors,
+  radius,
+  showRatings,
+}: {
+  t: Testimonial;
+  onClose: () => void;
+  colors: ThemeColors;
+  radius: number;
+  showRatings: boolean;
+}) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Prevent background scrolling while modal is open
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
+  // Close on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 99999,
+        background: "rgba(0, 0, 0, 0.45)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        animation: "proofkit-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
+      }}
+    >
+      <style>{`
+        @keyframes proofkit-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes proofkit-scale-up {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+      <div
+        ref={modalRef}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          background: colors.cardBg,
+          border: `1px solid ${colors.cardBorder}`,
+          borderRadius: `${radius}px`,
+          width: "100%",
+          maxWidth: "500px",
+          maxHeight: "85vh",
+          padding: "32px",
+          boxSizing: "border-box",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.05)",
+          display: "flex",
+          flexDirection: "column",
+          animation: "proofkit-scale-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both",
+        }}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close modal"
+          style={{
+            position: "absolute",
+            top: "16px",
+            right: "16px",
+            background: "none",
+            border: "none",
+            padding: "8px",
+            cursor: "pointer",
+            color: colors.role,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            transition: "background-color 0.2s, color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = `color-mix(in srgb, ${colors.cardBorder} 40%, transparent)`;
+            e.currentTarget.style.color = colors.text;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = colors.role;
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: "48px",
+            fontSize: "72px",
+            lineHeight: 1,
+            fontFamily: "Georgia, serif",
+            color: colors.accent,
+            opacity: 0.14,
+            pointerEvents: "none",
+          }}
+        >
+          ”
+        </span>
+
+        {showRatings && t.rating !== null && (
+          <Stars rating={t.rating} colors={colors} marginBottom={14} />
+        )}
+
+        <div style={{ overflowY: "auto", flexGrow: 1, marginBottom: "24px", paddingRight: "8px" }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "15px",
+              lineHeight: "1.7",
+              color: colors.text,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {t.display_body ?? t.body_original}
+          </p>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", borderTop: `1px solid ${colors.cardBorder}`, paddingTop: "20px" }}>
+          <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={40} />
+          <div style={{ minWidth: 0 }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "14px",
+                fontWeight: 700,
+                color: colors.name,
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              {t.author_name}
+              <VerifiedBadge id={t.id} />
+            </p>
+            {t.author_role && (
+              <p style={{ margin: "2px 0 0", fontSize: "12.5px", color: colors.role }}>
+                {t.author_role}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function WallContent({
   testimonials,
   layout,
@@ -467,6 +710,7 @@ export function WallContent({
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
@@ -567,13 +811,16 @@ export function WallContent({
             margin: "0 auto",
           }}
         >
-          {filteredList.map((t) => (
+          {filteredList.map((t, idx) => (
             <TestimonialCard
               key={t.id}
               t={t}
               showRatings={showRatings}
               colors={colors}
               radius={radiusPx}
+              layout={layout}
+              index={idx}
+              onReadMore={setActiveModalTestimonial}
             />
           ))}
         </div>
@@ -586,13 +833,16 @@ export function WallContent({
             margin: "0 auto",
           }}
         >
-          {filteredList.map((t) => (
+          {filteredList.map((t, idx) => (
             <div key={t.id} style={{ marginBottom: "16px" }}>
               <TestimonialCard
                 t={t}
                 showRatings={showRatings}
                 colors={colors}
                 radius={radiusPx}
+                layout={layout}
+                index={idx}
+                onReadMore={setActiveModalTestimonial}
               />
             </div>
           ))}
@@ -600,6 +850,16 @@ export function WallContent({
       )}
 
       {showBadge && <BadgeLink colors={colors} />}
+
+      {activeModalTestimonial && (
+        <TestimonialModal
+          t={activeModalTestimonial}
+          onClose={() => setActiveModalTestimonial(null)}
+          colors={colors}
+          radius={radiusPx}
+          showRatings={showRatings}
+        />
+      )}
     </div>
   );
 }

@@ -84,8 +84,19 @@ export default async function EmbedPage({
     <>
       {/* Card hover lift + reduced-motion manners, shared by all types */}
       <style>{`
+        @keyframes blovi-fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
         .blovi-card {
           transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .35s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: blovi-fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         .blovi-card:hover {
           transform: translateY(-4px);
@@ -98,7 +109,7 @@ export default async function EmbedPage({
           transform: translateY(-50%) scale(1.08) !important;
         }
         @media (prefers-reduced-motion: reduce) {
-          .blovi-card { transition: none; }
+          .blovi-card { transition: none; animation: none; }
           .blovi-card:hover { transform: none; box-shadow: none; }
           .blovi-arrow { transition: none; }
           .blovi-arrow:hover { transform: translateY(-50%) none !important; }
