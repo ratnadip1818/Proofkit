@@ -33,7 +33,7 @@ import { motion } from "framer-motion";
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
-type MaxOption = "3" | "6";
+type MaxOption = "3" | "6" | "all";
 
 const WIDGET_TYPES: { value: WidgetType; label: string; icon: typeof LayoutGrid }[] = [
   { value: "wall", label: "Wall of Love", icon: LayoutGrid },
@@ -101,7 +101,7 @@ export default function WidgetBuilder({
   const [theme, setTheme] = useState<WallTheme>("light");
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [radius, setRadius] = useState<WidgetRadius>("rounded");
-  const [max, setMax] = useState<MaxOption>("6");
+  const [max, setMax] = useState<MaxOption>("all");
   const [showRatings, setShowRatings] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
   const [featuredIndex, setFeaturedIndex] = useState(0);
@@ -129,7 +129,7 @@ export default function WidgetBuilder({
     }
   }, [widgetType]);
 
-  const maxCount = Number(max);
+  const maxCount = max === "all" ? null : Number(max);
   const badgeOn = isLifetime ? showBadge : true;
   const usingSamples = testimonials.length === 0;
   const previewList = usingSamples ? SAMPLE_TESTIMONIALS : testimonials;
@@ -395,8 +395,9 @@ export default function WidgetBuilder({
                   <div className="mt-2 flex gap-3">
                     {(
                       [
-                        { value: "3", label: "3 Testimonials", desc: "Compact preview grid" },
-                        { value: "6", label: "6 Testimonials", desc: "Full standard layout" },
+                        { value: "3", label: "3 Reviews", desc: "Compact grid" },
+                        { value: "6", label: "6 Reviews", desc: "Standard page" },
+                        { value: "all", label: "Unlimited", desc: "Show all reviews" },
                       ] as const
                     ).map((opt) => (
                       <button

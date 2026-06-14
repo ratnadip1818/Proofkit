@@ -619,12 +619,14 @@ export function WallContent({
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(() => {
+    return maxCount !== null ? maxCount : 6;
+  });
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
-  // Reset page when tag filter or maxCount changes
+  // Reset visibleCount when tag filter or maxCount changes
   useEffect(() => {
-    setPage(0);
+    setVisibleCount(maxCount !== null ? maxCount : 6);
   }, [selectedTag, maxCount]);
 
   // Extract all unique tags present in testimonials
@@ -639,17 +641,9 @@ export function WallContent({
     ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
     : list;
 
-  const pageSize = 6;
-  const totalPages = Math.ceil(filteredList.length / pageSize);
-  const currentPage = page % (totalPages || 1);
+  const renderedList = filteredList.slice(0, visibleCount);
 
-  // Group filteredList into pages of 6 for grid layout
-  const pagesArray = [];
-  for (let i = 0; i < filteredList.length; i += pageSize) {
-    pagesArray.push(filteredList.slice(i, i + pageSize));
-  }
-
-  // Whenever selectedTag, filteredList.length or page changes, send height resize message to parent frame
+  // Whenever selectedTag, filteredList.length or visibleCount changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
@@ -660,9 +654,13 @@ export function WallContent({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length, page]);
+  }, [selectedTag, filteredList.length, visibleCount]);
 
-  const containerMaxWidth = "880px";
+  const displayCount = renderedList.length;
+  const containerMaxWidth =
+    displayCount === 1 ? "450px" :
+    displayCount === 2 ? "820px" :
+    "880px";
  
   return (
     <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
@@ -758,70 +756,31 @@ export function WallContent({
       {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
       ) : (
-        <div style={{ overflow: "hidden", width: "100%", padding: "8px 0" }}>
-          <div
-            style={{
-              display: "flex",
-              transition: "transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)",
-              transform: `translateX(-${currentPage * 100}%)`,
-            }}
-          >
-            {pagesArray.map((pageSlice, pageIdx) => (
-              <div
-                key={pageIdx}
-                style={{
-                  flex: "0 0 100%",
-                  width: "100%",
-                  boxSizing: "border-box",
-                }}
-              >
-                <div className="blovi-flex-grid">
-                  {pageSlice.map((t, idx) => (
-                    <div key={t.id} className="blovi-flex-card-wrapper">
-                      <TestimonialCard
-                        t={t}
-                        showRatings={showRatings}
-                        colors={colors}
-                        radius={radiusPx}
-                        layout={layout}
-                        index={pageIdx * pageSize + idx}
-                        onReadMore={setActiveModalTestimonial}
-                      />
-                    </div>
-                  ))}
-                </div>
+        <div style={{ width: "100%", padding: "8px 0" }}>
+          <div className="blovi-flex-grid">
+            {renderedList.map((t, idx) => (
+              <div key={t.id} className="blovi-flex-card-wrapper">
+                <TestimonialCard
+                  t={t}
+                  showRatings={showRatings}
+                  colors={colors}
+                  radius={radiusPx}
+                  layout={layout}
+                  index={idx}
+                  onReadMore={setActiveModalTestimonial}
+                />
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginTop: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setPage(i)}
-                aria-label={`Go to page ${i + 1}`}
-                style={{
-                  width: i === currentPage ? 18 : 8,
-                  height: 8,
-                  borderRadius: "4px",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  background: i === currentPage ? colors.accent : colors.dotInactive,
-                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
-              />
-            ))}
-          </div>
+      {/* Show More Button */}
+      {filteredList.length > visibleCount && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
           <button
             type="button"
-            onClick={() => setPage((prev) => (currentPage === totalPages - 1 ? 0 : prev + 1))}
+            onClick={() => setVisibleCount((prev) => prev + 6)}
             style={{
               fontFamily: FONT,
               fontSize: "13.5px",
@@ -846,7 +805,7 @@ export function WallContent({
               e.currentTarget.style.transform = "scale(1)";
             }}
           >
-            {currentPage === totalPages - 1 ? "Show less" : "Show more"}
+            Show more
           </button>
         </div>
       )}
