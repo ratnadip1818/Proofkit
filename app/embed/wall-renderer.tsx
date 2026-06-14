@@ -1306,6 +1306,10 @@ export function MarqueeContent({
         .proofkit-marquee-track {
           animation: proofkit-marquee ${duration}s linear infinite;
           padding: 8px 0;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
         .proofkit-marquee-track:hover {
           animation-play-state: paused;
@@ -1315,12 +1319,18 @@ export function MarqueeContent({
           flex-shrink: 0;
           cursor: pointer;
           transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
         .proofkit-marquee-card-wrapper:hover {
           transform: translateY(-4px) scale(1.02);
         }
         .blovi-card {
           transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
         .proofkit-marquee-card-wrapper:hover .blovi-card {
           border-color: ${colors.accent} !important;
