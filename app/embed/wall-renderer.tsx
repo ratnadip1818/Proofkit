@@ -743,6 +743,27 @@ export function WallContent({
 
   return (
     <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
+      <style>{`
+        .blovi-flex-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          justify-content: center;
+          max-width: ${containerMaxWidth};
+          margin: 0 auto;
+        }
+        .blovi-flex-card-wrapper {
+          flex: 1 1 260px;
+          max-width: 280px;
+          box-sizing: border-box;
+        }
+        @media (max-width: 600px) {
+          .blovi-flex-card-wrapper {
+            flex: 1 1 100%;
+            max-width: 100%;
+          }
+        }
+      `}</style>
       {/* Dynamic Tag Filter Pills */}
       {allTags.length > 0 && (
         <div
@@ -802,26 +823,19 @@ export function WallContent({
       {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
       ) : layout === "grid" ? (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "16px",
-            maxWidth: containerMaxWidth,
-            margin: "0 auto",
-          }}
-        >
+        <div className="blovi-flex-grid">
           {filteredList.map((t, idx) => (
-            <TestimonialCard
-              key={t.id}
-              t={t}
-              showRatings={showRatings}
-              colors={colors}
-              radius={radiusPx}
-              layout={layout}
-              index={idx}
-              onReadMore={setActiveModalTestimonial}
-            />
+            <div key={t.id} className="blovi-flex-card-wrapper">
+              <TestimonialCard
+                t={t}
+                showRatings={showRatings}
+                colors={colors}
+                radius={radiusPx}
+                layout={layout}
+                index={idx}
+                onReadMore={setActiveModalTestimonial}
+              />
+            </div>
           ))}
         </div>
       ) : (
