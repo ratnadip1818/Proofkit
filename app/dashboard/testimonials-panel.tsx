@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -89,7 +89,7 @@ function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string | null })
   }
   return (
     <div
-      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E8743B]/10 text-base font-bold text-[#E8743B]"
+      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FFF4EE] text-base font-bold text-[#E8743B] border border-[#E8743B]/10"
       aria-hidden="true"
     >
       {name.trim().charAt(0).toUpperCase()}
@@ -135,10 +135,32 @@ export default function TestimonialsPanel({
   email?: string;
 }) {
   const router = useRouter();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [items, setItems]           = useState<Testimonial[]>(testimonials);
   const [activeTab, setActiveTab]   = useState<Tab>("all");
   const [pendingId, setPendingId]   = useState<string | null>(null);
   const [searchQuery, setSearch]    = useState("");
+
+  // Bind keydown "/" to focus search
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === "INPUT" ||
+          activeEl.tagName === "TEXTAREA" ||
+          (activeEl instanceof HTMLElement && activeEl.isContentEditable))
+      ) {
+        return;
+      }
+      if (e.key === "/") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
   const [improvingId, setImprovingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [improvements, setImprovements] = useState<
@@ -372,12 +394,27 @@ export default function TestimonialsPanel({
           <Search size={16} className="text-[#6B6B6B]" />
         </div>
         <input
+          ref={searchInputRef}
           type="search"
           value={searchQuery}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or testimonial text…"
-          className="w-full rounded-lg border border-[#ECE7E0] bg-white py-2.5 pl-10 pr-4 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+          className="w-full rounded-lg border border-[#ECE7E0] bg-white py-2.5 pl-10 pr-10 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
         />
+        {searchQuery ? (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 hover:text-zinc-600"
+          >
+            <X size={14} />
+          </button>
+        ) : (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+            <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border border-[#ECE7E0] bg-[#FAF8F5] px-1.5 font-mono text-[9px] font-medium text-zinc-400">
+              /
+            </kbd>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -394,7 +431,7 @@ export default function TestimonialsPanel({
               role="tab"
               aria-selected={active}
               onClick={() => setActiveTab(key)}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 hover:scale-[1.03] active:scale-95 ${
                 active
                   ? "bg-[#E8743B] text-white shadow-sm"
                   : "border border-[#ECE7E0] bg-white text-[#6B6B6B] hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
@@ -427,7 +464,7 @@ export default function TestimonialsPanel({
             return (
               <BlurFade key={t.id} delay={Math.min(i, 8) * 0.05}>
               <div
-                className="group rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm transition-all duration-200 hover:border-[#D9D3CB] hover:shadow-md"
+                className="group rounded-2xl border border-[#ECE7E0]/80 bg-white p-6 shadow-sm transition-all duration-300 hover:border-[#D9D3CB] hover:shadow-md hover:-translate-y-0.5"
                 style={{ opacity: isLoading ? 0.55 : 1 }}
               >
                 {/* Card header */}
@@ -462,11 +499,11 @@ export default function TestimonialsPanel({
                       </div>
                     </div>
 
-                    <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-[#3f3f46]">
-                      {t.display_body ?? t.body_original}
+                    <p className="mt-3 text-[15.5px] leading-relaxed text-zinc-700 italic font-medium tracking-tight">
+                      &ldquo;{t.display_body ?? t.body_original}&rdquo;
                     </p>
                     {t.show_edited_badge && (
-                      <span className="mt-2 inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-medium text-[#E8743B]">
+                      <span className="mt-2 inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#E8743B]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#E8743B]">
                         edited for clarity
                       </span>
                     )}
@@ -476,13 +513,13 @@ export default function TestimonialsPanel({
                       {(t.tags || []).map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center gap-1 rounded-full bg-[#FAF8F5] border border-[#ECE7E0] pl-2.5 pr-1.5 py-0.5 text-xs font-medium text-[#6B6B6B]"
+                          className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-200/80 px-2.5 py-0.5 text-xs font-medium text-zinc-600 shadow-sm"
                         >
                           {tag}
                           <button
                             type="button"
                             onClick={() => handleRemoveTag(t.id, tag)}
-                            className="rounded-full p-0.5 text-[#9CA3AF] hover:bg-red-50 hover:text-red-500 transition-colors"
+                            className="rounded-full p-0.5 text-zinc-400 hover:bg-red-50 hover:text-red-500 transition-all"
                             title={`Remove tag ${tag}`}
                           >
                             <X size={10} />
@@ -505,7 +542,7 @@ export default function TestimonialsPanel({
                             onChange={(e) => setNewTagText(e.target.value)}
                             onBlur={() => handleSaveTag(t.id)}
                             autoFocus
-                            className="rounded-full px-2.5 py-0.5 text-xs border border-[#E8743B] bg-white outline-none w-20 text-[#1A1A1A]"
+                            className="rounded-full px-2.5 py-0.5 text-xs border border-[#E8743B] bg-white outline-none w-20 text-[#1A1A1A] transition-all focus:ring-2 focus:ring-[#E8743B]/20"
                           />
                         </form>
                       ) : (
@@ -515,7 +552,7 @@ export default function TestimonialsPanel({
                             setActiveTagInputId(t.id);
                             setNewTagText("");
                           }}
-                          className="inline-flex items-center gap-1 rounded-full border border-dashed border-[#ECE7E0] px-2.5 py-0.5 text-xs font-medium text-[#9CA3AF] hover:border-[#E8743B] hover:text-[#E8743B] transition-colors"
+                          className="inline-flex items-center gap-1 rounded-full border border-dashed border-[#ECE7E0] bg-white px-2.5 py-0.5 text-xs font-semibold text-zinc-400 hover:border-[#E8743B] hover:text-[#E8743B] active:scale-95 transition-all"
                         >
                           <Plus size={10} />
                           tag
@@ -526,7 +563,7 @@ export default function TestimonialsPanel({
                 </div>
 
                 {/* Actions */}
-                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#ECE7E0] pt-4">
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#ECE7E0]/60 pt-4">
                   {t.status !== "approved" && (
                     <button
                       disabled={isLoading}
@@ -621,38 +658,58 @@ export default function TestimonialsPanel({
                 )}
 
                 {improvements[t.id] && (
-                  <div className="mt-4 border-t border-[#ECE7E0] pt-4">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-lg bg-[#FAF8F5] p-3">
-                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[#6B6B6B]">
-                          Original
-                        </p>
-                        <p className="text-sm leading-relaxed text-[#3f3f46]">
-                          {improvements[t.id].original}
-                        </p>
+                  <div className="mt-4 border-t border-[#ECE7E0]/60 pt-4">
+                    <div className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-[#0A0A0B] shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                      {/* macOS Header Bar */}
+                      <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-4 py-2 select-none">
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
+                          <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
+                          <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                          AI Polish Comparison
+                        </span>
+                        <div className="w-8" />
                       </div>
-                      <div className="rounded-lg bg-[#FFF4EE] p-3">
-                        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[#E8743B]">
-                          Improved ✨
-                        </p>
-                        <p className="text-sm leading-relaxed text-[#1A1A1A]">
-                          {improvements[t.id].improved}
-                        </p>
+
+                      {/* Split content */}
+                      <div className="grid divide-y divide-white/[0.06] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                        {/* Original */}
+                        <div className="p-4 bg-white/[0.01]">
+                          <p className="mb-2 text-[9px] font-bold uppercase tracking-wider text-zinc-500">
+                            Original Feedback
+                          </p>
+                          <p className="text-xs md:text-sm leading-relaxed text-zinc-400 italic">
+                            &ldquo;{improvements[t.id].original}&rdquo;
+                          </p>
+                        </div>
+                        {/* Polished */}
+                        <div className="p-4 bg-white/[0.02]">
+                          <p className="mb-2 text-[9px] font-bold uppercase tracking-wider text-[#E8743B]">
+                            Polished Feedback ✨
+                          </p>
+                          <p className="text-xs md:text-sm leading-relaxed text-white font-medium">
+                            &ldquo;{improvements[t.id].improved}&rdquo;
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={() => handleAccept(t.id)}
-                        className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#CF5F2C]"
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => handleRevert(t.id)}
-                        className="rounded-lg border border-[#ECE7E0] px-3 py-1.5 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
-                      >
-                        Revert
-                      </button>
+
+                      {/* Footer Actions */}
+                      <div className="flex items-center justify-end gap-2 border-t border-white/[0.06] bg-white/[0.01] px-4 py-2">
+                        <button
+                          onClick={() => handleRevert(t.id)}
+                          className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+                        >
+                          Discard
+                        </button>
+                        <button
+                          onClick={() => handleAccept(t.id)}
+                          className="rounded-full bg-[#E8743B] px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[#CF5F2C] transition-all active:scale-95"
+                        >
+                          Accept Refinement
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
