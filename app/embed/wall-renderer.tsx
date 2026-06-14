@@ -1271,6 +1271,7 @@ export function MarqueeContent({
   radius?: WidgetRadius;
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
+  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
   if (testimonials.length === 0) {
     return (
@@ -1280,8 +1281,13 @@ export function MarqueeContent({
     );
   }
 
-  const items = [...testimonials, ...testimonials];
-  const duration = Math.max(15, testimonials.length * 5);
+  // Ensure track is long enough to fill modern viewports without empty space/jerkiness
+  let multipliedItems = [...testimonials];
+  while (multipliedItems.length < 12) {
+    multipliedItems = [...multipliedItems, ...testimonials];
+  }
+  const items = [...multipliedItems, ...multipliedItems];
+  const duration = Math.max(15, multipliedItems.length * 4);
 
   return (
     <div
@@ -1303,6 +1309,26 @@ export function MarqueeContent({
         .proofkit-marquee-track:hover {
           animation-play-state: paused;
         }
+        .proofkit-marquee-card {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: ${colors.cardBg};
+          border: 1px solid ${colors.cardBorder};
+          border-radius: ${radiusPx}px;
+          padding: 12px 16px;
+          height: 96px;
+          width: 280px;
+          flex-shrink: 0;
+          box-sizing: border-box;
+          cursor: pointer;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .proofkit-marquee-card:hover {
+          transform: translateY(-2px) scale(1.02);
+          border-color: ${colors.accent};
+          box-shadow: ${colors.cardBg === "#ffffff" ? "0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)" : "0 8px 24px rgba(0, 0, 0, 0.25)"};
+        }
         @media (prefers-reduced-motion: reduce) {
           .proofkit-marquee-track { animation: none; }
         }
@@ -1314,19 +1340,8 @@ export function MarqueeContent({
         {items.map((t, i) => (
           <div
             key={`${t.id}-${i}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              background: colors.cardBg,
-              border: `1px solid ${colors.cardBorder}`,
-              borderRadius: `${radiusPx}px`,
-              padding: "12px 16px",
-              height: "96px",
-              width: "280px",
-              flexShrink: 0,
-              boxSizing: "border-box",
-            }}
+            className="proofkit-marquee-card"
+            onClick={() => setActiveModalTestimonial(t)}
           >
             <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} />
             <div style={{ overflow: "hidden", minWidth: 0 }}>
@@ -1374,6 +1389,16 @@ export function MarqueeContent({
         <div style={{ marginTop: "12px" }}>
           <BadgeLink colors={colors} />
         </div>
+      )}
+
+      {activeModalTestimonial && (
+        <TestimonialModal
+          t={activeModalTestimonial}
+          onClose={() => setActiveModalTestimonial(null)}
+          colors={colors}
+          radius={radiusPx}
+          showRatings={showRatings}
+        />
       )}
     </div>
   );
