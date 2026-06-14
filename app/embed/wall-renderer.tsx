@@ -1009,7 +1009,7 @@ export function CarouselContent({
       return;
     const timer = setInterval(() => {
       setIndex((i) => (i + 1) % testimonials.length);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(timer);
   }, [testimonials.length, paused]);
 
