@@ -33,7 +33,7 @@ import { motion } from "framer-motion";
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
-type MaxOption = "3" | "6" | "9" | "all";
+type MaxOption = "3" | "6";
 
 const WIDGET_TYPES: { value: WidgetType; label: string; icon: typeof LayoutGrid }[] = [
   { value: "wall", label: "Wall of Love", icon: LayoutGrid },
@@ -101,7 +101,7 @@ export default function WidgetBuilder({
   const [theme, setTheme] = useState<WallTheme>("light");
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [radius, setRadius] = useState<WidgetRadius>("rounded");
-  const [max, setMax] = useState<MaxOption>("all");
+  const [max, setMax] = useState<MaxOption>("6");
   const [showRatings, setShowRatings] = useState(true);
   const [showBadge, setShowBadge] = useState(true);
   const [featuredIndex, setFeaturedIndex] = useState(0);
@@ -116,7 +116,7 @@ export default function WidgetBuilder({
     }
   }, [widgetType]);
 
-  const maxCount = max === "all" ? null : Number(max);
+  const maxCount = Number(max);
   const badgeOn = isLifetime ? showBadge : true;
   const usingSamples = testimonials.length === 0;
   const previewList = usingSamples ? SAMPLE_TESTIMONIALS : testimonials;
@@ -361,20 +361,30 @@ export default function WidgetBuilder({
             </h2>
             <div className="mt-4 flex flex-col gap-4">
               {widgetType === "wall" && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-semibold text-[#1A1A1A]">
-                    Max testimonials to show
-                  </label>
-                  <select
-                    value={max}
-                    onChange={(e) => setMax(e.target.value as MaxOption)}
-                    className="w-full rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
-                  >
-                    <option value="3">3</option>
-                    <option value="6">6</option>
-                    <option value="9">9</option>
-                    <option value="all">All</option>
-                  </select>
+                <div>
+                  <p className="text-sm font-semibold text-[#1A1A1A]">Max testimonials to show</p>
+                  <div className="mt-2 flex gap-3">
+                    {(
+                      [
+                        { value: "3", label: "3 Testimonials", desc: "Compact preview grid" },
+                        { value: "6", label: "6 Testimonials", desc: "Full standard layout" },
+                      ] as const
+                    ).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setMax(opt.value)}
+                        className={`flex-1 flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition-all duration-200 ${
+                          max === opt.value
+                            ? "border-[#E8743B] bg-[#FFF4EE]/30 ring-1 ring-[#E8743B]"
+                            : "border-[#ECE7E0] bg-white hover:border-[#1A1A1A]/20"
+                        }`}
+                      >
+                        <span className="text-xs font-bold text-[#1A1A1A]">{opt.label}</span>
+                        <span className="text-[10px] text-[#6B6B6B]">{opt.desc}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
