@@ -711,6 +711,14 @@ export function WallContent({
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
+  const [visibleCount, setVisibleCount] = useState(() => {
+    return maxCount !== null ? maxCount : 6;
+  });
+
+  // Reset visibleCount when tag filter changes
+  useEffect(() => {
+    setVisibleCount(maxCount !== null ? maxCount : 6);
+  }, [selectedTag, maxCount]);
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
@@ -724,17 +732,22 @@ export function WallContent({
     ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
     : list;
 
-  // Whenever selectedTag changes, send height resize message to parent frame
+  const renderedList = filteredList.slice(0, visibleCount);
+
+  // Whenever selectedTag, filteredList.length or visibleCount changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
-      window.parent.postMessage(
-        { type: "proofkit-resize", height: document.body.scrollHeight },
-        "*"
-      );
+      const timer = setTimeout(() => {
+        window.parent.postMessage(
+          { type: "proofkit-resize", height: document.body.scrollHeight },
+          "*"
+        );
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length]);
+  }, [selectedTag, filteredList.length, visibleCount]);
 
-  const count = filteredList.length;
+  const count = renderedList.length;
   const containerMaxWidth =
     count === 1 ? "450px" :
     count === 2 ? "820px" :
@@ -824,7 +837,7 @@ export function WallContent({
         <EmptyState colors={colors} />
       ) : layout === "grid" ? (
         <div className="blovi-flex-grid">
-          {filteredList.map((t, idx) => (
+          {renderedList.map((t, idx) => (
             <div key={t.id} className="blovi-flex-card-wrapper">
               <TestimonialCard
                 t={t}
@@ -847,7 +860,7 @@ export function WallContent({
             margin: "0 auto",
           }}
         >
-          {filteredList.map((t, idx) => (
+          {renderedList.map((t, idx) => (
             <div key={t.id} style={{ marginBottom: "16px" }}>
               <TestimonialCard
                 t={t}
@@ -860,6 +873,40 @@ export function WallContent({
               />
             </div>
           ))}
+        </div>
+      )}
+
+      {filteredList.length > visibleCount && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + 6)}
+            style={{
+              fontFamily: FONT,
+              fontSize: "13.5px",
+              fontWeight: 600,
+              padding: "10px 24px",
+              borderRadius: "9999px",
+              cursor: "pointer",
+              border: `1px solid ${colors.cardBorder}`,
+              background: colors.cardBg,
+              color: colors.text,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = colors.accent;
+              e.currentTarget.style.color = colors.accent;
+              e.currentTarget.style.transform = "scale(1.03)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = colors.cardBorder;
+              e.currentTarget.style.color = colors.text;
+              e.currentTarget.style.transform = "scale(1)";
+            }}
+          >
+            Show more
+          </button>
         </div>
       )}
 
