@@ -385,6 +385,7 @@ function TestimonialCard({
         flexDirection: "column",
         breakInside: "avoid",
         overflow: "hidden",
+        boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
       }}
     >
       <span
@@ -703,25 +704,45 @@ export function CarouselContent({
       }}
     >
       <div style={{ position: "relative", maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ overflow: "hidden", borderRadius: `${radiusPx}px` }}>
+        <div style={{ overflow: "hidden", borderRadius: `${radiusPx}px`, padding: "8px 0" }}>
           <div
             style={{
               display: "flex",
-              transition: "transform 0.4s ease",
+              transition: "transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)",
               transform: `translateX(-${safeIndex * 100}%)`,
             }}
           >
             {testimonials.map((t) => (
               <div key={t.id} style={{ flex: "0 0 100%", boxSizing: "border-box" }}>
                 <div
+                  className="blovi-card"
                   style={{
                     background: colors.cardBg,
                     border: `1px solid ${colors.cardBorder}`,
                     borderRadius: `${radiusPx}px`,
                     padding: "28px 48px",
                     textAlign: "center",
+                    boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      top: "6px",
+                      right: "18px",
+                      fontSize: "64px",
+                      lineHeight: 1,
+                      fontFamily: "Georgia, serif",
+                      color: colors.accent,
+                      opacity: 0.14,
+                      pointerEvents: "none",
+                    }}
+                  >
+                    ”
+                  </span>
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
                     <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} />
                   </div>
@@ -730,13 +751,14 @@ export function CarouselContent({
                       <Stars rating={t.rating} colors={colors} />
                     </div>
                   )}
-                  <p style={{ fontSize: "15px", lineHeight: 1.6, color: colors.text, margin: "8px 0 16px" }}>
+                  <p style={{ fontSize: "15px", lineHeight: "1.65", color: colors.text, margin: "8px 0 16px" }}>
                     {t.display_body ?? t.body_original}
                   </p>
                   <p
                     style={{
                       margin: 0,
-                      fontWeight: 600,
+                      fontSize: "14px",
+                      fontWeight: 700,
                       color: colors.name,
                       display: "flex",
                       alignItems: "center",
@@ -748,7 +770,7 @@ export function CarouselContent({
                     <VerifiedBadge id={t.id} />
                   </p>
                   {t.author_role && (
-                    <p style={{ margin: "2px 0 0", fontSize: "13px", color: colors.role }}>
+                    <p style={{ margin: "2px 0 0", fontSize: "12.5px", color: colors.role }}>
                       {t.author_role}
                     </p>
                   )}
@@ -762,6 +784,7 @@ export function CarouselContent({
           <>
             <button
               type="button"
+              className="blovi-arrow"
               onClick={() =>
                 setIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
               }
@@ -772,6 +795,7 @@ export function CarouselContent({
             </button>
             <button
               type="button"
+              className="blovi-arrow"
               onClick={() => setIndex((i) => (i + 1) % testimonials.length)}
               aria-label="Next testimonial"
               style={arrowStyle("right", colors)}
@@ -791,13 +815,14 @@ export function CarouselContent({
               onClick={() => setIndex(i)}
               aria-label={`Go to testimonial ${i + 1}`}
               style={{
-                width: 8,
+                width: i === safeIndex ? 18 : 8,
                 height: 8,
-                borderRadius: "50%",
+                borderRadius: "4px",
                 border: "none",
                 padding: 0,
                 cursor: "pointer",
                 background: i === safeIndex ? colors.accent : colors.dotInactive,
+                transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             />
           ))}
@@ -948,7 +973,7 @@ export function SingleQuoteContent({
   accent?: string;
   radius?: WidgetRadius;
 }) {
-  const { colors } = buildStyle(theme, accent, radius);
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
 
   if (!testimonial) {
     return (
@@ -967,15 +992,41 @@ export function SingleQuoteContent({
         textAlign: "center",
       }}
     >
-      <div style={{ maxWidth: "560px", margin: "0 auto" }}>
-        <div style={{ fontSize: "48px", lineHeight: 1, color: colors.accent, fontFamily: "Georgia, serif" }}>
-          “
-        </div>
-        <p style={{ fontSize: "22px", lineHeight: 1.5, color: colors.text, fontWeight: 500, margin: "8px 0 20px" }}>
+      <div
+        className="blovi-card"
+        style={{
+          maxWidth: "560px",
+          margin: "0 auto",
+          background: colors.cardBg,
+          border: `1px solid ${colors.cardBorder}`,
+          borderRadius: `${radiusPx}px`,
+          padding: "36px 32px",
+          boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: "6px",
+            right: "18px",
+            fontSize: "64px",
+            lineHeight: 1,
+            fontFamily: "Georgia, serif",
+            color: colors.accent,
+            opacity: 0.14,
+            pointerEvents: "none",
+          }}
+        >
+          ”
+        </span>
+        <p style={{ fontSize: "17px", lineHeight: "1.65", color: colors.text, fontWeight: 500, margin: "0 0 20px 0" }}>
           {testimonial.display_body ?? testimonial.body_original}
         </p>
         {showRatings && testimonial.rating !== null && (
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
             <Stars rating={testimonial.rating} colors={colors} />
           </div>
         )}
@@ -985,7 +1036,8 @@ export function SingleQuoteContent({
             <p
               style={{
                 margin: 0,
-                fontWeight: 600,
+                fontWeight: 700,
+                fontSize: "14.5px",
                 color: colors.name,
                 display: "flex",
                 alignItems: "center",

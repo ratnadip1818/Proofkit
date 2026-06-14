@@ -84,14 +84,24 @@ export default async function EmbedPage({
     <>
       {/* Card hover lift + reduced-motion manners, shared by all types */}
       <style>{`
-        .blovi-card { transition: transform .25s ease, box-shadow .25s ease; }
+        .blovi-card {
+          transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
         .blovi-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        }
+        .blovi-arrow {
+          transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1), background-color .25s ease, border-color .25s ease;
+        }
+        .blovi-arrow:hover {
+          transform: translateY(-50%) scale(1.08) !important;
         }
         @media (prefers-reduced-motion: reduce) {
           .blovi-card { transition: none; }
           .blovi-card:hover { transform: none; box-shadow: none; }
+          .blovi-arrow { transition: none; }
+          .blovi-arrow:hover { transform: translateY(-50%) none !important; }
         }
       `}</style>
 

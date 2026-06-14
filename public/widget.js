@@ -137,25 +137,30 @@
       '</div>';
   } else if (typeAttr === "carousel") {
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:flex;flex-direction:column;gap:12px;padding:28px 48px;max-width:480px;margin:0 auto;background:" + skeletonBg + ";border:1px solid " + skeletonBorder + ";border-radius:" + skeletonRadius + ";animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;box-sizing:border-box;text-align:center;align-items:center;";
+    skeleton.style.cssText = "display:block;padding:24px 16px;width:100%;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
     skeleton.innerHTML =
-      '<div class="proofkit-skeleton-circle" style="margin: 0 auto;flex-shrink:0;"></div>' +
-      '<div class="proofkit-skeleton-line" style="width:80%;margin:8px auto 0;"></div>' +
-      '<div class="proofkit-skeleton-line" style="width:60%;margin:0 auto;"></div>' +
-      '<div class="proofkit-skeleton-line" style="width:100px;margin:12px auto 0;"></div>' +
-      '<div class="proofkit-skeleton-line" style="width:60px;height:8px;margin:4px auto 0;"></div>';
+      '<div style="display:flex;flex-direction:column;gap:12px;padding:28px 48px;max-width:480px;margin:0 auto;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;text-align:center;align-items:center;position:relative;overflow:hidden;">' +
+        '<div style="position:absolute;top:6px;right:18px;font-size:64px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.14;pointer-events:none;">”</div>' +
+        '<div class="proofkit-skeleton-circle" style="margin: 0 auto;flex-shrink:0;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:80%;margin:8px auto 0;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:60%;margin:0 auto;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:100px;margin:12px auto 0;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:60px;height:8px;margin:4px auto 0;"></div>' +
+      '</div>';
   } else if (typeAttr === "single") {
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:flex;flex-direction:column;gap:12px;padding:32px 24px;max-width:560px;margin:0 auto;background:transparent;border:none;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;box-sizing:border-box;text-align:center;align-items:center;";
+    skeleton.style.cssText = "display:block;padding:32px 24px;width:100%;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
     skeleton.innerHTML =
-      '<div style="font-size:48px;line-height:1;color:' + skeletonFill + ';font-family:Georgia,serif;margin-bottom:-10px;">“</div>' +
-      '<div class="proofkit-skeleton-line" style="width:85%;height:14px;margin:8px auto 0;"></div>' +
-      '<div class="proofkit-skeleton-line" style="width:70%;height:14px;margin:0 auto;"></div>' +
-      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;width:100%;">' +
-        '<div class="proofkit-skeleton-circle" style="flex-shrink:0;"></div>' +
-        '<div style="text-align:left;">' +
-          '<div class="proofkit-skeleton-line" style="width:80px;height:12px;"></div>' +
-          '<div class="proofkit-skeleton-line" style="width:50px;height:8px;margin-top:4px;"></div>' +
+      '<div style="display:flex;flex-direction:column;gap:12px;padding:36px 32px;max-width:560px;margin:0 auto;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;text-align:center;align-items:center;position:relative;overflow:hidden;">' +
+        '<div style="position:absolute;top:6px;right:18px;font-size:64px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.14;pointer-events:none;">”</div>' +
+        '<div class="proofkit-skeleton-line" style="width:85%;height:14px;margin:8px auto 0;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:70%;height:14px;margin:0 auto;"></div>' +
+        '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;width:100%;">' +
+          '<div class="proofkit-skeleton-circle" style="flex-shrink:0;"></div>' +
+          '<div style="text-align:left;">' +
+            '<div class="proofkit-skeleton-line" style="width:80px;height:12px;"></div>' +
+            '<div class="proofkit-skeleton-line" style="width:50px;height:8px;margin-top:4px;"></div>' +
+          '</div>' +
         '</div>' +
       '</div>';
   } else {
@@ -172,7 +177,7 @@
         '<div class="proofkit-skeleton-line proofkit-skeleton-body2"></div>' +
       '</div>';
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;width:100%;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    skeleton.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;width:100%;padding:16px;background:transparent;border:none;box-sizing:border-box;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
     skeleton.innerHTML = cardHtml + cardHtml + cardHtml;
   }
   container.appendChild(skeleton);
@@ -187,7 +192,7 @@
     iframe.setAttribute("frameborder", "0");
     iframe.setAttribute("loading", "lazy");
     iframe.style.cssText =
-      "width:100%;border:none;display:block;overflow:hidden;opacity:0;transition:opacity 0.5s ease, height 0.2s ease;";
+      "position:absolute;top:0;left:0;width:100%;border:none;display:block;overflow:hidden;opacity:0;transition:opacity 0.4s ease, height 0.2s ease;";
     iframe.height = initialHeight;
 
     var revealed = false;
@@ -195,9 +200,18 @@
       if (revealed) return;
       revealed = true;
       iframe.style.opacity = "1";
-      // Remove skeleton loader once iframe resolves its height
-      if (skeleton && skeleton.parentNode) {
-        skeleton.parentNode.removeChild(skeleton);
+      // Fade out skeleton smoothly before removing it from DOM
+      if (skeleton) {
+        skeleton.style.transition = "opacity 0.4s ease";
+        skeleton.style.opacity = "0";
+        setTimeout(function () {
+          if (skeleton && skeleton.parentNode) {
+            skeleton.parentNode.removeChild(skeleton);
+          }
+          iframe.style.position = "";
+          iframe.style.top = "";
+          iframe.style.left = "";
+        }, 400);
       }
       container.style.minHeight = "0";
     }
