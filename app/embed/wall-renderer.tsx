@@ -383,6 +383,19 @@ function TestimonialCard({
   const threshold = isGrid ? 140 : 320;
   const shouldClamp = text.length > threshold;
 
+  // Dynamic sizing when not in Grid layout
+  const cardSize = isGrid
+    ? "medium"
+    : text.length < 40
+      ? "small"
+      : text.length > 120
+        ? "large"
+        : "medium";
+
+  const padding = cardSize === "small" ? "14px" : cardSize === "large" ? "24px" : "20px";
+  const bodyFontSize = cardSize === "small" ? "13px" : cardSize === "large" ? "15.5px" : "14px";
+  const bodyLineHeight = cardSize === "small" ? "1.5" : cardSize === "large" ? "1.7" : "1.65";
+
   return (
     <div
       className="blovi-card"
@@ -390,8 +403,9 @@ function TestimonialCard({
         position: "relative",
         background: colors.cardBg,
         border: `1px solid ${colors.cardBorder}`,
+        borderTop: cardSize === "large" ? `3px solid ${colors.accent}` : `1px solid ${colors.cardBorder}`,
         borderRadius: `${radius}px`,
-        padding: "20px",
+        padding,
         display: "flex",
         flexDirection: "column",
         breakInside: "avoid",
@@ -427,8 +441,8 @@ function TestimonialCard({
           <p
             style={{
               margin: 0,
-              fontSize: "14px",
-              lineHeight: "1.65",
+              fontSize: bodyFontSize,
+              lineHeight: bodyLineHeight,
               color: colors.text,
               display: "-webkit-box",
               WebkitLineClamp: isGrid ? 4 : 8,
@@ -469,8 +483,8 @@ function TestimonialCard({
         <p
           style={{
             margin: "0 0 16px 0",
-            fontSize: "14px",
-            lineHeight: "1.65",
+            fontSize: bodyFontSize,
+            lineHeight: bodyLineHeight,
             color: colors.text,
             flexGrow: 1,
           }}
@@ -783,10 +797,11 @@ export function WallContent({
       }
       masonryColumns[minColIdx].push(t);
       const text = t.display_body ?? t.body_original ?? "";
-      const charPerLine = 35;
-      const lineHeight = 23;
-      const lines = Math.ceil(text.length / charPerLine) || 1;
-      const estHeight = 160 + lines * lineHeight;
+      const isSmall = text.length < 40;
+      const isLarge = text.length > 120;
+      const baseHeight = isSmall ? 110 : isLarge ? 180 : 150;
+      const factor = isLarge ? 0.7 : 0.6;
+      const estHeight = baseHeight + text.length * factor;
       colHeights[minColIdx] += estHeight;
     });
   }
@@ -807,7 +822,7 @@ export function WallContent({
   const containerMaxWidth = "880px";
  
   return (
-    <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
+    <div style={{ fontFamily: FONT, padding: layout === "masonry" ? "12px" : "16px", background: colors.pageBg }}>
       <style>{`
         .blovi-flex-grid {
           display: flex;
@@ -940,7 +955,7 @@ export function WallContent({
         <div
           style={{
             display: "flex",
-            gap: "16px",
+            gap: "12px",
             justifyContent: "center",
             maxWidth: containerMaxWidth,
             margin: "0 auto",
@@ -954,7 +969,7 @@ export function WallContent({
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "16px",
+                  gap: "12px",
                   flex: numCols === 1 ? "1 1 100%" : "0 0 280px",
                   maxWidth: numCols === 1 ? "100%" : "280px",
                 }}
