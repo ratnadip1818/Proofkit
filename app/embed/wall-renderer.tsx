@@ -711,12 +711,14 @@ export function WallContent({
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
+  const [page, setPage] = useState(0);
   const [visibleCount, setVisibleCount] = useState(() => {
     return maxCount !== null ? maxCount : 6;
   });
 
-  // Reset visibleCount when tag filter changes
+  // Reset page and visibleCount when tag filter changes
   useEffect(() => {
+    setPage(0);
     setVisibleCount(maxCount !== null ? maxCount : 6);
   }, [selectedTag, maxCount]);
 
@@ -732,9 +734,23 @@ export function WallContent({
     ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
     : list;
 
-  const renderedList = filteredList.slice(0, visibleCount);
+  const pageSize = 6;
+  const totalPages = Math.ceil(filteredList.length / pageSize);
+  const currentPage = page % (totalPages || 1);
 
-  // Whenever selectedTag, filteredList.length or visibleCount changes, send height resize message to parent frame
+  // For Grid: we paginate pages horizontally.
+  // For Masonry: we paginate vertically by increasing visibleCount.
+  const renderedList = layout === "grid" ? filteredList : filteredList.slice(0, visibleCount);
+
+  // Group filteredList into pages of 6 for grid layout
+  const pagesArray = [];
+  if (layout === "grid") {
+    for (let i = 0; i < filteredList.length; i += pageSize) {
+      pagesArray.push(filteredList.slice(i, i + pageSize));
+    }
+  }
+
+  // Whenever selectedTag, filteredList.length, page or visibleCount changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
@@ -745,13 +761,16 @@ export function WallContent({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length, visibleCount]);
+  }, [selectedTag, filteredList.length, page, visibleCount]);
 
-  const count = renderedList.length;
+  const displayCount = layout === "grid"
+    ? (pagesArray[currentPage]?.length || 0)
+    : renderedList.length;
+
   const containerMaxWidth =
-    count === 1 ? "450px" :
-    count === 2 ? "820px" :
-    count === 3 ? "1140px" :
+    displayCount === 1 ? "450px" :
+    displayCount === 2 ? "820px" :
+    displayCount === 3 ? "1080px" :
     "100%";
 
   return (
@@ -766,9 +785,15 @@ export function WallContent({
           margin: 0 auto;
         }
         .blovi-flex-card-wrapper {
-          flex: 1 1 260px;
+          flex: 0 0 calc(33.333% - 11px);
           max-width: 280px;
           box-sizing: border-box;
+        }
+        @media (max-width: 900px) {
+          .blovi-flex-card-wrapper {
+            flex: 0 0 calc(50% - 8px);
+            max-width: 280px;
+          }
         }
         @media (max-width: 600px) {
           .blovi-flex-card-wrapper {
@@ -836,20 +861,41 @@ export function WallContent({
       {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
       ) : layout === "grid" ? (
-        <div className="blovi-flex-grid">
-          {renderedList.map((t, idx) => (
-            <div key={t.id} className="blovi-flex-card-wrapper">
-              <TestimonialCard
-                t={t}
-                showRatings={showRatings}
-                colors={colors}
-                radius={radiusPx}
-                layout={layout}
-                index={idx}
-                onReadMore={setActiveModalTestimonial}
-              />
-            </div>
-          ))}
+        <div style={{ overflow: "hidden", width: "100%", padding: "8px 0" }}>
+          <div
+            style={{
+              display: "flex",
+              transition: "transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)",
+              transform: `translateX(-${currentPage * 100}%)`,
+            }}
+          >
+            {pagesArray.map((pageSlice, pageIdx) => (
+              <div
+                key={pageIdx}
+                style={{
+                  flex: "0 0 100%",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              >
+                <div className="blovi-flex-grid">
+                  {pageSlice.map((t, idx) => (
+                    <div key={t.id} className="blovi-flex-card-wrapper">
+                      <TestimonialCard
+                        t={t}
+                        showRatings={showRatings}
+                        colors={colors}
+                        radius={radiusPx}
+                        layout={layout}
+                        index={pageIdx * pageSize + idx}
+                        onReadMore={setActiveModalTestimonial}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div
@@ -876,11 +922,32 @@ export function WallContent({
         </div>
       )}
 
-      {filteredList.length > visibleCount && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
+      {/* Pagination Controls */}
+      {layout === "grid" && totalPages > 1 ? (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginTop: "24px" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setPage(i)}
+                aria-label={`Go to page ${i + 1}`}
+                style={{
+                  width: i === currentPage ? 18 : 8,
+                  height: 8,
+                  borderRadius: "4px",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  background: i === currentPage ? colors.accent : colors.dotInactive,
+                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
+              />
+            ))}
+          </div>
           <button
             type="button"
-            onClick={() => setVisibleCount((prev) => prev + 6)}
+            onClick={() => setPage((prev) => (currentPage === totalPages - 1 ? 0 : prev + 1))}
             style={{
               fontFamily: FONT,
               fontSize: "13.5px",
@@ -905,9 +972,43 @@ export function WallContent({
               e.currentTarget.style.transform = "scale(1)";
             }}
           >
-            Show more
+            {currentPage === totalPages - 1 ? "Show less" : "Show more"}
           </button>
         </div>
+      ) : (
+        layout === "masonry" && filteredList.length > visibleCount && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => prev + 6)}
+              style={{
+                fontFamily: FONT,
+                fontSize: "13.5px",
+                fontWeight: 600,
+                padding: "10px 24px",
+                borderRadius: "9999px",
+                cursor: "pointer",
+                border: `1px solid ${colors.cardBorder}`,
+                background: colors.cardBg,
+                color: colors.text,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = colors.accent;
+                e.currentTarget.style.color = colors.accent;
+                e.currentTarget.style.transform = "scale(1.03)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = colors.cardBorder;
+                e.currentTarget.style.color = colors.text;
+                e.currentTarget.style.transform = "scale(1)";
+              }}
+            >
+              Show more
+            </button>
+          </div>
+        )
       )}
 
       {showBadge && <BadgeLink colors={colors} />}
