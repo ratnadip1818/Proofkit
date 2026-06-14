@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Copy,
   Check,
@@ -106,7 +106,20 @@ export default function WidgetBuilder({
   const [showBadge, setShowBadge] = useState(true);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [previewWidth, setPreviewWidth] = useState<"100%" | "768px" | "380px">("100%");
+  const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [containerWidth, setContainerWidth] = useState(600);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(Math.max(300, entry.contentRect.width - 48)); // subtract p-6 padding
+      }
+    });
+    observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (widgetType === "single") {
@@ -140,6 +153,21 @@ export default function WidgetBuilder({
 
   const liveUrl = `${APP_URL}/embed/${userId}?${query}`;
   const relativeEmbedUrl = `/embed/${userId}?${query}${usingSamples ? "&demo=1" : ""}`;
+
+  let targetWidth = 1200;
+  let targetHeight = 500;
+
+  if (previewMode === "tablet") {
+    targetWidth = 768;
+    targetHeight = 550;
+  } else if (previewMode === "mobile") {
+    targetWidth = 380;
+    targetHeight = 600;
+  }
+
+  const scale = containerWidth < targetWidth ? containerWidth / targetWidth : 1;
+  const scaledWidth = targetWidth;
+  const scaledHeight = targetHeight / scale;
 
   const dataAttrs = [`data-user="${userId}"`, `data-type="${widgetType}"`];
   if (widgetType === "wall") {
@@ -546,17 +574,17 @@ export default function WidgetBuilder({
             <div className="flex items-center gap-1 rounded-lg border border-[#ECE7E0] bg-white p-0.5 shadow-sm">
               {(
                 [
-                  { value: "100%", label: "Desktop", icon: Monitor },
-                  { value: "768px", label: "Tablet", icon: Tablet },
-                  { value: "380px", label: "Mobile", icon: Smartphone },
+                  { value: "desktop", label: "Desktop", icon: Monitor },
+                  { value: "tablet", label: "Tablet", icon: Tablet },
+                  { value: "mobile", label: "Mobile", icon: Smartphone },
                 ] as const
               ).map((size) => (
                 <button
                   key={size.value}
                   type="button"
-                  onClick={() => setPreviewWidth(size.value)}
+                  onClick={() => setPreviewMode(size.value)}
                   className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
-                    previewWidth === size.value
+                    previewMode === size.value
                       ? "bg-[#E8743B] text-white shadow-sm"
                       : "text-[#6B6B6B] hover:text-[#1A1A1A]"
                   }`}
@@ -575,39 +603,55 @@ export default function WidgetBuilder({
 
           {/* Designer Dotted Grid Canvas */}
           <BlurFade delay={0.1}>
-            <div className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden">
+            <div ref={canvasRef} className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1.2px,transparent_1.2px)] [background-size:16px_16px] pointer-events-none opacity-80 z-0" />
               
-              {/* Mock Browser Frame */}
-              <div
-                className={`mx-auto overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg transition-all duration-500 ease-out relative z-10`}
-                style={{ width: previewWidth }}
+              {/* Parent Scaled Wrapper to maintain correct layout space */}
+              <div 
+                className="mx-auto transition-all duration-300 ease-out"
+                style={{
+                  width: `${targetWidth * scale}px`,
+                  height: `${targetHeight}px`,
+                  overflow: "hidden",
+                }}
               >
-                {/* macOS Browser Header bar */}
-                <div className="flex items-center justify-between border-b border-[#ECE7E0] bg-[#FAF8F5] px-4 py-2 select-none">
-                  <div className="flex items-center gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
-                  </div>
-                  <div className="mx-4 flex-1 max-w-[280px] rounded bg-white border border-[#ECE7E0] py-0.5 px-3 text-[10px] text-center text-zinc-400 select-all font-mono truncate">
-                    blovi.space/embed/{userId.slice(0, 8)}...
-                  </div>
-                  <div className="w-10" />
-                </div>
-
-                {/* Inner Preview Content - Rendered in iframe to isolate context and support real responsive viewport media queries */}
+                {/* Mock Browser Frame */}
                 <div
-                  className={`max-h-[480px] overflow-hidden ${
-                    theme === "dark" ? "bg-[#16161D]" : "bg-white"
-                  }`}
+                  className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg relative z-10"
+                  style={{
+                    width: `${targetWidth}px`,
+                    height: `${scaledHeight}px`,
+                    transform: `scale(${scale})`,
+                    transformOrigin: "top left",
+                  }}
                 >
-                  <iframe
-                    key={relativeEmbedUrl}
-                    src={relativeEmbedUrl}
-                    className="w-full h-[450px] border-none block"
-                    title="Widget Live Preview"
-                  />
+                  {/* macOS Browser Header bar */}
+                  <div className="flex items-center justify-between border-b border-[#ECE7E0] bg-[#FAF8F5] px-4 py-2 select-none">
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
+                    </div>
+                    <div className="mx-4 flex-1 max-w-[280px] rounded bg-white border border-[#ECE7E0] py-0.5 px-3 text-[10px] text-center text-zinc-400 select-all font-mono truncate">
+                      blovi.space/embed/{userId.slice(0, 8)}...
+                    </div>
+                    <div className="w-10" />
+                  </div>
+
+                  {/* Inner Preview Content - Rendered in iframe to isolate context and support real responsive viewport media queries */}
+                  <div
+                    className="w-full h-full overflow-hidden"
+                    style={{
+                      backgroundColor: theme === "dark" ? "#16161D" : "#ffffff",
+                    }}
+                  >
+                    <iframe
+                      key={relativeEmbedUrl}
+                      src={relativeEmbedUrl}
+                      className="w-full h-full border-none block"
+                      title="Widget Live Preview"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
