@@ -996,6 +996,7 @@ export function CarouselContent({
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
@@ -1064,71 +1065,129 @@ export function CarouselContent({
               transform: `translateX(-${safeIndex * 100}%)`,
             }}
           >
-            {testimonials.map((t) => (
-              <div key={t.id} style={{ flex: "0 0 100%", boxSizing: "border-box" }}>
-                <div
-                  className="blovi-card"
-                  style={{
-                    background: colors.cardBg,
-                    border: `1px solid ${colors.cardBorder}`,
-                    borderRadius: `${radiusPx}px`,
-                    padding: "28px 48px",
-                    textAlign: "center",
-                    boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
+            {testimonials.map((t) => {
+              const text = t.display_body ?? t.body_original;
+              const threshold = 130;
+              const shouldClamp = text.length > threshold;
+
+              return (
+                <div key={t.id} style={{ flex: "0 0 100%", boxSizing: "border-box" }}>
+                  <div
+                    className="blovi-card"
                     style={{
-                      position: "absolute",
-                      top: "6px",
-                      right: "18px",
-                      fontSize: "64px",
-                      lineHeight: 1,
-                      fontFamily: "Georgia, serif",
-                      color: colors.accent,
-                      opacity: 0.14,
-                      pointerEvents: "none",
-                    }}
-                  >
-                    ”
-                  </span>
-                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
-                    <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} />
-                  </div>
-                  {showRatings && t.rating !== null && (
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <Stars rating={t.rating} colors={colors} />
-                    </div>
-                  )}
-                  <p style={{ fontSize: "15px", lineHeight: "1.65", color: colors.text, margin: "8px 0 16px" }}>
-                    {t.display_body ?? t.body_original}
-                  </p>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      color: colors.name,
+                      background: colors.cardBg,
+                      border: `1px solid ${colors.cardBorder}`,
+                      borderRadius: `${radiusPx}px`,
+                      padding: "20px 32px",
+                      textAlign: "center",
+                      boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
+                      position: "relative",
+                      overflow: "hidden",
+                      height: "240px",
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "4px",
+                      flexDirection: "column",
+                      boxSizing: "border-box",
                     }}
                   >
-                    {t.author_name}
-                    <VerifiedBadge id={t.id} />
-                  </p>
-                  {t.author_role && (
-                    <p style={{ margin: "2px 0 0", fontSize: "12.5px", color: colors.role }}>
-                      {t.author_role}
-                    </p>
-                  )}
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        position: "absolute",
+                        top: "6px",
+                        right: "18px",
+                        fontSize: "64px",
+                        lineHeight: 1,
+                        fontFamily: "Georgia, serif",
+                        color: colors.accent,
+                        opacity: 0.14,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      ”
+                    </span>
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}>
+                      <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} />
+                    </div>
+                    {showRatings && t.rating !== null && (
+                      <div style={{ display: "flex", justifyContent: "center", marginBottom: "4px" }}>
+                        <Stars rating={t.rating} colors={colors} />
+                      </div>
+                    )}
+
+                    {shouldClamp ? (
+                      <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, justifyContent: "center", alignItems: "center" }}>
+                        <p style={{
+                          fontSize: "14px",
+                          lineHeight: "1.5",
+                          color: colors.text,
+                          margin: "4px 0",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}>
+                          {text}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveModalTestimonial(t);
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            padding: "2px 0 0 0",
+                            margin: 0,
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: colors.accent,
+                            cursor: "pointer",
+                            fontFamily: FONT,
+                            textDecoration: "none",
+                            transition: "opacity 0.2s",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+                          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                        >
+                          Read more
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: 0 }}>
+                        <p style={{ fontSize: "14px", lineHeight: "1.5", color: colors.text, margin: "4px 0" }}>
+                          {text}
+                        </p>
+                      </div>
+                    )}
+
+                    <div style={{ marginTop: "auto" }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "14px",
+                          fontWeight: 700,
+                          color: colors.name,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        {t.author_name}
+                        <VerifiedBadge id={t.id} />
+                      </p>
+                      {t.author_role && (
+                        <p style={{ margin: "2px 0 0", fontSize: "12px", color: colors.role }}>
+                          {t.author_role}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -1182,6 +1241,16 @@ export function CarouselContent({
       )}
 
       {showBadge && <BadgeLink colors={colors} />}
+
+      {activeModalTestimonial && (
+        <TestimonialModal
+          t={activeModalTestimonial}
+          onClose={() => setActiveModalTestimonial(null)}
+          colors={colors}
+          radius={radiusPx}
+          showRatings={showRatings}
+        />
+      )}
     </div>
   );
 }
