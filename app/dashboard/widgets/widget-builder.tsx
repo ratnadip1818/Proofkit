@@ -93,7 +93,7 @@ export default function WidgetBuilder({
 }) {
   const DEFAULT_ACCENT = "#E8743B";
   const [widgetType, setWidgetType] = useState<WidgetType>("wall");
-  const [layout, setLayout] = useState<WallLayout>("masonry");
+  const [layout, setLayout] = useState<WallLayout>("grid");
   const [theme, setTheme] = useState<WallTheme>("light");
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [radius, setRadius] = useState<WidgetRadius>("rounded");
@@ -195,33 +195,7 @@ export default function WidgetBuilder({
             Widget settings
           </h2>
 
-          {widgetType === "wall" && (
-            <div className="mt-4">
-              <p className="text-sm font-medium text-[#1A1A1A]">Layout</p>
-              <div className="mt-2 flex gap-5">
-                {(
-                  [
-                    { value: "masonry", label: "Masonry" },
-                    { value: "grid", label: "Grid" },
-                  ] as { value: WallLayout; label: string }[]
-                ).map((opt) => (
-                  <label
-                    key={opt.value}
-                    className="flex items-center gap-2 text-sm text-[#1A1A1A]"
-                  >
-                    <input
-                      type="radio"
-                      name="layout"
-                      checked={layout === opt.value}
-                      onChange={() => setLayout(opt.value)}
-                      className="accent-[#E8743B]"
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
+
 
           <div className="mt-4">
             <p className="text-sm font-medium text-[#1A1A1A]">Theme</p>

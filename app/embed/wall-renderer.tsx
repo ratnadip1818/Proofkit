@@ -35,7 +35,7 @@ export interface ThemeColors {
   arrowText: string;
 }
 
-export type WallLayout = "masonry" | "grid";
+export type WallLayout = "grid";
 export type WallTheme = "light" | "dark";
 export type WidgetType = "wall" | "carousel" | "marquee" | "single";
 export type WidgetRadius = "sharp" | "rounded" | "pill";
@@ -379,22 +379,8 @@ function TestimonialCard({
   onReadMore?: (t: Testimonial) => void;
 }) {
   const text = t.display_body ?? t.body_original;
-  const isGrid = layout === "grid";
-  const threshold = isGrid ? 140 : 320;
+  const threshold = 140;
   const shouldClamp = text.length > threshold;
-
-  // Dynamic sizing when not in Grid layout
-  const cardSize = isGrid
-    ? "medium"
-    : text.length < 40
-      ? "small"
-      : text.length > 120
-        ? "large"
-        : "medium";
-
-  const padding = cardSize === "small" ? "14px" : cardSize === "large" ? "24px" : "20px";
-  const bodyFontSize = cardSize === "small" ? "13px" : cardSize === "large" ? "15.5px" : "14px";
-  const bodyLineHeight = cardSize === "small" ? "1.5" : cardSize === "large" ? "1.7" : "1.65";
 
   return (
     <div
@@ -403,15 +389,14 @@ function TestimonialCard({
         position: "relative",
         background: colors.cardBg,
         border: `1px solid ${colors.cardBorder}`,
-        borderTop: cardSize === "large" ? `3px solid ${colors.accent}` : `1px solid ${colors.cardBorder}`,
         borderRadius: `${radius}px`,
-        padding,
+        padding: "20px",
         display: "flex",
         flexDirection: "column",
         breakInside: "avoid",
         overflow: "hidden",
         boxShadow: colors.cardBg === "#ffffff" ? "0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.02)" : "0 4px 20px rgba(0, 0, 0, 0.15)",
-        height: isGrid ? "240px" : "auto",
+        height: "240px",
         boxSizing: "border-box",
         animationDelay: `${index * 0.05}s`,
       }}
@@ -441,11 +426,11 @@ function TestimonialCard({
           <p
             style={{
               margin: 0,
-              fontSize: bodyFontSize,
-              lineHeight: bodyLineHeight,
+              fontSize: "14px",
+              lineHeight: "1.65",
               color: colors.text,
               display: "-webkit-box",
-              WebkitLineClamp: isGrid ? 4 : 8,
+              WebkitLineClamp: 4,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -483,8 +468,8 @@ function TestimonialCard({
         <p
           style={{
             margin: "0 0 16px 0",
-            fontSize: bodyFontSize,
-            lineHeight: bodyLineHeight,
+            fontSize: "14px",
+            lineHeight: "1.65",
             color: colors.text,
             flexGrow: 1,
           }}
@@ -724,16 +709,12 @@ export function WallContent({
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
   const [page, setPage] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(() => {
-    return maxCount !== null ? maxCount : 6;
-  });
+  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
-  // Reset page and visibleCount when tag filter changes
+  // Reset page when tag filter or maxCount changes
   useEffect(() => {
     setPage(0);
-    setVisibleCount(maxCount !== null ? maxCount : 6);
   }, [selectedTag, maxCount]);
 
   // Extract all unique tags present in testimonials
@@ -752,61 +733,13 @@ export function WallContent({
   const totalPages = Math.ceil(filteredList.length / pageSize);
   const currentPage = page % (totalPages || 1);
 
-  // For Grid: we paginate pages horizontally.
-  // For Masonry: we paginate vertically by increasing visibleCount.
-  const renderedList = layout === "grid" ? filteredList : filteredList.slice(0, visibleCount);
-
   // Group filteredList into pages of 6 for grid layout
   const pagesArray = [];
-  if (layout === "grid") {
-    for (let i = 0; i < filteredList.length; i += pageSize) {
-      pagesArray.push(filteredList.slice(i, i + pageSize));
-    }
+  for (let i = 0; i < filteredList.length; i += pageSize) {
+    pagesArray.push(filteredList.slice(i, i + pageSize));
   }
 
-  const [windowWidth, setWindowWidth] = useState<number>(1200);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setWindowWidth(window.innerWidth);
-      const handleResize = () => setWindowWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }
-  }, []);
-
-  let numCols = 3;
-  if (windowWidth < 600) {
-    numCols = 1;
-  } else if (windowWidth < 900) {
-    numCols = 2;
-  }
-
-  // Distribute testimonials across columns for Masonry layout
-  const masonryColumns: Testimonial[][] = Array.from({ length: numCols }, () => []);
-  if (layout === "masonry") {
-    const colHeights = Array(numCols).fill(0);
-    renderedList.forEach((t) => {
-      let minColIdx = 0;
-      let minHeight = colHeights[0];
-      for (let i = 1; i < numCols; i++) {
-        if (colHeights[i] < minHeight) {
-          minHeight = colHeights[i];
-          minColIdx = i;
-        }
-      }
-      masonryColumns[minColIdx].push(t);
-      const text = t.display_body ?? t.body_original ?? "";
-      const isSmall = text.length < 40;
-      const isLarge = text.length > 120;
-      const baseHeight = isSmall ? 110 : isLarge ? 180 : 150;
-      const factor = isLarge ? 0.7 : 0.6;
-      const estHeight = baseHeight + text.length * factor;
-      colHeights[minColIdx] += estHeight;
-    });
-  }
-
-  // Whenever selectedTag, filteredList.length, page, visibleCount or numCols changes, send height resize message to parent frame
+  // Whenever selectedTag, filteredList.length or page changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
@@ -817,12 +750,12 @@ export function WallContent({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length, page, visibleCount, numCols]);
+  }, [selectedTag, filteredList.length, page]);
 
   const containerMaxWidth = "880px";
  
   return (
-    <div style={{ fontFamily: FONT, padding: layout === "masonry" ? "12px" : "16px", background: colors.pageBg }}>
+    <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
       <style>{`
         .blovi-flex-grid {
           display: flex;
@@ -914,7 +847,7 @@ export function WallContent({
 
       {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
-      ) : layout === "grid" ? (
+      ) : (
         <div style={{ overflow: "hidden", width: "100%", padding: "8px 0" }}>
           <div
             style={{
@@ -951,49 +884,10 @@ export function WallContent({
             ))}
           </div>
         </div>
-      ) : (
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            justifyContent: "center",
-            maxWidth: containerMaxWidth,
-            margin: "0 auto",
-          }}
-        >
-          {masonryColumns
-            .filter((col) => col.length > 0)
-            .map((col, colIdx) => (
-              <div
-                key={colIdx}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                  flex: numCols === 1 ? "1 1 100%" : "0 0 280px",
-                  maxWidth: numCols === 1 ? "100%" : "280px",
-                }}
-              >
-                {col.map((t, idx) => (
-                  <div key={t.id}>
-                    <TestimonialCard
-                      t={t}
-                      showRatings={showRatings}
-                      colors={colors}
-                      radius={radiusPx}
-                      layout={layout}
-                      index={idx}
-                      onReadMore={setActiveModalTestimonial}
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
-        </div>
       )}
 
       {/* Pagination Controls */}
-      {layout === "grid" && totalPages > 1 ? (
+      {totalPages > 1 && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginTop: "24px" }}>
           <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
             {Array.from({ length: totalPages }).map((_, i) => (
@@ -1045,40 +939,6 @@ export function WallContent({
             {currentPage === totalPages - 1 ? "Show less" : "Show more"}
           </button>
         </div>
-      ) : (
-        layout === "masonry" && filteredList.length > visibleCount && (
-          <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
-            <button
-              type="button"
-              onClick={() => setVisibleCount((prev) => prev + 6)}
-              style={{
-                fontFamily: FONT,
-                fontSize: "13.5px",
-                fontWeight: 600,
-                padding: "10px 24px",
-                borderRadius: "9999px",
-                cursor: "pointer",
-                border: `1px solid ${colors.cardBorder}`,
-                background: colors.cardBg,
-                color: colors.text,
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = colors.accent;
-                e.currentTarget.style.color = colors.accent;
-                e.currentTarget.style.transform = "scale(1.03)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = colors.cardBorder;
-                e.currentTarget.style.color = colors.text;
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-            >
-              Show more
-            </button>
-          </div>
-        )
       )}
 
       {showBadge && <BadgeLink colors={colors} />}

@@ -37,7 +37,7 @@ export default async function EmbedPage({
     sp.type === "carousel" || sp.type === "marquee" || sp.type === "single"
       ? sp.type
       : "wall";
-  const layout = sp.layout === "grid" ? "grid" : "masonry";
+  const layout = "grid";
   const theme = sp.theme === "dark" ? "dark" : "light";
   const showRatings = sp.ratings !== "false";
   const maxCount =
