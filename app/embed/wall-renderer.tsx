@@ -1291,6 +1291,19 @@ export function MarqueeContent({
   const singleStepWidth = 280 + 12; // card width (280) + gap (12)
   const totalShiftPx = multipliedItems.length * singleStepWidth;
 
+  // Send height resize message to parent frame to prevent vertical clipping
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const timer = setTimeout(() => {
+        window.parent.postMessage(
+          { type: "proofkit-resize", height: document.body.scrollHeight },
+          "*"
+        );
+      }, 450);
+      return () => clearTimeout(timer);
+    }
+  }, [testimonials.length]);
+
   return (
     <div
       style={{
