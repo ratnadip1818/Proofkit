@@ -139,6 +139,7 @@ export default function WidgetBuilder({
   const query = params.toString();
 
   const liveUrl = `${APP_URL}/embed/${userId}?${query}`;
+  const relativeEmbedUrl = `/embed/${userId}?${query}${usingSamples ? "&demo=1" : ""}`;
 
   const dataAttrs = [`data-user="${userId}"`, `data-type="${widgetType}"`];
   if (widgetType === "wall") {
@@ -595,55 +596,18 @@ export default function WidgetBuilder({
                   <div className="w-10" />
                 </div>
 
-                {/* Inner Preview Content */}
+                {/* Inner Preview Content - Rendered in iframe to isolate context and support real responsive viewport media queries */}
                 <div
-                  className={`max-h-[480px] overflow-y-auto ${
+                  className={`max-h-[480px] overflow-hidden ${
                     theme === "dark" ? "bg-[#16161D]" : "bg-white"
                   }`}
                 >
-                  {widgetType === "wall" && (
-                    <WallContent
-                      testimonials={previewList}
-                      layout={layout as WallLayout}
-                      theme={theme}
-                      showRatings={showRatings}
-                      showBadge={badgeOn}
-                      maxCount={maxCount}
-                      accent={accent}
-                      radius={radius}
-                    />
-                  )}
-                  {widgetType === "carousel" && (
-                    <CarouselContent
-                      testimonials={previewList}
-                      theme={theme}
-                      showRatings={showRatings}
-                      showBadge={badgeOn}
-                      accent={accent}
-                      radius={radius}
-                    />
-                  )}
-                  {widgetType === "marquee" && (
-                    <MarqueeContent
-                      testimonials={previewList}
-                      theme={theme}
-                      showRatings={showRatings}
-                      showBadge={badgeOn}
-                      accent={accent}
-                      radius={radius}
-                    />
-                  )}
-                  {widgetType === "single" && (
-                    <SingleQuoteContent
-                      testimonial={featured}
-                      theme={theme}
-                      showRatings={showRatings}
-                      showBadge={badgeOn}
-                      accent={accent}
-                      radius={radius}
-                      layout={layout as "card" | "minimal"}
-                    />
-                  )}
+                  <iframe
+                    key={relativeEmbedUrl}
+                    src={relativeEmbedUrl}
+                    className="w-full h-[450px] border-none block"
+                    title="Widget Live Preview"
+                  />
                 </div>
               </div>
             </div>
