@@ -1305,29 +1305,26 @@ export function MarqueeContent({
         }
         .proofkit-marquee-track {
           animation: proofkit-marquee ${duration}s linear infinite;
+          padding: 8px 0;
         }
         .proofkit-marquee-track:hover {
           animation-play-state: paused;
         }
-        .proofkit-marquee-card {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background: ${colors.cardBg};
-          border: 1px solid ${colors.cardBorder};
-          border-radius: ${radiusPx}px;
-          padding: 12px 16px;
-          height: 96px;
+        .proofkit-marquee-card-wrapper {
           width: 280px;
           flex-shrink: 0;
-          box-sizing: border-box;
           cursor: pointer;
-          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .proofkit-marquee-card:hover {
-          transform: translateY(-2px) scale(1.02);
-          border-color: ${colors.accent};
-          box-shadow: ${colors.cardBg === "#ffffff" ? "0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)" : "0 8px 24px rgba(0, 0, 0, 0.25)"};
+        .proofkit-marquee-card-wrapper:hover {
+          transform: translateY(-4px) scale(1.02);
+        }
+        .blovi-card {
+          transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .proofkit-marquee-card-wrapper:hover .blovi-card {
+          border-color: ${colors.accent} !important;
+          box-shadow: ${colors.cardBg === "#ffffff" ? "0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)" : "0 10px 30px rgba(0, 0, 0, 0.35)"} !important;
         }
         @media (prefers-reduced-motion: reduce) {
           .proofkit-marquee-track { animation: none; }
@@ -1340,47 +1337,17 @@ export function MarqueeContent({
         {items.map((t, i) => (
           <div
             key={`${t.id}-${i}`}
-            className="proofkit-marquee-card"
+            className="proofkit-marquee-card-wrapper"
             onClick={() => setActiveModalTestimonial(t)}
           >
-            <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} />
-            <div style={{ overflow: "hidden", minWidth: 0 }}>
-              <p
-                style={{
-                  margin: 0,
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  color: colors.name,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                }}
-              >
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {t.author_name}
-                </span>
-                <VerifiedBadge id={t.id} />
-              </p>
-              {showRatings && t.rating !== null && (
-                <Stars rating={t.rating} colors={colors} size={11} marginBottom={2} />
-              )}
-              <p
-                style={{
-                  margin: "2px 0 0",
-                  fontSize: "12px",
-                  color: colors.text,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
-                {truncate(t.display_body ?? t.body_original, 100)}
-              </p>
-            </div>
+            <TestimonialCard
+              t={t}
+              showRatings={showRatings}
+              colors={colors}
+              radius={radiusPx}
+              index={i}
+              onReadMore={setActiveModalTestimonial}
+            />
           </div>
         ))}
       </div>

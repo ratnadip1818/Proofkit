@@ -63,8 +63,8 @@
   var initialHeight = "400";
   var containerMinHeight = "120px";
   if (typeAttr === "marquee") {
-    initialHeight = "130";
-    containerMinHeight = "128px";
+    initialHeight = "280";
+    containerMinHeight = "280px";
   } else if (typeAttr === "single") {
     initialHeight = "280";
     containerMinHeight = "280px";
@@ -102,38 +102,26 @@
   // Render type-aware skeleton loaders
   var skeleton = document.createElement("div");
   if (typeAttr === "marquee") {
+    var marqueeCardHtml = 
+      '<div style="display:flex;flex-direction:column;gap:12px;padding:20px;height:240px;width:280px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';box-sizing:border-box;flex-shrink:0;position:relative;">' +
+        '<div style="position:absolute;top:6px;right:14px;font-size:52px;line-height:1;font-family:Georgia,serif;color:' + skeletonFill + ';opacity:0.14;pointer-events:none;">”</div>' +
+        '<div class="proofkit-skeleton-line" style="width:70px;height:12px;margin-bottom:4px;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:90%;height:10px;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:80%;height:10px;"></div>' +
+        '<div class="proofkit-skeleton-line" style="width:65%;height:10px;margin-bottom:12px;"></div>' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:auto;">' +
+          '<div class="proofkit-skeleton-circle" style="width:34px;height:34px;flex-shrink:0;"></div>' +
+          '<div style="text-align:left;flex:1;">' +
+            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;"></div>' +
+            '<div class="proofkit-skeleton-line" style="width:50px;height:8px;margin-top:4px;"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     skeleton.className = "proofkit-skeleton-loader";
-    skeleton.style.cssText = "display:flex;gap:12px;padding:16px 0;height:128px;background:transparent;border:none;box-sizing:border-box;overflow:hidden;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
+    skeleton.style.cssText = "display:flex;gap:12px;padding:16px 0;height:272px;background:transparent;border:none;box-sizing:border-box;overflow:hidden;animation:proofkit-skeleton-pulse 1.5s ease-in-out infinite;";
     skeleton.innerHTML =
       '<div style="display:flex;gap:12px;width:max-content;flex-shrink:0;">' +
-        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
-          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
-          '<div style="flex:1;min-width:0;width:100%;">' +
-            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
-            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
-          '</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
-          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
-          '<div style="flex:1;min-width:0;width:100%;">' +
-            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
-            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
-          '</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
-          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
-          '<div style="flex:1;min-width:0;width:100%;">' +
-            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
-            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
-          '</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:10px;background:' + skeletonBg + ';border:1px solid ' + skeletonBorder + ';border-radius:' + skeletonRadius + ';padding:12px 16px;height:96px;width:280px;box-sizing:border-box;flex-shrink:0;">' +
-          '<div class="proofkit-skeleton-circle" style="width:36px;height:36px;flex-shrink:0;background:' + skeletonFill + ';"></div>' +
-          '<div style="flex:1;min-width:0;width:100%;">' +
-            '<div class="proofkit-skeleton-line" style="width:80px;height:10px;background:' + skeletonFill + ';"></div>' +
-            '<div class="proofkit-skeleton-line" style="width:150px;height:8px;margin-top:6px;background:' + skeletonFill + ';"></div>' +
-          '</div>' +
-        '</div>' +
+        marqueeCardHtml + marqueeCardHtml + marqueeCardHtml + marqueeCardHtml + marqueeCardHtml +
       '</div>';
   } else if (typeAttr === "carousel") {
     skeleton.className = "proofkit-skeleton-loader";
