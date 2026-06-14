@@ -624,10 +624,38 @@ export function WallContent({
   });
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
-  // Reset visibleCount when tag filter or maxCount changes
+  // Reset visibleCount when tag filter or maxCount changes, dynamically adjusting for responsive initial sizes
   useEffect(() => {
-    setVisibleCount(maxCount !== null ? maxCount : 6);
+    if (maxCount !== null) {
+      setVisibleCount(maxCount);
+      return;
+    }
+
+    const handleResize = () => {
+      const w = window.innerWidth;
+      setVisibleCount((prev) => {
+        // Only adapt if the user hasn't clicked "Show more" to load larger custom count
+        if (prev === 3 || prev === 4 || prev === 6) {
+          if (w < 600) return 3;
+          if (w < 900) return 4;
+          return 6;
+        }
+        return prev;
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [selectedTag, maxCount]);
+
+  const getPageIncrement = () => {
+    if (typeof window === "undefined") return 6;
+    const w = window.innerWidth;
+    if (w < 600) return 3;
+    if (w < 900) return 4;
+    return 6;
+  };
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
@@ -780,7 +808,7 @@ export function WallContent({
         <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
           <button
             type="button"
-            onClick={() => setVisibleCount((prev) => prev + 6)}
+            onClick={() => setVisibleCount((prev) => prev + getPageIncrement())}
             style={{
               fontFamily: FONT,
               fontSize: "13.5px",
