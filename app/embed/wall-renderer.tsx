@@ -628,7 +628,7 @@ export function WallContent({
     const handleResize = () => {
       const w = window.innerWidth;
       if (w < 600) {
-        setPageSize(3);
+        setPageSize(1);
       } else if (w < 900) {
         setPageSize(4);
       } else {
