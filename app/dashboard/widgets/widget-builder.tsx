@@ -108,6 +108,7 @@ export default function WidgetBuilder({
   const [copied, setCopied] = useState(false);
   const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [containerWidth, setContainerWidth] = useState(600);
+  const [containerHeight, setContainerHeight] = useState(500);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -115,6 +116,7 @@ export default function WidgetBuilder({
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setContainerWidth(Math.max(300, entry.contentRect.width - 48)); // subtract p-6 padding
+        setContainerHeight(Math.max(200, entry.contentRect.height - 48)); // subtract p-6 padding
       }
     });
     observer.observe(canvasRef.current);
@@ -165,9 +167,11 @@ export default function WidgetBuilder({
     targetHeight = 600;
   }
 
-  const scale = containerWidth < targetWidth ? containerWidth / targetWidth : 1;
+  const scaleX = containerWidth / targetWidth;
+  const scaleY = containerHeight / targetHeight;
+  const scale = Math.min(scaleX, scaleY, 1);
   const scaledWidth = targetWidth;
-  const scaledHeight = targetHeight / scale;
+  const scaledHeight = targetHeight;
 
   const dataAttrs = [`data-user="${userId}"`, `data-type="${widgetType}"`];
   if (widgetType === "wall") {
@@ -192,9 +196,9 @@ export default function WidgetBuilder({
   }
 
   return (
-    <div>
+    <div className="lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
       {/* Sliding Segmented Widget Switcher */}
-      <div className="mb-6 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm relative z-0">
+      <div className="mb-6 shrink-0 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm relative z-0">
         {WIDGET_TYPES.map((t) => {
           const typeLocked = !isLifetime && t.value !== "wall";
           if (typeLocked) {
@@ -238,9 +242,9 @@ export default function WidgetBuilder({
         })}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-12 items-start">
+      <div className="grid gap-6 lg:grid-cols-12 items-stretch lg:flex-1 lg:min-h-0 lg:max-h-full">
         {/* Settings Sidebar */}
-        <div className="lg:col-span-5 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col gap-6">
+        <div className="lg:col-span-5 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col gap-6 lg:h-full lg:overflow-y-auto pr-2">
           {/* Section 1: Theme & Shape */}
           <div>
             <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B6B6B] border-b border-[#ECE7E0] pb-2">
@@ -568,8 +572,8 @@ export default function WidgetBuilder({
           </a>
         </div>
 
-        {/* Live Preview Column (Sticky) */}
-        <div className="lg:col-span-7 lg:sticky lg:top-8 flex flex-col gap-4">
+        {/* Live Preview Column */}
+        <div className="lg:col-span-7 flex flex-col gap-4 lg:h-full lg:max-h-full lg:overflow-hidden">
           <div className="flex items-center justify-between">
             {/* Device Sizing Selector */}
             <div className="flex items-center gap-1 rounded-lg border border-[#ECE7E0] bg-white p-0.5 shadow-sm">
@@ -603,25 +607,25 @@ export default function WidgetBuilder({
           </div>
 
           {/* Designer Dotted Grid Canvas */}
-          <BlurFade delay={0.1}>
-            <div ref={canvasRef} className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden">
+          <BlurFade delay={0.1} className="lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
+            <div ref={canvasRef} className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
               <div className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1.2px,transparent_1.2px)] [background-size:16px_16px] pointer-events-none opacity-80 z-0" />
               
               {/* Parent Scaled Wrapper to maintain correct layout space */}
               <div 
-                className="mx-auto transition-all duration-300 ease-out"
+                className="mx-auto transition-all duration-300 ease-out lg:flex-1 lg:flex lg:items-center lg:justify-center lg:min-h-0"
                 style={{
                   width: `${targetWidth * scale}px`,
-                  height: `${targetHeight}px`,
+                  height: `${targetHeight * scale}px`,
                   overflow: "hidden",
                 }}
               >
                 {/* Mock Browser Frame */}
                 <div
-                  className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg relative z-10"
+                  className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg relative z-10 shrink-0"
                   style={{
                     width: `${targetWidth}px`,
-                    height: `${scaledHeight}px`,
+                    height: `${targetHeight}px`,
                     transform: `scale(${scale})`,
                     transformOrigin: "top left",
                   }}

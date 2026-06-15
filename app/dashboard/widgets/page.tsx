@@ -27,9 +27,9 @@ export default async function WidgetsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen">
-      <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
-        <div className="mb-8">
+    <div className="w-full bg-[#FAF8F5] min-h-screen lg:min-h-0 lg:h-[calc(100vh-48px)] lg:overflow-hidden flex flex-col">
+      <div className="mx-auto w-full max-w-[1200px] px-5 md:px-10 py-6 md:py-8 flex-1 flex flex-col min-h-0">
+        <div className="mb-6 shrink-0">
           <h1
             className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
             style={{ fontFamily: "var(--font-display)" }}
@@ -41,12 +41,14 @@ export default async function WidgetsPage() {
           </p>
         </div>
 
-        <WidgetBuilder
-          userId={user.id}
-          isLifetime={isLifetime}
-          email={user.email}
-          testimonials={testimonials ?? []}
-        />
+        <div className="flex-1 flex flex-col min-h-0">
+          <WidgetBuilder
+            userId={user.id}
+            isLifetime={isLifetime}
+            email={user.email}
+            testimonials={testimonials ?? []}
+          />
+        </div>
       </div>
     </div>
   );
