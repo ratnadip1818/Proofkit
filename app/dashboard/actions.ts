@@ -271,6 +271,7 @@ export interface UpdateFormInput {
   prompt: string;
   thank_you_message: string;
   theme_color: string;
+  collect_photo?: boolean;
   collect_rating: boolean;
   require_consent: boolean;
 }

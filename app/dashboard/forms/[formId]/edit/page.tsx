@@ -18,7 +18,7 @@ export default async function EditFormPage({
   const { data: form } = await supabase
     .from("forms")
     .select(
-      "id, slug, headline, prompt, thank_you_message, theme_color, collect_rating, require_consent"
+      "id, slug, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent"
     )
     .eq("id", formId)
     .eq("user_id", user.id)
