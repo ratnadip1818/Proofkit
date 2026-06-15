@@ -622,7 +622,7 @@ export default function WidgetBuilder({
               >
                 {/* Mock Browser Frame */}
                 <div
-                  className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg relative z-10 shrink-0"
+                  className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg relative z-10 shrink-0 transition-all duration-300 ease-out"
                   style={{
                     width: `${targetWidth}px`,
                     height: `${scaledHeight}px`,
