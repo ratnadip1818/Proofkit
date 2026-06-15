@@ -625,7 +625,7 @@ export default function WidgetBuilder({
                   className="overflow-hidden rounded-xl border border-[#ECE7E0] bg-white shadow-lg relative z-10 shrink-0"
                   style={{
                     width: `${targetWidth}px`,
-                    height: `${targetHeight}px`,
+                    height: `${scaledHeight}px`,
                     transform: `scale(${scale})`,
                     transformOrigin: "top left",
                   }}
