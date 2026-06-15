@@ -32,10 +32,10 @@ interface RecentFeedProps {
 }
 
 export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
-  // Sort by date desc and take top 2
+  // Sort by date desc and take top 3
   const recent = [...testimonials]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 2);
+    .slice(0, 3);
 
   function getStatusIcon(status: string) {
     switch (status) {
@@ -70,8 +70,19 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
     }
   }
 
+  function getStatusBorderClass(status: string) {
+    switch (status) {
+      case "approved":
+        return "border-l-4 border-l-[#2E9E6B]";
+      case "pending":
+        return "border-l-4 border-l-amber-400";
+      default:
+        return "border-l-4 border-l-zinc-300";
+    }
+  }
+
   return (
-    <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col h-full">
+    <div className="rounded-3xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col h-full">
       <div className="flex items-center justify-between border-b border-[#ECE7E0]/60 pb-4 mb-4">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
@@ -83,19 +94,19 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
         </div>
         <Link
           href="/dashboard/testimonials"
-          className="text-xs font-semibold text-[#E8743B] transition-colors hover:text-[#CF5F2C] flex items-center gap-1"
+          className="text-xs font-bold text-[#E8743B] uppercase tracking-wider transition-colors hover:text-[#CF5F2C] flex items-center gap-1"
         >
           Manage <Plus size={12} />
         </Link>
       </div>
 
       {recent.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#ECE7E0] bg-[#FAF8F5]/30 rounded-xl p-8 text-center min-h-[200px]">
+        <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#ECE7E0] bg-[#FAF8F5]/30 rounded-2xl p-8 text-center min-h-[220px]">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E8743B]/10 text-[#E8743B] mb-3">
             <MessageSquare size={22} />
           </span>
           <h3 className="text-sm font-bold text-[#1A1A1A]">No testimonials yet</h3>
-          <p className="mt-1 text-xs text-[#6B6B6B] max-w-xs leading-relaxed">
+          <p className="mt-2 text-xs text-[#6B6B6B] max-w-xs leading-relaxed">
             Share your collection link to receive customer reviews or import tweets.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -105,16 +116,16 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
                   navigator.clipboard.writeText(formUrl);
                   alert("Link copied!");
                 }}
-                className="rounded-lg border border-[#ECE7E0] bg-white px-3 py-1.5 text-xs font-semibold text-[#1A1A1A] hover:bg-[#FAF8F5] transition-colors"
+                className="rounded-xl border border-[#ECE7E0] bg-white px-4 py-2 text-xs font-bold text-[#1A1A1A] hover:bg-[#FAF8F5] transition-all cursor-pointer shadow-sm active:scale-98"
               >
                 Copy form link
               </button>
             )}
             <Link
               href="/dashboard/import"
-              className="rounded-lg bg-[#E8743B] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#CF5F2C] transition-colors flex items-center gap-1"
+              className="rounded-xl bg-[#E8743B] px-4 py-2 text-xs font-bold text-white hover:bg-[#CF5F2C] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-98"
             >
-              <TwitterIcon size={11} /> Import tweet
+              <TwitterIcon size={12} /> Import Tweet
             </Link>
           </div>
         </div>
@@ -133,7 +144,7 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
             return (
               <div
                 key={item.id}
-                className="group relative rounded-xl border border-[#ECE7E0]/60 p-4 transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:border-[#ECE7E0]"
+                className={`group relative rounded-2xl border border-[#ECE7E0]/60 p-4 transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:border-[#ECE7E0] ${getStatusBorderClass(item.status)} bg-white`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
@@ -156,7 +167,7 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
                       <h4 className="text-xs font-bold text-[#1A1A1A] leading-none">
                         {item.author_name || "Anonymous"}
                       </h4>
-                      <p className="text-[10px] text-[#6B6B6B] mt-0.5 leading-none">
+                      <p className="text-[10px] text-[#6B6B6B] mt-1 leading-none">
                         {item.author_role || "Customer"}
                       </p>
                     </div>

@@ -8,6 +8,7 @@ export interface Testimonial {
   created_at: string;
   avatar_url?: string | null;
   tags?: string[] | null;
+  source?: string | null;
 }
 
 export const SAMPLE_TESTIMONIALS: Testimonial[] = [

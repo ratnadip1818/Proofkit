@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, Download, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, Download, CheckCircle2, AlertCircle, Loader2, FileText, ArrowRight, HelpCircle, Star } from "lucide-react";
 import { importTestimonials, importSingleTestimonial } from "../actions";
+import { motion } from "framer-motion";
 
 const TwitterIcon = ({ size = 15 }: { size?: number }) => (
   <svg
@@ -116,25 +117,20 @@ export default function ImportPanel() {
   const [parseError, setParseError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<number | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const validRows = rows.filter((r) => r.valid);
 
-  // Helper to extract Product Hunt username from URL or text
   function extractPhUsername(input: string): string {
     const trimmed = input.trim();
     if (!trimmed) return "";
-    
-    // If it's already just a username (with or without @)
     if (!trimmed.includes("/") && !trimmed.includes(".")) {
       return trimmed.replace(/^@/, "");
     }
-    
     const userMatch = trimmed.match(/producthunt\.com\/@([a-zA-Z0-9_]+)/i);
     if (userMatch) return userMatch[1];
-    
     const slashMatch = trimmed.match(/\/@([a-zA-Z0-9_]+)/);
     if (slashMatch) return slashMatch[1];
-    
     return "";
   }
 
@@ -232,70 +228,99 @@ export default function ImportPanel() {
   }
 
   // CSV Handlers
+  function processCSVText(text: string, name: string) {
+    const table = parseCSV(text);
+    if (table.length < 2) {
+      setParseError("This CSV file doesn't contain any data rows.");
+      return;
+    }
+
+    const headers = table[0].map((h) => h.trim().toLowerCase());
+    const nameIdx = headers.indexOf("name");
+    const roleIdx = headers.indexOf("role");
+    const testIdx = headers.indexOf("testimonial");
+    const rateIdx = headers.indexOf("rating");
+
+    if (nameIdx === -1 || testIdx === -1) {
+      setParseError("CSV must contain at least 'name' and 'testimonial' columns.");
+      return;
+    }
+
+    const dataRows = table.slice(1);
+    const parsed = dataRows.map((row) => {
+      const author_name = row[nameIdx]?.trim() || "";
+      const author_role = roleIdx !== -1 ? row[roleIdx]?.trim() || null : null;
+      const body = row[testIdx]?.trim() || "";
+      let rating: number | null = null;
+      let issue: string | undefined;
+
+      if (rateIdx !== -1 && row[rateIdx]) {
+        const n = Number(row[rateIdx]);
+        if (Number.isInteger(n) && n >= 1 && n <= 5) {
+          rating = n;
+        } else {
+          issue = "Invalid rating (must be 1-5)";
+        }
+      }
+
+      if (!author_name || !body) {
+        issue = "Missing name or testimonial";
+      }
+
+      return { author_name, author_role, body, rating, valid: !issue, issue };
+    });
+
+    setRows(parsed);
+    setFileName(name);
+  }
+
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setResult(null);
     setParseError(null);
     setRows([]);
-    setFileName(file.name);
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const text = (ev.target?.result as string) ?? "";
-      const table = parseCSV(text);
-
-      if (table.length < 2) {
-        setParseError("This CSV file doesn't contain any data rows.");
-        return;
-      }
-
-      const header = table[0].map((h) => h.trim().toLowerCase());
-      const nameIdx = header.indexOf("name");
-      const roleIdx = header.indexOf("role");
-      const testimonialIdx = header.indexOf("testimonial");
-      const ratingIdx = header.indexOf("rating");
-
-      if (nameIdx === -1 || testimonialIdx === -1) {
-        setParseError(
-          `CSV must include "name" and "testimonial" columns. Found: ${table[0].join(", ")}`
-        );
-        return;
-      }
-
-      const parsed: ParsedRow[] = table.slice(1).map((cols) => {
-        const author_name = (cols[nameIdx] ?? "").trim();
-        const body = (cols[testimonialIdx] ?? "").trim();
-        const author_role =
-          roleIdx !== -1 ? (cols[roleIdx] ?? "").trim() || null : null;
-
-        let rating: number | null = null;
-        let issue: string | undefined;
-
-        if (ratingIdx !== -1) {
-          const raw = (cols[ratingIdx] ?? "").trim();
-          if (raw) {
-            const n = Number(raw);
-            if (Number.isInteger(n) && n >= 1 && n <= 5) {
-              rating = n;
-            } else {
-              issue = "Invalid rating (must be 1-5)";
-            }
-          }
-        }
-
-        if (!author_name || !body) {
-          issue = "Missing name or testimonial";
-        }
-
-        return { author_name, author_role, body, rating, valid: !issue, issue };
-      });
-
-      setRows(parsed);
+      processCSVText((ev.target?.result as string) ?? "", file.name);
     };
     reader.readAsText(file);
   }
+
+  // Drag and drop handlers
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+        setParseError("Please upload a valid CSV file.");
+        return;
+      }
+      setResult(null);
+      setParseError(null);
+      setRows([]);
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        processCSVText((ev.target?.result as string) ?? "", file.name);
+      };
+      reader.readAsText(file);
+    }
+  };
 
   async function handleImport() {
     setImporting(true);
@@ -323,248 +348,272 @@ export default function ImportPanel() {
 
   return (
     <div>
-      {/* Tabs Header */}
-      <div className="flex border-b border-[#ECE7E0] mb-6 flex-wrap gap-2">
-        <button
-          onClick={() => {
-            setActiveTab("twitter");
-            setTwitterSuccess(null);
-            setTwitterError(null);
-            setParseError(null);
-            setResult(null);
-            setPhError(null);
-            setPhSuccess(null);
-          }}
-          className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 -mb-px ${
-            activeTab === "twitter"
-              ? "border-[#E8743B] text-[#E8743B]"
-              : "border-transparent text-[#6B6B6B] hover:text-[#1A1A1A]"
-          }`}
-        >
-          <TwitterIcon size={15} />
-          Twitter/X Import
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab("producthunt");
-            setTwitterSuccess(null);
-            setTwitterError(null);
-            setParseError(null);
-            setResult(null);
-            setPhError(null);
-            setPhSuccess(null);
-          }}
-          className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 -mb-px ${
-            activeTab === "producthunt"
-              ? "border-[#E8743B] text-[#E8743B]"
-              : "border-transparent text-[#6B6B6B] hover:text-[#1A1A1A]"
-          }`}
-        >
-          <ProductHuntIcon size={15} />
-          Product Hunt Import
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab("csv");
-            setTwitterSuccess(null);
-            setTwitterError(null);
-            setParseError(null);
-            setResult(null);
-            setPhError(null);
-            setPhSuccess(null);
-          }}
-          className={`px-5 py-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 -mb-px ${
-            activeTab === "csv"
-              ? "border-[#E8743B] text-[#E8743B]"
-              : "border-transparent text-[#6B6B6B] hover:text-[#1A1A1A]"
-          }`}
-        >
-          <Upload size={15} />
-          CSV Bulk Import
-        </button>
+      {/* Centered Segmented Tab Switcher */}
+      <div className="flex justify-center mb-10 shrink-0">
+        <div className="inline-flex gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm relative z-0">
+          {(
+            [
+              { value: "twitter", label: "Twitter/X", icon: TwitterIcon },
+              { value: "producthunt", label: "Product Hunt", icon: ProductHuntIcon },
+              { value: "csv", label: "CSV Bulk Import", icon: Upload },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => {
+                setActiveTab(tab.value);
+                setTwitterSuccess(null);
+                setTwitterError(null);
+                setParseError(null);
+                setResult(null);
+                setPhError(null);
+                setPhSuccess(null);
+              }}
+              className={`relative flex items-center gap-2 rounded-lg px-4.5 py-2.5 text-xs font-bold transition-all duration-300 z-10 cursor-pointer ${
+                activeTab === tab.value
+                  ? "text-white"
+                  : "text-[#6B6B6B] hover:text-[#1A1A1A]"
+              }`}
+            >
+              {activeTab === tab.value && (
+                <motion.div
+                  layoutId="active-import-tab"
+                  className="absolute inset-0 bg-[#E8743B] rounded-lg -z-10 shadow-sm"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                />
+              )}
+              <tab.icon size={13} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Twitter/X Import Panel */}
       {activeTab === "twitter" && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-              Twitter/X Import
-            </h2>
-            <p className="mt-2 text-sm text-[#6B6B6B]">
-              Paste a link to any public tweet to fetch details automatically.
-            </p>
-            <div className="mt-4 flex max-w-xl gap-2">
-              <input
-                type="text"
-                placeholder="https://x.com/username/status/123456789"
-                value={twitterUrl}
-                onChange={(e) => setTwitterUrl(e.target.value)}
-                className="flex-1 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2.5 text-sm text-[#1A1A1A] focus:border-[#E8743B] focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleFetchTwitter}
-                disabled={loadingTwitter}
-                className="flex items-center gap-1.5 rounded-lg bg-[#1A1A1A] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#E8743B] disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
-              >
-                {loadingTwitter && <Loader2 size={16} className="animate-spin" />}
-                Fetch Tweet
-              </button>
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-stretch items-start">
+          {/* Left Input Pane */}
+          <div className="lg:col-span-6 flex flex-col h-full space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B] pl-1">Import Source</h3>
+            <div className="flex-1 flex flex-col justify-between rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-[#6B6B6B] flex items-center gap-2 mb-1.5">
+                    <TwitterIcon size={14} />
+                    Twitter/X URL Importer
+                  </h2>
+                  <p className="text-xs text-[#6B6B6B]">
+                    Copy and paste the link to any public tweet to parse and format it automatically.
+                  </p>
+                  
+                  <div className="mt-4 flex flex-col gap-3">
+                    <input
+                      type="text"
+                      placeholder="https://x.com/username/status/123456789"
+                      value={twitterUrl}
+                      onChange={(e) => setTwitterUrl(e.target.value)}
+                      className="w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFetchTwitter}
+                      disabled={loadingTwitter}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3 text-sm font-bold text-white transition-all hover:bg-[#E8743B] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer active:scale-98"
+                    >
+                      {loadingTwitter && <Loader2 size={15} className="animate-spin" />}
+                      {loadingTwitter ? "Fetching Tweet Details..." : "Fetch Tweet"}
+                    </button>
+                  </div>
+                </div>
+
+                {twitterError && (
+                  <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-xs text-red-600">
+                    <AlertCircle size={16} />
+                    {twitterError}
+                  </div>
+                )}
+
+                {twitterSuccess && (
+                  <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-xs text-[#2E9E6B]">
+                    <CheckCircle2 size={16} />
+                    {twitterSuccess}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {twitterError && (
-            <p className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600 max-w-xl">
-              <AlertCircle size={16} />
-              {twitterError}
-            </p>
-          )}
-
-          {twitterSuccess && (
-            <p className="flex items-center gap-2 rounded-lg bg-[#2E9E6B]/10 px-3 py-2.5 text-sm text-[#268A5C] max-w-xl">
-              <CheckCircle2 size={16} />
-              {twitterSuccess}
-            </p>
-          )}
-
-          {twitterData && (
-            <div id="twitter-preview-card" className="max-w-xl rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/50 p-6 space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Testimonial Preview</h3>
-              <div className="rounded-xl border border-[#ECE7E0] bg-white p-5 space-y-3">
-                <div className="flex gap-0.5 text-amber-400 text-sm">
-                  {Array.from({ length: assignedRating }).map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-                <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">
-                  {twitterData.body}
-                </p>
-                <div className="flex items-center gap-3 border-t border-[#ECE7E0]/60 pt-3.5">
-                  {twitterData.avatar_url && (
-                    <img
-                      src={twitterData.avatar_url}
-                      alt={twitterData.author_name}
-                      className="h-10 w-10 rounded-full object-cover border border-[#ECE7E0]"
-                    />
-                  )}
+          {/* Right Live Stage Pane */}
+          <div className="lg:col-span-6 flex flex-col h-full space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B] pl-1">Live Testimonial Preview</h3>
+            
+            {twitterData ? (
+              <div id="twitter-preview-card" className="flex-1 rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/60 p-6 space-y-4 shadow-inner flex flex-col justify-between">
+                {/* Premium Tweet Card Mockup */}
+                <div className="rounded-xl border border-[#ECE7E0] bg-white p-6 space-y-4 shadow-sm relative flex-1 flex flex-col justify-between">
                   <div>
-                    <p className="text-sm font-bold text-[#1A1A1A]">
-                      {twitterData.author_name}
-                    </p>
-                    {twitterData.author_role && (
-                      <p className="text-xs text-[#6B6B6B]">
-                        {twitterData.author_role}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        {twitterData.avatar_url ? (
+                          <img
+                            src={twitterData.avatar_url}
+                            alt={twitterData.author_name}
+                            className="h-10 w-10 rounded-full object-cover border border-[#ECE7E0]"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-[#FAF8F5] border border-[#ECE7E0] flex items-center justify-center font-bold text-zinc-400">
+                            {twitterData.author_name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-bold text-[#1A1A1A] flex items-center gap-1">
+                            {twitterData.author_name}
+                            <span className="text-[#1DA1F2] text-xs">✓</span>
+                          </p>
+                          {twitterData.author_role && (
+                            <p className="text-xs text-[#6B6B6B] truncate max-w-[200px]">
+                              {twitterData.author_role}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[#1DA1F2]">
+                        <TwitterIcon size={18} />
+                      </span>
+                    </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#ECE7E0] pt-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#6B6B6B] font-medium">Assign Rating:</span>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setAssignedRating(n)}
-                        className="text-lg focus:outline-none px-0.5 transition-transform hover:scale-110"
-                      >
-                        <span className={n <= assignedRating ? "text-amber-400" : "text-[#ECE7E0]"}>
-                          ★
-                        </span>
-                      </button>
-                    ))}
+                    <div className="flex gap-0.5 text-amber-400 text-sm mt-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i} className={i < assignedRating ? "text-amber-400" : "text-[#ECE7E0]"}>★</span>
+                      ))}
+                    </div>
+
+                    <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap italic mt-4">
+                      &ldquo;{twitterData.body}&rdquo;
+                    </p>
                   </div>
                 </div>
-                
-                <button
-                  type="button"
-                  onClick={handleSaveTwitter}
-                  disabled={loadingTwitter}
-                  className="rounded-lg bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C]"
-                >
-                  Import Testimonial
-                </button>
+
+                {/* Stars and Import CTA */}
+                <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#ECE7E0] pt-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Rating:</span>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setAssignedRating(n)}
+                          className="text-lg focus:outline-none px-0.5 transition-transform hover:scale-120 cursor-pointer"
+                        >
+                          <span className={n <= assignedRating ? "text-amber-400" : "text-[#ECE7E0]"}>
+                            ★
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={handleSaveTwitter}
+                    disabled={loadingTwitter}
+                    className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
+                  >
+                    Import Testimonial
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            ) : (
+              /* Dotted Skeleton Awaiting state */
+              <div className="flex-1 rounded-2xl border-2 border-dashed border-[#ECE7E0] bg-[#FAF8F5]/30 p-12 text-center flex flex-col items-center justify-center min-h-[260px]">
+                <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 mb-3">
+                  <TwitterIcon size={18} />
+                </div>
+                <p className="text-sm font-bold text-zinc-700" style={{ fontFamily: "var(--font-display)" }}>
+                  Awaiting Tweet Link
+                </p>
+                <p className="text-xs text-zinc-500 mt-1 max-w-xs">
+                  Paste a public tweet URL in the input field on the left to review its content here.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Product Hunt Import Panel */}
       {activeTab === "producthunt" && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-              Product Hunt Import
-            </h2>
-            <p className="mt-2 text-sm text-[#6B6B6B]">
-              Paste the reviewer's profile URL or username, enter their name, and copy-paste the review text.
-            </p>
-          </div>
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-stretch items-start">
+          {/* Left Input Pane */}
+          <div className="lg:col-span-6 flex flex-col h-full space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B] pl-1">Import Source</h3>
+            <div className="flex-1 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm space-y-4 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-[#6B6B6B] flex items-center gap-2 mb-1.5">
+                    <ProductHuntIcon size={14} />
+                    Product Hunt Review
+                  </h2>
+                  <p className="text-xs text-[#6B6B6B]">
+                    Enter profile and testimonial details to render a mockup before importing.
+                  </p>
+                </div>
 
-          <div className="grid gap-6 md:grid-cols-2 max-w-4xl">
-            {/* Input Form */}
-            <div className="space-y-4 rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="ph_profile" className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">
-                  Product Hunt Profile / Username
-                </label>
-                <input
-                  id="ph_profile"
-                  type="text"
-                  placeholder="https://www.producthunt.com/@atish or @atish"
-                  value={phProfileUrl}
-                  onChange={(e) => setPhProfileUrl(e.target.value)}
-                  className="rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] focus:border-[#E8743B] focus:outline-none"
-                />
-                <p className="text-[11px] text-[#9CA3AF]">
-                  Automatically fetches their profile photo from Product Hunt.
-                </p>
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="ph_profile" className="text-xs font-bold uppercase tracking-wide text-[#1A1A1A]">
+                    Profile Link / Username
+                  </label>
+                  <input
+                    id="ph_profile"
+                    type="text"
+                    placeholder="https://www.producthunt.com/@atish or @atish"
+                    value={phProfileUrl}
+                    onChange={(e) => setPhProfileUrl(e.target.value)}
+                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="ph_name" className="text-xs font-bold uppercase tracking-wide text-[#1A1A1A]">
+                    Reviewer Name
+                  </label>
+                  <input
+                    id="ph_name"
+                    type="text"
+                    placeholder="Atish"
+                    value={phAuthorName}
+                    onChange={(e) => setPhAuthorName(e.target.value)}
+                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="ph_body" className="text-xs font-bold uppercase tracking-wide text-[#1A1A1A]">
+                    Testimonial Content
+                  </label>
+                  <textarea
+                    id="ph_body"
+                    placeholder="Copy and paste their review here..."
+                    rows={4}
+                    value={phBody}
+                    onChange={(e) => setPhBody(e.target.value)}
+                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 resize-none"
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="ph_name" className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">
-                  Reviewer Name
-                </label>
-                <input
-                  id="ph_name"
-                  type="text"
-                  placeholder="Atish"
-                  value={phAuthorName}
-                  onChange={(e) => setPhAuthorName(e.target.value)}
-                  className="rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] focus:border-[#E8743B] focus:outline-none"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="ph_body" className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">
-                  Testimonial Body
-                </label>
-                <textarea
-                  id="ph_body"
-                  placeholder="Copy and paste their review here..."
-                  rows={4}
-                  value={phBody}
-                  onChange={(e) => setPhBody(e.target.value)}
-                  className="rounded-lg border border-[#ECE7E0] px-3 py-2 text-sm text-[#1A1A1A] focus:border-[#E8743B] focus:outline-none resize-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-between border-t border-[#ECE7E0] pt-4 flex-wrap gap-3">
+              <div className="flex items-center justify-between border-t border-[#ECE7E0] pt-4 flex-wrap gap-3 mt-auto">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#6B6B6B] font-medium">Rating:</span>
-                  <div className="flex">
+                  <span className="text-xs font-bold uppercase tracking-wide text-[#6B6B6B]">Rating:</span>
+                  <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
                         key={n}
                         type="button"
                         onClick={() => setPhRating(n)}
-                        className="text-lg focus:outline-none px-0.5 transition-transform hover:scale-110"
-                        aria-label={`Rate ${n} stars`}
+                        className="text-lg focus:outline-none px-0.5 transition-transform hover:scale-120 cursor-pointer"
                       >
                         <span className={n <= phRating ? "text-amber-400" : "text-[#ECE7E0]"}>
                           ★
@@ -578,183 +627,247 @@ export default function ImportPanel() {
                   type="button"
                   onClick={handleSaveProductHunt}
                   disabled={phLoading || !phAuthorName.trim() || !phBody.trim()}
-                  className="rounded-lg bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                 >
-                  {phLoading ? "Saving..." : "Import Testimonial"}
+                  {phLoading ? "Saving..." : "Import Review"}
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* Live Preview Card */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Live Preview</h3>
-              <div id="ph-preview-card" className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/50 p-6 space-y-4">
-                <div className="rounded-xl border border-[#ECE7E0] bg-white p-5 space-y-3 shadow-sm">
-                  <div className="flex gap-0.5 text-amber-400 text-sm">
-                    {Array.from({ length: phRating }).map((_, i) => (
-                      <span key={i}>★</span>
-                    ))}
-                  </div>
-                  <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap min-h-[4rem]">
-                    {phBody || "Review content will appear here..."}
-                  </p>
-                  <div className="flex items-center gap-3 border-t border-[#ECE7E0]/60 pt-3.5">
-                    <div className="h-10 w-10 shrink-0 rounded-full border border-[#ECE7E0] overflow-hidden bg-[#FAF8F5] flex items-center justify-center font-bold text-[#DA552F]">
-                      {phAvatarUrl ? (
-                        <img
-                          src={phAvatarUrl}
-                          alt={phAuthorName || "User"}
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        (phAuthorName || "?").charAt(0).toUpperCase()
-                      )}
+          {/* Right Live Stage Pane */}
+          <div className="lg:col-span-6 flex flex-col h-full space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B] pl-1">Live Testimonial Preview</h3>
+            
+            {phAuthorName.trim() || phBody.trim() ? (
+              <div id="ph-preview-stage" className="flex-1 rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/60 p-6 space-y-4 shadow-inner flex flex-col justify-between">
+                {/* Premium Product Hunt Review Mockup Card */}
+                <div className="rounded-xl border border-[#ECE7E0] bg-white p-6 space-y-4 shadow-sm relative flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 shrink-0 rounded-full border border-[#ECE7E0] overflow-hidden bg-[#FAF8F5] flex items-center justify-center font-bold text-[#DA552F]">
+                          {phAvatarUrl ? (
+                            <img
+                              src={phAvatarUrl}
+                              alt={phAuthorName || "User"}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            (phAuthorName || "?").charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-[#1A1A1A]">
+                            {phAuthorName || "Reviewer Name"}
+                          </p>
+                          <p className="text-xs text-[#6B6B6B] truncate max-w-[200px]">
+                            {phUsername ? `@${phUsername} on Product Hunt` : "Product Hunt User"}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[#DA552F]">
+                        <ProductHuntIcon size={18} />
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-[#1A1A1A]">
-                        {phAuthorName || "Reviewer Name"}
-                      </p>
-                      <p className="text-xs text-[#6B6B6B]">
-                        {phUsername ? `@${phUsername} on Product Hunt` : "Product Hunt User"}
-                      </p>
+
+                    <div className="flex gap-0.5 text-amber-400 text-sm mt-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i} className={i < phRating ? "text-amber-400" : "text-[#ECE7E0]"}>★</span>
+                      ))}
                     </div>
+
+                    <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap italic mt-4 min-h-[4rem]">
+                      &ldquo;{phBody || "Review content will appear here..."}&rdquo;
+                    </p>
                   </div>
                 </div>
 
                 {phError && (
-                  <p className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">
+                  <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-xs text-red-600">
                     <AlertCircle size={16} />
                     {phError}
-                  </p>
+                  </div>
                 )}
 
                 {phSuccess && (
-                  <p className="flex items-center gap-2 rounded-lg bg-[#2E9E6B]/10 px-3 py-2.5 text-sm text-[#268A5C]">
+                  <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-xs text-[#2E9E6B]">
                     <CheckCircle2 size={16} />
                     {phSuccess}
-                  </p>
+                  </div>
                 )}
               </div>
-            </div>
+            ) : (
+              /* Dotted Skeleton awaiting state */
+              <div className="flex-1 rounded-2xl border-2 border-dashed border-[#ECE7E0] bg-[#FAF8F5]/30 p-12 text-center flex flex-col items-center justify-center min-h-[260px]">
+                <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center text-[#DA552F]/20 mb-3">
+                  <ProductHuntIcon size={18} />
+                </div>
+                <p className="text-sm font-bold text-zinc-700" style={{ fontFamily: "var(--font-display)" }}>
+                  Awaiting Review Info
+                </p>
+                <p className="text-xs text-zinc-500 mt-1 max-w-xs">
+                  Fill in the reviewer name or testimonial content on the left to preview the mock card here.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* CSV Bulk Import Panel */}
       {activeTab === "csv" && (
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-            CSV import
-          </h2>
-          <p className="mt-2 text-sm text-[#6B6B6B]">
-            Bulk-add testimonials by uploading a CSV file.
-          </p>
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-3 max-w-4xl">
+            {/* Guide Card */}
+            <div className="md:col-span-1 rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/60 p-5 space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wide text-[#1A1A1A] flex items-center gap-1.5">
+                <HelpCircle size={15} className="text-[#E8743B]" />
+                Formatting Guide
+              </h3>
+              <p className="text-xs text-[#6B6B6B] leading-relaxed">
+                Make sure your CSV file has a header row with columns matching exactly:
+              </p>
+              <div className="rounded-xl border border-[#ECE7E0] bg-white p-3.5 font-mono text-[10px] text-[#1A1A1A] space-y-1.5 shadow-sm">
+                <p><strong className="text-[#E8743B]">name:</strong> Author name</p>
+                <p><strong>role:</strong> Subtitle/Title (opt)</p>
+                <p><strong className="text-[#E8743B]">testimonial:</strong> Review text</p>
+                <p><strong>rating:</strong> Number 1-5 (opt)</p>
+              </div>
+            </div>
 
-          <div className="mt-4 rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] p-4 max-w-xl">
-            <p className="text-sm font-medium text-[#1A1A1A]">
-              Expected columns
-            </p>
-            <code className="mt-2 block overflow-x-auto rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 font-mono text-xs text-[#1A1A1A]">
-              name, role, testimonial, rating
-            </code>
-          </div>
+            {/* Upload Zone Card */}
+            <div className="md:col-span-2 space-y-4">
+              {/* Drag and Drop Zone */}
+              <div
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all ${
+                  dragActive
+                    ? "border-[#E8743B] bg-[#FFF4EE]/20 scale-[0.99]"
+                    : "border-[#ECE7E0] bg-white hover:border-[#E8743B]/60"
+                }`}
+              >
+                <div className="h-12 w-12 rounded-full bg-[#FFF4EE] text-[#E8743B] flex items-center justify-center mb-3">
+                  <Upload size={22} />
+                </div>
+                <p className="text-sm font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
+                  Drag &amp; drop your CSV file here
+                </p>
+                <p className="text-xs text-[#6B6B6B] mt-1 mb-4">
+                  or upload it manually from your device
+                </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]">
-              <Upload size={15} />
-              Upload CSV
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleFile}
-                className="sr-only"
-              />
-            </label>
-            <a
-              href="/sample-testimonials.csv"
-              download
-              className="flex items-center gap-1.5 rounded-lg border border-[#ECE7E0] bg-white px-4 py-2 text-sm font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A]"
-            >
-              <Download size={15} />
-              Download sample CSV
-            </a>
-            {fileName && <span className="text-sm text-[#6B6B6B]">{fileName}</span>}
-          </div>
-
-          {parseError && (
-            <p className="mt-4 flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600 max-w-xl">
-              <AlertCircle size={16} />
-              {parseError}
-            </p>
-          )}
-
-          {result !== null && (
-            <p className="mt-4 flex items-center gap-2 rounded-lg bg-[#2E9E6B]/10 px-3 py-2.5 text-sm text-[#268A5C] max-w-xl">
-              <CheckCircle2 size={16} />
-              Successfully imported {result} testimonial{result === 1 ? "" : "s"}.
-            </p>
-          )}
-
-          {rows.length > 0 && (
-            <div className="mt-6">
-              <div className="overflow-x-auto rounded-lg border border-[#ECE7E0]">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#FAF8F5] text-xs uppercase tracking-wider text-[#6B6B6B]">
-                    <tr>
-                      <th className="px-4 py-2.5 font-semibold">Name</th>
-                      <th className="px-4 py-2.5 font-semibold">Role</th>
-                      <th className="px-4 py-2.5 font-semibold">Testimonial</th>
-                      <th className="px-4 py-2.5 font-semibold">Rating</th>
-                      <th className="px-4 py-2.5 font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#ECE7E0]">
-                    {rows.map((row, i) => (
-                      <tr key={i} className={row.valid ? "" : "bg-red-50/50"}>
-                        <td className="px-4 py-2.5 text-[#1A1A1A]">
-                          {row.author_name || "—"}
-                        </td>
-                        <td className="px-4 py-2.5 text-[#6B6B6B]">
-                          {row.author_role || "—"}
-                        </td>
-                        <td className="max-w-xs truncate px-4 py-2.5 text-[#6B6B6B]">
-                          {row.body || "—"}
-                        </td>
-                        <td className="px-4 py-2.5 text-[#6B6B6B]">
-                          {row.rating ?? "—"}
-                        </td>
-                        <td className="px-4 py-2.5">
-                          {row.valid ? (
-                            <span className="text-[#2E9E6B]">Ready</span>
-                          ) : (
-                            <span className="text-red-500">{row.issue}</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#ECE7E0] bg-white px-4 py-2 text-xs font-bold text-[#1A1A1A] shadow-sm transition-colors hover:border-[#1A1A1A]/20">
+                    Choose File
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFile}
+                      className="sr-only"
+                    />
+                  </label>
+                  <a
+                    href="/sample-testimonials.csv"
+                    download
+                    className="flex items-center gap-1.5 rounded-xl bg-[#FAF8F5] border border-[#ECE7E0] px-4 py-2 text-xs font-bold text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20"
+                  >
+                    <Download size={13} />
+                    Get Template CSV
+                  </a>
+                </div>
+                {fileName && (
+                  <div className="mt-4 flex items-center gap-1.5 rounded-lg bg-[#FAF8F5] border border-[#ECE7E0] px-3.5 py-1.5 text-xs font-semibold text-[#1A1A1A]">
+                    <FileText size={12} className="text-[#E8743B]" />
+                    {fileName}
+                  </div>
+                )}
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-3">
+              {parseError && (
+                <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-xs text-red-600">
+                  <AlertCircle size={16} />
+                  {parseError}
+                </div>
+              )}
+
+              {result !== null && (
+                <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-xs text-[#2E9E6B]">
+                  <CheckCircle2 size={16} />
+                  Successfully imported {result} testimonial{result === 1 ? "" : "s"}.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Parsed Rows Data Grid Table */}
+          {rows.length > 0 && (
+            <div className="mt-8 space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Parse Results</h3>
+              <div className="overflow-hidden rounded-2xl border border-[#ECE7E0] bg-white shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#FAF8F5] text-zinc-500 border-b border-[#ECE7E0] uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="px-4 py-3">Name</th>
+                        <th className="px-4 py-3">Role</th>
+                        <th className="px-4 py-3">Testimonial</th>
+                        <th className="px-4 py-3">Rating</th>
+                        <th className="px-4 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#ECE7E0]">
+                      {rows.map((row, i) => (
+                        <tr key={i} className={row.valid ? "hover:bg-[#FAF8F5]/45" : "bg-red-50/20 hover:bg-red-50/30"}>
+                          <td className="px-4 py-3 font-semibold text-[#1A1A1A] max-w-[120px] truncate">
+                            {row.author_name || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[#6B6B6B] max-w-[120px] truncate">
+                            {row.author_role || "—"}
+                          </td>
+                          <td className="max-w-xs truncate px-4 py-3 text-[#6B6B6B]">
+                            {row.body || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[#6B6B6B]">
+                            {row.rating ?? "—"}
+                          </td>
+                          <td className="px-4 py-3">
+                            {row.valid ? (
+                              <span className="inline-flex rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-[#2E9E6B] border border-green-200">Ready</span>
+                            ) : (
+                              <span className="inline-flex rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 border border-red-100">{row.issue}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Import Trigger Controls */}
+              <div className="flex flex-wrap items-center gap-3 border-t border-[#ECE7E0]/60 pt-4">
                 <button
                   type="button"
                   onClick={handleImport}
                   disabled={importing || validRows.length === 0}
-                  className="rounded-lg bg-[#E8743B] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-40 flex items-center gap-2 cursor-pointer shadow-sm"
                 >
+                  {importing && <Loader2 size={14} className="animate-spin" />}
                   {importing
                     ? "Importing…"
-                    : `Import ${validRows.length} testimonial${validRows.length === 1 ? "" : "s"}`}
+                    : `Import ${validRows.length} Testimonial${validRows.length === 1 ? "" : "s"}`}
                 </button>
                 {rows.length !== validRows.length && (
-                  <span className="text-sm text-[#6B6B6B]">
-                    {rows.length - validRows.length} row
-                    {rows.length - validRows.length === 1 ? "" : "s"} skipped due to errors
+                  <span className="text-xs text-[#6B6B6B] font-medium">
+                    {rows.length - validRows.length} row{rows.length - validRows.length === 1 ? "" : "s"} will be skipped due to validation errors.
                   </span>
                 )}
               </div>

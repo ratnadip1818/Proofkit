@@ -89,6 +89,28 @@ export default function WidgetClientWrapper({
     });
   }, [isLifetime]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === "proofkit-config-update") {
+        setConfig((prev) => ({
+          ...prev,
+          ...event.data.config,
+        }));
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Notify parent window that the preview widget wrapper is mounted and ready to receive updates
+    window.parent.postMessage({ type: "proofkit-preview-ready" }, "*");
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
   // Use config values
   const {
     isDemo,
@@ -115,7 +137,7 @@ export default function WidgetClientWrapper({
   const layout = "grid";
 
   return (
-    <>
+    <div id="proofkit-widget-wrapper" style={{ width: "100%", overflow: "hidden" }}>
       {type === "carousel" ? (
         <CarouselContent
           testimonials={list}
@@ -195,8 +217,10 @@ export default function WidgetClientWrapper({
           __html: `
             let lastWidth = window.innerWidth;
             function sendHeight() {
+              const el = document.getElementById("proofkit-widget-wrapper");
+              const height = el ? el.offsetHeight : document.body.scrollHeight;
               window.parent.postMessage(
-                { type: "proofkit-resize", height: document.body.scrollHeight },
+                { type: "proofkit-resize", height: height },
                 "*"
               );
             }
@@ -219,9 +243,22 @@ export default function WidgetClientWrapper({
               }
             });
             if (document.fonts) document.fonts.ready.then(sendHeight);
+
+            // Forward wheel events to the parent window for smooth scrolling
+            window.addEventListener("wheel", (e) => {
+              window.parent.postMessage(
+                {
+                  type: "proofkit-wheel",
+                  deltaX: e.deltaX,
+                  deltaY: e.deltaY,
+                  deltaMode: e.deltaMode
+                },
+                "*"
+              );
+            }, { passive: true });
           `,
         }}
       />
-    </>
+    </div>
   );
 }

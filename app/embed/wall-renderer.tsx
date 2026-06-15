@@ -70,7 +70,14 @@ export function buildStyle(
 }
 
 
-const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const FONT = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+const sendWidgetHeight = () => {
+  if (typeof window === "undefined") return;
+  const el = document.getElementById("proofkit-widget-wrapper");
+  const height = el ? el.offsetHeight : document.body.scrollHeight;
+  window.parent.postMessage({ type: "proofkit-resize", height }, "*");
+};
 
 export const THEME: Record<WallTheme, ThemeColors> = {
   light: {
@@ -104,12 +111,12 @@ export const THEME: Record<WallTheme, ThemeColors> = {
     badgeBg: "#1F1F28",
     badgeBorder: "#2A2A35",
     badgeText: "#a1a1aa",
-    starOn: "#ffffff",
-    starOff: "#3f3f46",
+    starOn: "#f59e0b",
+    starOff: "#2A2A35",
     avatarBg: "#2A2A35",
     avatarText: "#ffffff",
     accent: "#E8743B",
-    dotInactive: "#3f3f46",
+    dotInactive: "#2A2A35",
     arrowBg: "#1F1F28",
     arrowText: "#ffffff",
   },
@@ -120,11 +127,28 @@ function truncate(text: string, max: number) {
   return text.slice(0, max).trimEnd() + "…";
 }
 
+const StarIcon = ({ fill, color, size }: { fill: string; color: string; size: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={fill}
+    stroke={color}
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ display: "block" }}
+  >
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </svg>
+);
+
 function Stars({
   rating,
   colors,
-  size = 16,
-  marginBottom = 10,
+  size = 14,
+  marginBottom = 12,
 }: {
   rating: number;
   colors: ThemeColors;
@@ -132,18 +156,19 @@ function Stars({
   marginBottom?: number;
 }) {
   return (
-    <div style={{ display: "flex", gap: "2px", marginBottom }}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span
-          key={n}
-          style={{
-            color: n <= rating ? colors.starOn : colors.starOff,
-            fontSize: size,
-          }}
-        >
-          ★
-        </span>
-      ))}
+    <div style={{ display: "flex", gap: "3px", marginBottom }}>
+      {[1, 2, 3, 4, 5].map((n) => {
+        const isLit = n <= rating;
+        return (
+          <div key={n}>
+            <StarIcon
+              size={size}
+              fill={isLit ? colors.starOn : "transparent"}
+              color={isLit ? colors.starOn : colors.starOff}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -153,56 +178,116 @@ function Avatar({
   avatarUrl,
   colors,
   size = 40,
+  source,
 }: {
   name: string;
   avatarUrl?: string | null;
   colors: ThemeColors;
   size?: number;
+  source?: string | null;
 }) {
-  if (avatarUrl) {
-    let optimizedUrl = avatarUrl;
-    if (avatarUrl.includes("/storage/v1/object/public/avatars/")) {
-      const doubleSize = size * 2;
-      optimizedUrl = `${avatarUrl}?width=${doubleSize}&height=${doubleSize}&resize=contain`;
-    }
+  const renderAvatarContent = () => {
+    if (avatarUrl) {
+      let optimizedUrl = avatarUrl;
+      if (avatarUrl.includes("/storage/v1/object/public/avatars/")) {
+        const doubleSize = size * 2;
+        optimizedUrl = `${avatarUrl}?width=${doubleSize}&height=${doubleSize}&resize=contain`;
+      }
 
+      return (
+        <img
+          src={optimizedUrl}
+          alt={name}
+          width={size}
+          height={size}
+          loading="lazy"
+          style={{
+            width: size,
+            height: size,
+            borderRadius: "50%",
+            objectFit: "cover",
+            flexShrink: 0,
+            border: `1px solid ${colors.cardBorder}`,
+          }}
+        />
+      );
+    }
+    const initial = name.trim().charAt(0).toUpperCase() || "?";
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={optimizedUrl}
-        alt={name}
-        width={size}
-        height={size}
-        loading="lazy"
+      <div
         style={{
           width: size,
           height: size,
           borderRadius: "50%",
-          objectFit: "cover",
+          background: colors.avatarBg,
+          color: colors.avatarText,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: size * 0.4,
+          fontWeight: 700,
           flexShrink: 0,
           border: `1px solid ${colors.cardBorder}`,
         }}
-      />
+      >
+        {initial}
+      </div>
     );
-  }
-  const initial = name.trim().charAt(0).toUpperCase() || "?";
+  };
+
+  const isTwitter = source === "twitter" || avatarUrl?.includes("twimg.com");
+  const isProductHunt = source === "producthunt" || avatarUrl?.includes("unavatar.io/producthunt");
+
   return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: colors.avatarBg,
-        color: colors.avatarText,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: size * 0.4,
-        fontWeight: 700,
-        flexShrink: 0,
-      }}
-    >
-      {initial}
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      {renderAvatarContent()}
+      {isTwitter && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-3px",
+            right: "-3px",
+            background: "#000000",
+            color: "#ffffff",
+            borderRadius: "50%",
+            width: Math.max(14, size * 0.38),
+            height: Math.max(14, size * 0.38),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1.5px solid #ffffff",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          }}
+        >
+          <svg width={Math.max(8, size * 0.22)} height={Math.max(8, size * 0.22)} viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+        </div>
+      )}
+      {isProductHunt && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-3px",
+            right: "-3px",
+            background: "#DA552F",
+            color: "#ffffff",
+            borderRadius: "50%",
+            width: Math.max(14, size * 0.38),
+            height: Math.max(14, size * 0.38),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1.5px solid #ffffff",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          }}
+        >
+          <svg width={Math.max(8, size * 0.22)} height={Math.max(8, size * 0.22)} viewBox="0 0 40 40" fill="currentColor">
+            <circle cx="20" cy="20" r="20" fill="#DA552F" />
+            <path d="M19 13H15v14h4v-5h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm0 6h-4v-3h4c1.1 0 2 .9 2 2s-.9 2-2 2z" fill="white" />
+          </svg>
+        </div>
+      )}
     </div>
   );
 }
@@ -315,17 +400,22 @@ function TestimonialCard({
         aria-hidden="true"
         style={{
           position: "absolute",
-          top: "6px",
+          top: "14px",
           right: "14px",
-          fontSize: "52px",
-          lineHeight: 1,
-          fontFamily: "Georgia, serif",
           color: colors.accent,
-          opacity: 0.14,
+          opacity: 0.08,
           pointerEvents: "none",
         }}
       >
-        ”
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M11.1 14.1H8.3c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3zM20.1 14.1h-2.8c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3z" />
+        </svg>
       </span>
       {showRatings && t.rating !== null && (
         <Stars rating={t.rating} colors={colors} />
@@ -389,7 +479,7 @@ function TestimonialCard({
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={34} />
+        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={34} source={t.source} />
         <div style={{ minWidth: 0 }}>
           <p
             style={{
@@ -462,8 +552,6 @@ function TestimonialModal({
         bottom: 0,
         zIndex: 99999,
         background: "rgba(0, 0, 0, 0.45)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -570,7 +658,7 @@ function TestimonialModal({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px", borderTop: `1px solid ${colors.cardBorder}`, paddingTop: "20px" }}>
-          <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={40} />
+          <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={40} source={t.source} />
           <div style={{ minWidth: 0 }}>
             <p
               style={{
@@ -662,15 +750,11 @@ export function WallContent({
   const startIndex = pageIndex * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
   const renderedList = filteredList.slice(startIndex, endIndex);
-
   // Whenever selectedTag, filteredList.length, pageIndex or pageSize changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
-        window.parent.postMessage(
-          { type: "proofkit-resize", height: document.body.scrollHeight },
-          "*"
-        );
+        sendWidgetHeight();
       }, 100);
       return () => clearTimeout(timer);
     }
@@ -852,27 +936,7 @@ export function WallContent({
   );
 }
 
-function arrowStyle(side: "left" | "right", colors: ThemeColors): CSSProperties {
-  const base: CSSProperties = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: 32,
-    height: 32,
-    borderRadius: "50%",
-    border: `1px solid ${colors.cardBorder}`,
-    background: colors.arrowBg,
-    color: colors.arrowText,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    fontSize: 18,
-    lineHeight: 1,
-    padding: 0,
-  };
-  return side === "left" ? { ...base, left: 8 } : { ...base, right: 8 };
-}
+// Helper function arrowStyle removed since controls are now flanking the indicator dots
 
 export function CarouselContent({
   testimonials,
@@ -911,10 +975,7 @@ export function CarouselContent({
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      window.parent.postMessage(
-        { type: "proofkit-resize", height: document.body.scrollHeight },
-        "*"
-      );
+      sendWidgetHeight();
     }, 450);
     return () => clearTimeout(timeout);
   }, [index]);
@@ -986,23 +1047,27 @@ export function CarouselContent({
                     }}
                   >
                     <span
-                      aria-hidden="true"
                       style={{
                         position: "absolute",
-                        top: "6px",
-                        right: "18px",
-                        fontSize: "64px",
-                        lineHeight: 1,
-                        fontFamily: "Georgia, serif",
+                        top: "14px",
+                        right: "14px",
                         color: colors.accent,
-                        opacity: 0.14,
+                        opacity: 0.08,
                         pointerEvents: "none",
                       }}
                     >
-                      ”
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M11.1 14.1H8.3c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3zM20.1 14.1h-2.8c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3z" />
+                      </svg>
                     </span>
                     <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}>
-                      <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} />
+                      <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} />
                     </div>
                     {showRatings && t.rating !== null && (
                       <div style={{ display: "flex", justifyContent: "center", marginBottom: "4px" }}>
@@ -1087,52 +1152,88 @@ export function CarouselContent({
           </div>
         </div>
 
-        {testimonials.length > 1 && (
-          <>
-            <button
-              type="button"
-              className="blovi-arrow"
-              onClick={() =>
-                setIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
-              }
-              aria-label="Previous testimonial"
-              style={arrowStyle("left", colors)}
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              className="blovi-arrow"
-              onClick={() => setIndex((i) => (i + 1) % testimonials.length)}
-              aria-label="Next testimonial"
-              style={arrowStyle("right", colors)}
-            >
-              ›
-            </button>
-          </>
-        )}
       </div>
 
       {testimonials.length > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "16px" }}>
-          {testimonials.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setIndex(i)}
-              aria-label={`Go to testimonial ${i + 1}`}
-              style={{
-                width: i === safeIndex ? 18 : 8,
-                height: 8,
-                borderRadius: "4px",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                background: i === safeIndex ? colors.accent : colors.dotInactive,
-                transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-            />
-          ))}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "16px",
+            marginTop: "16px",
+          }}
+        >
+          <button
+            type="button"
+            className="blovi-arrow"
+            onClick={() =>
+              setIndex((i) => (i - 1 + testimonials.length) % testimonials.length)
+            }
+            aria-label="Previous testimonial"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: `1px solid ${colors.cardBorder}`,
+              background: colors.arrowBg,
+              color: colors.arrowText,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: 16,
+              lineHeight: 1,
+              padding: 0,
+            }}
+          >
+            ‹
+          </button>
+
+          <div style={{ display: "flex", gap: "6px" }}>
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Go to testimonial ${i + 1}`}
+                style={{
+                  width: i === safeIndex ? 18 : 8,
+                  height: 8,
+                  borderRadius: "4px",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  background: i === safeIndex ? colors.accent : colors.dotInactive,
+                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="blovi-arrow"
+            onClick={() => setIndex((i) => (i + 1) % testimonials.length)}
+            aria-label="Next testimonial"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: `1px solid ${colors.cardBorder}`,
+              background: colors.arrowBg,
+              color: colors.arrowText,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: 16,
+              lineHeight: 1,
+              padding: 0,
+            }}
+          >
+            ›
+          </button>
         </div>
       )}
 
@@ -1191,10 +1292,7 @@ export function MarqueeContent({
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
-        window.parent.postMessage(
-          { type: "proofkit-resize", height: document.body.scrollHeight },
-          "*"
-        );
+        sendWidgetHeight();
       }, 450);
       return () => clearTimeout(timer);
     }
@@ -1351,16 +1449,22 @@ export function SingleQuoteContent({
           <span
             aria-hidden="true"
             style={{
-              fontSize: "64px",
-              lineHeight: 1,
-              fontFamily: "Georgia, serif",
               color: colors.accent,
-              opacity: 0.2,
+              opacity: 0.08,
               display: "block",
-              marginBottom: "8px",
+              marginBottom: "16px",
             }}
           >
-            “
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ margin: "0 auto" }}
+            >
+              <path d="M11.1 14.1H8.3c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3zM20.1 14.1h-2.8c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3z" />
+            </svg>
           </span>
           <p
             style={{
@@ -1381,7 +1485,7 @@ export function SingleQuoteContent({
           )}
           <div style={{ width: "48px", height: "1px", background: colors.cardBorder, margin: "0 auto 20px auto" }} />
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-            <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={44} />
+            <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={44} source={testimonial.source} />
             <div>
               <p
                 style={{
@@ -1440,17 +1544,22 @@ export function SingleQuoteContent({
           aria-hidden="true"
           style={{
             position: "absolute",
-            top: "-10px",
-            left: "16px",
-            fontSize: "80px",
-            lineHeight: 1,
-            fontFamily: "Georgia, serif",
+            top: "14px",
+            left: "14px",
             color: colors.accent,
-            opacity: 0.12,
+            opacity: 0.08,
             pointerEvents: "none",
           }}
         >
-          “
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M11.1 14.1H8.3c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3zM20.1 14.1h-2.8c-.2-1.7.5-3.3 2-3.9V8c-2.9.8-4.7 3.4-4.3 6.6.3 2.6 2.3 4.4 4.9 4.4h.2c1.7 0 3.1-1.4 3.1-3.1v-.8c0-1.7-1.4-3-3.1-3z" />
+          </svg>
         </span>
         <p
           style={{
@@ -1470,7 +1579,7 @@ export function SingleQuoteContent({
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginTop: "8px" }}>
-          <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={38} />
+          <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={38} source={testimonial.source} />
           <div style={{ textAlign: "left" }}>
             <p
               style={{

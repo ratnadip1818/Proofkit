@@ -30,7 +30,7 @@ export default async function EmbedPage({
     supabase
       .from("testimonials")
       .select(
-        "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url, tags"
+        "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url, tags, source"
       )
       .eq("user_id", widgetId)
       .eq("status", "approved")
@@ -71,13 +71,16 @@ export default async function EmbedPage({
           transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1), background-color .25s ease, border-color .25s ease;
         }
         .blovi-arrow:hover {
-          transform: translateY(-50%) scale(1.08) !important;
+          transform: scale(1.06);
+        }
+        .blovi-arrow:active {
+          transform: scale(0.94);
         }
         @media (prefers-reduced-motion: reduce) {
           .blovi-card { transition: none; animation: none; }
           .blovi-card:hover { transform: none; box-shadow: none; }
           .blovi-arrow { transition: none; }
-          .blovi-arrow:hover { transform: translateY(-50%) none !important; }
+          .blovi-arrow:hover { transform: none !important; }
         }
       `}</style>
 

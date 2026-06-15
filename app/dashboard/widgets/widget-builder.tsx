@@ -137,6 +137,80 @@ export default function WidgetBuilder({
   const previewList = usingSamples ? SAMPLE_TESTIMONIALS : testimonials;
   const featured = previewList[featuredIndex] ?? previewList[0] ?? null;
 
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isPreviewReady, setIsPreviewReady] = useState(false);
+
+  // Capture the initial embed URL on first render only
+  const initialEmbedUrlRef = useRef<string | null>(null);
+  if (!initialEmbedUrlRef.current) {
+    const initialParams = new URLSearchParams();
+    initialParams.set("type", widgetType);
+    if (widgetType === "wall") {
+      initialParams.set("layout", "grid");
+      initialParams.set("max", max);
+    } else if (widgetType === "single") {
+      initialParams.set("layout", layout);
+      initialParams.set("featured", String(featuredIndex));
+    }
+    initialParams.set("theme", theme);
+    initialParams.set("ratings", showRatings ? "true" : "false");
+    if (accent !== DEFAULT_ACCENT) initialParams.set("accent", accent.replace("#", ""));
+    if (radius !== "rounded") initialParams.set("radius", radius);
+    if (isLifetime) initialParams.set("badge", showBadge ? "true" : "false");
+    if (usingSamples) initialParams.set("demo", "1");
+    initialEmbedUrlRef.current = `/embed/${userId}?${initialParams.toString()}`;
+  }
+  const initialEmbedUrl = initialEmbedUrlRef.current;
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === "proofkit-preview-ready") {
+        setIsPreviewReady(true);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!iframeRef.current?.contentWindow) return;
+
+    const config = {
+      isDemo: usingSamples,
+      requestedType: widgetType,
+      theme,
+      showRatings,
+      maxCount: max === "all" ? null : Number(max),
+      featuredIndex,
+      accent: accent === DEFAULT_ACCENT ? undefined : accent,
+      radius,
+      singleLayout: layout === "minimal" ? "minimal" : "card",
+      showBadge: badgeOn,
+    };
+
+    iframeRef.current.contentWindow.postMessage(
+      {
+        type: "proofkit-config-update",
+        config,
+      },
+      "*"
+    );
+  }, [
+    isPreviewReady,
+    usingSamples,
+    widgetType,
+    theme,
+    showRatings,
+    max,
+    featuredIndex,
+    accent,
+    radius,
+    layout,
+    badgeOn,
+  ]);
+
   const params = new URLSearchParams();
   params.set("type", widgetType);
   if (widgetType === "wall") {
@@ -197,49 +271,51 @@ export default function WidgetBuilder({
 
   return (
     <div className="lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
-      {/* Sliding Segmented Widget Switcher */}
-      <div className="mb-6 shrink-0 inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm relative z-0">
-        {WIDGET_TYPES.map((t) => {
-          const typeLocked = !isLifetime && t.value !== "wall";
-          if (typeLocked) {
+      {/* Centered Segmented Widget Switcher */}
+      <div className="flex justify-center mb-6 shrink-0">
+        <div className="inline-flex flex-wrap gap-1 rounded-xl border border-[#ECE7E0] bg-white p-1 shadow-sm relative z-0">
+          {WIDGET_TYPES.map((t) => {
+            const typeLocked = !isLifetime && t.value !== "wall";
+            if (typeLocked) {
+              return (
+                <PaddleCheckout
+                  key={t.value}
+                  email={email}
+                  className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-[#9CA3AF] transition-all duration-200 hover:bg-[#FFF4EE] hover:text-[#E8743B] cursor-pointer"
+                >
+                  <t.icon size={15} />
+                  {t.label}
+                  <span className="flex items-center gap-1 rounded-full bg-[#E8743B]/10 px-2 py-0.5 text-[10px] font-bold text-[#E8743B]">
+                    <Lock size={9} />
+                    Unlock
+                  </span>
+                </PaddleCheckout>
+              );
+            }
             return (
-              <PaddleCheckout
+              <button
                 key={t.value}
-                email={email}
-                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-[#9CA3AF] transition-all duration-200 hover:bg-[#FFF4EE] hover:text-[#E8743B] cursor-pointer"
+                type="button"
+                onClick={() => setWidgetType(t.value)}
+                className={`relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 z-10 ${
+                  widgetType === t.value
+                    ? "text-white"
+                    : "text-[#6B6B6B] hover:text-[#1A1A1A]"
+                }`}
               >
+                {widgetType === t.value && (
+                  <motion.div
+                    layoutId="active-widget-type"
+                    className="absolute inset-0 bg-[#E8743B] rounded-lg -z-10 shadow-sm"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
                 <t.icon size={15} />
                 {t.label}
-                <span className="flex items-center gap-1 rounded-full bg-[#E8743B]/10 px-2 py-0.5 text-[10px] font-bold text-[#E8743B]">
-                  <Lock size={9} />
-                  Unlock
-                </span>
-              </PaddleCheckout>
+              </button>
             );
-          }
-          return (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => setWidgetType(t.value)}
-              className={`relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 z-10 ${
-                widgetType === t.value
-                  ? "text-white"
-                  : "text-[#6B6B6B] hover:text-[#1A1A1A]"
-              }`}
-            >
-              {widgetType === t.value && (
-                <motion.div
-                  layoutId="active-widget-type"
-                  className="absolute inset-0 bg-[#E8743B] rounded-lg -z-10 shadow-sm"
-                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                />
-              )}
-              <t.icon size={15} />
-              {t.label}
-            </button>
-          );
-        })}
+          })}
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-12 items-stretch lg:flex-1 lg:min-h-0 lg:max-h-full">
@@ -651,8 +727,8 @@ export default function WidgetBuilder({
                     }}
                   >
                     <iframe
-                      key={relativeEmbedUrl}
-                      src={relativeEmbedUrl}
+                      ref={iframeRef}
+                      src={initialEmbedUrl}
                       className="w-full h-full border-none block"
                       title="Widget Live Preview"
                     />

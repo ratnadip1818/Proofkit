@@ -6,7 +6,6 @@ import EmbedCode from "./embed-code";
 import CopyLinkButton from "./copy-link-button";
 import StatsCards from "./stats-cards";
 import FreePlanBanner from "./free-plan-banner";
-import GettingStarted from "./getting-started";
 import RecentFeed from "./recent-feed";
 import { ExternalLink, ArrowRight } from "lucide-react";
 
@@ -45,28 +44,51 @@ export default async function DashboardPage() {
   const firstName = profile?.full_name?.trim().split(/\s+/)[0] ?? null;
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen">
+    <div className="w-full bg-[#FAF8F5] min-h-screen relative overflow-hidden pb-16">
+      {/* Decorative backdrop gradients */}
+      <div className="absolute top-0 right-0 h-[450px] w-[450px] rounded-full bg-[radial-gradient(circle,rgba(232,116,59,0.035)_0%,transparent_70%)] pointer-events-none -z-10" />
+      <div className="absolute top-[30%] left-[-100px] h-[550px] w-[550px] rounded-full bg-[radial-gradient(circle,rgba(46,158,107,0.015)_0%,transparent_70%)] pointer-events-none -z-10" />
+
       <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
-        {/* Page header */}
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1
-              className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {firstName ? `Welcome back, ${firstName}` : "Dashboard"}
-            </h1>
-            <p className="mt-1 text-sm text-[#6B6B6B]">
-              Manage your testimonials and collection form.
-            </p>
+        {/* Overhauled Welcome Hero Banner Card */}
+        <div className="relative overflow-hidden rounded-3xl border border-[#ECE7E0] bg-white p-8 shadow-sm mb-8 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDFB] via-white to-[#FAF8F5] -z-10" />
+          <div className="absolute right-0 bottom-0 h-40 w-40 bg-[radial-gradient(circle_at_bottom_right,rgba(232,116,59,0.05),transparent_80%)] pointer-events-none" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div>
+              <h1
+                className="text-3xl font-black tracking-tight text-[#1A1A1A] sm:text-4xl"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {firstName ? `Welcome back, ${firstName} ✨` : "Welcome back ✨"}
+              </h1>
+              <p className="mt-2 text-sm text-[#6B6B6B] max-w-xl leading-relaxed">
+                Here is a real-time snapshot of your customer reviews and collection form. Keep collecting social proof to drive conversions.
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-3 shrink-0">
+              {formUrl && (
+                <a
+                  href={formUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-[#ECE7E0] bg-white px-4 py-2.5 text-xs font-bold text-[#1A1A1A] shadow-sm transition-all hover:bg-[#FAF8F5] active:scale-98"
+                >
+                  <ExternalLink size={13} className="text-[#6B6B6B]" />
+                  View Live Form
+                </a>
+              )}
+              <Link
+                href="/dashboard/testimonials"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1A1A1A] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#E8743B] active:scale-98"
+              >
+                View Testimonials
+                <ArrowRight size={13} />
+              </Link>
+            </div>
           </div>
-          <Link
-            href="/dashboard/testimonials"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#E8743B] transition-colors hover:text-[#CF5F2C]"
-          >
-            View all testimonials
-            <ArrowRight size={16} />
-          </Link>
         </div>
 
         {!isLifetime && <FreePlanBanner email={user.email} />}
@@ -74,37 +96,26 @@ export default async function DashboardPage() {
         {/* Stats */}
         <StatsCards testimonials={testimonials ?? []} />
 
-        {/* Roadmap & Recent Testimonials */}
-        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
-          <GettingStarted
-            hasForm={!!form}
-            hasTestimonials={(testimonials ?? []).length > 0}
-            hasApproved={(testimonials ?? []).some((t) => t.status === "approved")}
-          />
-          <RecentFeed
-            testimonials={testimonials ?? []}
-            formUrl={formUrl}
-          />
-        </div>
-
-        {/* Collection form + embed */}
-        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
-          <div className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
-              Collection form
-            </h2>
+        {/* Collection form + embed widget */}
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:items-stretch">
+          <div className="rounded-3xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col justify-between h-full">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-[#6B6B6B]">
+                Collection form
+              </h2>
+              <p className="mt-2 text-sm text-[#6B6B6B]">
+                Share this custom link to collect ratings and feedback from your customers.
+              </p>
+            </div>
 
             {form && formUrl ? (
-              <div className="mt-4">
-                <p className="text-sm text-[#6B6B6B]">
-                  Share this link to collect testimonials.
-                </p>
-                <div className="mt-3 flex items-center gap-2">
+              <div className="mt-6">
+                <div className="flex items-center gap-2">
                   <a
                     href={formUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-lg border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2.5 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white"
+                    className="flex min-w-0 flex-1 items-center gap-1.5 truncate rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] px-4 py-3 font-mono text-xs text-[#1A1A1A] transition-colors hover:bg-white focus:outline-none"
                   >
                     <ExternalLink size={12} className="shrink-0 text-[#6B6B6B]" />
                     <span className="truncate">{formUrl}</span>
@@ -113,11 +124,7 @@ export default async function DashboardPage() {
                 </div>
               </div>
             ) : (
-              <div className="mt-4">
-                <p className="text-sm text-[#6B6B6B]">
-                  No collection form yet. Create one to start gathering
-                  testimonials.
-                </p>
+              <div className="mt-6 flex-1 flex flex-col justify-end">
                 <div className="mt-4">
                   <CreateFormButton />
                 </div>
@@ -129,13 +136,21 @@ export default async function DashboardPage() {
             {form ? (
               <EmbedCode userId={user.id} />
             ) : (
-              <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-[#ECE7E0] bg-white p-6">
+              <div className="flex h-full items-center justify-center rounded-3xl border border-dashed border-[#ECE7E0] bg-white p-6 min-h-[160px]">
                 <p className="text-center text-sm text-[#6B6B6B]">
                   Create a collection form first to get your embed snippet.
                 </p>
               </div>
             )}
           </div>
+        </div>
+
+        {/* Recent reviews feed */}
+        <div className="mt-8">
+          <RecentFeed
+            testimonials={testimonials ?? []}
+            formUrl={formUrl}
+          />
         </div>
 
       </div>
