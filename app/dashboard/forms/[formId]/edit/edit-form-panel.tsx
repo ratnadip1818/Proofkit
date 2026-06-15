@@ -360,25 +360,33 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
             Live Form Preview
           </h2>
 
-          {/* Premium Phone Container Mockup */}
-          <div className="relative mx-auto w-full max-w-[325px] rounded-[42px] border-[10px] border-[#1A1A1A] bg-white p-3 shadow-xl ring-4 ring-[#1A1A1A]/5">
-            {/* Phone Speaker Notch */}
-            <div className="absolute left-1/2 top-2 h-4 w-28 -translate-x-1/2 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-              <div className="h-1 w-8 rounded-full bg-zinc-800" />
+          {/* Premium Browser Window Mockup Container */}
+          <div className="w-full rounded-2xl border border-[#ECE7E0] bg-white shadow-lg overflow-hidden lg:sticky lg:top-6">
+            {/* Window Title Bar */}
+            <div className="flex items-center justify-between border-b border-[#ECE7E0] bg-[#FAF8F5] px-4 py-3">
+              <div className="flex gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F56] opacity-80" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E] opacity-80" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#27C93F] opacity-80" />
+              </div>
+              <div className="rounded border border-[#ECE7E0] bg-white px-3 py-1 font-mono text-[9px] text-[#6B6B6B] max-w-[180px] truncate select-none">
+                blovi.space/c/{form.slug}
+              </div>
+              <div className="w-12" /> {/* spacer to balance controls */}
             </div>
 
-            {/* Inner Phone Screen */}
-            <div className="mt-3 rounded-[32px] overflow-hidden bg-[#FAF8F5] border border-[#ECE7E0] max-h-[520px] overflow-y-auto scrollbar-none">
+            {/* Inner Content Screen */}
+            <div className="bg-[#FAF8F5] max-h-[500px] overflow-y-auto scrollbar-none">
               
               {/* Collection Form Preview */}
-              <div className="p-5">
+              <div className="p-6">
                 <h3
-                  className="text-lg font-bold text-[#1A1A1A] leading-snug break-words"
+                  className="text-lg font-extrabold text-[#1A1A1A] leading-snug break-words"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {headline || "Share your experience"}
                 </h3>
-                <p className="mt-1.5 text-xs text-[#6B6B6B] leading-relaxed break-words">
+                <p className="mt-2 text-xs text-[#6B6B6B] leading-relaxed break-words">
                   {prompt || "We would love to hear what you think!"}
                 </p>
 
@@ -401,7 +409,7 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
                     <label className="text-[10px] font-bold text-[#1A1A1A]">
                       Your name *
                     </label>
-                    <div className="rounded-lg border border-[#ECE7E0] bg-zinc-50 px-3 py-2.5 text-xs text-[#8A8A8A]">
+                    <div className="rounded-lg border border-[#ECE7E0] bg-white px-3 py-2.5 text-xs text-[#8A8A8A]">
                       Jane Smith
                     </div>
                   </div>
@@ -427,7 +435,7 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
                     <label className="text-[10px] font-bold text-[#1A1A1A]">
                       Your testimonial *
                     </label>
-                    <div className="rounded-lg border border-[#ECE7E0] bg-zinc-50 px-3 py-3 text-xs text-[#8A8A8A] min-h-[60px] leading-relaxed">
+                    <div className="rounded-lg border border-[#ECE7E0] bg-white px-3 py-3 text-xs text-[#8A8A8A] min-h-[60px] leading-relaxed">
                       Share your experience…
                     </div>
                   </div>
