@@ -170,8 +170,8 @@ export default function WidgetBuilder({
   const scaleX = containerWidth / targetWidth;
   const scaleY = containerHeight / targetHeight;
   const scale = Math.min(scaleX, scaleY, 1);
-  const scaledWidth = targetWidth;
-  const scaledHeight = targetHeight;
+  const parentHeight = Math.min(targetHeight, containerHeight);
+  const scaledHeight = parentHeight / scale;
 
   const dataAttrs = [`data-user="${userId}"`, `data-type="${widgetType}"`];
   if (widgetType === "wall") {
@@ -616,7 +616,7 @@ export default function WidgetBuilder({
                 className="mx-auto transition-all duration-300 ease-out lg:flex-1 lg:flex lg:items-center lg:justify-center lg:min-h-0"
                 style={{
                   width: `${targetWidth * scale}px`,
-                  height: `${targetHeight * scale}px`,
+                  height: `${parentHeight}px`,
                   overflow: "hidden",
                 }}
               >
