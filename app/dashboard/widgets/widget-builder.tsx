@@ -613,7 +613,7 @@ export default function WidgetBuilder({
               
               {/* Parent Scaled Wrapper to maintain correct layout space */}
               <div 
-                className="mx-auto transition-all duration-300 ease-out lg:flex-1 lg:flex lg:items-center lg:justify-center lg:min-h-0"
+                className="mx-auto my-auto transition-all duration-300 ease-out lg:min-h-0 shrink-0"
                 style={{
                   width: `${targetWidth * scale}px`,
                   height: `${parentHeight}px`,
