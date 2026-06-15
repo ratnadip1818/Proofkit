@@ -619,43 +619,32 @@ export function WallContent({
 }) {
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(() => {
-    return maxCount !== null ? maxCount : 6;
-  });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(6);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
-  // Reset visibleCount when tag filter or maxCount changes, dynamically adjusting for responsive initial sizes
+  // Synchronize and update pageSize dynamically based on responsive layout rules
   useEffect(() => {
-    if (maxCount !== null) {
-      setVisibleCount(maxCount);
-      return;
-    }
-
     const handleResize = () => {
       const w = window.innerWidth;
-      setVisibleCount((prev) => {
-        // Only adapt if the user hasn't clicked "Show more" to load larger custom count
-        if (prev === 3 || prev === 4 || prev === 6) {
-          if (w < 600) return 3;
-          if (w < 900) return 4;
-          return 6;
-        }
-        return prev;
-      });
+      if (w < 600) {
+        setPageSize(3);
+      } else if (w < 900) {
+        setPageSize(4);
+      } else {
+        setPageSize(6);
+      }
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [selectedTag, maxCount]);
+  }, []);
 
-  const getPageIncrement = () => {
-    if (typeof window === "undefined") return 6;
-    const w = window.innerWidth;
-    if (w < 600) return 3;
-    if (w < 900) return 4;
-    return 6;
-  };
+  // Reset page index when tag filter, maxCount, or screen size changes
+  useEffect(() => {
+    setPageIndex(0);
+  }, [selectedTag, maxCount, pageSize]);
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
@@ -669,9 +658,12 @@ export function WallContent({
     ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
     : list;
 
-  const renderedList = filteredList.slice(0, visibleCount);
+  const totalItems = filteredList.length;
+  const startIndex = pageIndex * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const renderedList = filteredList.slice(startIndex, endIndex);
 
-  // Whenever selectedTag, filteredList.length or visibleCount changes, send height resize message to parent frame
+  // Whenever selectedTag, filteredList.length, pageIndex or pageSize changes, send height resize message to parent frame
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
@@ -682,7 +674,7 @@ export function WallContent({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length, visibleCount]);
+  }, [selectedTag, filteredList.length, pageIndex, pageSize]);
 
   const displayCount = renderedList.length;
   const containerMaxWidth =
@@ -803,12 +795,19 @@ export function WallContent({
         </div>
       )}
 
-      {/* Show More Button */}
-      {filteredList.length > visibleCount && (
+      {/* Show More / Show Less Button */}
+      {totalItems > pageSize && (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
           <button
             type="button"
-            onClick={() => setVisibleCount((prev) => prev + getPageIncrement())}
+            onClick={() => {
+              const hasMore = endIndex < totalItems;
+              if (hasMore) {
+                setPageIndex((prev) => prev + 1);
+              } else {
+                setPageIndex(0);
+              }
+            }}
             style={{
               fontFamily: FONT,
               fontSize: "13.5px",
@@ -833,7 +832,7 @@ export function WallContent({
               e.currentTarget.style.transform = "scale(1)";
             }}
           >
-            Show more
+            {endIndex < totalItems ? "Show more" : "Show less"}
           </button>
         </div>
       )}
