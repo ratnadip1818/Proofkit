@@ -232,9 +232,11 @@ export default function TestimonialsPanel({
   }
 
   // Keep local items in sync with fresh server data after router.refresh()
-  useEffect(() => {
+  const [prevTestimonials, setPrevTestimonials] = useState(testimonials);
+  if (testimonials !== prevTestimonials) {
+    setPrevTestimonials(testimonials);
     setItems(testimonials);
-  }, [testimonials]);
+  }
 
   const counts: Record<Tab, number> = {
     all:      items.length,
@@ -455,7 +457,7 @@ export default function TestimonialsPanel({
       {/* Cards */}
       <div className="flex flex-col gap-3">
         {filtered.length === 0 ? (
-          <EmptyState />
+          EmptyState()
         ) : (
           filtered.map((t, i) => {
             const isLoading = pendingId === t.id;

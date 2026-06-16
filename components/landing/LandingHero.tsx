@@ -134,7 +134,10 @@ export default function LandingHero() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [cardsVisible, setCardsVisible] = useState(false);
 
-  indexRef.current = quoteIndex;
+  // Keep indexRef in sync with quoteIndex
+  useEffect(() => {
+    indexRef.current = quoteIndex;
+  }, [quoteIndex]);
 
   // Fade cards in after initial render
   useEffect(() => {

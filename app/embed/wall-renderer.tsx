@@ -730,9 +730,16 @@ export function WallContent({
   }, []);
 
   // Reset page index when tag filter, maxCount, or screen size changes
-  useEffect(() => {
+  const [prevSelectedTag, setPrevSelectedTag] = useState(selectedTag);
+  const [prevMaxCount, setPrevMaxCount] = useState(maxCount);
+  const [prevPageSize, setPrevPageSize] = useState(pageSize);
+
+  if (selectedTag !== prevSelectedTag || maxCount !== prevMaxCount || pageSize !== prevPageSize) {
+    setPrevSelectedTag(selectedTag);
+    setPrevMaxCount(maxCount);
+    setPrevPageSize(pageSize);
     setPageIndex(0);
-  }, [selectedTag, maxCount, pageSize]);
+  }
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
@@ -1270,6 +1277,16 @@ export function MarqueeContent({
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
+  // Send height resize message to parent frame to prevent vertical clipping
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const timer = setTimeout(() => {
+        sendWidgetHeight();
+      }, 450);
+      return () => clearTimeout(timer);
+    }
+  }, [testimonials.length]);
+
   if (testimonials.length === 0) {
     return (
       <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
@@ -1287,16 +1304,6 @@ export function MarqueeContent({
   const duration = Math.max(15, multipliedItems.length * 4);
   const singleStepWidth = 280 + 12; // card width (280) + gap (12)
   const totalShiftPx = multipliedItems.length * singleStepWidth;
-
-  // Send height resize message to parent frame to prevent vertical clipping
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const timer = setTimeout(() => {
-        sendWidgetHeight();
-      }, 450);
-      return () => clearTimeout(timer);
-    }
-  }, [testimonials.length]);
 
   return (
     <div

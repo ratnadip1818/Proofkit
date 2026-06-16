@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Copy,
   Check,
@@ -123,13 +123,15 @@ export default function WidgetBuilder({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
+  const [prevWidgetType, setPrevWidgetType] = useState(widgetType);
+  if (widgetType !== prevWidgetType) {
+    setPrevWidgetType(widgetType);
     if (widgetType === "single") {
       setLayout("card");
     } else if (widgetType === "wall") {
       setLayout("grid");
     }
-  }, [widgetType]);
+  }
 
   const maxCount = max === "all" ? null : Number(max);
   const badgeOn = isLifetime ? showBadge : true;
@@ -141,8 +143,7 @@ export default function WidgetBuilder({
   const [isPreviewReady, setIsPreviewReady] = useState(false);
 
   // Capture the initial embed URL on first render only
-  const initialEmbedUrlRef = useRef<string | null>(null);
-  if (!initialEmbedUrlRef.current) {
+  const initialEmbedUrl = useMemo(() => {
     const initialParams = new URLSearchParams();
     initialParams.set("type", widgetType);
     if (widgetType === "wall") {
@@ -158,9 +159,8 @@ export default function WidgetBuilder({
     if (radius !== "rounded") initialParams.set("radius", radius);
     if (isLifetime) initialParams.set("badge", showBadge ? "true" : "false");
     if (usingSamples) initialParams.set("demo", "1");
-    initialEmbedUrlRef.current = `/embed/${userId}?${initialParams.toString()}`;
-  }
-  const initialEmbedUrl = initialEmbedUrlRef.current;
+    return `/embed/${userId}?${initialParams.toString()}`;
+  }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {

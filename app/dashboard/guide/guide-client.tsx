@@ -256,7 +256,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                 A to Z Setup Guide
               </h1>
               <p className="mt-2 text-sm text-[#6B6B6B] max-w-xl leading-relaxed">
-                Connect your brand's Wall of Love. Learn how to import reviews, polish transcripts with AI, and copy embedding scripts for your website CMS.
+                Connect your brand&apos;s Wall of Love. Learn how to import reviews, polish transcripts with AI, and copy embedding scripts for your website CMS.
               </p>
             </div>
             
@@ -474,7 +474,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                       Smooth Scrolling Libraries (Lenis / Locomotive)
                     </h4>
                     <p className="mt-1 text-[11px] text-[#6B6B6B] leading-relaxed">
-                      If your site uses high-momentum trackpad scroll scripts, standard browser iframes can sometimes swallow scroll events. Blovi's client wrapper includes native trackpad event forwarding that intercepts coordinates and forwards them to the parent document context, guaranteeing 100% smooth mouse scrolling.
+                      If your site uses high-momentum trackpad scroll scripts, standard browser iframes can sometimes swallow scroll events. Blovi&apos;s client wrapper includes native trackpad event forwarding that intercepts coordinates and forwards them to the parent document context, guaranteeing 100% smooth mouse scrolling.
                     </p>
                   </div>
                 </div>
@@ -487,7 +487,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                       Dynamic Heights & Lazy Fonts Loading
                     </h4>
                     <p className="mt-1 text-[11px] text-[#6B6B6B] leading-relaxed">
-                      Custom fonts loading asynchronously can cause early height measurements to be off. Blovi automatically subscribes to your site's font loading promise (`document.fonts.ready`) and automatically resizes the iframe wrapper container when fonts finish rendering.
+                      Custom fonts loading asynchronously can cause early height measurements to be off. Blovi automatically subscribes to your site&apos;s font loading promise (`document.fonts.ready`) and automatically resizes the iframe wrapper container when fonts finish rendering.
                     </p>
                   </div>
                 </div>

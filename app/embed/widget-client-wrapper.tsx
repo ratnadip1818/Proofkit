@@ -12,6 +12,19 @@ import {
 import { SAMPLE_TESTIMONIALS, type Testimonial } from "./constants";
 import { FREE_WIDGET_TESTIMONIAL_LIMIT } from "@/lib/limits";
 
+interface WidgetConfig {
+  isDemo: boolean;
+  requestedType: WidgetType;
+  theme: "light" | "dark";
+  showRatings: boolean;
+  maxCount: number | null;
+  featuredIndex: number;
+  accent: string | undefined;
+  radius: WidgetRadius;
+  singleLayout: "card" | "minimal";
+  showBadge: boolean;
+}
+
 export default function WidgetClientWrapper({
   testimonials,
   isLifetime,
@@ -20,34 +33,23 @@ export default function WidgetClientWrapper({
   isLifetime: boolean;
 }) {
   // Client-side config states initialized to sensible defaults
-  const [config, setConfig] = useState<{
-    isDemo: boolean;
-    requestedType: WidgetType;
-    theme: "light" | "dark";
-    showRatings: boolean;
-    maxCount: number | null;
-    featuredIndex: number;
-    accent: string | undefined;
-    radius: WidgetRadius;
-    singleLayout: "card" | "minimal";
-    showBadge: boolean;
-  }>({
-    isDemo: false,
-    requestedType: "wall",
-    theme: "light",
-    showRatings: true,
-    maxCount: null,
-    featuredIndex: 0,
-    accent: undefined,
-    radius: "rounded",
-    singleLayout: "card",
-    showBadge: !isLifetime,
-  });
+  const [config, setConfig] = useState<WidgetConfig>(() => {
+    const defaultState = {
+      isDemo: false,
+      requestedType: "wall" as WidgetType,
+      theme: "light" as "light" | "dark",
+      showRatings: true,
+      maxCount: null as number | null,
+      featuredIndex: 0,
+      accent: undefined as string | undefined,
+      radius: "rounded" as WidgetRadius,
+      singleLayout: "card" as "card" | "minimal",
+      showBadge: !isLifetime,
+    };
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return defaultState;
+
     const searchParams = new URLSearchParams(window.location.search);
-
     const isDemo = searchParams.get("demo") === "1";
     const spType = searchParams.get("type");
     const requestedType: WidgetType =
@@ -75,7 +77,7 @@ export default function WidgetClientWrapper({
     const singleLayout = searchParams.get("layout") === "minimal" ? "minimal" : "card";
     const showBadge = !isLifetime || searchParams.get("badge") !== "false";
 
-    setConfig({
+    return {
       isDemo,
       requestedType,
       theme,
@@ -86,8 +88,17 @@ export default function WidgetClientWrapper({
       radius,
       singleLayout,
       showBadge,
-    });
-  }, [isLifetime]);
+    };
+  });
+
+  const [prevIsLifetime, setPrevIsLifetime] = useState(isLifetime);
+  if (isLifetime !== prevIsLifetime) {
+    setPrevIsLifetime(isLifetime);
+    setConfig((prev) => ({
+      ...prev,
+      showBadge: !isLifetime,
+    }));
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
