@@ -684,7 +684,7 @@ export default function WidgetBuilder({
 
           {/* Designer Dotted Grid Canvas */}
           <BlurFade delay={0.1} className="lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
-            <div ref={canvasRef} className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
+            <div ref={canvasRef} className="rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5] p-6 shadow-sm relative overflow-hidden h-[400px] sm:h-[450px] lg:h-auto lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
               <div className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1.2px,transparent_1.2px)] [background-size:16px_16px] pointer-events-none opacity-80 z-0" />
               
               {/* Parent Scaled Wrapper to maintain correct layout space */}
