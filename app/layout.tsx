@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -58,6 +59,7 @@ export default function RootLayout({
       className={`${inter.variable} ${jakarta.variable} ${instrumentSerif.variable} antialiased h-full`}
     >
       <body className="w-full min-h-screen overflow-x-hidden">
+        <GoogleAnalytics />
         {children}
         <Analytics />
       </body>
