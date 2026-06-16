@@ -12,6 +12,10 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
+    // Disable Lenis on touch devices for fluid, native momentum scroll
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (isMobile) return;
+
     const lenis = new Lenis({
       duration: 1.1,
       anchors: { offset: -72 },

@@ -229,7 +229,7 @@ export default function HowItWorksStacked() {
           {STEPS.map((step, i) => (
             <div
               key={step.num}
-              className="step-card sticky will-change-transform"
+              className="step-card relative md:sticky will-change-transform"
               style={{ top: `calc(96px + ${i * 28}px)` }}
             >
               <div
