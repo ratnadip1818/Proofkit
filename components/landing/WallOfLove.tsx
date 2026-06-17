@@ -13,7 +13,7 @@ export default function WallOfLove() {
     const script = document.createElement("script");
     script.src = "https://www.blovi.space/widget.js";
     script.setAttribute("data-user", "6e037975-54db-4705-b239-28ef18f95eb8");
-    script.setAttribute("data-type", "carousel");
+    script.setAttribute("data-type", "marquee");
     script.setAttribute("data-theme", "light");
     script.setAttribute("data-ratings", "true");
     script.setAttribute("data-badge", "true");
