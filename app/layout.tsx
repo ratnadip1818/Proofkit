@@ -44,7 +44,13 @@ export const metadata: Metadata = {
     description: "Collect testimonials and embed a Wall of Love for a single $49 lifetime payment.",
   },
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-icon.png" },
+    ],
   },
 };
 
