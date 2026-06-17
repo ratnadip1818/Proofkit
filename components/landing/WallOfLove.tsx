@@ -10,9 +10,8 @@ export default function WallOfLove() {
 
   useEffect(() => {
     if (!containerRef.current) return;
-    // Inject the script tag with data attributes into the DOM
     const script = document.createElement("script");
-    script.src = "/widget.js";
+    script.src = "https://www.blovi.space/widget.js";
     script.setAttribute("data-user", "6e037975-54db-4705-b239-28ef18f95eb8");
     script.setAttribute("data-type", "wall");
     script.setAttribute("data-layout", "grid");
@@ -20,7 +19,7 @@ export default function WallOfLove() {
     script.setAttribute("data-theme", "light");
     script.setAttribute("data-ratings", "true");
     script.setAttribute("data-radius", "pill");
-    script.setAttribute("data-badge", "false");
+    script.setAttribute("data-badge", "true");
     containerRef.current.appendChild(script);
 
     return () => {

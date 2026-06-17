@@ -7,6 +7,7 @@ import HowItWorksStacked from "@/components/landing/HowItWorksStacked";
 import FeaturesBento from "@/components/landing/FeaturesBento";
 import CostCompare from "@/components/landing/CostCompare";
 import PricingSection from "@/components/landing/PricingSection";
+import WallOfLove from "@/components/landing/WallOfLove";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -32,6 +33,7 @@ export default async function LandingPage({
           <FeaturesBento />
           <CostCompare />
           <PricingSection />
+          <WallOfLove />
           <FinalCTASection />
           <LandingFooter />
         </main>
