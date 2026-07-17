@@ -9,10 +9,12 @@ export default function PaddleCheckout({
   children,
   className,
   email,
+  priceId,
 }: {
   children: React.ReactNode;
   className?: string;
   email?: string;
+  priceId?: string;
 }) {
   const router = useRouter();
   const [paddle, setPaddle] = useState<Paddle | undefined>(undefined);
@@ -47,7 +49,7 @@ export default function PaddleCheckout({
     paddle?.Checkout.open({
       items: [
         {
-          priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_ID!,
+          priceId: priceId || process.env.NEXT_PUBLIC_PADDLE_PRO_PRICE_ID!,
           quantity: 1,
         },
       ],

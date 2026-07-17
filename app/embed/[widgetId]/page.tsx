@@ -3,8 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { type Testimonial } from "../constants";
 import WidgetClientWrapper from "../widget-client-wrapper";
 
-// Cache the widget iframe at the edge for 60 seconds (stale-while-revalidate is handled automatically by Next.js / Vercel CDN)
-export const revalidate = 60;
+// Cache the widget iframe at the edge for 12 hours (stale-while-revalidate is handled automatically by Next.js / Vercel CDN)
+export const revalidate = 43200;
 
 // Export generateStaticParams to convert this route into a statically generated / ISR route
 export async function generateStaticParams() {
@@ -25,28 +25,87 @@ export default async function EmbedPage({
 }) {
   const { widgetId } = await params;
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blovi.space";
+
+  const testimonialsPromise = fetch(`${baseUrl}/api/widgets/${widgetId}`, {
+    next: { tags: [`widget-${widgetId}`] },
+  })
+    .then((res) => {
+      if (!res.ok) return [];
+      return res.json() as Promise<Testimonial[]>;
+    })
+    .catch(() => []);
+
   const supabase = createAdminClient();
-  const [{ data: testimonials }, { data: profile }] = await Promise.all([
-    supabase
-      .from("testimonials")
-      .select(
-        "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url, tags, source"
-      )
-      .eq("user_id", widgetId)
-      .eq("status", "approved")
-      .order("created_at", { ascending: false }),
+  const [testimonials, { data: profile }] = await Promise.all([
+    testimonialsPromise,
     supabase
       .from("profiles")
-      .select("is_lifetime")
+      .select("is_lifetime, full_name")
       .eq("id", widgetId)
       .maybeSingle(),
   ]);
 
+  let form: { headline?: string | null; custom_css?: string | null; custom_font?: string | null } | null = null;
+  const { data: formData, error: formError } = await supabase
+    .from("forms")
+    .select("headline, custom_css, custom_font")
+    .eq("user_id", widgetId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (!formError && formData) {
+    form = formData;
+  }
+
   const isLifetime = profile?.is_lifetime ?? false;
-  const approved = (testimonials ?? []) as Testimonial[];
+  const approved = testimonials as Testimonial[];
+
+  const customFont = form?.custom_font || "Inter";
+  const customCss = form?.custom_css;
+
+  // Calculate review average rating and count for SEO Rich Schema
+  let totalRating = 0;
+  let ratedCount = 0;
+  for (const t of approved) {
+    if (t.rating) {
+      totalRating += t.rating;
+      ratedCount++;
+    }
+  }
+  const averageRating = ratedCount > 0 ? (totalRating / ratedCount).toFixed(1) : null;
+  const reviewCount = approved.length;
+  const productName = form?.headline || profile?.full_name || "Reviews";
+
+  const schemaMarkup = averageRating ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": productName,
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": averageRating,
+      "reviewCount": reviewCount.toString(),
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  } : null;
 
   return (
-    <>
+    <div style={{ fontFamily: `'${customFont}', sans-serif` }}>
+      {schemaMarkup && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+        />
+      )}
+      <link
+        rel="stylesheet"
+        href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(customFont)}:wght@400;500;600;700;800;900&display=swap`}
+      />
+      {customCss && (
+        <style dangerouslySetInnerHTML={{ __html: customCss }} />
+      )}
       {/* Card hover lift + reduced-motion manners, shared by all types */}
       <style>{`
         @keyframes blovi-fade-in-up {
@@ -87,6 +146,6 @@ export default async function EmbedPage({
       <Suspense fallback={null}>
         <WidgetClientWrapper testimonials={approved} isLifetime={isLifetime} />
       </Suspense>
-    </>
+    </div>
   );
 }

@@ -1,96 +1,45 @@
 import Link from "next/link";
-import { Check, X, ArrowRight } from "lucide-react";
+import { Check, Lock, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import FadeIn from "@/components/FadeIn";
-import PricingFAQ from "@/components/PricingFAQ";
+import FAQSection from "@/components/landing/FAQSection";
 
 export const metadata = {
   title: "Pricing — Blovi",
+  description:
+    "Simple, transparent pricing. Get Blovi Pro lifetime access for a single one-time payment of $49.",
 };
 
-const FEATURES = [
-  "Unlimited text testimonials",
-  "AI-powered improvement button",
-  "Wall of Love embed widget",
-  "Carousel, Marquee & Single Quote widgets",
-  "Shareable collection form",
-  "Form customization (colors, headline, prompt)",
-  "CSV import",
-  "Email notifications on new submissions",
-  "Multiple forms",
-  "Lifetime access — pay once",
-  "All future updates included",
+const FREE_LIMITS = [
+  "Up to 3 testimonials total",
+  "Wall of Love embed widget only",
+  "Standard widget styles",
+  '"Powered by Blovi" badge active',
+  "1 website limit",
 ];
 
-type CellValue = boolean | string;
-
-const COMPARISON_ROWS: { feature: string; blovi: CellValue; senja: CellValue }[] = [
-  { feature: "Price", blovi: "$49 once", senja: "$29/month" },
-  { feature: "Text testimonials", blovi: true, senja: true },
-  { feature: "Wall of Love widget", blovi: true, senja: true },
-  { feature: "Multiple widget styles", blovi: true, senja: true },
-  { feature: "Collection form", blovi: true, senja: true },
-  { feature: "Email notifications", blovi: true, senja: true },
-  { feature: "CSV import", blovi: true, senja: true },
-  { feature: "Lifetime deal", blovi: true, senja: false },
-  { feature: "Monthly fee", blovi: "None", senja: "$29/month forever" },
+const PRO_FEATURES = [
+  "Unlimited testimonials",
+  "All 4 widget layouts (Wall, Carousel, Marquee, Single Quote)",
+  "Custom accent colors & corner radiuses",
+  "Remove the 'Powered by Blovi' attribution",
+  "CSV bulk import",
+  "Email notifications",
+  "Up to 3 websites limit",
 ];
 
-const FAQS = [
-  {
-    q: "Is there a free plan?",
-    a: "Yes — the free plan includes up to 3 testimonials, your own collection form, and the Wall of Love embed widget with a small \"Powered by Blovi\" badge. No credit card needed.",
-  },
-  {
-    q: "Is this really a one-time payment?",
-    a: "Yes. Pay $49 once, use Blovi forever. No renewal, no hidden fees. It unlocks unlimited testimonials, all four widget styles, AI polishing, and badge removal.",
-  },
-  {
-    q: "What happens when I reach the free plan's limit?",
-    a: "Your collection form politely pauses at 3 testimonials, and everything you've collected stays safe. Upgrade once for $49 and collection reopens with no limits — your existing testimonials carry over.",
-  },
-  {
-    q: "What does lifetime mean?",
-    a: "You get access for the lifetime of Blovi. If we ever shut down, we'll give 6 months notice.",
-  },
-  {
-    q: "What payment methods are accepted?",
-    a: "All major credit and debit cards, processed securely by Paddle. Every purchase is covered by a 30-day money-back guarantee.",
-  },
-  {
-    q: "Can I use this on multiple websites?",
-    a: "Yes. One account, unlimited websites — the widget works anywhere you can paste an embed snippet.",
-  },
-  {
-    q: "Do you have video testimonials?",
-    a: "Not yet. Text testimonials with photos are supported now. Video is on the roadmap.",
-  },
-  {
-    q: "What makes Blovi different?",
-    a: "Blovi includes AI-powered testimonial polishing for a one-time payment of $49 — no recurring subscription required. Most testimonial tools charge a monthly fee forever.",
-  },
-  {
-    q: "How do I get support?",
-    a: "Email hello@blovi.space — we reply within 24 hours.",
-  },
+const COMPARISON_ROWS = [
+  { feature: "Pricing Model", blovi: "$49 one-time (Lifetime)", senja: "$348 / year" },
+  { feature: "Text testimonials", blovi: "Unlimited", senja: "Unlimited" },
+  { feature: "Wall of Love widget", blovi: "Yes", senja: "Yes" },
+  { feature: "Multiple widget layouts", blovi: "4 styles", senja: "5 styles" },
+  { feature: "Collection form", blovi: "Yes", senja: "Yes" },
+  { feature: "Email notifications", blovi: "Yes", senja: "Yes" },
+  { feature: "CSV import", blovi: "Yes", senja: "Yes" },
+  { feature: "Branding removal", blovi: "Yes", senja: "Yes" },
 ];
-
-function ComparisonCell({ value, accent }: { value: CellValue; accent?: boolean }) {
-  if (typeof value === "string") {
-    return (
-      <span className={`font-semibold ${accent ? "text-[#E8743B]" : "text-[#6B6B6B]"}`}>
-        {value}
-      </span>
-    );
-  }
-  return value ? (
-    <Check size={18} className="mx-auto text-[#2E9E6B]" strokeWidth={2.5} aria-label="Yes" />
-  ) : (
-    <X size={18} className="mx-auto text-[#9CA3AF]" strokeWidth={2.5} aria-label="No" />
-  );
-}
 
 export default function PricingPage() {
   return (
@@ -100,226 +49,186 @@ export default function PricingPage() {
         <main className="flex w-full flex-1 flex-col">
           {/* HERO */}
           <section className="w-full pt-36 pb-12 px-5 md:px-10 text-center md:pt-44">
-          <div className="mx-auto w-full max-w-[1200px]">
-            <FadeIn>
-              <h1
-                className="text-[clamp(2.5rem,6vw,4rem)] font-extrabold tracking-tight text-[#1A1A1A]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Simple, honest pricing
-              </h1>
-              <p className="mx-auto mt-4 max-w-lg text-lg text-[#6B6B6B]">
-                Start free. One $49 payment unlocks everything — forever.
-              </p>
-            </FadeIn>
-          </div>
-        </section>
-
-        {/* PRICING CARDS */}
-        <section className="w-full pb-24 px-5 md:px-10">
-          <div className="mx-auto grid w-full max-w-4xl items-start gap-6 md:grid-cols-2">
-            <FadeIn delay={0.05}>
-              <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm sm:p-10">
-                <div className="text-center">
-                  <span className="inline-block rounded-full bg-[#FAF8F5] px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">
-                    Free plan
-                  </span>
-                  <div className="mt-4 flex items-start justify-center gap-1">
-                    <span
-                      className="mt-3 text-2xl font-bold text-[#6B6B6B]"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      $
-                    </span>
-                    <span
-                      className="text-[5rem] font-extrabold leading-none text-[#1A1A1A]"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      0
-                    </span>
-                  </div>
-                  <p className="mt-2 text-base text-[#6B6B6B]">
-                    no credit card needed
-                  </p>
-                </div>
-
-                <div className="my-8 border-t border-[#ECE7E0]" />
-
-                <ul className="space-y-3">
-                  {[
-                    "Up to 3 testimonials",
-                    "Wall of Love embed widget",
-                    "Shareable collection form",
-                    '"Powered by Blovi" badge',
-                  ].map((f) => (
-                    <li key={f} className="flex items-center gap-3 text-sm text-[#1A1A1A]">
-                      <Check size={16} className="shrink-0 text-[#2E9E6B]" strokeWidth={2.5} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href="/signup"
-                  className="mt-8 flex w-full items-center justify-center rounded-full border border-[#1A1A1A]/15 py-4 text-base font-semibold text-[#1A1A1A] transition-all hover:border-[#1A1A1A]/35 hover:bg-[#FAF8F5]"
+            <div className="mx-auto w-full max-w-[1200px]">
+              <FadeIn>
+                <h1
+                  className="text-[clamp(2.5rem,6vw,4rem)] font-extrabold tracking-tight text-[#1A1A1A]"
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Start free
-                </Link>
-
-                <p className="mt-4 text-center text-sm text-[#6B6B6B]">
-                  Upgrade anytime — your testimonials carry over
+                  Simple, transparent pricing
+                </h1>
+                <p className="mx-auto mt-4 max-w-lg text-lg text-[#6B6B6B]">
+                  Choose the plan that fits your growth. Try Blovi for free today.
                 </p>
-              </div>
-            </FadeIn>
+              </FadeIn>
+            </div>
+          </section>
 
-            <FadeIn delay={0.08}>
-              <div className="rounded-2xl border-2 border-[#E8743B] bg-white p-8 shadow-sm sm:p-10">
-                <div className="text-center">
-                  <span className="inline-block rounded-full bg-[#E8743B]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#E8743B]">
-                    Lifetime deal
-                  </span>
-                  <div className="mt-4 flex items-start justify-center gap-1">
-                    <span
-                      className="mt-3 text-2xl font-bold text-[#6B6B6B]"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      $
+          {/* PRICING CARDS */}
+          <section className="w-full pb-24 px-5 md:px-10">
+            <div className="mx-auto grid gap-6 md:grid-cols-2 max-w-3xl items-stretch">
+              {/* Free Tier */}
+              <FadeIn delay={0.05}>
+                <div className="group relative overflow-hidden rounded-3xl border border-[#ECE7E0] bg-white p-6 shadow-sm flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:border-[#E8743B]/20 hover:shadow-[0_24px_56px_rgba(232,116,59,0.04)]">
+                  <div>
+                    <span className="inline-flex rounded-full bg-[#FAF8F5] px-2.5 py-0.5 text-xs font-semibold text-[#6B6B6B] border border-[#ECE7E0]">
+                      Free Tier
                     </span>
-                    <span
-                      className="text-[5rem] font-extrabold leading-none text-[#1A1A1A]"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      49
-                    </span>
+                    <div className="mt-4">
+                      <span className="text-3xl font-extrabold text-[#1A1A1A] font-display">$0</span>
+                      <span className="text-sm text-[#6B6B6B]"> / forever</span>
+                    </div>
+                    <p className="mt-3 text-xs text-[#6B6B6B] min-h-[32px]">
+                      Perfect for trial pages and small personal portfolio sites.
+                    </p>
+
+                    <div className="mt-6 border-t border-[#ECE7E0] pt-6">
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B] mb-4">Included Limits</p>
+                      <ul className="space-y-3">
+                        {FREE_LIMITS.map((limit) => (
+                          <li key={limit} className="flex items-start gap-2.5 text-xs text-[#6B6B6B]">
+                            <Lock size={12} className="mt-0.5 shrink-0 text-[#9CA3AF]" />
+                            {limit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <p className="mt-2 text-base text-[#6B6B6B]">
-                    one-time payment — yours forever
-                  </p>
+
+                  <div className="mt-8 pt-4 border-t border-[#ECE7E0]/60">
+                    <Link
+                      href="/signup"
+                      className="flex w-full items-center justify-center rounded-full bg-[#1A1A1A]/5 py-3 text-sm font-semibold text-[#1A1A1A] transition-all hover:bg-[#1A1A1A]/10 active:scale-95"
+                    >
+                      Start Free
+                    </Link>
+                  </div>
                 </div>
+              </FadeIn>
 
-                <div className="my-8 border-t border-[#ECE7E0]" />
+              {/* Pro Tier */}
+              <FadeIn delay={0.1}>
+                <div className="group relative overflow-hidden rounded-3xl border-2 border-[#E8743B] bg-white p-6 shadow-md flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(232,116,59,0.08)]">
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <span className="inline-flex rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-semibold text-[#E8743B] border border-[#E8743B]/20">
+                        Pro Plan
+                      </span>
+                      <span className="text-[10px] font-bold tracking-widest text-[#E8743B] uppercase animate-pulse">Popular</span>
+                    </div>
+                    <div className="mt-4">
+                      <span className="text-3xl font-extrabold text-[#1A1A1A] font-display">$49</span>
+                      <span className="text-sm text-[#6B6B6B]"> / lifetime</span>
+                    </div>
+                    <p className="mt-3 text-xs text-[#6B6B6B] min-h-[32px]">
+                      Unlock unlimited testimonials and all layouts on 3 websites forever.
+                    </p>
 
-                <ul className="space-y-3">
-                  {FEATURES.map((f) => (
-                    <li key={f} className="flex items-center gap-3 text-sm text-[#1A1A1A]">
-                      <Check size={16} className="shrink-0 text-[#2E9E6B]" strokeWidth={2.5} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
+                    <div className="mt-6 border-t border-[#ECE7E0] pt-6">
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#E8743B] mb-4">Pro Features</p>
+                      <ul className="space-y-3">
+                        {PRO_FEATURES.map((feature) => (
+                          <li key={feature} className="flex items-start gap-2.5 text-xs text-[#1A1A1A]">
+                            <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-green-50 border border-green-200">
+                              <Check size={11} className="text-[#2E9E6B]" />
+                            </span>
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
 
-                <Link
-                  href="/signup"
-                  className="mt-8 flex w-full items-center justify-center rounded-full bg-[#E8743B] py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
+                  <div className="mt-8 pt-4 border-t border-[#ECE7E0]/60">
+                    <Link
+                      href="/signup"
+                      className="flex w-full items-center justify-center rounded-full bg-[#E8743B] py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(232,116,59,0.15)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] active:scale-95"
+                    >
+                      Upgrade to Pro
+                    </Link>
+                  </div>
+                </div>
+              </FadeIn>
+            </div>
+          </section>
+
+          {/* COMPARISON TABLE */}
+          <section className="w-full border-t border-[#ECE7E0] bg-white py-24 px-5 md:px-10">
+            <div className="mx-auto w-full max-w-[800px]">
+              <FadeIn>
+                <h2
+                  className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A]"
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Get Blovi — $49
-                </Link>
+                  How Blovi compares
+                </h2>
+              </FadeIn>
 
-                <p className="mt-4 text-center text-sm font-medium text-[#E8743B]">
-                  ✦ Free plan available — up to 3 testimonials, no card needed
-                </p>
-                <p className="mt-1 text-center text-sm text-[#6B6B6B]">
-                  30-day money-back guarantee · No questions asked
-                </p>
-                <p className="mt-2 text-center text-xs text-[#9CA3AF]">
-                  Secure payment via Paddle
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-        </section>
-
-        {/* COMPARISON TABLE */}
-        <section className="w-full border-t border-[#ECE7E0] bg-white py-24 px-5 md:px-10">
-          <div className="mx-auto w-full max-w-[800px]">
-            <FadeIn>
-              <h2
-                className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                How Blovi compares
-              </h2>
-            </FadeIn>
-
-            <FadeIn delay={0.08}>
-              <div className="mt-10 overflow-x-auto rounded-2xl border border-[#ECE7E0]">
-                <table className="w-full min-w-[480px] border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-[#ECE7E0]">
-                      <th scope="col" className="p-4 text-left font-semibold text-[#1A1A1A]">
-                        Feature
-                      </th>
-                      <th
-                        scope="col"
-                        className="border-x-2 border-[#E8743B] bg-[#E8743B]/5 p-4 text-center font-semibold text-[#E8743B]"
-                      >
-                        Blovi ($49 once)
-                      </th>
-                      <th scope="col" className="p-4 text-center font-semibold text-[#6B6B6B]">
-                        Senja ($29/mo)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {COMPARISON_ROWS.map((row) => (
-                      <tr key={row.feature} className="border-b border-[#ECE7E0] last:border-0">
-                        <th scope="row" className="p-4 text-left font-medium text-[#1A1A1A]">
-                          {row.feature}
+              <FadeIn delay={0.08}>
+                <div className="mt-10 overflow-x-auto rounded-2xl border border-[#ECE7E0]">
+                  <table className="w-full min-w-[480px] border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-[#ECE7E0]">
+                        <th scope="col" className="p-4 text-left font-semibold text-[#1A1A1A]">
+                          Feature
                         </th>
-                        <td className="border-x-2 border-[#E8743B] bg-[#E8743B]/5 p-4 text-center">
-                          <ComparisonCell value={row.blovi} accent />
-                        </td>
-                        <td className="p-4 text-center">
-                          <ComparisonCell value={row.senja} />
-                        </td>
+                        <th
+                          scope="col"
+                          className="border-x-2 border-[#E8743B] bg-[#E8743B]/5 p-4 text-center font-semibold text-[#E8743B]"
+                        >
+                          Blovi Pro
+                        </th>
+                        <th scope="col" className="p-4 text-center font-semibold text-[#6B6B6B]">
+                          Senja Pro
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </FadeIn>
-          </div>
-        </section>
+                    </thead>
+                    <tbody>
+                      {COMPARISON_ROWS.map((row) => (
+                        <tr key={row.feature} className="border-b border-[#ECE7E0] last:border-0">
+                          <th scope="row" className="p-4 text-left font-medium text-[#1A1A1A]">
+                            {row.feature}
+                          </th>
+                          <td className="border-x-2 border-[#E8743B] bg-[#E8743B]/5 p-4 text-center font-semibold text-[#E8743B]">
+                            {row.blovi}
+                          </td>
+                          <td className="p-4 text-center text-[#6B6B6B] font-semibold">
+                            {row.senja}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </FadeIn>
+            </div>
+          </section>
 
-        {/* FAQ */}
-        <section className="w-full py-24 px-5 md:px-10">
-          <div className="mx-auto w-full max-w-[800px]">
-            <FadeIn>
-              <h2
-                className="text-center text-[clamp(1.75rem,3.5vw,2.75rem)] font-extrabold tracking-tight text-[#1A1A1A] mb-12"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Common questions
-              </h2>
-            </FadeIn>
-            <FadeIn delay={0.08}>
-              <PricingFAQ items={FAQS} />
-            </FadeIn>
-          </div>
-        </section>
+          {/* FAQ */}
+          <FAQSection />
 
-        {/* FINAL CTA */}
-        <section className="w-full border-t border-[#ECE7E0] bg-white py-24 px-5 md:px-10">
-          <div className="mx-auto w-full max-w-[1200px] text-center">
-            <FadeIn>
-              <h2
-                className="text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-tight text-[#1A1A1A]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Ready to stop paying monthly?
-              </h2>
-              <div className="mt-8">
-                <Link
-                  href="/signup"
-                  className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
+          {/* FINAL CTA */}
+          <section className="w-full border-t border-[#ECE7E0] bg-white py-24 px-5 md:px-10">
+            <div className="mx-auto w-full max-w-[1200px] text-center">
+              <FadeIn>
+                <h2
+                  className="text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-tight text-[#1A1A1A]"
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Get Blovi for $49
-                  <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
-                </Link>
-              </div>
-            </FadeIn>
-          </div>
-        </section>
+                  Ready to display your social proof?
+                </h2>
+                <div className="mt-8">
+                  <Link
+                    href="/signup"
+                    className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-10 py-5 text-lg font-semibold text-white shadow-lg transition-all hover:bg-[#CF5F2C] hover:scale-105 hover:shadow-xl active:scale-95"
+                  >
+                    Start collecting for free
+                    <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </div>
+              </FadeIn>
+            </div>
+          </section>
         </main>
         <LandingFooter />
       </div>

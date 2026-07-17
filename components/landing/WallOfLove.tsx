@@ -76,7 +76,7 @@ export default function WallOfLove() {
             </span>
           </h2>
           <p className="mt-4 text-base text-[#6B6B6B] max-w-lg mx-auto">
-            Real feedback from real customers — collected, polished, and embedded
+            Real feedback from real customers — collected, approved, and embedded
             with Blovi.
           </p>
         </div>

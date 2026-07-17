@@ -1,0 +1,14 @@
+# Blovi
+
+Blovi is a testimonial collection and social proof platform that helps indie founders, agencies, and freelancers collect customer reviews and embed widgets like a Wall of Love.
+
+## Key Information
+- **URL**: https://www.blovi.space
+- **Support**: hello@blovi.space
+- **Pricing**: Free tier, Pro ($49/year), and Business ($99/year) annual subscriptions.
+
+## Core Features
+- **Widget Customization**: Includes 4 widget styles (Wall of Love, Carousel, Marquee, Single Quote) with customizable brand colors and corner styles.
+- **Easy Collection**: Custom public collection forms with optional photo uploads and rating scales.
+- **Importing**: Direct import for Twitter/X reviews, Product Hunt testimonials, or bulk CSV files.
+- **Technical Performance**: Edge-cached CDN delivery for lightning-fast loads, zero layout shift, and auto-resizing iframes.

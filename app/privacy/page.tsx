@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <LandingNavbar />
         <main className="mx-auto w-full max-w-[1200px] px-5 md:px-10 pb-16 pt-36 md:pt-44 flex-1">
         <div className="max-w-2xl">
-          <p className="text-sm text-[#6B6B6B] mb-2">Last updated: June 2026</p>
+          <p className="text-sm text-[#6B6B6B] mb-2">Last updated: July 2026</p>
           <h1
             className="text-4xl font-bold text-[#1A1A1A] mb-8"
             style={{ fontFamily: "var(--font-display)" }}
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
                 <li><strong className="text-[#1A1A1A]">Email address</strong> — used to create and manage your account</li>
                 <li><strong className="text-[#1A1A1A]">Testimonial content</strong> — text, ratings, and author details submitted through your collection forms</li>
                 <li><strong className="text-[#1A1A1A]">Payment information</strong> — handled entirely by Paddle; we never see or store your card details</li>
-                <li><strong className="text-[#1A1A1A]">Usage data</strong> — basic analytics to improve the product (no third-party tracking scripts)</li>
+                <li><strong className="text-[#1A1A1A]">Usage data</strong> — anonymized page view statistics using Google Analytics and Vercel Analytics to monitor site performance</li>
               </ul>
             </section>
 
@@ -44,9 +44,8 @@ export default function PrivacyPage() {
               <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
                 <li>To authenticate you and provide access to your dashboard</li>
                 <li>To store and display testimonials you&apos;ve collected</li>
-                <li>To generate AI-improved versions of testimonials when you request it</li>
                 <li>To send transactional emails (account confirmation, new testimonial notifications, password reset)</li>
-                <li>To process your one-time payment and verify your purchase</li>
+                <li>To process your payment and manage your subscription</li>
               </ul>
               <p className="text-[#6B6B6B] leading-relaxed mt-3">
                 We do <strong className="text-[#1A1A1A]">not</strong> sell, rent, or share your personal data with third parties for marketing purposes.
@@ -80,14 +79,14 @@ export default function PrivacyPage() {
                   </a>
                 </li>
                 <li>
-                  <strong className="text-[#1A1A1A]">Anthropic</strong> — powers the optional AI testimonial improvement feature.{" "}
-                  <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <strong className="text-[#1A1A1A]">Paddle</strong> — payment processing and billing (Paddle acts as the merchant of record).{" "}
+                  <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
                     Privacy policy
                   </a>
                 </li>
                 <li>
-                  <strong className="text-[#1A1A1A]">Paddle</strong> — payment processing and billing (Paddle acts as the merchant of record).{" "}
-                  <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <strong className="text-[#1A1A1A]">Google Analytics</strong> — anonymized traffic tracking.{" "}
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
                     Privacy policy
                   </a>
                 </li>
@@ -127,7 +126,7 @@ export default function PrivacyPage() {
                 6. Cookies
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                Blovi uses only essential session cookies to keep you logged in. We do not use advertising cookies or third-party tracking.
+                Blovi uses essential session cookies to keep you logged in, as well as analytics cookies set by Google Analytics to help us understand site usage. We do not use advertising or marketing retargeting cookies.
               </p>
             </section>
 

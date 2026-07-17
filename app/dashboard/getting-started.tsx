@@ -46,8 +46,8 @@ export default function GettingStarted({
     },
     {
       id: "approve",
-      title: "Approve or polish feedback",
-      description: "Polish review clarity with AI and toggle approval state to display it.",
+      title: "Approve feedback",
+      description: "Toggle approval state to display your reviews in widgets.",
       completed: hasApproved,
       link: "/dashboard/testimonials",
       actionLabel: "Review feedback",

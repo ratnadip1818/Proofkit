@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Blovi — Collect testimonials, polish them with AI, embed a Wall of Love. $49 once.";
+  "Blovi — Collect testimonials, approve and display them, embed a Wall of Love. From $49/year.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -18,7 +18,7 @@ export default function Image() {
           justifyContent: "center",
           background: "#16161D",
           backgroundImage:
-            "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(232,116,59,0.28) 0%, rgba(22,22,29,0) 65%)",
+            "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(11,84,216,0.28) 0%, rgba(22,22,29,0) 65%)",
           fontFamily: "sans-serif",
         }}
       >
@@ -35,7 +35,7 @@ export default function Image() {
               width: 56,
               height: 56,
               borderRadius: 14,
-              background: "#E8743B",
+              background: "#0b54d8",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -78,14 +78,14 @@ export default function Image() {
         <div
           style={{
             display: "flex",
-            color: "#E8743B",
+            color: "#0b54d8",
             fontSize: 64,
             fontWeight: 800,
             lineHeight: 1.15,
             letterSpacing: "-0.02em",
           }}
         >
-          Pay once. Keep them forever.
+          From $49/year.
         </div>
 
         <div
@@ -94,16 +94,16 @@ export default function Image() {
             alignItems: "center",
             gap: 12,
             marginTop: 44,
-            background: "rgba(232,116,59,0.12)",
-            border: "1px solid rgba(232,116,59,0.45)",
+            background: "rgba(11,84,216,0.12)",
+            border: "1px solid rgba(11,84,216,0.45)",
             borderRadius: 999,
             padding: "14px 32px",
-            color: "#E8743B",
+            color: "#0b54d8",
             fontSize: 28,
             fontWeight: 700,
           }}
         >
-          $49 lifetime deal — no subscription
+          Simple yearly plans — cancel anytime
         </div>
       </div>
     ),

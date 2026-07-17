@@ -12,8 +12,8 @@ export const metadata = {
 
 const PROMISES = [
   {
-    title: "Pay once, own it forever",
-    body: "The $49 lifetime deal isn't a launch trick. There's no investor waiting for me to switch everyone to subscriptions.",
+    title: "Simple, one-time lifetime payment",
+    body: "Blovi Pro is a simple one-time payment of $49 for lifetime access — no subscriptions, no monthly renting. Pay once, own it forever.",
   },
   {
     title: "A human answers the email",
@@ -55,7 +55,7 @@ export default function AboutPage() {
                 </p>
                 <p className="mt-5 text-base leading-relaxed text-[#6B6B6B] md:text-lg">
                   So Blovi works the way I wish more software did: start free,
-                  pay once if it earns it, own it forever. That&apos;s the whole
+                  upgrade if it earns it, cancel anytime. That&apos;s the whole
                   pitch.
                 </p>
               </div>

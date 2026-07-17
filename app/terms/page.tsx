@@ -34,25 +34,16 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                2. Lifetime Access
+                2. Lifetime Licenses
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                The &quot;lifetime deal&quot; means you have access to Blovi for as long as the product exists and is actively maintained. We will provide at least 6 months notice before any service shutdown, giving you time to export your data. All feature updates released during the product&apos;s lifetime are included at no additional cost.
+                By purchasing a paid lifetime plan (Pro), you agree to pay the specified one-time fee. Lifetime access guarantees access to the premium features of your plan for as long as Blovi is operated as a commercial service.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                3. AI-Powered Improvement
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed">
-                Blovi includes an optional AI improvement feature that can tidy up grammar and clarity in submitted testimonials. The original text submitted by your customer is always preserved and remains accessible in your dashboard — the AI only suggests an edited version, which you can accept, edit further, or discard. Submitted testimonial text may be sent to our AI provider (Anthropic) solely to generate this suggestion.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                4. Acceptable Use
+                3. Acceptable Use
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed mb-3">You agree not to:</p>
               <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
@@ -68,7 +59,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                5. Your Data
+                4. Your Data
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
                 You own your testimonial data. We do not claim any rights over the content you collect through Blovi. You are responsible for obtaining appropriate consent from the people whose testimonials you collect and display.
@@ -77,10 +68,10 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                6. Payments &amp; Refunds
+                5. Payments &amp; Refunds
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                Payments are processed securely by Paddle, our merchant of record. Blovi is sold as a one-time, lifetime purchase. See our{" "}
+                Payments are processed securely by Paddle, our merchant of record. Paid plans are billed as a one-time charge. See our{" "}
                 <Link href="/refund" className="text-[#E8743B] hover:underline">
                   Refund Policy
                 </Link>{" "}
@@ -90,16 +81,16 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                7. Limitation of Liability
+                6. Limitation of Liability
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                Blovi is provided &quot;as is.&quot; We are not liable for any indirect, incidental, or consequential damages arising from your use of the service. Our total liability to you shall not exceed the amount you paid for the product ($49).
+                Blovi is provided &quot;as is.&quot; We are not liable for any indirect, incidental, or consequential damages arising from your use of the service. Our total liability to you shall not exceed the amount you paid for the product in the 12 months preceding the claim.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                8. Changes to Terms
+                7. Changes to Terms
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
                 We may update these terms from time to time. Material changes will be communicated by email. Continued use of the service after notification constitutes acceptance of the updated terms.
@@ -108,7 +99,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                9. Contact
+                8. Contact
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
                 Questions about these terms?{" "}

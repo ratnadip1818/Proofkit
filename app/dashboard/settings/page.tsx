@@ -10,18 +10,38 @@ export default async function SettingsPage() {
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
+  // Fetch user profile and billing tiers
+  let profile = null;
+  const { data: profileData } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, is_lifetime, plan_tier")
     .eq("id", user.id)
     .maybeSingle();
 
+  if (profileData) {
+    profile = profileData;
+  }
+
+  // Fetch campaign forms configuration
+  const { data: form } = await supabase
+    .from("forms")
+    .select("id, slug, headline, custom_domain, theme_color")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  const planTier = profile?.is_lifetime === true ? "pro" : (profile?.plan_tier ?? "free");
+  const isPaid = planTier === "pro" || planTier === "business";
+
   return (
     <div className="w-full bg-[#FAF8F5] min-h-screen">
-      <div className="mx-auto max-w-[1200px] px-5 md:px-10 py-10">
+      <div className="mx-auto max-w-[800px] px-5 md:px-10 py-12">
         <SettingsPanel
           email={user.email ?? ""}
           fullName={profile?.full_name ?? ""}
+          isLifetime={isPaid}
+          form={form}
         />
       </div>
     </div>

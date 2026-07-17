@@ -2,12 +2,12 @@ import { redirect } from "next/navigation";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingHero from "@/components/landing/LandingHero";
-import AiPolish from "@/components/landing/AiPolish";
+import WhyBloviSection from "@/components/landing/WhyBloviSection";
+import WhyFoundersChoose from "@/components/landing/WhyFoundersChoose";
+import ProductPlayground from "@/components/landing/ProductPlayground";
 import HowItWorksStacked from "@/components/landing/HowItWorksStacked";
-import FeaturesBento from "@/components/landing/FeaturesBento";
-import CostCompare from "@/components/landing/CostCompare";
 import PricingSection from "@/components/landing/PricingSection";
-import WallOfLove from "@/components/landing/WallOfLove";
+import FAQSection from "@/components/landing/FAQSection";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -28,12 +28,12 @@ export default async function LandingPage({
         <LandingNavbar />
         <main className="flex w-full flex-1 flex-col">
           <LandingHero />
-          <AiPolish />
+          <WhyBloviSection />
+          <WhyFoundersChoose />
+          <ProductPlayground />
           <HowItWorksStacked />
-          <FeaturesBento />
-          <CostCompare />
           <PricingSection />
-          <WallOfLove />
+          <FAQSection />
           <FinalCTASection />
           <LandingFooter />
         </main>

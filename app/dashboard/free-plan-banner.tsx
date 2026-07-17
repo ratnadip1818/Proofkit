@@ -18,15 +18,16 @@ export default function FreePlanBanner({ email }: { email?: string }) {
             </span>
           </div>
           <p className="mt-0.5 text-xs text-zinc-400">
-            Upgrade to unlock unlimited testimonials, custom branding removals, all widget types, and AI improvement.
+            Upgrade to unlock unlimited testimonials, custom branding removals, and all widget layouts.
           </p>
         </div>
       </div>
       <PaddleCheckout
         email={email}
-        className="shrink-0 rounded-full bg-[#E8743B] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(232,116,59,0.3)] transition-all hover:bg-[#CF5F2C] hover:scale-[1.04] active:scale-95"
+        priceId={process.env.NEXT_PUBLIC_PADDLE_PRO_PRICE_ID!}
+        className="shrink-0 rounded-full bg-[#E8743B] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(232,116,59,0.3)] transition-all hover:bg-[#CF5F2C] hover:scale-[1.04] active:scale-95 cursor-pointer"
       >
-        Upgrade — $49
+        Upgrade — $49/yr
       </PaddleCheckout>
     </div>
   );

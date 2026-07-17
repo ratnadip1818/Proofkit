@@ -196,7 +196,7 @@ export default async function VerifyPage({ params }: PageProps) {
               Want to display verified testimonials like this?
             </h2>
             <p className="mt-3 text-sm text-[#9CA3AF] max-w-md">
-              Collect social proof, improve it with AI, and embed a beautiful Wall of Love on your website. Pay once, own it forever.
+              Collect social proof and embed a beautiful Wall of Love on your website. Pay once, own it forever.
             </p>
             <Link
               href="/"

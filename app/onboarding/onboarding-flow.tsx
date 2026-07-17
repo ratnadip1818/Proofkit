@@ -221,12 +221,12 @@ export default function OnboardingFlow({ email }: { email?: string }) {
                   </button>
                 </div>
 
-                {/* Lifetime */}
+                {/* Pro */}
                 <div className="flex flex-col rounded-xl border-2 border-[#E8743B] bg-white p-5 text-left shadow-[0_12px_36px_rgba(232,116,59,0.15)]">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-[#E8743B]">Lifetime</p>
+                    <p className="text-sm font-bold text-[#E8743B]">Pro Plan</p>
                     <span className="rounded-full bg-[#E8743B] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                      Pay once
+                      Best Value
                     </span>
                   </div>
                   <p
@@ -235,33 +235,33 @@ export default function OnboardingFlow({ email }: { email?: string }) {
                   >
                     $49{" "}
                     <span className="text-sm font-medium text-[#6B6B6B]">
-                      once, yours forever
+                      / lifetime
                     </span>
                   </p>
                   <ul className="mb-5 mt-3 flex flex-col gap-2 text-[13px] text-[#1A1A1A]">
                     {[
                       "Unlimited testimonials",
-                      "All 4 widget styles",
-                      "One-click AI polish",
+                      "All 4 widget layouts",
+                      "Custom accent colors",
                       "Remove the Blovi badge",
                     ].map((f) => (
                       <li key={f} className="flex items-start gap-2">
-                        <Sparkles size={14} className="mt-0.5 shrink-0 text-[#E8743B]" />
+                        <Check size={14} className="mt-0.5 shrink-0 text-[#E8743B]" />
                         {f}
                       </li>
                     ))}
                   </ul>
-                  <PaddleCheckout
-                    email={email}
-                    className="mt-auto w-full rounded-lg bg-[#E8743B] py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C]"
+                  <Link
+                    href="/redeem"
+                    className="mt-auto w-full inline-flex items-center justify-center rounded-lg bg-[#E8743B] py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] text-center"
                   >
-                    Upgrade now — $49
-                  </PaddleCheckout>
+                    Redeem AppSumo Code
+                  </Link>
                 </div>
               </div>
 
               <p className="relative text-center text-xs text-[#6B6B6B]">
-                30-day money-back guarantee · Upgrade anytime from your dashboard
+                60-day AppSumo money-back guarantee · Redeem multiple codes to scale your account
               </p>
             </div>
           )}

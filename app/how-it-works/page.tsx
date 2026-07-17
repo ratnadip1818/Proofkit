@@ -7,7 +7,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 export const metadata = {
   title: "How it works — Blovi",
   description:
-    "Collect testimonials with a shareable form, polish them with AI, and embed a Wall of Love with one line of code.",
+    "Collect testimonials with a shareable form, approve and display them, and embed a Wall of Love with one line of code.",
 };
 
 export default function HowItWorksPage() {
@@ -16,7 +16,7 @@ export default function HowItWorksPage() {
       <div className="flex min-h-screen w-full flex-col overflow-x-clip">
         <LandingNavbar />
         <main className="flex w-full flex-1 flex-col pt-12 md:pt-16">
-          <HowItWorksStacked />
+          <HowItWorksStacked titleAs="h1" />
           <FinalCTASection />
           <LandingFooter />
         </main>

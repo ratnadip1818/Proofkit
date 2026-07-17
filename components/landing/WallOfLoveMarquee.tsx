@@ -23,7 +23,7 @@ export default function WallOfLoveMarquee() {
             </span>
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-center text-base text-[#6B6B6B] md:text-lg">
-            Blovi is freshly launched. Early customers get the $49 lifetime deal
+            Blovi is freshly launched. Early customers get our Pro tier for a simple $49 one-time payment
             — and their testimonial featured right here.
           </p>
           <div className="mt-9 text-center">
@@ -31,7 +31,7 @@ export default function WallOfLoveMarquee() {
               href="/signup"
               className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.03] hover:bg-[#CF5F2C] active:scale-95"
             >
-              Get early access — $49
+              Get early access — $49 one-time
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

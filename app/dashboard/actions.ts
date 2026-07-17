@@ -1,13 +1,13 @@
 "use server";
 
+import dns from "dns";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import Anthropic from "@anthropic-ai/sdk";
+import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_TESTIMONIAL_LIMIT } from "@/lib/limits";
-
-const DAILY_AI_IMPROVEMENT_LIMIT = 50;
+import { sanitizeCss, sanitizeFontName } from "@/lib/security";
+import { addDomainToVercel, removeDomainFromVercel } from "@/lib/vercel";
 
 async function getAuthenticatedClient() {
   const supabase = await createClient();
@@ -26,8 +26,9 @@ export async function approveTestimonial(id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/manage");
   revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
 }
 
 export async function hideTestimonial(id: string): Promise<void> {
@@ -38,8 +39,9 @@ export async function hideTestimonial(id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/manage");
   revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
@@ -50,176 +52,10 @@ export async function deleteTestimonial(id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/manage");
   revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
 }
-
-// Restricted to the AI improvement flow — free-text editing by founders is
-// disabled to preserve testimonial authenticity (see improveTestimonial /
-// acceptImprovement). Not exposed as a direct user action.
-export async function updateTestimonial(
-  id: string,
-  newText: string,
-  source: "ai_improvement"
-): Promise<void> {
-  if (source !== "ai_improvement") {
-    throw new Error("updateTestimonial is restricted to the AI improvement flow.");
-  }
-  const { supabase, user } = await getAuthenticatedClient();
-  await supabase
-    .from("testimonials")
-    .update({ body_original: newText, display_body: newText })
-    .eq("id", id)
-    .eq("user_id", user.id);
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
-  revalidatePath("/embed/" + user.id);
-}
-
-export type ImproveTestimonialResult =
-  | { error: string; original?: undefined; improved?: undefined }
-  | { error?: undefined; original: string; improved: string };
-
-export async function improveTestimonial(
-  id: string
-): Promise<ImproveTestimonialResult> {
-  const { supabase, user } = await getAuthenticatedClient();
-
-  // AI improvement is a Pro feature — enforce server-side, not just in the UI
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_lifetime")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.is_lifetime) {
-    return { error: "AI improvement is a Pro feature — upgrade to unlock it." };
-  }
-
-  const { data: testimonial, error: fetchError } = await supabase
-    .from("testimonials")
-    .select("body_original")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (fetchError || !testimonial) {
-    return { error: "Testimonial not found." };
-  }
-
-  const todayStart = new Date();
-  todayStart.setUTCHours(0, 0, 0, 0);
-
-  const { count, error: countError } = await supabase
-    .from("testimonials")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("is_ai_improved", true)
-    .gte("updated_at", todayStart.toISOString());
-
-  if (!countError && (count ?? 0) >= DAILY_AI_IMPROVEMENT_LIMIT) {
-    return {
-      error: `Daily AI improvement limit reached (${DAILY_AI_IMPROVEMENT_LIMIT}/day). Try again tomorrow.`,
-    };
-  }
-
-  const body_original = testimonial.body_original as string;
-
-  let improved: string;
-  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === "your_key_here") {
-    improved = `This is a polished and highly engaging version of the feedback: "${body_original}" (edited for clarity, professional impact, and conciseness).`;
-  } else {
-    try {
-      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-      const message = await client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1024,
-        messages: [
-          {
-            role: "user",
-            content: `You are a testimonial editor. Polish this testimonial for grammar, clarity and conciseness while preserving the customer's voice, meaning and specific details. Never add facts. Return ONLY the improved text, nothing else: ${body_original}`,
-          },
-        ],
-      });
-
-      const block = message.content[0];
-      improved = block?.type === "text" ? block.text.trim() : "";
-      if (!improved) throw new Error("Empty response from AI");
-    } catch {
-      return { error: "AI improvement failed. Please try again." };
-    }
-  }
-
-  const { error: updateError } = await supabase
-    .from("testimonials")
-    .update({ body_improved: improved, is_ai_improved: true })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (updateError) {
-    return { error: "Failed to save the improved testimonial." };
-  }
-
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
-  revalidatePath("/embed/" + user.id);
-
-  return { original: body_original, improved };
-}
-
-export async function acceptImprovement(id: string): Promise<void> {
-  const { supabase, user } = await getAuthenticatedClient();
-
-  const { data: testimonial } = await supabase
-    .from("testimonials")
-    .select("body_improved")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!testimonial?.body_improved) return;
-
-  await supabase
-    .from("testimonials")
-    .update({
-      display_body: testimonial.body_improved,
-      show_edited_badge: true,
-    })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
-  revalidatePath("/embed/" + user.id);
-}
-
-export async function revertImprovement(id: string): Promise<void> {
-  const { supabase, user } = await getAuthenticatedClient();
-
-  const { data: testimonial } = await supabase
-    .from("testimonials")
-    .select("body_original")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!testimonial) return;
-
-  await supabase
-    .from("testimonials")
-    .update({
-      display_body: testimonial.body_original,
-      show_edited_badge: false,
-    })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
-  revalidatePath("/embed/" + user.id);
-}
-
-// TODO: Add ANTHROPIC_API_KEY to Vercel environment variables at vercel.com/project/settings/environment-variables
 
 export type CreateFormState = { error: string | null; done: boolean };
 
@@ -233,6 +69,31 @@ export async function createForm(
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const admin = createAdminClient();
+  const [{ data: profile }, { count: formCount }] = await Promise.all([
+    admin.from("profiles").select("plan_tier, is_lifetime").eq("id", user.id).maybeSingle(),
+    admin.from("forms").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+  ]);
+
+  const tier = profile?.plan_tier || "free";
+  const isLifetime = profile?.is_lifetime || false;
+
+  let maxForms = 1; // Default free plan limit
+  if (tier === "agency" || tier === "business") {
+    maxForms = Infinity;
+  } else if (tier === "pro") {
+    maxForms = 10;
+  } else if (tier === "starter") {
+    maxForms = 3;
+  }
+
+  if ((formCount ?? 0) >= maxForms) {
+    return {
+      error: `You have reached the form limit for your plan (${maxForms} form${maxForms === 1 ? "" : "s"}). Please stack more AppSumo codes or upgrade to create more.`,
+      done: false,
+    };
+  }
 
   const prefix = (user.email ?? "form")
     .split("@")[0]
@@ -251,7 +112,7 @@ export async function createForm(
   if (error) return { error: error.message, done: false };
 
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/forms");
+  revalidatePath("/dashboard/collect");
   return { error: null, done: true };
 }
 
@@ -262,18 +123,29 @@ export async function deleteForm(id: string): Promise<void> {
     .delete()
     .eq("id", id)
     .eq("user_id", user.id);
-  revalidatePath("/dashboard/forms");
+  revalidatePath("/dashboard/collect");
   revalidatePath("/dashboard");
 }
 
 export interface UpdateFormInput {
-  headline: string;
-  prompt: string;
-  thank_you_message: string;
-  theme_color: string;
+  headline?: string;
+  prompt?: string;
+  thank_you_message?: string;
+  theme_color?: string;
   collect_photo?: boolean;
-  collect_rating: boolean;
-  require_consent: boolean;
+  collect_rating?: boolean;
+  require_consent?: boolean;
+  custom_css?: string | null;
+  custom_font?: string | null;
+  custom_domain?: string | null;
+}
+
+function cleanDomain(domain: string): string {
+  return domain
+    .replace(/^(https?:\/\/)?(www\.)?/, "") // remove protocol and www
+    .split("/")[0]                          // remove paths
+    .trim()
+    .toLowerCase();
 }
 
 export async function updateForm(
@@ -281,16 +153,60 @@ export async function updateForm(
   data: UpdateFormInput
 ): Promise<{ error: string | null }> {
   const { supabase, user } = await getAuthenticatedClient();
+  
+  const sanitizedData = { ...data };
+
+  // Sync custom domain with Vercel API if it changed
+  if (data.custom_domain !== undefined) {
+    const { data: currentForm } = await supabase
+      .from("forms")
+      .select("custom_domain")
+      .eq("id", formId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const oldDomain = currentForm?.custom_domain ? cleanDomain(currentForm.custom_domain) : null;
+    const newDomain = data.custom_domain ? cleanDomain(data.custom_domain) : null;
+
+    if (oldDomain !== newDomain) {
+      const isSystemSubdomain = (domain: string) =>
+        domain.endsWith(".blovi.space") || domain.endsWith(".localhost");
+
+      try {
+        // Remove old custom domain from Vercel configuration
+        if (oldDomain && !isSystemSubdomain(oldDomain)) {
+          await removeDomainFromVercel(oldDomain);
+        }
+
+        // Add new custom domain to Vercel configuration
+        if (newDomain && !isSystemSubdomain(newDomain)) {
+          await addDomainToVercel(newDomain);
+        }
+      } catch (err: any) {
+        console.error("Vercel domain sync failed:", err);
+        return { error: `Failed to sync domain on Vercel: ${err.message}` };
+      }
+    }
+    sanitizedData.custom_domain = newDomain;
+  }
+
+  if (sanitizedData.custom_css !== undefined) {
+    sanitizedData.custom_css = sanitizeCss(sanitizedData.custom_css);
+  }
+  if (sanitizedData.custom_font !== undefined) {
+    sanitizedData.custom_font = sanitizeFontName(sanitizedData.custom_font);
+  }
+
   const { error } = await supabase
     .from("forms")
-    .update(data)
+    .update(sanitizedData)
     .eq("id", formId)
     .eq("user_id", user.id);
 
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/forms");
-  revalidatePath(`/dashboard/forms/${formId}`);
-  revalidatePath(`/dashboard/forms/${formId}/edit`);
+  revalidatePath("/dashboard/collect");
+  revalidatePath(`/dashboard/collect/${formId}`);
+  revalidatePath(`/dashboard/collect/${formId}/edit`);
 
   return { error: error?.message ?? null };
 }
@@ -311,16 +227,34 @@ export async function importTestimonials(
 
   const admin = createAdminClient();
 
-  // Free plan: 3 testimonials total
-  const [{ data: profile }, { count: existing }] = await Promise.all([
-    supabase.from("profiles").select("is_lifetime").eq("id", user.id).maybeSingle(),
+  let profile: { is_lifetime?: boolean; plan_tier?: string } | null = null;
+  const [{ data: profileData, error: profileError }, { count: existing }] = await Promise.all([
+    supabase.from("profiles").select("is_lifetime, plan_tier").eq("id", user.id).maybeSingle(),
     admin
       .from("testimonials")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id),
   ]);
 
-  if (!profile?.is_lifetime && (existing ?? 0) + rows.length > FREE_TESTIMONIAL_LIMIT) {
+  if (profileError && (profileError.message.includes("plan_tier") || profileError.code === "42703")) {
+    const { data: fallbackData } = await supabase
+      .from("profiles")
+      .select("is_lifetime")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (fallbackData) {
+      profile = {
+        is_lifetime: fallbackData.is_lifetime,
+        plan_tier: fallbackData.is_lifetime ? "pro" : "free",
+      };
+    }
+  } else if (profileData) {
+    profile = profileData;
+  }
+
+  const isPaid = profile?.is_lifetime === true || profile?.plan_tier === "pro" || profile?.plan_tier === "business";
+
+  if (!isPaid && (existing ?? 0) + rows.length > FREE_TESTIMONIAL_LIMIT) {
     const remaining = Math.max(0, FREE_TESTIMONIAL_LIMIT - (existing ?? 0));
     return {
       error: `Free plan is limited to ${FREE_TESTIMONIAL_LIMIT} testimonials (${remaining} slot${remaining === 1 ? "" : "s"} left). Upgrade for unlimited.`,
@@ -347,9 +281,10 @@ export async function importTestimonials(
   if (error) return { error: error.message, count: 0 };
 
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/manage");
   revalidatePath("/dashboard/import");
   revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
 
   return { error: null, count: data?.length ?? rows.length };
 }
@@ -462,16 +397,34 @@ export async function importSingleTestimonial(
   const { supabase, user } = await getAuthenticatedClient();
   const admin = createAdminClient();
 
-  // Free plan limit check
-  const [{ data: profile }, { count: existing }] = await Promise.all([
-    supabase.from("profiles").select("is_lifetime").eq("id", user.id).maybeSingle(),
+  let profile: { is_lifetime?: boolean; plan_tier?: string } | null = null;
+  const [{ data: profileData, error: profileError }, { count: existing }] = await Promise.all([
+    supabase.from("profiles").select("is_lifetime, plan_tier").eq("id", user.id).maybeSingle(),
     admin
       .from("testimonials")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id),
   ]);
 
-  if (!profile?.is_lifetime && (existing ?? 0) + 1 > FREE_TESTIMONIAL_LIMIT) {
+  if (profileError && (profileError.message.includes("plan_tier") || profileError.code === "42703")) {
+    const { data: fallbackData } = await supabase
+      .from("profiles")
+      .select("is_lifetime")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (fallbackData) {
+      profile = {
+        is_lifetime: fallbackData.is_lifetime,
+        plan_tier: fallbackData.is_lifetime ? "pro" : "free",
+      };
+    }
+  } else if (profileData) {
+    profile = profileData;
+  }
+
+  const isPaid = profile?.is_lifetime === true || profile?.plan_tier === "pro" || profile?.plan_tier === "business";
+
+  if (!isPaid && (existing ?? 0) + 1 > FREE_TESTIMONIAL_LIMIT) {
     return {
       error: `Free plan is limited to ${FREE_TESTIMONIAL_LIMIT} testimonials. Upgrade for unlimited.`,
       success: false,
@@ -500,9 +453,10 @@ export async function importSingleTestimonial(
   if (error) return { error: error.message, success: false };
 
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
+  revalidatePath("/dashboard/manage");
   revalidatePath("/dashboard/import");
   revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
 
   return { error: null, success: true };
 }
@@ -530,10 +484,95 @@ export async function updateTestimonialTags(
   }
 
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/testimonials");
-  revalidatePath("/dashboard/widgets");
+  revalidatePath("/dashboard/manage");
+  revalidatePath("/dashboard/publish");
   revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
 
   return { error: null, success: true };
 }
+
+export async function verifyDomainDNS(domain: string): Promise<{ valid: boolean; error?: string }> {
+  try {
+    const cleanDomain = domain.trim().toLowerCase();
+    if (!cleanDomain) return { valid: false, error: "Domain name cannot be empty." };
+
+    // Resolve CNAME records
+    const records = await dns.promises.resolveCname(cleanDomain);
+    const hasCorrectCname = records.some(r => r.toLowerCase().includes("vercel-dns.com"));
+
+    if (hasCorrectCname) {
+      return { valid: true };
+    } else {
+      return { valid: false, error: `CNAME resolves to: ${records.join(", ")}` };
+    }
+  } catch (err: any) {
+    if (err.code === "ENODATA" || err.code === "ENOTFOUND") {
+      return { valid: false, error: "No CNAME record found. Please verify your settings." };
+    }
+    return { valid: false, error: `Verification failed: ${err.message}` };
+  }
+}
+
+export async function checkCustomDomainStatus(domain: string): Promise<{
+  status: "verified" | "pending" | "failed";
+  dnsRecord: { type: string; name: string; value: string };
+  isSimulated: boolean;
+  error: string | null;
+}> {
+  const VERCEL_TOKEN = process.env.VERCEL_AUTH_TOKEN;
+  const PROJECT_ID = process.env.VERCEL_PROJECT_ID;
+
+  const isSimulated = !VERCEL_TOKEN || !PROJECT_ID;
+
+  if (isSimulated) {
+    const isValid = domain.includes(".");
+    return {
+      status: isValid ? "verified" : "pending",
+      dnsRecord: { type: "CNAME", name: "@", value: "cname.vercel-dns.com" },
+      isSimulated: true,
+      error: isValid ? null : "Invalid domain syntax. Must contain a period (e.g. domain.com)."
+    };
+  }
+
+  try {
+    const TEAM_ID = process.env.VERCEL_TEAM_ID;
+    const queryParams = TEAM_ID ? `?teamId=${TEAM_ID}` : "";
+    const url = `https://api.vercel.com/v9/projects/${PROJECT_ID}/domains/${domain}${queryParams}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${VERCEL_TOKEN}` },
+    });
+
+    if (!res.ok) {
+      return {
+        status: "failed",
+        dnsRecord: { type: "CNAME", name: "@", value: "cname.vercel-dns.com" },
+        isSimulated: false,
+        error: "Domain not configured on Vercel yet."
+      };
+    }
+
+    const data = await res.json();
+    const verified = data.verified === true;
+
+    return {
+      status: verified ? "verified" : "pending",
+      dnsRecord: {
+        type: "CNAME",
+        name: "@",
+        value: "cname.vercel-dns.com",
+      },
+      isSimulated: false,
+      error: verified ? null : "DNS propagation in progress. Please check again shortly."
+    };
+  } catch (err: any) {
+    return {
+      status: "failed",
+      dnsRecord: { type: "CNAME", name: "@", value: "cname.vercel-dns.com" },
+      isSimulated: false,
+      error: err.message
+    };
+  }
+}
+
 

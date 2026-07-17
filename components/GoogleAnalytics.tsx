@@ -30,6 +30,19 @@ export default function GoogleAnalytics() {
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
+          
+          var storedConsent = 'denied';
+          try {
+            if (localStorage.getItem('cookie-consent') === 'accepted') {
+              storedConsent = 'granted';
+            }
+          } catch(e) {}
+          
+          gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'analytics_storage': storedConsent
+          });
+          
           gtag('js', new Date());
           gtag('config', '${GA_MEASUREMENT_ID}', {
             page_path: window.location.pathname,

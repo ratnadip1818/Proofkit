@@ -127,30 +127,7 @@ try {
   log("resend", "FAIL", e.message);
 }
 
-// 9. Anthropic key (powers the AI improve button) — count-tokens ping, no cost
-try {
-  if (!env.ANTHROPIC_API_KEY || env.ANTHROPIC_API_KEY.startsWith("your_")) {
-    log("anthropic", "UNKNOWN", "local key is a placeholder; cannot check");
-  } else {
-    const r = await fetch("https://api.anthropic.com/v1/messages/count_tokens", {
-      method: "POST",
-      headers: {
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        messages: [{ role: "user", content: "ping" }],
-      }),
-    });
-    log("anthropic", r.ok ? "OK" : "FAIL", `key check -> ${r.status}${r.ok ? " (valid)" : ""}`);
-  }
-} catch (e) {
-  log("anthropic", "FAIL", e.message);
-}
-
-// 10. security headers on the app
+// 9. security headers on the app
 try {
   const r = await fetch(`${BASE}/login`);
   const hsts = r.headers.get("strict-transport-security");

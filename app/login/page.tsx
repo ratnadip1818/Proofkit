@@ -55,6 +55,7 @@ export default function LoginPage() {
         <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
           {/* Wordmark */}
           <div className="mb-8 text-center">
+            <h1 className="sr-only">Sign in to Blovi</h1>
             <Link
               href="/"
               className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"

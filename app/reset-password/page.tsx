@@ -49,6 +49,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
           <div className="mb-8 text-center">
+            <h1 className="sr-only">Reset Password</h1>
             <Link
               href="/"
               className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"

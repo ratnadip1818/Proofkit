@@ -24,7 +24,7 @@ function emailShell(heading: string, body: string, cta: string) {
         ${cta}
       </a>
       <p style="margin-top:24px;font-size:12px;color:#9CA3AF;">
-        One payment, lifetime access — no subscription. 30-day money-back guarantee.
+        Pro plan billed annually. Cancel anytime. 30-day money-back guarantee.
       </p>
     </div>
   `;
@@ -35,16 +35,16 @@ const TEMPLATES = {
     subject: "Getting the most out of Blovi",
     html: emailShell(
       "How's your Wall of Love coming along?",
-      "You're on the free plan with up to 3 testimonials. When you're ready, one $49 payment unlocks unlimited testimonials, every widget style, AI improvement, and badge removal — forever.",
-      "Unlock everything — $49 once"
+      "You're on the free plan with up to 3 testimonials. When you're ready, upgrading to Pro for $49/year unlocks unlimited testimonials, every widget layout, custom branding, and badge removal.",
+      "Unlock everything — $49/year"
     ),
   },
   expired: {
     subject: "Show every testimonial you've earned",
     html: emailShell(
-      "Your free plan holds 3 testimonials",
-      "Social proof works best in volume. Upgrade once for $49 and collect unlimited testimonials, show them all, and unlock Carousel, Marquee and Single Quote widgets — no monthly fees, all future updates included.",
-      "Upgrade — $49 once"
+      "Your free plan holds up to 3 testimonials",
+      "Social proof works best in volume. Upgrade to Pro for $49/year to collect unlimited testimonials, show them all, and unlock Carousel, Marquee, and Single Quote widgets with custom accent colors.",
+      "Upgrade to Pro — $49/year"
     ),
   },
 };
@@ -84,17 +84,35 @@ export async function GET(request: Request) {
   }
 
   // skip anyone who already paid
-  const { data: profiles } = await supabase
+  let profiles: { id: string; is_lifetime?: boolean; plan_tier?: string }[] | null = null;
+  const { data: profileData, error: profileError } = await supabase
     .from("profiles")
-    .select("id, is_lifetime")
+    .select("id, is_lifetime, plan_tier")
     .in("id", buckets.map((b) => b.user.id));
-  const lifetime = new Set((profiles ?? []).filter((p) => p.is_lifetime).map((p) => p.id));
+
+  if (profileError && (profileError.message.includes("plan_tier") || profileError.code === "42703")) {
+    const { data: fallbackData } = await supabase
+      .from("profiles")
+      .select("id, is_lifetime")
+      .in("id", buckets.map((b) => b.user.id));
+    if (fallbackData) {
+      profiles = fallbackData.map((p) => ({
+        id: p.id,
+        is_lifetime: p.is_lifetime,
+        plan_tier: p.is_lifetime ? "pro" : "free",
+      }));
+    }
+  } else if (profileData) {
+    profiles = profileData;
+  }
+
+  const paidUsers = new Set((profiles ?? []).filter((p) => p.is_lifetime === true || p.plan_tier === "pro" || p.plan_tier === "business").map((p) => p.id));
 
   let sent = 0;
   let skipped = 0;
   let failed = 0;
   for (const { user, template } of buckets) {
-    if (lifetime.has(user.id)) {
+    if (paidUsers.has(user.id)) {
       skipped++;
       continue;
     }

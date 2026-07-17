@@ -1,267 +1,29 @@
 "use client";
 
-import { useRef } from "react";
-import { Link2, Sparkles, Code2 } from "lucide-react";
-import { gsap, prefersReducedMotion } from "./gsap";
-import { useIsoLayoutEffect } from "./use-iso-layout-effect";
-import Reveal from "./Reveal";
+import { Check, FileText, Layers3, Send, Star } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
-const STEPS = [
-  {
-    num: "01",
-    icon: Link2,
-    title: "Collect",
-    desc: "Share your collection form link with customers. They fill out a short form — name, role, rating and their testimonial. No login needed on their end.",
-    theme: {
-      card: "bg-white border border-[#ECE7E0]",
-      num: "text-[#ECE7E0]",
-      title: "text-[#1A1A1A]",
-      desc: "text-[#6B6B6B]",
-      iconWrap: "bg-[#E8743B]/10",
-      icon: "text-[#E8743B]",
-    },
-    visual: (
-      <div className="w-full max-w-[280px] space-y-3 rounded-2xl border border-[#ECE7E0] bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] text-left">
-        {/* Photo upload */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[9px] font-semibold text-[#1A1A1A]">
-            Your photo <span className="font-normal text-[#6B6B6B]">(optional)</span>
-          </label>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FAF8F5] border border-[#ECE7E0]">
-              <svg
-                className="h-3.5 w-3.5 text-[#D9D3CB]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                />
-              </svg>
-            </div>
-            <div className="rounded border border-[#ECE7E0] bg-white px-2 py-0.5 text-[8px] font-medium text-[#6B6B6B]">
-              Upload photo
-            </div>
-          </div>
-        </div>
-
-        {/* Name input */}
-        <div className="flex flex-col gap-1">
-          <label className="text-[9px] font-semibold text-[#1A1A1A]">
-            Your name <span className="text-red-500">*</span>
-          </label>
-          <div className="rounded-md border border-[#ECE7E0] bg-[#FAF8F5] px-2.5 py-1.5 text-[9px] text-[#6B6B6B]">
-            Maria Kowalski
-          </div>
-        </div>
-
-        {/* Role input */}
-        <div className="flex flex-col gap-1">
-          <label className="text-[9px] font-semibold text-[#1A1A1A]">
-            Your role <span className="font-normal text-[#6B6B6B]">(optional)</span>
-          </label>
-          <div className="rounded-md border border-[#ECE7E0] bg-[#FAF8F5] px-2.5 py-1.5 text-[9px] text-[#6B6B6B]">
-            Founder, Lume
-          </div>
-        </div>
-
-        {/* Rating input */}
-        <div className="flex flex-col gap-1">
-          <label className="text-[9px] font-semibold text-[#1A1A1A]">
-            Rating <span className="text-red-500">*</span>
-          </label>
-          <div className="flex gap-0.5 text-xs text-[#E8743B]">★★★★★</div>
-        </div>
-
-        {/* Testimonial input */}
-        <div className="flex flex-col gap-1">
-          <label className="text-[9px] font-semibold text-[#1A1A1A]">
-            Your testimonial <span className="text-red-500">*</span>
-          </label>
-          <div className="h-12 rounded-md border border-[#ECE7E0] bg-[#FAF8F5] px-2.5 py-1 text-[9px] leading-relaxed text-[#6B6B6B] overflow-hidden">
-            luv this app, saved me so much time…
-          </div>
-        </div>
-
-        {/* Submit button */}
-        <div className="rounded-md bg-[#E8743B] py-2 text-center text-[9px] font-bold text-white shadow-sm">
-          Submit testimonial
-        </div>
-      </div>
-    ),
-  },
-  {
-    num: "02",
-    icon: Sparkles,
-    title: "Polish",
-    desc: "Approve testimonials in your dashboard and improve any of them with one click using AI. The original is always preserved — you choose what goes live.",
-    theme: {
-      card: "bg-[#16161D] border border-white/10",
-      num: "text-white/10",
-      title: "text-white",
-      desc: "text-[#9CA3AF]",
-      iconWrap: "bg-[#E8743B]/20",
-      icon: "text-[#E8743B]",
-    },
-    visual: (
-      <div className="w-full max-w-[280px] space-y-3">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-white/40">Original</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-white/60">
-            “luv this app, saved me so much time tbh”
-          </p>
-        </div>
-        <div className="flex justify-center">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E8743B] shadow-lg">
-            <Sparkles size={15} className="text-white" />
-          </span>
-        </div>
-        <div className="rounded-2xl border border-[#E8743B]/50 bg-white p-4">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-[#E8743B]">AI-improved</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-[#1A1A1A]">
-            “I love this app — it saved me so much time.”
-          </p>
-        </div>
-      </div>
-    ),
-  },
-  {
-    num: "03",
-    icon: Code2,
-    title: "Embed",
-    desc: "Paste one script tag — your Wall of Love (or Carousel, Marquee, Single Quote) appears on your site instantly and auto-resizes.",
-    theme: {
-      card: "bg-[#E8743B] border border-[#CF5F2C]",
-      num: "text-white/20",
-      title: "text-white",
-      desc: "text-white/85",
-      iconWrap: "bg-white/15",
-      icon: "text-white",
-    },
-    visual: (
-      <div className="w-full max-w-[280px] overflow-hidden rounded-2xl bg-[#16161D] shadow-2xl">
-        <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
-          <span className="h-2 w-2 rounded-full bg-white/20" />
-          <span className="h-2 w-2 rounded-full bg-white/20" />
-          <span className="h-2 w-2 rounded-full bg-white/20" />
-          <span className="ml-2 text-[9px] text-white/40">index.html</span>
-        </div>
-        <pre className="overflow-x-auto p-4 text-[9px] leading-relaxed md:text-[10px]">
-          <code>
-            <span className="text-[#9CA3AF]">{"<!-- one line, that's it -->"}</span>
-            {"\n"}
-            <span className="text-[#7DD3FC]">{"<script"}</span>
-            <span className="text-[#FDBA74]">{" src"}</span>
-            <span className="text-white">{"="}</span>
-            <span className="text-[#86EFAC]">{'"blovi.space/embed.js"'}</span>
-            <span className="text-[#7DD3FC]">{">"}</span>
-            <span className="text-[#7DD3FC]">{"</script>"}</span>
-          </code>
-        </pre>
-      </div>
-    ),
-  },
+const steps = [
+  { number: "01", title: "Collect", subtitle: "Open a door for kind words.", body: "Share a beautifully branded form or import praise that is already waiting across your channels.", icon: FileText, tone: "bg-[#f2f8ff] border-[#d8e7fa]", accent: "bg-[#0b61d9]" },
+  { number: "02", title: "Curate", subtitle: "Keep the stories that carry weight.", body: "Review every response in one calm workspace, verify its source, and make the message feel complete.", icon: Layers3, tone: "bg-[#f0f9eb] border-[#d8e8cf]", accent: "bg-[#27885b]" },
+  { number: "03", title: "Publish", subtitle: "Let proof do its work.", body: "Place a wall, carousel, or single quote wherever a future customer needs the confidence to act.", icon: Send, tone: "bg-[#fff8ee] border-[#eadfcf]", accent: "bg-[#c96d42]" },
 ];
 
-export default function HowItWorksStacked() {
-  const sectionRef = useRef<HTMLElement>(null);
+function CollectVisual() { return <div className="w-full rounded-2xl border border-[#dce8f8] bg-white p-4 shadow-[0_12px_24px_rgba(19,72,145,.08)]"><div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0b61d9] text-sm font-bold text-white">b</span><span className="text-[10px] font-bold text-[#173b71]">Tell us what changed</span></div><div className="mt-4 flex gap-1 text-[#f0a33a]">{[1,2,3,4,5].map((i) => <Star key={i} size={13} fill="currentColor" />)}</div><div className="mt-3 h-16 rounded-xl bg-[#f4f8fd] p-3"><span className="block h-1.5 w-full rounded bg-[#bed1e9]"/><span className="mt-2 block h-1.5 w-3/4 rounded bg-[#d9e5f2]"/></div><div className="mt-3 rounded-xl bg-[#0b61d9] py-2 text-center text-[10px] font-bold text-white">Send feedback</div></div>; }
+function CurateVisual() { return <div className="w-full rounded-2xl border border-[#d8e8cf] bg-white p-4 shadow-[0_12px_24px_rgba(32,105,64,.08)]"><div className="flex items-center justify-between"><span className="text-[10px] font-bold text-[#173b71]">New response</span><span className="rounded-full bg-[#edf8e8] px-2 py-1 text-[8px] font-bold text-[#27885b]">VERIFIED</span></div><div className="mt-3 rounded-xl bg-[#f3f9ef] p-3"><div className="flex gap-0.5 text-[#eaa632]">{[1,2,3,4,5].map((i) => <Star key={i} size={10} fill="currentColor" />)}</div><p className="mt-2 text-[11px] font-semibold leading-relaxed text-[#294a3c]">“It feels like this was made for us.”</p></div><div className="mt-3 grid grid-cols-2 gap-2"><span className="rounded-lg bg-[#27885b] py-2 text-center text-[9px] font-bold text-white">Approve</span><span className="rounded-lg border border-[#d9e6d2] py-2 text-center text-[9px] font-bold text-[#587367]">Save for later</span></div></div>; }
+function PublishVisual() { return <div className="w-full rounded-2xl border border-[#eadfcf] bg-white p-4 shadow-[0_12px_24px_rgba(120,73,32,.08)]"><div className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-[#f3a18b]"/><i className="h-2 w-2 rounded-full bg-[#f0d175]"/><span className="ml-auto text-[8px] font-mono text-[#9194a1]">yourbrand.com</span></div><div className="mt-4 rounded-xl bg-[#fff4e8] p-3"><span className="flex items-center gap-1 text-[8px] font-bold text-[#c96d42]"><Check size={10}/> VERIFIED CUSTOMER</span><p className="mt-2 text-[11px] font-semibold leading-relaxed text-[#4f3c2e]">“The social proof finally feels like our brand.”</p><div className="mt-3 flex items-center gap-2 text-[9px] font-bold text-[#9a7d64]"><span className="h-5 w-5 rounded-full bg-[#b9d9e8]"/> Alex, founder</div></div></div>; }
 
-  useIsoLayoutEffect(() => {
-    const section = sectionRef.current;
-    if (!section || prefersReducedMotion()) return;
+const visuals = [CollectVisual, CurateVisual, PublishVisual];
 
-    const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(".step-card");
-      cards.forEach((card, i) => {
-        if (i === cards.length - 1) return;
-        // As the next card slides up, scale this one back into the deck
-        gsap.to(card, {
-          scale: 0.92,
-          autoAlpha: 0.55,
-          ease: "none",
-          scrollTrigger: {
-            trigger: cards[i + 1],
-            start: "top center",
-            end: "top top+=240",
-            scrub: true,
-          },
-        });
-      });
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
-
-  return (
-    <section
-      id="how-it-works"
-      ref={sectionRef}
-      className="w-full bg-[#FAF8F5] px-5 py-28 md:px-10 md:py-36"
-    >
-      <div className="mx-auto w-full max-w-[1100px]">
-        <Reveal>
-          <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6B6B6B] md:text-xs">
-            How it works
-          </p>
-          <h2
-            className="text-center text-[clamp(2rem,5vw,3.75rem)] font-extrabold leading-[1.05] tracking-tight text-[#1A1A1A]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Three steps to{" "}
-            <span
-              className="font-normal italic text-[#E8743B]"
-              style={{ fontFamily: "var(--font-serif-accent)" }}
-            >
-              social proof.
-            </span>
-          </h2>
-          <p className="mx-auto mt-5 max-w-lg text-center text-base text-[#6B6B6B] md:text-lg">
-            From zero to embedded testimonials in under 10 minutes.
-          </p>
-        </Reveal>
-
-        {/* Stacking deck */}
-        <div className="mt-16 flex flex-col gap-8">
-          {STEPS.map((step, i) => (
-            <div
-              key={step.num}
-              className="step-card relative md:sticky will-change-transform"
-              style={{ top: `calc(96px + ${i * 28}px)` }}
-            >
-              <div
-                className={`grid items-center gap-8 rounded-3xl p-6 sm:p-8 shadow-[0_24px_64px_rgba(26,26,26,0.10)] md:grid-cols-2 md:p-14 ${step.theme.card}`}
-              >
-                <div>
-                  <span
-                    className={`block text-6xl font-extrabold leading-none md:text-8xl ${step.theme.num}`}
-                    style={{ fontFamily: "var(--font-display)" }}
-                    aria-hidden="true"
-                  >
-                    {step.num}
-                  </span>
-                  <div className={`mt-6 flex h-12 w-12 items-center justify-center rounded-xl ${step.theme.iconWrap}`}>
-                    <step.icon size={24} className={step.theme.icon} strokeWidth={2} />
-                  </div>
-                  <h3
-                    className={`mt-5 text-3xl font-extrabold md:text-4xl ${step.theme.title}`}
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
-                    {step.title}
-                  </h3>
-                  <p className={`mt-3 max-w-md text-sm leading-relaxed md:text-base ${step.theme.desc}`}>
-                    {step.desc}
-                  </p>
-                </div>
-                <div className="flex justify-center">{step.visual}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+export default function HowItWorksStacked({ titleAs: TitleTag = "h2" }: { titleAs?: "h1" | "h2" } = {}) {
+  const reduced = useReducedMotion();
+  return <section id="how-it-works" className="relative overflow-hidden bg-white px-5 py-24 md:px-10 md:py-36">
+    <div className="pointer-events-none absolute left-1/2 top-0 h-[27rem] w-[75rem] -translate-x-1/2 rounded-full bg-[#e8f1ff] opacity-70 blur-3xl" />
+    <div className="relative mx-auto max-w-[1100px]">
+      <motion.div initial={{ opacity: 0, y: reduced ? 0 : 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .7, ease: [.16,1,.3,1] }} className="mx-auto max-w-[700px] text-center"><p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#0b61d9]">How it works</p><TitleTag className="mt-4 text-balance text-[clamp(2.65rem,5.1vw,5rem)] font-medium leading-[.94] tracking-[-.065em] text-[#173b71]" style={{fontFamily:"var(--font-display)"}}>Three small moves.<span className="font-serif-accent block font-normal italic text-[#0b61d9]">One much louder signal.</span></TitleTag><p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-[#587091] md:text-[17px]">Bring in the praise, choose the stories that matter, and put them to work where trust needs a nudge.</p></motion.div>
+      <div className="relative mt-16 grid gap-4 lg:grid-cols-3">
+        {steps.map((step, index) => { const Icon = step.icon; const Visual = visuals[index]; return <motion.article key={step.number} initial={{opacity:0,y:reduced?0:25}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.2}} transition={{duration:.65,delay:index*.1,ease:[.16,1,.3,1]}} className={`group rounded-[28px] border p-5 shadow-[0_14px_32px_rgba(24,61,122,.07)] transition duration-300 hover:-translate-y-1 ${step.tone} md:p-6`}><div className="flex items-center justify-between"><span className={`flex h-9 w-9 items-center justify-center rounded-xl text-white ${step.accent}`}><Icon size={17}/></span><span className="text-[10px] font-bold tracking-[.14em] text-[#7890af]">{step.number}</span></div><div className="my-7 flex min-h-[210px] items-center rounded-[20px] border border-white/85 bg-white/75 p-4"><Visual/></div><p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#0b61d9]">{step.subtitle}</p><h3 className="mt-2 text-[27px] font-semibold tracking-[-.045em] text-[#173b71]">{step.title}</h3><p className="mt-3 text-[13px] leading-relaxed text-[#5e7697]">{step.body}</p></motion.article>; })}
       </div>
-    </section>
-  );
+    </div>
+  </section>;
 }

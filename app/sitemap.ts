@@ -1,8 +1,18 @@
 import type { MetadataRoute } from "next";
+import { posts } from "@/lib/blog";
 
 const BASE = "https://www.blovi.space";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const blogRoutes = [
+    { url: `${BASE}/blog`, changeFrequency: "weekly" as const, priority: 0.8 },
+    ...posts.map((post) => ({
+      url: `${BASE}/blog/${post.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  ];
+
   return [
     { url: `${BASE}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/pricing`, changeFrequency: "weekly", priority: 0.9 },
@@ -16,5 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/terms`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/refund`, changeFrequency: "yearly", priority: 0.2 },
+    ...blogRoutes,
   ];
 }

@@ -5,11 +5,11 @@ import { gsap, ScrollTrigger, prefersReducedMotion } from "./gsap";
 import { useIsoLayoutEffect } from "./use-iso-layout-effect";
 
 const ITEMS = [
-  "Pay once",
-  "Own it forever",
-  "AI polish",
+  "Only $49 lifetime",
+  "Stunning Widgets",
+  "Fast Edge CDN",
   "Wall of Love",
-  "No subscription",
+  "Own forever",
   "One script tag",
 ];
 

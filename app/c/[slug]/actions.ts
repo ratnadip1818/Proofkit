@@ -30,16 +30,34 @@ export async function submitTestimonial(
   const supabase = await createClient();
   const admin = createAdminClient();
 
-  // Free plan: 3 testimonials total — enforce server-side
-  const [{ data: ownerProfile }, { count: totalCount }] = await Promise.all([
-    admin.from("profiles").select("is_lifetime").eq("id", input.userId).maybeSingle(),
+  let ownerProfile: { is_lifetime?: boolean; plan_tier?: string } | null = null;
+  const [{ data: profileData, error: profileError }, { count: totalCount }] = await Promise.all([
+    admin.from("profiles").select("is_lifetime, plan_tier").eq("id", input.userId).maybeSingle(),
     admin
       .from("testimonials")
       .select("id", { count: "exact", head: true })
       .eq("user_id", input.userId),
   ]);
 
-  if (!ownerProfile?.is_lifetime && (totalCount ?? 0) >= FREE_TESTIMONIAL_LIMIT) {
+  if (profileError && (profileError.message.includes("plan_tier") || profileError.code === "42703")) {
+    const { data: fallbackData } = await admin
+      .from("profiles")
+      .select("is_lifetime")
+      .eq("id", input.userId)
+      .maybeSingle();
+    if (fallbackData) {
+      ownerProfile = {
+        is_lifetime: fallbackData.is_lifetime,
+        plan_tier: fallbackData.is_lifetime ? "pro" : "free",
+      };
+    }
+  } else if (profileData) {
+    ownerProfile = profileData;
+  }
+
+  const isPaid = ownerProfile?.is_lifetime === true || ownerProfile?.plan_tier === "pro" || ownerProfile?.plan_tier === "business";
+
+  if (!isPaid && (totalCount ?? 0) >= FREE_TESTIMONIAL_LIMIT) {
     return { error: "This form isn't accepting new testimonials right now." };
   }
 

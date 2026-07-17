@@ -24,13 +24,13 @@ import {
 function SidebarInner({
   email,
   fullName,
-  isLifetime,
+  planTier,
   onItemClick,
   onSignOut,
 }: {
   email: string | null;
   fullName: string | null;
-  isLifetime: boolean;
+  planTier: string;
   onItemClick: () => void;
   onSignOut: () => void;
 }) {
@@ -91,11 +91,9 @@ function SidebarInner({
           <nav className="flex flex-col gap-1">
             {[
               { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-              { label: "Testimonials", href: "/dashboard/testimonials", icon: MessageSquare },
-              { label: "Forms", href: "/dashboard/forms", icon: FileText },
-              { label: "Widgets", href: "/dashboard/widgets", icon: Layers },
-              { label: "Import", href: "/dashboard/import", icon: Upload },
-              { label: "Setup Guide", href: "/dashboard/guide", icon: BookOpen },
+              { label: "Collect", href: "/dashboard/collect", icon: FileText },
+              { label: "Manage", href: "/dashboard/manage", icon: MessageSquare },
+              { label: "Publish", href: "/dashboard/publish", icon: Layers },
             ].map((item) => {
               const active = pathname === item.href;
               const Icon = item.icon;
@@ -125,7 +123,6 @@ function SidebarInner({
           </div>
           <nav className="flex flex-col gap-1">
             {[
-              { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
               { label: "Settings", href: "/dashboard/settings", icon: Settings },
             ].map((item) => {
               const active = pathname === item.href;
@@ -181,7 +178,7 @@ function SidebarInner({
                 return (
                   <Link
                     key={review.id}
-                    href="/dashboard/testimonials"
+                    href="/dashboard/manage"
                     onClick={onItemClick}
                     className="flex items-center gap-2.5 px-3 py-1 hover:bg-black/5 rounded-xl transition-all"
                   >
@@ -222,7 +219,7 @@ function SidebarInner({
       {/* Bottom Account Card & Sign Out */}
       <div className="mt-auto border-t border-[#ECE7E0]/30 p-4 space-y-3 bg-transparent">
         {/* Upgrade Free Tier Banner */}
-        {!isLifetime && (
+        {planTier === "free" && (
           <Link
             href="/dashboard/billing"
             onClick={onItemClick}
@@ -248,7 +245,7 @@ function SidebarInner({
                 {displayName}
               </p>
               <p className="text-[9px] font-bold text-[#6B6B6B]/85 uppercase tracking-wider mt-0.5">
-                {isLifetime ? "Lifetime Pro" : "Free Member"}
+                {planTier === "pro" ? "Pro Plan" : planTier === "business" ? "Business Plan" : "Free Member"}
               </p>
             </div>
           </div>
@@ -269,11 +266,11 @@ function SidebarInner({
 export default function DashboardSidebar({
   email,
   fullName,
-  isLifetime,
+  planTier,
 }: {
   email: string | null;
   fullName: string | null;
-  isLifetime: boolean;
+  planTier: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -293,7 +290,7 @@ export default function DashboardSidebar({
         <SidebarInner
           email={email}
           fullName={fullName}
-          isLifetime={isLifetime}
+          planTier={planTier}
           onItemClick={() => {}}
           onSignOut={handleSignOut}
         />
@@ -344,7 +341,7 @@ export default function DashboardSidebar({
           <SidebarInner
             email={email}
             fullName={fullName}
-            isLifetime={isLifetime}
+            planTier={planTier}
             onItemClick={() => setMobileOpen(false)}
             onSignOut={handleSignOut}
           />

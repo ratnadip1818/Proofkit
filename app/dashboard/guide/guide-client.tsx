@@ -256,7 +256,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                 A to Z Setup Guide
               </h1>
               <p className="mt-2 text-sm text-[#6B6B6B] max-w-xl leading-relaxed">
-                Connect your brand&apos;s Wall of Love. Learn how to import reviews, polish transcripts with AI, and copy embedding scripts for your website CMS.
+                Connect your brand&apos;s Wall of Love. Learn how to import reviews, manage feedback, and copy embedding scripts for your website CMS.
               </p>
             </div>
             

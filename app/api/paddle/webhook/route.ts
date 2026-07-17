@@ -25,6 +25,14 @@ async function findUserByEmail(email: string) {
   }
 }
 
+/**
+ * Resolve the plan tier from a Paddle price ID.
+ * Falls back to "pro" if the env var is missing or unrecognized.
+ */
+function resolvePlanTier(priceId: string): "pro" {
+  return "pro";
+}
+
 export async function POST(request: Request) {
   const signature = request.headers.get("paddle-signature");
   const rawBody = await request.text();
@@ -44,21 +52,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  if (event?.eventType === EventName.TransactionCompleted) {
+  // ── Subscription Created or Updated (activated, renewed, plan changed) ──
+  if (
+    event?.eventType === EventName.SubscriptionCreated ||
+    event?.eventType === EventName.SubscriptionUpdated
+  ) {
     const customerId = event.data.customerId;
+    const subscriptionId = event.data.id;
+    const status = event.data.status; // "active" | "past_due" | "paused" | "canceled"
+
+    // Determine plan tier from the first line item's price ID
+    const priceId = event.data.items?.[0]?.price?.id;
+    const planTier = priceId ? resolvePlanTier(priceId) : "pro";
 
     if (customerId) {
       const customer = await paddle.customers.get(customerId);
       const user = await findUserByEmail(customer.email);
       const supabase = createAdminClient();
 
+      // Only grant access when the subscription is active
+      const effectiveTier = status === "active" ? planTier : "free";
+
       if (user) {
-        await supabase
-          .from("profiles")
-          .upsert({ id: user.id, is_lifetime: true });
+        await supabase.from("profiles").upsert({
+          id: user.id,
+          plan_tier: effectiveTier,
+          paddle_subscription_id: subscriptionId,
+          subscription_status: status,
+        });
       } else {
-        // Buyer paid from the landing page without an account — create one,
-        // unlock it, and email an invite so they can set a password.
+        // Buyer subscribed from the landing page without an account —
+        // create one and email an invite so they can set a password.
         const siteUrl =
           process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
         const { data: invited, error: inviteError } =
@@ -74,28 +98,75 @@ export async function POST(request: Request) {
           );
         }
 
-        await supabase
-          .from("profiles")
-          .upsert({ id: invited.user.id, is_lifetime: true });
+        await supabase.from("profiles").upsert({
+          id: invited.user.id,
+          plan_tier: effectiveTier,
+          paddle_subscription_id: subscriptionId,
+          subscription_status: status,
+        });
       }
     }
-  } else if (event?.eventType === EventName.AdjustmentCreated) {
+  }
+
+  // ── Subscription Canceled ─────────────────────────────────────────────
+  if (event?.eventType === EventName.SubscriptionCanceled) {
     const customerId = event.data.customerId;
 
     if (customerId) {
       try {
         const customer = await paddle.customers.get(customerId);
-        console.log(`Processing refund webhook for customer: ${customer.email} (${customerId})`);
+        console.log(
+          `Processing subscription cancellation for: ${customer.email} (${customerId})`
+        );
 
         const user = await findUserByEmail(customer.email);
         if (user) {
           const supabase = createAdminClient();
-          await supabase
-            .from("profiles")
-            .upsert({ id: user.id, is_lifetime: false });
-          console.log(`Successfully revoked lifetime access for user: ${user.id} (${customer.email})`);
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            plan_tier: "free",
+            subscription_status: "canceled",
+          });
+          console.log(
+            `Downgraded to free for user: ${user.id} (${customer.email})`
+          );
+        }
+      } catch (err: any) {
+        console.error(`Error processing cancellation: ${err.message || err}`);
+        return NextResponse.json(
+          { error: "Failed to process cancellation" },
+          { status: 500 }
+        );
+      }
+    }
+  }
+
+  // ── Refund / Adjustment ───────────────────────────────────────────────
+  if (event?.eventType === EventName.AdjustmentCreated) {
+    const customerId = event.data.customerId;
+
+    if (customerId) {
+      try {
+        const customer = await paddle.customers.get(customerId);
+        console.log(
+          `Processing refund webhook for customer: ${customer.email} (${customerId})`
+        );
+
+        const user = await findUserByEmail(customer.email);
+        if (user) {
+          const supabase = createAdminClient();
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            plan_tier: "free",
+            subscription_status: "canceled",
+          });
+          console.log(
+            `Successfully revoked access for user: ${user.id} (${customer.email})`
+          );
         } else {
-          console.log(`No registered user found for refunded email: ${customer.email}`);
+          console.log(
+            `No registered user found for refunded email: ${customer.email}`
+          );
         }
       } catch (err: any) {
         console.error(`Error processing refund: ${err.message || err}`);

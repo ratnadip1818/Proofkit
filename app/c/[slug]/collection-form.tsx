@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitTestimonial, uploadAvatar } from "./actions";
+import { compressAvatar } from "@/lib/image-compress";
 
 interface FormRow {
   id: string;
@@ -60,6 +61,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mountTime] = useState(() => Date.now());
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -84,6 +86,12 @@ export default function CollectionForm({ form }: { form: FormRow }) {
     e.preventDefault();
     setError(null);
 
+    // Speed check: Reject submissions completed in under 2 seconds (likely automated bots)
+    if (Date.now() - mountTime < 2000) {
+      setSubmitted(true);
+      return;
+    }
+
     if (form.collect_rating && rating === 0) {
       setError("Please select a rating.");
       return;
@@ -98,8 +106,14 @@ export default function CollectionForm({ form }: { form: FormRow }) {
     let avatarUrl: string | null = null;
     if (avatarFile) {
       try {
+        // Compress the image client-side to 150x150 WebP under 15KB
+        const compressedBlob = await compressAvatar(avatarFile);
+        const compressedFile = new File([compressedBlob], `avatar-${Date.now()}.webp`, {
+          type: "image/webp",
+        });
+
         const uploadData = new FormData();
-        uploadData.append("file", avatarFile);
+        uploadData.append("file", compressedFile);
         uploadData.append("userId", form.user_id);
         const { url, error: uploadErr } = await uploadAvatar(uploadData);
         if (uploadErr) {
@@ -108,9 +122,8 @@ export default function CollectionForm({ form }: { form: FormRow }) {
           return;
         }
         avatarUrl = url;
-      } catch {
-        // Server action failures (e.g. body too large) reject the promise —
-        // without this catch the form hangs on "Submitting…" forever
+      } catch (err) {
+        console.error("Client-side avatar compression error:", err);
         setError("Photo upload failed. Try a smaller image, or remove it.");
         setLoading(false);
         return;

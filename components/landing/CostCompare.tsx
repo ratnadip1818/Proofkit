@@ -10,7 +10,7 @@ const BARS = [
   { label: "WiserReview", price: "$9/mo", total: 324, color: "#D4CEC7" },
   { label: "Testimonial.to", price: "$25/mo", total: 900, color: "#BFBAB2" },
   { label: "Senja", price: "$29/mo", total: 1044, color: "#9C968D" },
-  { label: "Blovi", price: "pay once", total: 49, color: "#E8743B", hero: true },
+  { label: "Blovi", price: "$49/yr", total: 147, color: "#E8743B", hero: true },
 ];
 
 const MAX = 1044;
@@ -85,16 +85,16 @@ export default function CostCompare() {
                 Best value
               </span>
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#E8743B]">
-                Blovi, forever
+                Blovi Pro
               </p>
               <p
                 className="mt-3 text-5xl font-extrabold tracking-tight text-[#1A1A1A] md:text-6xl"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                $<NumberTicker value={49} />
+                $<NumberTicker value={147} />
               </p>
               <p className="mt-2 text-sm font-semibold text-[#2E9E6B]">
-                Breaks even vs the cheapest rival in 6 months
+                Saves you over $890 over 3 years vs Senja
               </p>
             </div>
           </div>
