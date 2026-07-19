@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ManageWorkspaceClient from "./manage-workspace-client";
 
+export const metadata = {
+  title: "Manage Reviews — Blovi",
+  description: "Moderate, approve, archive, tag, and organize your collected user testimonials.",
+};
+
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 

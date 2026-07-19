@@ -132,13 +132,13 @@ export default function SettingsPanel({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-8 px-6 space-y-8 animate-fade-in font-sans select-none">
+    <div className="w-full space-y-8 animate-fade-in font-sans select-none text-ink">
       {/* Title Header */}
       <div>
-        <h1 className="font-display font-bold text-2xl text-gray-900 tracking-tight">
+        <h1 className="font-display font-bold text-2xl text-ink tracking-tight">
           Workspace Settings
         </h1>
-        <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+        <p className="text-ink-secondary text-xs mt-1 leading-relaxed">
           Configure business brand profiles, custom domain aliases, and account credentials.
         </p>
       </div>

@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import WidgetBuilder from "./widget-builder";
 
+export const metadata = {
+  title: "Publish Widgets — Blovi",
+  description: "Customize and build social proof widgets including Wall of Love, Marquee, and Carousels.",
+};
+
 export default async function WidgetsPage() {
   const supabase = await createClient();
   const {

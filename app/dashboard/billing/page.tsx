@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+
+export const metadata = {
+  title: "Billing & Plans — Blovi",
+  description: "View license tier status, redeem promotion codes, or upgrade plan features.",
+};
 import { Check, Lock, ShieldCheck, Heart, Sparkles, HelpCircle } from "lucide-react";
 import PaddleCheckout from "@/components/PaddleCheckout";
 import { BorderBeam } from "@/components/magicui/border-beam";
@@ -85,17 +90,17 @@ export default async function BillingPage() {
   const isPaid = planTier === "pro" || planTier === "business";
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen pb-16">
-      <div className="mx-auto max-w-[1000px] px-5 md:px-10 py-10">
+    <div className="w-full bg-canvas min-h-screen pb-16">
+      <div className="w-full px-5 md:px-10 py-10">
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
           <h1
-            className="text-3xl font-extrabold tracking-tight text-[#1A1A1A] flex items-center justify-center md:justify-start gap-2"
+            className="text-3xl font-extrabold tracking-tight text-ink flex items-center justify-center md:justify-start gap-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Billing &amp; License
           </h1>
-          <p className="mt-2 text-sm text-[#6B6B6B]">
+          <p className="mt-2 text-sm text-ink-secondary">
             Premium features and billing status for your account.
           </p>
         </div>

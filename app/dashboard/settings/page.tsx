@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import SettingsPanel from "./settings-panel";
 
+export const metadata = {
+  title: "Workspace Settings — Blovi",
+  description: "Configure business brand profiles, custom domain aliases, and account credentials.",
+};
+
 export default async function SettingsPage() {
   const supabase = await createClient();
   const {
@@ -35,8 +40,8 @@ export default async function SettingsPage() {
   const isPaid = planTier === "pro" || planTier === "business";
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen">
-      <div className="mx-auto max-w-[800px] px-5 md:px-10 py-12">
+    <div className="w-full bg-canvas min-h-screen">
+      <div className="w-full px-5 md:px-10 py-10">
         <SettingsPanel
           email={user.email ?? ""}
           fullName={profile?.full_name ?? ""}

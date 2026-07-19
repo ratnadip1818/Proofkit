@@ -190,9 +190,9 @@ export default function CollectWorkspaceClient({
   const activeBgPreset = BACKGROUND_PRESETS.find((b) => b.id === selectedBg) || BACKGROUND_PRESETS[0];
 
   return (
-    <div className="w-full flex flex-col lg:flex-row h-[calc(100vh-56px)] animate-fade-in font-sans bg-white overflow-hidden select-none">
+    <div className="w-full flex flex-col lg:flex-row h-[calc(100vh-56px)] animate-fade-in font-sans bg-canvas overflow-hidden select-none">
       {/* 1. LEFT PANEL: Form Builder & Advanced Branding Customizer */}
-      <div className="w-full lg:w-1/2 flex flex-col h-full p-6 lg:p-8 bg-white overflow-y-auto shrink-0 border-r border-[#ecebe6]">
+      <div className="w-full lg:w-1/2 flex flex-col h-full p-6 lg:p-8 bg-surface overflow-y-auto shrink-0 border-r border-hairline">
         {/* Header & Save Indicator */}
         <div className="flex items-center justify-between pb-3">
           <div className="flex items-center space-x-2">
@@ -455,9 +455,9 @@ export default function CollectWorkspaceClient({
       </div>
 
       {/* 2. RIGHT PANEL: Live Interactive Form Canvas */}
-      <div className="w-full lg:w-1/2 bg-[#FAF9F6] flex flex-col h-full overflow-hidden shrink-0">
-        <div className="h-12 border-b border-[#ecebe6] bg-white px-6 flex items-center justify-between shrink-0">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Live Preview Canvas ({selectedFont})</span>
+      <div className="w-full lg:w-1/2 bg-canvas flex flex-col h-full overflow-hidden shrink-0">
+        <div className="h-12 border-b border-hairline bg-surface px-6 flex items-center justify-between shrink-0">
+          <span className="text-xs font-bold text-ink-secondary uppercase tracking-wider">Live Preview Canvas ({selectedFont})</span>
           <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
             <button
               onClick={() => setDeviceMode("mobile")}

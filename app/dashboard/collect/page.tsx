@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CollectWorkspaceClient from "./collect-workspace-client";
 
+export const metadata = {
+  title: "Collect Reviews — Blovi",
+  description: "Customize your testimonial collection forms, fonts, colors, and shareable QR codes.",
+};
+
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 

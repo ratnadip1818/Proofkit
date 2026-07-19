@@ -227,43 +227,43 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
   const activeDetails = platforms[activePlatform];
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen relative overflow-hidden pb-20">
+    <div className="w-full bg-canvas min-h-screen relative overflow-hidden pb-20">
       {/* Decorative background gradients */}
-      <div className="absolute top-0 right-0 h-[450px] w-[450px] rounded-full bg-[radial-gradient(circle,rgba(232,116,59,0.035)_0%,transparent_70%)] pointer-events-none -z-10" />
+      <div className="absolute top-0 right-0 h-[450px] w-[450px] rounded-full bg-[radial-gradient(circle,rgba(11,84,216,0.015)_0%,transparent_70%)] pointer-events-none -z-10" />
       <div className="absolute top-[30%] left-[-100px] h-[550px] w-[550px] rounded-full bg-[radial-gradient(circle,rgba(46,158,107,0.015)_0%,transparent_70%)] pointer-events-none -z-10" />
 
-      <div className="mx-auto max-w-[1100px] px-5 py-10">
+      <div className="w-full px-5 md:px-10 py-10">
         
         {/* Header Title section */}
-        <div className="relative overflow-hidden rounded-3xl border border-[#ECE7E0] bg-white p-8 shadow-sm mb-8">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FFFDFB] via-white to-[#FAF8F5] -z-10" />
-          <div className="absolute right-0 bottom-0 h-40 w-40 bg-[radial-gradient(circle_at_bottom_right,rgba(232,116,59,0.04),transparent_80%)] pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl border border-hairline bg-surface p-8 shadow-sm mb-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-surface via-surface to-canvas -z-10" />
+          <div className="absolute right-0 bottom-0 h-40 w-40 bg-[radial-gradient(circle_at_bottom_right,rgba(11,84,216,0.02),transparent_80%)] pointer-events-none" />
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded bg-[#E8743B]/10 text-[#E8743B]">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-accent/10 text-accent">
                   <BookOpen size={11} strokeWidth={2.5} />
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-ink-secondary">
                   Onboarding Documentation
                 </span>
               </div>
               <h1
-                className="text-3xl font-black tracking-tight text-[#1A1A1A] sm:text-4xl"
+                className="text-3xl font-black tracking-tight text-ink sm:text-4xl"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 A to Z Setup Guide
               </h1>
-              <p className="mt-2 text-sm text-[#6B6B6B] max-w-xl leading-relaxed">
+              <p className="mt-2 text-sm text-ink-secondary max-w-xl leading-relaxed">
                 Connect your brand&apos;s Wall of Love. Learn how to import reviews, manage feedback, and copy embedding scripts for your website CMS.
               </p>
             </div>
             
-            <div className="hidden lg:flex items-center gap-1 bg-[#FAF8F5] border border-[#ECE7E0] rounded-2xl p-4 shrink-0 max-w-[280px]">
-              <Sparkles size={16} className="text-[#E8743B] shrink-0" />
-              <p className="text-[10px] font-semibold text-[#6B6B6B] leading-normal">
-                Want to fine-tune colors and layout shapes? Make custom revisions inside the <a href="/dashboard/widgets" className="text-[#E8743B] underline font-bold">Widgets tab</a>.
+            <div className="hidden lg:flex items-center gap-1 bg-canvas border border-hairline rounded-2xl p-4 shrink-0 max-w-[280px]">
+              <Sparkles size={16} className="text-accent shrink-0" />
+              <p className="text-[10px] font-semibold text-ink-secondary leading-normal">
+                Want to fine-tune colors and layout shapes? Make custom revisions inside the <a href="/dashboard/publish" className="text-accent underline font-bold">Widgets tab</a>.
               </p>
             </div>
           </div>
@@ -274,8 +274,8 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
           
           {/* Sidebar - Platform Buttons */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="rounded-3xl border border-[#ECE7E0] bg-white p-5 shadow-sm">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#6B6B6B] mb-3 pl-1">
+            <div className="rounded-3xl border border-hairline bg-surface p-5 shadow-sm">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-ink-secondary mb-3 pl-1">
                 Select Your Platform
               </h3>
               <div className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-2 lg:pb-0 scrollbar-none">

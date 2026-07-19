@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import HomeWorkspaceClient from "./home-workspace-client";
 
+export const metadata = {
+  title: "Overview — Blovi",
+  description: "View your campaign performance, setup checklist, and moderate testimonials in real-time.",
+};
+
 const APP_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 

@@ -76,14 +76,14 @@ export default function HomeWorkspaceClient({
   const firstName = profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-8 px-6 space-y-6 animate-fade-in font-sans">
+    <div className="w-full py-8 space-y-6 animate-fade-in font-sans text-ink">
       {/* Header Greeting */}
       <div>
-        <h1 className="font-display font-bold text-2xl text-gray-900 tracking-tight flex items-center space-x-2">
+        <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
           <span>{greeting}, {firstName}</span>
           <span className="animate-bounce">👋</span>
         </h1>
-        <p className="text-gray-500 text-xs mt-1 font-sans leading-relaxed">
+        <p className="text-ink-secondary text-xs mt-1 font-sans leading-relaxed">
           Let's publish your first customer story and build trust with dynamic social proof widgets.
         </p>
       </div>
@@ -91,7 +91,7 @@ export default function HomeWorkspaceClient({
       {/* Main Grid: Next Action Card & Setup Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Next Best Action Card */}
-        <div className="lg:col-span-2 bg-white border border-[#ecebe6] rounded-xl p-5 shadow-2xs hover:border-gray-300 transition-all flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-surface border border-hairline rounded-xl p-5 shadow-sm hover:border-ink-secondary/30 transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">
@@ -151,19 +151,19 @@ export default function HomeWorkspaceClient({
         </div>
 
         {/* Setup Progress */}
-        <div className="bg-white border border-[#ecebe6] rounded-xl p-5 shadow-2xs flex flex-col justify-between">
+        <div className="bg-surface border border-hairline rounded-xl p-5 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3.5">
-              <span className="font-display font-semibold text-xs text-gray-900 uppercase tracking-wider">
+              <span className="font-display font-semibold text-xs text-ink uppercase tracking-wider">
                 Setup Progress
               </span>
-              <span className="font-mono text-xs font-bold text-blue-600">{progressPercent}%</span>
+              <span className="font-mono text-xs font-bold text-accent">{progressPercent}%</span>
             </div>
 
             {/* Slider progress bar */}
-            <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+            <div className="w-full bg-canvas h-1.5 rounded-full overflow-hidden mb-4">
               <div
-                className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
+                className="bg-accent h-1.5 rounded-full transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -172,7 +172,7 @@ export default function HomeWorkspaceClient({
             <div className="space-y-2.5">
               <div className="flex items-center space-x-2.5 text-xs">
                 <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                <span className="text-gray-500 line-through">Workspace created</span>
+                <span className="text-ink-secondary line-through">Workspace created</span>
               </div>
               <div className="flex items-center space-x-2.5 text-xs">
                 {step2 ? (
@@ -221,28 +221,28 @@ export default function HomeWorkspaceClient({
 
       {/* Workspace Health Statistics Grid */}
       <div className="space-y-3">
-        <h3 className="font-display font-semibold text-xs text-gray-400 uppercase tracking-wider">
+        <h3 className="font-display font-semibold text-xs text-ink-secondary/80 uppercase tracking-wider">
           Workspace Health
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Inbox Status */}
-          <div className="bg-white border border-[#ecebe6] rounded-xl p-4 flex items-start space-x-3.5 hover:border-gray-300 transition-all shadow-2xs">
-            <div className="w-9 h-9 rounded-lg bg-green-50 border border-green-200 flex items-center justify-center text-green-600 shrink-0">
+          <div className="bg-surface border border-hairline rounded-xl p-4 flex items-start space-x-3.5 hover:border-ink-secondary/30 transition-all shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600 shrink-0">
               <Inbox className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-display font-semibold text-sm text-gray-900 block leading-tight">
+              <span className="font-display font-semibold text-sm text-ink block leading-tight">
                 {pendingCount === 0 ? "Inbox Clean" : `${pendingCount} Pending Reviews`}
               </span>
-              <span className="text-[11px] text-gray-500 block mt-1 leading-relaxed">
+              <span className="text-[11px] text-ink-secondary block mt-1 leading-relaxed">
                 {pendingCount === 0
                   ? "All customer reviews are moderated and up to date."
                   : "You have new customer reviews waiting for approval."}
               </span>
               <Link
                 href="/dashboard/manage"
-                className="text-[11px] text-blue-600 font-medium hover:underline mt-2 inline-flex items-center"
+                className="text-[11px] text-accent font-medium hover:underline mt-2 inline-flex items-center"
               >
                 Open Inbox →
               </Link>
@@ -250,22 +250,22 @@ export default function HomeWorkspaceClient({
           </div>
 
           {/* Testimonials Live */}
-          <div className="bg-white border border-[#ecebe6] rounded-xl p-4 flex items-start space-x-3.5 hover:border-gray-300 transition-all shadow-2xs">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">
+          <div className="bg-surface border border-hairline rounded-xl p-4 flex items-start space-x-3.5 hover:border-ink-secondary/30 transition-all shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-display font-semibold text-sm text-gray-900 block leading-tight">
+              <span className="font-display font-semibold text-sm text-ink block leading-tight">
                 {approvedCount} Streaming Reviews
               </span>
-              <span className="text-[11px] text-gray-500 block mt-1 leading-relaxed">
+              <span className="text-[11px] text-ink-secondary block mt-1 leading-relaxed">
                 {approvedCount > 0
                   ? `${approvedCount} approved review(s) active in live widgets.`
                   : "Collect & approve reviews to stream them on widgets."}
               </span>
               <Link
                 href="/dashboard/publish"
-                className="text-[11px] text-blue-600 font-medium hover:underline mt-2 inline-flex items-center"
+                className="text-[11px] text-accent font-medium hover:underline mt-2 inline-flex items-center"
               >
                 Customize Widgets →
               </Link>
@@ -273,20 +273,20 @@ export default function HomeWorkspaceClient({
           </div>
 
           {/* Collection Link */}
-          <div className="bg-white border border-[#ecebe6] rounded-xl p-4 flex items-start space-x-3.5 hover:border-gray-300 transition-all shadow-2xs">
-            <div className="w-9 h-9 rounded-lg bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0">
+          <div className="bg-surface border border-hairline rounded-xl p-4 flex items-start space-x-3.5 hover:border-ink-secondary/30 transition-all shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-600 shrink-0">
               <Link2 className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-display font-semibold text-sm text-gray-900 block leading-tight">
+              <span className="font-display font-semibold text-sm text-ink block leading-tight">
                 Collection Page Active
               </span>
-              <span className="text-[11px] text-gray-500 block mt-1 leading-relaxed">
+              <span className="text-[11px] text-ink-secondary block mt-1 leading-relaxed">
                 Your custom review collection page is ready to accept user feedback.
               </span>
               <Link
                 href="/dashboard/collect"
-                className="text-[11px] text-blue-600 font-medium hover:underline mt-2 inline-flex items-center"
+                className="text-[11px] text-accent font-medium hover:underline mt-2 inline-flex items-center"
               >
                 Configure Form →
               </Link>
@@ -296,31 +296,31 @@ export default function HomeWorkspaceClient({
       </div>
 
       {/* Activity Overview */}
-      <div className="bg-white border border-[#ecebe6] rounded-xl p-5 shadow-2xs">
-        <div className="flex items-center justify-between pb-3.5 border-b border-[#ecebe6]/60 mb-4">
-          <span className="font-display font-semibold text-xs text-gray-900 uppercase tracking-wider">
+      <div className="bg-surface border border-hairline rounded-xl p-5 shadow-sm">
+        <div className="flex items-center justify-between pb-3.5 border-b border-hairline mb-4">
+          <span className="font-display font-semibold text-xs text-ink uppercase tracking-wider">
             Recent Testimonials
           </span>
-          <Link href="/dashboard/manage" className="text-[10px] text-blue-600 hover:underline font-mono uppercase">
+          <Link href="/dashboard/manage" className="text-[10px] text-accent hover:underline font-mono uppercase">
             View All Reviews ({testimonials.length}) →
           </Link>
         </div>
 
         {testimonials.length === 0 ? (
-          <div className="py-8 text-center text-xs text-gray-400">
+          <div className="py-8 text-center text-xs text-ink-secondary/60">
             No testimonials collected yet. Share your collection page URL to get started!
           </div>
         ) : (
-          <div className="divide-y divide-[#ecebe6]/60">
+          <div className="divide-y divide-hairline">
             {testimonials.slice(0, 5).map((t) => (
               <div key={t.id} className="py-3 flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-700 text-xs">
+                  <div className="w-8 h-8 rounded-full bg-canvas flex items-center justify-center font-bold text-ink-secondary text-xs">
                     {t.author_name ? t.author_name[0].toUpperCase() : "?"}
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-900 block">{t.author_name || "Anonymous"}</span>
-                    <span className="text-[11px] text-gray-500">{t.author_role || "Customer"}</span>
+                    <span className="font-semibold text-ink block">{t.author_name || "Anonymous"}</span>
+                    <span className="text-[11px] text-ink-secondary">{t.author_role || "Customer"}</span>
                   </div>
                 </div>
 

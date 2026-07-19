@@ -164,17 +164,17 @@ export default function ManageWorkspaceClient({
   const approvedCount = testimonials.filter((t) => t.status === "approved").length;
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-8 px-6 animate-fade-in font-sans relative min-h-[calc(100vh-64px)] select-none">
+    <div className="w-full py-8 animate-fade-in font-sans relative min-h-[calc(100vh-64px)] select-none text-ink">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-[#ecebe6] mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-hairline mb-6 gap-4">
         <div>
-          <h1 className="font-display font-bold text-2xl text-gray-900 tracking-tight flex items-center space-x-2">
+          <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
             <span>Manage Testimonials</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#efede8] text-gray-700 text-xs font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-canvas text-ink-secondary text-xs font-mono font-bold">
               {testimonials.length} Total
             </span>
           </h1>
-          <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+          <p className="text-ink-secondary text-xs mt-1 leading-relaxed">
             Moderate incoming customer stories, approve website widgets stream, or view detailed sentiment.
           </p>
         </div>
@@ -301,10 +301,10 @@ export default function ManageWorkspaceClient({
 
       {/* Main Review Database View */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-[#ecebe6] rounded-2xl p-12 text-center space-y-3">
-          <Sparkles className="w-8 h-8 text-gray-300 mx-auto" />
-          <h3 className="font-bold text-sm text-gray-800">No Testimonials Found</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">
+        <div className="bg-surface border border-hairline rounded-2xl p-12 text-center space-y-3">
+          <Sparkles className="w-8 h-8 text-ink-secondary/30 mx-auto" />
+          <h3 className="font-bold text-sm text-ink">No Testimonials Found</h3>
+          <p className="text-xs text-ink-secondary max-w-sm mx-auto">
             {searchQuery
               ? "No reviews match your search keywords."
               : "No reviews in this status tab yet."}
@@ -312,10 +312,10 @@ export default function ManageWorkspaceClient({
         </div>
       ) : viewMode === "table" ? (
         /* TABLE VIEW */
-        <div className="bg-white border border-[#ecebe6] rounded-2xl overflow-hidden shadow-2xs">
+        <div className="bg-surface border border-hairline rounded-2xl overflow-hidden shadow-sm">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#fcfcfb] border-b border-[#ecebe6] text-gray-400 font-mono text-[10px] uppercase tracking-wider">
+              <tr className="bg-canvas border-b border-hairline text-ink-secondary/70 font-mono text-[10px] uppercase tracking-wider">
                 <th className="py-3 px-4 w-10">
                   <input
                     type="checkbox"
@@ -440,7 +440,7 @@ export default function ManageWorkspaceClient({
             <div
               key={review.id}
               onClick={() => setEditingReview(review)}
-              className="bg-white border border-[#ecebe6] rounded-2xl p-5 hover:border-gray-300 transition-all shadow-2xs space-y-4 cursor-pointer flex flex-col justify-between"
+              className="bg-surface border border-hairline rounded-2xl p-5 hover:border-ink-secondary/30 transition-all shadow-sm space-y-4 cursor-pointer flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
