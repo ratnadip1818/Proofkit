@@ -6,7 +6,23 @@
       return s[s.length - 1];
     })();
 
-  var userId = currentScript.getAttribute("data-user");
+  // Look for target container element if present
+  var targetContainer =
+    document.getElementById("proofkit-widget") ||
+    document.getElementById("blovi-widget");
+
+  // Helper to get attribute from script tag or container element
+  function getAttr(key) {
+    var val = currentScript.getAttribute("data-" + key);
+    if (val) return val;
+    if (targetContainer) {
+      val = targetContainer.getAttribute("data-" + key);
+      if (val) return val;
+    }
+    return null;
+  }
+
+  var userId = getAttr("user") || getAttr("widget-id");
   if (!userId) return;
 
   // Derive base URL from the script src so the widget works on any domain
@@ -17,7 +33,7 @@
   function resolveTheme(value) {
     if (value !== "auto") return value;
     try {
-      var el = currentScript.parentElement || document.body;
+      var el = (targetContainer || currentScript).parentElement || document.body;
       var bg = null;
       while (el) {
         var c = getComputedStyle(el).backgroundColor;
@@ -41,29 +57,34 @@
   var params = [];
   ["type", "layout", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius"].forEach(
     function (key) {
-      var val = currentScript.getAttribute("data-" + key);
+      var val = getAttr(key);
       if (!val) return;
       if (key === "theme") val = resolveTheme(val);
       params.push(key + "=" + encodeURIComponent(val));
     }
   );
 
-  var typeAttr = currentScript.getAttribute("data-type") || "wall";
-  var isDark = resolveTheme(currentScript.getAttribute("data-theme")) === "dark";
+  // Fallback: if data-layout was passed instead of data-type, ensure type parameter is set
+  if (!getAttr("type") && getAttr("layout")) {
+    params.push("type=" + encodeURIComponent(getAttr("layout")));
+  }
+
+  var typeAttr = getAttr("type") || getAttr("layout") || "wall";
+  var isDark = resolveTheme(getAttr("theme")) === "dark";
   var skeletonBg = isDark ? "#1F1F28" : "#ffffff";
   var skeletonBorder = isDark ? "#2A2A35" : "#e4e4e7";
   var skeletonFill = isDark ? "#2A2A35" : "#f4f4f5";
 
-  var radiusAttr = currentScript.getAttribute("data-radius") || "rounded";
+  var radiusAttr = getAttr("radius") || "rounded";
   var skeletonRadius = "12px";
   if (radiusAttr === "sharp") skeletonRadius = "4px";
   else if (radiusAttr === "pill") skeletonRadius = "22px";
 
-  var showBadgeAttr = currentScript.getAttribute("data-badge");
+  var showBadgeAttr = getAttr("badge");
   var badgeVisible = showBadgeAttr !== "false";
   var isLandingUser = userId === "6e037975-54db-4705-b239-28ef18f95eb8";
-  var showTagsSkeleton = currentScript.getAttribute("data-tags-skeleton") === "true" || isLandingUser;
-  var showShowMoreSkeleton = currentScript.getAttribute("data-show-more-skeleton") === "true" || (isLandingUser && typeAttr === "wall");
+  var showTagsSkeleton = getAttr("tags-skeleton") === "true" || isLandingUser;
+  var showShowMoreSkeleton = getAttr("show-more-skeleton") === "true" || (isLandingUser && typeAttr === "wall");
 
   // Setup smart height placeholders for CLS reduction
   var initialHeight = "400";
@@ -93,7 +114,7 @@
       containerMinHeight = "348px";
     }
   } else if (typeAttr === "wall") {
-    var maxAttr = currentScript.getAttribute("data-max");
+    var maxAttr = getAttr("max");
     var extraHeight = (badgeVisible ? 46 : 0) + (showTagsSkeleton ? 52 : 0) + (showShowMoreSkeleton ? 70 : 0);
     if (maxAttr === "3") {
       initialHeight = String(280 + extraHeight);
@@ -104,9 +125,11 @@
     }
   }
 
-  var container = document.createElement("div");
+  var container = targetContainer || document.createElement("div");
   container.style.cssText = "width:100%;min-height:" + containerMinHeight + ";position:relative;";
-  currentScript.parentNode.insertBefore(container, currentScript.nextSibling);
+  if (!targetContainer) {
+    currentScript.parentNode.insertBefore(container, currentScript.nextSibling);
+  }
 
   // Add skeleton animation and styles
   var skeletonStyle = document.createElement("style");

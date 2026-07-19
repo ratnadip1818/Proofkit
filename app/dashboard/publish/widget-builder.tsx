@@ -54,11 +54,12 @@ export default function WidgetBuilder({
     const widgetId = userId || "demo-widget";
 
     if (activeFramework === "html") {
-      return `<!-- ProofKit Widget: ${layout.toUpperCase()} -->
+      return `<!-- Blovi Widget: ${layout.toUpperCase()} -->
 <div id="proofkit-widget" data-widget-id="${widgetId}"></div>
 <script 
   src="${APP_URL}/widget.js" 
-  data-layout="${layout}"
+  data-user="${widgetId}"
+  data-type="${layout}"
   data-theme="${theme}"
   data-radius="${borderRadius}"
   data-shadow="${cardShadow}"
@@ -95,7 +96,7 @@ export default function SocialProof() {
     }
     if (activeFramework === "framer") {
       return `1. Copy your direct embed URL:
-   ${APP_URL}/embed/${widgetId}?layout=${layout}&theme=${theme}
+   ${APP_URL}/embed/${widgetId}?type=${layout}&theme=${theme}
 
 2. In Framer, add an "Embed / IFrame" component.
 3. Paste the URL into the Framer property panel.`;
@@ -103,7 +104,7 @@ export default function SocialProof() {
     return `1. Drag an "Embed" element into your Webflow page canvas.
 2. Paste the HTML snippet below:
 <div id="proofkit-widget" data-widget-id="${widgetId}"></div>
-<script src="${APP_URL}/widget.js" data-layout="${layout}" defer></script>`;
+<script src="${APP_URL}/widget.js" data-user="${widgetId}" data-type="${layout}" defer></script>`;
   };
 
   const handleCopyCode = () => {
