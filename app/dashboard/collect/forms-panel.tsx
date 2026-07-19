@@ -132,7 +132,7 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
           {forms.map((form) => {
             const formUrl = `${APP_URL}/c/${form.slug}`;
             const isDeleting = deletingId === form.id;
-            const themeColor = form.theme_color || "#0B54D8";
+            const themeColor = form.theme_color || "#2563EB";
             
             // Analytics computations
             const testimonialsList = form.testimonials || [];

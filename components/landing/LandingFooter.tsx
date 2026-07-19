@@ -1,12 +1,5 @@
 import Link from "next/link";
 
-const PRODUCT_LINKS = [
-  { href: "/how-it-works", label: "How it works" },
-  { href: "/features", label: "Features" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/faq", label: "FAQ" },
-];
-
 const COMPANY_LINKS = [
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -39,16 +32,16 @@ export default function LandingFooter() {
           </div>
           <Link
             href="/signup"
-            className="inline-flex items-center justify-center rounded-xl bg-[#0b54d8] px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-product duration-button ease-product hover:bg-[#0945b3] hover:translate-y-[-1px] shrink-0 self-start sm:self-center"
+            className="inline-flex items-center justify-center rounded-xl bg-[#2563EB] px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-product duration-button ease-product hover:bg-[#1d4ed8] hover:translate-y-[-1px] shrink-0 self-start sm:self-center"
           >
             Start Free
           </Link>
         </div>
 
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
+        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="space-y-4">
             <Link href="/" aria-label="Blovi home" className="inline-flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0b54d8]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#2563EB]">
                 <svg width="14" height="14" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z" fill="white"/>
                   <path d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z" fill="white"/>
@@ -91,23 +84,6 @@ export default function LandingFooter() {
                 </svg>
               </a>
             </div>
-          </div>
-
-          <div>
-            <p className="mb-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#6B6B6B]">
-              Product
-            </p>
-            <nav className="flex flex-col gap-3.5 text-xs font-bold" aria-label="Product">
-              {PRODUCT_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-[#9CA3AF] transition-colors hover:text-white"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
           </div>
 
           <div>

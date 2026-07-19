@@ -47,10 +47,10 @@ export default function WhyBloviSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-[700px]"
         >
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#0b61d9]">Your proof is already out there</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2563EB]">Your proof is already out there</p>
           <h2 className="mt-4 text-balance text-[clamp(2.65rem,5.2vw,5.1rem)] font-medium leading-[0.94] tracking-[-0.065em] text-[#16356a]" style={{ fontFamily: "var(--font-display)" }}>
             From kind words to
-            <span className="font-serif-accent ml-2 font-normal italic text-[#0b61d9]">undeniable proof.</span>
+            <span className="font-serif-accent ml-2 font-normal italic text-[#2563EB]">undeniable proof.</span>
           </h2>
           <p className="mt-6 max-w-[510px] text-[15px] leading-relaxed text-[#587091] md:text-[17px]">
             The messages that make your day should also make your next customer feel safe choosing you.
@@ -105,11 +105,11 @@ export default function WhyBloviSection() {
             transition={{ duration: 0.55, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className="relative flex min-h-[92px] items-center justify-center lg:min-h-0"
           >
-            <div className="hidden h-full w-px bg-gradient-to-b from-transparent via-[#0b61d9]/25 to-transparent lg:block" />
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-[#0b61d9]/15 bg-[#e4efff] text-[#0b61d9] shadow-[0_10px_30px_rgba(11,97,217,0.12)]">
+            <div className="hidden h-full w-px bg-gradient-to-b from-transparent via-[#2563EB]/25 to-transparent lg:block" />
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-[#2563EB]/15 bg-[#EFF6FF] text-[#2563EB] shadow-[0_10px_30px_rgba(37,99,235,0.12)]">
               <Sparkles size={19} />
-              <span className="absolute -right-7 top-1/2 hidden h-px w-7 bg-[#0b61d9]/30 lg:block" />
-              <span className="absolute -left-7 top-1/2 hidden h-px w-7 bg-[#0b61d9]/30 lg:block" />
+              <span className="absolute -right-7 top-1/2 hidden h-px w-7 bg-[#2563EB]/30 lg:block" />
+              <span className="absolute -left-7 top-1/2 hidden h-px w-7 bg-[#2563EB]/30 lg:block" />
             </div>
           </motion.div>
 
@@ -118,7 +118,7 @@ export default function WhyBloviSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            className="relative min-h-[470px] overflow-hidden rounded-[30px] bg-[#0b54d8] p-5 text-white shadow-[0_24px_55px_rgba(6,61,162,0.2)] md:p-7"
+            className="relative min-h-[470px] overflow-hidden rounded-[30px] bg-[#2563EB] p-5 text-white shadow-[0_24px_55px_rgba(37,99,235,0.2)] md:p-7"
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_77%_20%,rgba(198,255,177,.24),transparent_25%),radial-gradient(circle_at_16%_92%,rgba(118,201,255,.28),transparent_31%)]" />
             <div className="relative flex items-start justify-between">
@@ -126,7 +126,7 @@ export default function WhyBloviSection() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/60">With Blovi</p>
                 <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.04em]">A living library of trust.</h3>
               </div>
-              <span className="rounded-full bg-[#c6ffb1] px-2.5 py-1 text-[10px] font-bold text-[#0b54d8]">Curated</span>
+              <span className="rounded-full bg-[#c6ffb1] px-2.5 py-1 text-[10px] font-bold text-[#2563EB]">Curated</span>
             </div>
 
             <motion.div
@@ -138,7 +138,7 @@ export default function WhyBloviSection() {
             >
               <div className="flex items-center justify-between border-b border-[#dfe7f1] pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0b54d8] text-sm font-bold text-white">b</span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#2563EB] text-sm font-bold text-white">b</span>
                   <div><p className="text-[11px] font-bold leading-none">Blovi proof library</p><p className="mt-1 text-[9px] text-[#7083a5]">Ready to publish</p></div>
                 </div>
                 <BadgeCheck size={17} className="text-[#269a64]" />

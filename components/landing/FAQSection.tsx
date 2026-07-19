@@ -46,10 +46,10 @@ function AccordionItem({
       <div className="border-b border-[#ECE7E0] last:border-b-0">
         <button
           onClick={onToggle}
-          className="flex w-full items-center justify-between py-5 text-left transition-product duration-hover ease-product hover:text-[#0b54d8] group"
+          className="flex w-full items-center justify-between py-5 text-left transition-product duration-hover ease-product hover:text-[#2563EB] group"
           aria-expanded={isOpen}
         >
-          <span className="text-sm font-bold text-[#1A1A1A] pr-8 group-hover:text-[#0b54d8] transition-colors">
+          <span className="text-sm font-bold text-[#1A1A1A] pr-8 group-hover:text-[#2563EB] transition-colors">
             {item.q}
           </span>
           <span
@@ -112,7 +112,7 @@ export default function FAQSection({
             >
               Questions before you{" "}
               <span
-                className="font-normal italic text-[#0b54d8]"
+                className="font-normal italic text-[#2563EB]"
                 style={{ fontFamily: "var(--font-serif-accent)" }}
               >
                 get started?

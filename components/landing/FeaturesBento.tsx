@@ -21,7 +21,7 @@ export default function FeaturesBento() {
             >
               Every feature, built to{" "}
               <span
-                className="font-normal italic text-[#0b54d8]"
+                className="font-normal italic text-[#2563EB]"
                 style={{ fontFamily: "var(--font-serif-accent)" }}
               >
                 earn trust
@@ -37,9 +37,9 @@ export default function FeaturesBento() {
         <div className="grid gap-6 md:grid-cols-3">
           
           {/* Card 1: Wall of Love Layouts (col-span-2) */}
-          <div className="md:col-span-2 rounded-3xl border border-[#ECE7E0] bg-[#FAF8F5]/30 p-8 flex flex-col justify-between hover:border-[#0b54d8]/20 transition-product duration-card ease-product">
+          <div className="md:col-span-2 rounded-3xl border border-[#ECE7E0] bg-[#FAF8F5]/30 p-8 flex flex-col justify-between hover:border-[#2563EB]/20 transition-product duration-card ease-product">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#0b54d8] bg-[#0b54d8]/5 px-2 py-0.5 rounded">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#2563EB] bg-[#2563EB]/5 px-2 py-0.5 rounded">
                 Layouts
               </span>
               <h3 className="text-lg font-bold text-[#1A1A1A] mt-3">
@@ -53,14 +53,14 @@ export default function FeaturesBento() {
             {/* Visual Preview */}
             <div className="mt-8 grid grid-cols-2 gap-3 bg-white border border-[#ECE7E0] rounded-2xl p-4 shadow-xs">
               <div className="border border-[#ECE7E0] rounded-xl p-3 bg-[#FAF8F5]/30 space-y-2">
-                <div className="flex gap-0.5 text-[#0b54d8]">
+                <div className="flex gap-0.5 text-[#2563EB]">
                   {[...Array(5)].map((_, i) => <Star key={i} size={6} fill="currentColor" />)}
                 </div>
                 <div className="h-1.5 w-full bg-[#1A1A1A]/10 rounded"></div>
                 <div className="h-1.5 w-2/3 bg-[#1A1A1A]/5 rounded"></div>
               </div>
               <div className="border border-[#ECE7E0] rounded-xl p-3 bg-[#FAF8F5]/30 space-y-2">
-                <div className="flex gap-0.5 text-[#0b54d8]">
+                <div className="flex gap-0.5 text-[#2563EB]">
                   {[...Array(5)].map((_, i) => <Star key={i} size={6} fill="currentColor" />)}
                 </div>
                 <div className="h-1.5 w-full bg-[#1A1A1A]/10 rounded"></div>
@@ -70,7 +70,7 @@ export default function FeaturesBento() {
           </div>
 
           {/* Card 2: Smart Moderation (col-span-1) */}
-          <div className="rounded-3xl border border-[#ECE7E0] bg-white p-8 flex flex-col justify-between hover:border-[#0b54d8]/20 transition-product duration-card ease-product">
+          <div className="rounded-3xl border border-[#ECE7E0] bg-white p-8 flex flex-col justify-between hover:border-[#2563EB]/20 transition-product duration-card ease-product">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
                 Moderation
@@ -94,7 +94,7 @@ export default function FeaturesBento() {
           </div>
 
           {/* Card 3: Dynamic Loop Marquees (col-span-1) */}
-          <div className="rounded-3xl border border-[#ECE7E0] bg-white p-8 flex flex-col justify-between hover:border-[#0b54d8]/20 transition-product duration-card ease-product">
+          <div className="rounded-3xl border border-[#ECE7E0] bg-white p-8 flex flex-col justify-between hover:border-[#2563EB]/20 transition-product duration-card ease-product">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
                 Marquees
@@ -117,7 +117,7 @@ export default function FeaturesBento() {
           </div>
 
           {/* Card 4: White-Label Domains (col-span-2) */}
-          <div className="md:col-span-2 rounded-3xl border border-[#ECE7E0] bg-[#FAF8F5]/30 p-8 flex flex-col justify-between hover:border-[#0b54d8]/20 transition-product duration-card ease-product">
+          <div className="md:col-span-2 rounded-3xl border border-[#ECE7E0] bg-[#FAF8F5]/30 p-8 flex flex-col justify-between hover:border-[#2563EB]/20 transition-product duration-card ease-product">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-widest text-[#2E9E6B] bg-green-50/50 border border-green-200/30 px-2 py-0.5 rounded">
                 Custom Domains
@@ -133,7 +133,7 @@ export default function FeaturesBento() {
             {/* Domain Mock Bezel */}
             <div className="mt-8 border border-[#ECE7E0] rounded-2xl p-3 bg-white flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-[#0b54d8] text-[9px] font-bold text-white">b</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-[#2563EB] text-[9px] font-bold text-white">b</span>
                 <span className="text-[10px] font-mono text-[#6B6B6B]">reviews.mybrand.com</span>
               </div>
               <span className="flex items-center gap-1 text-[8px] font-bold uppercase tracking-widest text-[#2E9E6B] bg-green-50 px-2 py-0.5 rounded border border-green-200/30">

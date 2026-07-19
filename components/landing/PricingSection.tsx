@@ -29,7 +29,7 @@ export default function PricingSection() {
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: "radial-gradient(ellipse 50% 45% at 50% 50%, rgba(11,84,216,0.015) 0%, transparent 70%)"
+          background: "radial-gradient(ellipse 50% 45% at 50% 50%, rgba(37,99,235,0.02) 0%, transparent 70%)"
         }}
         aria-hidden="true"
       />
@@ -47,7 +47,7 @@ export default function PricingSection() {
             >
               Start building trust{" "}
               <span
-                className="font-normal italic text-[#0b54d8]"
+                className="font-normal italic text-[#2563EB]"
                 style={{ fontFamily: "var(--font-serif-accent)" }}
               >
                 today
@@ -64,7 +64,7 @@ export default function PricingSection() {
           
           {/* Card 1: Free */}
           <Reveal delay={0.05} y={32}>
-            <div className="group relative overflow-hidden rounded-3xl border border-[#ECE7E0] bg-white p-8 shadow-sm flex flex-col justify-between min-h-[520px] transition-product duration-card ease-product hover:border-[#0b54d8]/20 hover:translate-y-[-2px] hover:shadow-md">
+            <div className="group relative overflow-hidden rounded-3xl border border-[#ECE7E0] bg-white p-8 shadow-sm flex flex-col justify-between min-h-[520px] transition-product duration-card ease-product hover:border-[#2563EB]/30 hover:translate-y-[-2px] hover:shadow-md">
               <div>
                 <span className="inline-flex rounded-full bg-[#FAF8F5] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] border border-[#ECE7E0]">
                   Free
@@ -105,13 +105,13 @@ export default function PricingSection() {
 
           {/* Card 2: Lifetime Starter */}
           <Reveal delay={0.1} y={32}>
-            <div className="group relative overflow-hidden rounded-3xl border-2 border-[#0b54d8] bg-white p-8 shadow-sm flex flex-col justify-between min-h-[520px] transition-product duration-card ease-product hover:translate-y-[-2px] hover:shadow-md">
+            <div className="group relative overflow-hidden rounded-3xl border-2 border-[#2563EB] bg-white p-8 shadow-sm flex flex-col justify-between min-h-[520px] transition-product duration-card ease-product hover:translate-y-[-2px] hover:shadow-md">
               <div>
                 <div className="flex justify-between items-center">
-                  <span className="inline-flex rounded-full bg-[#EBF3FF] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#0b54d8] border border-[#0b54d8]/20">
+                  <span className="inline-flex rounded-full bg-[#EFF6FF] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#2563EB] border border-[#2563EB]/20">
                     Lifetime Starter
                   </span>
-                  <span className="text-[9px] font-bold tracking-widest text-[#0b54d8] uppercase">One Time</span>
+                  <span className="text-[9px] font-bold tracking-widest text-[#2563EB] uppercase">One Time</span>
                 </div>
                 <h3 className="mt-4 text-base font-bold text-[#1A1A1A] leading-tight">
                   Complete trust authority.
@@ -141,7 +141,7 @@ export default function PricingSection() {
               <div className="mt-8 pt-6 border-t border-[#ECE7E0]/60 flex flex-col items-center gap-2">
                 <Link
                   href="/signup"
-                  className="flex w-full items-center justify-center rounded-xl bg-[#0b54d8] py-3 text-xs font-bold text-white shadow-xs transition-product duration-button ease-product hover:bg-[#0945b3] text-center"
+                  className="flex w-full items-center justify-center rounded-xl bg-[#2563EB] py-3 text-xs font-bold text-white shadow-xs transition-product duration-button ease-product hover:bg-[#1d4ed8] text-center"
                 >
                   Get Lifetime Access
                 </Link>

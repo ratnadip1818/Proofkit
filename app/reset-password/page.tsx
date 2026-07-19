@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
                 autoFocus
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                className="rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm text-[#1A1A1A] transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 placeholder="At least 8 characters"
               />
             </div>
@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
                 required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm text-[#1A1A1A] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                className="rounded-lg border border-[#ECE7E0] px-3 py-2.5 text-sm text-[#1A1A1A] transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 placeholder="••••••••"
               />
             </div>
@@ -121,7 +121,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 w-full rounded-lg bg-[#E8743B] py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-1 w-full rounded-lg bg-[#2563EB] py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Updating…" : "Update password"}
             </button>

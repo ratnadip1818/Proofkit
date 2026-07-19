@@ -32,18 +32,18 @@ const RADIUSES: { id: WidgetRadius; label: string }[] = [
 ];
 
 const COLOR_PRESETS = [
-  { name: "Royal Blue", hex: "#0b54d8" },
+  { name: "Brand Blue", hex: "#2563EB" },
   { name: "Sky", hex: "#6366F1" },
   { name: "Emerald", hex: "#10B981" },
   { name: "Purple", hex: "#8B5CF6" },
-  { name: "Bright Blue", hex: "#3B82F6" },
+  { name: "Cyan", hex: "#06B6D4" },
 ];
 
 export default function ProductPlayground() {
   const [style, setStyle] = useState<WidgetType>("wall");
   const [theme, setTheme] = useState<WallTheme>("light");
   const [radius, setRadius] = useState<WidgetRadius>("pill");
-  const [accent, setAccent] = useState("#0b54d8");
+  const [accent, setAccent] = useState("#2563EB");
 
   return (
     <section id="playground" className="relative w-full overflow-hidden bg-[#f7f4eb] px-5 py-24 md:px-10 md:py-36">
@@ -53,7 +53,7 @@ export default function ProductPlayground() {
         {/* Section Header */}
         <div className="max-w-[680px] mb-14 md:mb-16">
           <Reveal>
-            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#0b61d9]">
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2563EB]">
               Make it yours
             </p>
             <h2

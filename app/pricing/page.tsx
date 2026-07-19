@@ -108,13 +108,13 @@ export default function PricingPage() {
 
               {/* Pro Tier */}
               <FadeIn delay={0.1}>
-                <div className="group relative overflow-hidden rounded-3xl border-2 border-[#E8743B] bg-white p-6 shadow-md flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(232,116,59,0.08)]">
+                <div className="group relative overflow-hidden rounded-3xl border-2 border-[#2563EB] bg-white p-6 shadow-md flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(37,99,235,0.1)]">
                   <div>
                     <div className="flex justify-between items-center">
-                      <span className="inline-flex rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-semibold text-[#E8743B] border border-[#E8743B]/20">
+                      <span className="inline-flex rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-xs font-semibold text-[#2563EB] border border-[#2563EB]/20">
                         Pro Plan
                       </span>
-                      <span className="text-[10px] font-bold tracking-widest text-[#E8743B] uppercase animate-pulse">Popular</span>
+                      <span className="text-[10px] font-bold tracking-widest text-[#2563EB] uppercase animate-pulse">Popular</span>
                     </div>
                     <div className="mt-4">
                       <span className="text-3xl font-extrabold text-[#1A1A1A] font-display">$49</span>
@@ -125,7 +125,7 @@ export default function PricingPage() {
                     </p>
 
                     <div className="mt-6 border-t border-[#ECE7E0] pt-6">
-                      <p className="text-xs font-bold uppercase tracking-wider text-[#E8743B] mb-4">Pro Features</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#2563EB] mb-4">Pro Features</p>
                       <ul className="space-y-3">
                         {PRO_FEATURES.map((feature) => (
                           <li key={feature} className="flex items-start gap-2.5 text-xs text-[#1A1A1A]">
@@ -142,7 +142,7 @@ export default function PricingPage() {
                   <div className="mt-8 pt-4 border-t border-[#ECE7E0]/60">
                     <Link
                       href="/signup"
-                      className="flex w-full items-center justify-center rounded-full bg-[#E8743B] py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(232,116,59,0.15)] transition-all hover:scale-[1.02] hover:bg-[#CF5F2C] active:scale-95"
+                      className="flex w-full items-center justify-center rounded-full bg-[#2563EB] py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(37,99,235,0.2)] transition-all hover:scale-[1.02] hover:bg-[#1d4ed8] active:scale-95"
                     >
                       Upgrade to Pro
                     </Link>
