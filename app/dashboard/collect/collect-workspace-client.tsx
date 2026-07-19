@@ -13,31 +13,15 @@ import {
   Upload, 
   Star,
   Camera,
-  FileText
+  Copy,
+  QrCode,
+  Share2,
+  Sliders,
+  Sparkles,
+  Type,
+  Palette
 } from "lucide-react";
 import { updateForm } from "../actions";
-import {
-  PageContainer,
-  SectionCard,
-  SectionHeader,
-  StatusBadge,
-  Button,
-  Input,
-  Textarea,
-  Switch,
-} from "../ui-components";
-
-const TwitterIcon = ({ size = 14 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    style={{ display: "block" }}
-  >
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
 
 interface FormRow {
   id: string;
@@ -50,6 +34,8 @@ interface FormRow {
   collect_rating: boolean;
   require_consent: boolean;
   custom_domain: string | null;
+  custom_font?: string | null;
+  custom_css?: string | null;
 }
 
 interface CollectWorkspaceClientProps {
@@ -58,13 +44,23 @@ interface CollectWorkspaceClientProps {
   appUrl: string;
 }
 
-const COLOR_PRESETS = [
-  { name: "Orange", hex: "#E8743B" },
-  { name: "Indigo", hex: "#6366F1" },
-  { name: "Emerald", hex: "#10B981" },
-  { name: "Purple", hex: "#8B5CF6" },
-  { name: "Rose", hex: "#F43F5E" },
-  { name: "Slate", hex: "#334155" },
+const ACCENT_COLORS = ["#2563EB", "#10B981", "#6366F1", "#EC4899", "#EF4444", "#1F2937"];
+
+const FONTS = [
+  { id: "Inter", label: "Inter (Clean Sans)", family: "var(--font-sans)" },
+  { id: "Outfit", label: "Outfit (Modern Display)", family: "'Outfit', sans-serif" },
+  { id: "Space Grotesk", label: "Space Grotesk (Tech)", family: "'Space Grotesk', sans-serif" },
+  { id: "Instrument Serif", label: "Instrument Serif (Editorial)", family: "'Instrument Serif', Georgia, serif" },
+  { id: "JetBrains Mono", label: "JetBrains Mono (Developer)", family: "'JetBrains Mono', monospace" },
+];
+
+const BACKGROUND_PRESETS = [
+  { id: "canvas", label: "Warm Canvas", class: "bg-[#FAF9F6] text-gray-900 border-[#ecebe6]" },
+  { id: "slate", label: "Midnight Slate", class: "bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border-slate-800" },
+  { id: "sunset", label: "Sunset Glow", class: "bg-gradient-to-br from-amber-50 via-rose-50 to-orange-100 text-gray-900 border-amber-200" },
+  { id: "ocean", label: "Ocean Emerald", class: "bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100 text-gray-900 border-teal-200" },
+  { id: "dusk", label: "Dusk Purple", class: "bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-100 text-gray-900 border-indigo-200" },
+  { id: "obsidian", label: "Obsidian Dark", class: "bg-gray-950 text-white border-gray-800" },
 ];
 
 export default function CollectWorkspaceClient({
@@ -74,16 +70,18 @@ export default function CollectWorkspaceClient({
 }: CollectWorkspaceClientProps) {
   const router = useRouter();
 
-  // Configuration States (LEFT Pane)
-  const [headline, setHeadline] = useState(form.headline);
-  const [prompt, setPrompt] = useState(form.prompt);
-  const [thankYouMessage, setThankYouMessage] = useState(form.thank_you_message);
-  const [themeColor, setThemeColor] = useState(form.theme_color);
-  const [collectPhoto, setCollectPhoto] = useState(form.collect_photo);
-  const [collectRating, setCollectRating] = useState(form.collect_rating);
-  const [requireConsent, setRequireConsent] = useState(form.require_consent);
+  // Configuration States
+  const [headline, setHeadline] = useState(form.headline || "Share your experience with us");
+  const [prompt, setPrompt] = useState(form.prompt || "Would you recommend our product? What's your honest feedback?");
+  const [thankYouMessage, setThankYouMessage] = useState(form.thank_you_message || "Thank you for your feedback! It means the world to our team.");
+  const [themeColor, setThemeColor] = useState(form.theme_color || "#2563EB");
+  const [collectPhoto, setCollectPhoto] = useState(form.collect_photo ?? true);
+  const [collectRating, setCollectRating] = useState(form.collect_rating ?? true);
+  const [requireConsent, setRequireConsent] = useState(form.require_consent ?? true);
+  const [selectedFont, setSelectedFont] = useState(form.custom_font || "Inter");
+  const [selectedBg, setSelectedBg] = useState(form.custom_css || "canvas");
 
-  // Initial values to compute clean/dirty states
+  // Initial values for clean/dirty state tracking
   const [initialValues, setInitialValues] = useState({
     headline: form.headline,
     prompt: form.prompt,
@@ -92,60 +90,77 @@ export default function CollectWorkspaceClient({
     collectPhoto: form.collect_photo,
     collectRating: form.collect_rating,
     requireConsent: form.require_consent,
+    customFont: form.custom_font,
+    customCss: form.custom_css,
   });
 
-  const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "dirty">("saved");
+  const [wizardTab, setWizardTab] = useState<"design" | "share">("design");
+  const [deviceMode, setDeviceMode] = useState<"mobile" | "desktop">("mobile");
 
-  // Preview Mode (CENTER Pane)
-  const [previewMode, setPreviewMode] = useState<"phone" | "desktop">("phone");
-  const [previewRating, setPreviewRating] = useState(5);
-  const [previewText, setPreviewText] = useState("");
-  const [previewName, setPreviewName] = useState("");
+  // Local interactive preview states
+  const [testRating, setTestRating] = useState(5);
+  const [testContent, setTestContent] = useState("");
+  const [testName, setTestName] = useState("");
+  const [testSubmitted, setTestSubmitted] = useState(false);
 
-  // Distribution states (RIGHT Pane)
+  // Share & QR code states
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedInvite, setCopiedInvite] = useState(false);
 
   const shareUrl = form.custom_domain
     ? `https://${form.custom_domain}`
     : `${appUrl}/c/${form.slug}`;
 
-  // Check if configuration has been mutated (dirty)
-  const isDirty = 
-    headline !== initialValues.headline ||
-    prompt !== initialValues.prompt ||
-    thankYouMessage !== initialValues.thankYouMessage ||
-    themeColor !== initialValues.themeColor ||
-    collectPhoto !== initialValues.collectPhoto ||
-    collectRating !== initialValues.collectRating ||
-    requireConsent !== initialValues.requireConsent;
-
-  // Generate QR Code locally
+  // Check dirty state
   useEffect(() => {
-    if (shareUrl) {
-      QRCode.toDataURL(shareUrl, { width: 140, margin: 1 })
-        .then((url) => setQrCodeDataUrl(url))
-        .catch((err) => console.error("Error generating QR code:", err));
+    const isDirty =
+      headline !== initialValues.headline ||
+      prompt !== initialValues.prompt ||
+      thankYouMessage !== initialValues.thankYouMessage ||
+      themeColor !== initialValues.themeColor ||
+      collectPhoto !== initialValues.collectPhoto ||
+      collectRating !== initialValues.collectRating ||
+      requireConsent !== initialValues.requireConsent ||
+      selectedFont !== initialValues.customFont ||
+      selectedBg !== initialValues.customCss;
+
+    if (isDirty && saveStatus === "saved") {
+      setSaveStatus("dirty");
     }
+  }, [headline, prompt, thankYouMessage, themeColor, collectPhoto, collectRating, requireConsent, selectedFont, selectedBg, initialValues, saveStatus]);
+
+  // Generate QR Code for Share Tab
+  useEffect(() => {
+    async function generateQR() {
+      try {
+        const url = await QRCode.toDataURL(shareUrl, {
+          width: 250,
+          margin: 2,
+          color: { dark: "#1E293B", light: "#FFFFFF" },
+        });
+        setQrCodeDataUrl(url);
+      } catch (err) {
+        console.error("QR Code Error:", err);
+      }
+    }
+    generateQR();
   }, [shareUrl]);
 
-  // Handle saving configurations
-  const handleSave = async () => {
-    setSaving(true);
-    const { error } = await updateForm(form.id, {
-      headline,
-      prompt,
-      thank_you_message: thankYouMessage,
-      theme_color: themeColor,
-      collect_photo: collectPhoto,
-      collect_rating: collectRating,
-      require_consent: requireConsent,
-    });
-    setSaving(false);
-    if (!error) {
-      setSaveSuccess(true);
+  const handleSaveForm = async () => {
+    setSaveStatus("saving");
+    try {
+      await updateForm(form.id, {
+        headline,
+        prompt,
+        thank_you_message: thankYouMessage,
+        theme_color: themeColor,
+        collect_photo: collectPhoto,
+        collect_rating: collectRating,
+        require_consent: requireConsent,
+        custom_font: selectedFont,
+        custom_css: selectedBg,
+      });
       setInitialValues({
         headline,
         prompt,
@@ -154,441 +169,420 @@ export default function CollectWorkspaceClient({
         collectPhoto,
         collectRating,
         requireConsent,
+        customFont: selectedFont,
+        customCss: selectedBg,
       });
-      setTimeout(() => setSaveSuccess(false), 2000);
+      setSaveStatus("saved");
       router.refresh();
+    } catch (error) {
+      console.error("Failed to save form settings", error);
+      setSaveStatus("dirty");
     }
   };
 
-  // Copy invitation email draft
-  const handleCopyInvite = () => {
-    const text = `Subject: Quick question about your experience with ${headline}
-
-Hi [Name],
-
-I hope you're doing well!
-
-We recently completed our project/service, and I would love to hear your honest feedback. If you have 30 seconds, could you leave a quick review here?
-
-${shareUrl}
-
-Your support means the world to our business.
-
-Best,
-[Your Name]`;
-    navigator.clipboard.writeText(text);
-    setCopiedInvite(true);
-    setTimeout(() => setCopiedInvite(false), 2000);
-  };
-
-  // Copy collection URL link
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const activeFontFamily = FONTS.find((f) => f.id === selectedFont)?.family || "var(--font-sans)";
+  const activeBgPreset = BACKGROUND_PRESETS.find((b) => b.id === selectedBg) || BACKGROUND_PRESETS[0];
+
   return (
-    <PageContainer
-      title="Collect Workspace"
-      subtitle="Configure, preview, and share your review collection campaign."
-    >
-      {/* Three Column Split Layout on Desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start select-none">
-        
-        {/* 1. LEFT COLUMN: Configuration Pane (lg:col-span-3) */}
-        <div className="lg:col-span-3 space-y-6 lg:order-1 order-2">
-          <SectionCard className="space-y-5">
-            <SectionHeader
-              title="Form Configuration"
-              icon={<FileText size={15} />}
+    <div className="w-full flex flex-col lg:flex-row h-[calc(100vh-56px)] animate-fade-in font-sans bg-white overflow-hidden select-none">
+      {/* 1. LEFT PANEL: Form Builder & Advanced Branding Customizer */}
+      <div className="w-full lg:w-1/2 flex flex-col h-full p-6 lg:p-8 bg-white overflow-y-auto shrink-0 border-r border-[#ecebe6]">
+        {/* Header & Save Indicator */}
+        <div className="flex items-center justify-between pb-3">
+          <div className="flex items-center space-x-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse"
+              style={{ backgroundColor: themeColor }}
             />
+            <span className="font-display font-bold text-xs uppercase tracking-wider text-gray-800">
+              Advanced Form Customizer
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            {saveStatus === "saved" && (
+              <span className="flex items-center space-x-1 text-emerald-600 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200 text-xs">
+                <span>✓ Saved</span>
+              </span>
+            )}
+            {saveStatus === "saving" && (
+              <span className="text-xs font-semibold text-blue-600 animate-pulse bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                Saving...
+              </span>
+            )}
+            {saveStatus === "dirty" && (
+              <button
+                type="button"
+                onClick={handleSaveForm}
+                className="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 hover:bg-amber-100 transition-all cursor-pointer shadow-2xs"
+              >
+                ● Save Changes
+              </button>
+            )}
+          </div>
+        </div>
 
+        <div className="border-b border-[#ecebe6] mb-4" />
+
+        {/* Tab Controls */}
+        <div className="grid grid-cols-2 p-1 bg-gray-100 rounded-xl mb-5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setWizardTab("design")}
+            className={`py-2 px-3 text-xs font-bold transition-all rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer ${
+              wizardTab === "design"
+                ? "bg-white text-gray-900 shadow-2xs border border-gray-200"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>1. Form & Branding</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setWizardTab("share")}
+            className={`py-2 px-3 text-xs font-bold transition-all rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer ${
+              wizardTab === "share"
+                ? "bg-white text-gray-900 shadow-2xs border border-gray-200"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>2. Share & Export</span>
+          </button>
+        </div>
+
+        {/* Form Controls Content */}
+        <div className="space-y-5 flex-1">
+          {wizardTab === "design" ? (
             <div className="space-y-4">
-              <Input
-                label="Form Title"
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                placeholder="Leave a review"
-              />
+              {/* Form Title */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-800 block">Form Headline</label>
+                <input
+                  type="text"
+                  value={headline}
+                  onChange={(e) => setHeadline(e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 text-gray-800 bg-white shadow-3xs"
+                  placeholder="e.g. Share your experience with ProofKit"
+                />
+              </div>
 
-              <Textarea
-                label="Prompt Description"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Tell us what you think..."
-              />
+              {/* Prompt Description */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-800 block">Prompt Description</label>
+                <textarea
+                  rows={2}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 text-gray-800 resize-none leading-relaxed bg-white shadow-3xs"
+                  placeholder="e.g. Would you recommend our product?"
+                />
+              </div>
 
-              <Input
-                label="Success Message"
-                value={thankYouMessage}
-                onChange={(e) => setThankYouMessage(e.target.value)}
-                placeholder="Thank you for your feedback!"
-              />
-
-              {/* Accent Color picker */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wide text-[#1A1A1A] mb-1.5">
-                  Accent Color
+              {/* Typography Font Selector */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs font-bold text-gray-800 flex items-center space-x-1.5">
+                  <Type className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Typography Font Selector</span>
                 </label>
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {COLOR_PRESETS.map((preset) => (
+                <div className="grid grid-cols-1 gap-1.5">
+                  {FONTS.map((font) => (
                     <button
-                      key={preset.hex}
-                      onClick={() => setThemeColor(preset.hex)}
+                      key={font.id}
                       type="button"
-                      className="h-5 w-5 rounded-full border border-black/10 transition-transform active:scale-95"
-                      style={{ backgroundColor: preset.hex }}
-                      title={preset.name}
-                    />
+                      onClick={() => setSelectedFont(font.id)}
+                      className={`w-full py-2 px-3 rounded-xl text-xs font-bold text-left transition-all border cursor-pointer flex items-center justify-between ${
+                        selectedFont === font.id
+                          ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
+                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span style={{ fontFamily: font.family }}>{font.label}</span>
+                      {selectedFont === font.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                    </button>
                   ))}
                 </div>
-                <div className="flex items-center gap-2">
+              </div>
+
+              {/* Background Style & Gradient Selector */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs font-bold text-gray-800 flex items-center space-x-1.5">
+                  <Palette className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Background Theme & Gradient</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {BACKGROUND_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setSelectedBg(preset.id)}
+                      className={`p-2.5 rounded-xl text-xs font-bold text-left transition-all border cursor-pointer ${
+                        selectedBg === preset.id
+                          ? "ring-2 ring-blue-600 ring-offset-1 border-blue-600 shadow-2xs"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <span className="block">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Brand Accent Color Swatches */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs font-bold text-gray-800 block">Brand Button Accent Color</label>
+                <div className="flex items-center space-x-2.5">
+                  {ACCENT_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setThemeColor(color)}
+                      className={`w-7 h-7 rounded-full transition-transform cursor-pointer border ${
+                        themeColor === color ? "ring-2 ring-blue-500 ring-offset-2 scale-110" : "hover:scale-105"
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
                   <input
                     type="color"
                     value={themeColor}
                     onChange={(e) => setThemeColor(e.target.value)}
-                    className="h-7 w-7 cursor-pointer rounded border-0"
+                    className="w-7 h-7 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
                   />
+                </div>
+              </div>
+
+              {/* Feature Toggles */}
+              <div className="space-y-2 pt-3 border-t border-[#ecebe6]">
+                <label className="text-xs font-bold text-gray-800 block">Form Collection Options</label>
+                
+                <label className="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 bg-[#FAF9F6] cursor-pointer">
+                  <span className="text-xs font-medium text-gray-700">Collect Star Rating</span>
+                  <input
+                    type="checkbox"
+                    checked={collectRating}
+                    onChange={(e) => setCollectRating(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 bg-[#FAF9F6] cursor-pointer">
+                  <span className="text-xs font-medium text-gray-700">Require Permission Consent</span>
+                  <input
+                    type="checkbox"
+                    checked={requireConsent}
+                    onChange={(e) => setRequireConsent(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                  />
+                </label>
+              </div>
+
+              {/* Save Action */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleSaveForm}
+                  disabled={saveStatus === "saving"}
+                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center space-x-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{saveStatus === "saving" ? "Saving Form Settings..." : "Save Custom Branding"}</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* SUB-TAB B: SHARE & EXPORT WIZARD */
+            <div className="space-y-5">
+              <div className="bg-[#FAF9F6] border border-[#ecebe6] rounded-xl p-4 space-y-3">
+                <span className="text-xs font-bold text-gray-900 block">Direct Collection Link</span>
+                <div className="flex items-center space-x-2">
                   <input
                     type="text"
-                    value={themeColor}
-                    onChange={(e) => setThemeColor(e.target.value)}
-                    className="w-20 rounded-lg border border-[#ECE7E0] px-2 py-0.5 text-xs text-[#1A1A1A] uppercase focus:outline-none"
+                    readOnly
+                    value={shareUrl}
+                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-700 outline-none"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer"
+                  >
+                    {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedLink ? "Copied" : "Copy"}</span>
+                  </button>
+                </div>
+                <a
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-blue-600 font-semibold hover:underline inline-flex items-center space-x-1"
+                >
+                  <span>Open live collection page in new tab</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+
+              <div className="bg-[#FAF9F6] border border-[#ecebe6] rounded-xl p-4 flex items-center space-x-4">
+                {qrCodeDataUrl ? (
+                  <img src={qrCodeDataUrl} alt="Collection QR Code" className="w-24 h-24 rounded-lg border border-gray-200 shadow-2xs" />
+                ) : (
+                  <div className="w-24 h-24 rounded-lg bg-gray-200 animate-pulse" />
+                )}
+                <div>
+                  <span className="font-bold text-xs text-gray-900 block">QR Code Generator</span>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
+                    Download or print this QR code to collect customer testimonials at physical locations or flyers.
+                  </p>
+                  {qrCodeDataUrl && (
+                    <a
+                      href={qrCodeDataUrl}
+                      download={`proofkit-qr-${form.slug}.png`}
+                      className="mt-2 text-xs font-bold text-blue-600 hover:underline inline-block"
+                    >
+                      Download QR Code Image ↓
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 2. RIGHT PANEL: Live Interactive Form Canvas */}
+      <div className="w-full lg:w-1/2 bg-[#FAF9F6] flex flex-col h-full overflow-hidden shrink-0">
+        <div className="h-12 border-b border-[#ecebe6] bg-white px-6 flex items-center justify-between shrink-0">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Live Preview Canvas ({selectedFont})</span>
+          <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
+            <button
+              onClick={() => setDeviceMode("mobile")}
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${
+                deviceMode === "mobile" ? "bg-white shadow-2xs text-blue-600" : "text-gray-500 hover:text-gray-800"
+              }`}
+              title="Mobile View"
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setDeviceMode("desktop")}
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${
+                deviceMode === "desktop" ? "bg-white shadow-2xs text-blue-600" : "text-gray-500 hover:text-gray-800"
+              }`}
+              title="Desktop View"
+            >
+              <Monitor className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Form Display Frame with Font & Background Styling */}
+        <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
+          <div
+            style={{ fontFamily: activeFontFamily }}
+            className={`transition-all duration-300 rounded-2xl border p-6 lg:p-8 space-y-5 shadow-md ${activeBgPreset.class} ${
+              deviceMode === "mobile" ? "w-full max-w-sm" : "w-full max-w-xl"
+            }`}
+          >
+            {testSubmitted ? (
+              <div className="py-8 text-center space-y-3">
+                <div
+                  className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-white text-xl font-bold"
+                  style={{ backgroundColor: themeColor }}
+                >
+                  ✓
+                </div>
+                <h3 className="font-bold text-base">Thank You!</h3>
+                <p className="text-xs opacity-80 leading-relaxed max-w-xs mx-auto">
+                  {thankYouMessage}
+                </p>
+                <button
+                  onClick={() => setTestSubmitted(false)}
+                  className="mt-4 text-xs font-bold underline cursor-pointer"
+                  style={{ color: themeColor }}
+                >
+                  ← Reset Preview Form
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={(e) => { e.preventDefault(); setTestSubmitted(true); }} className="space-y-4">
+                <div className="space-y-1.5">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-xs"
+                    style={{ backgroundColor: themeColor }}
+                  >
+                    P
+                  </div>
+                  <h2 className="font-bold text-lg leading-tight">
+                    {headline}
+                  </h2>
+                  <p className="text-xs opacity-75 leading-relaxed">
+                    {prompt}
+                  </p>
+                </div>
+
+                {collectRating && (
+                  <div className="space-y-1 pt-1">
+                    <label className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
+                      Overall Rating
+                    </label>
+                    <div className="flex items-center space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setTestRating(star)}
+                          className="p-1 text-amber-400 hover:scale-110 transition-transform cursor-pointer"
+                        >
+                          <Star className={`w-6 h-6 ${star <= testRating ? "fill-amber-400" : "opacity-30"}`} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
+                    Your Review
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={testContent}
+                    onChange={(e) => setTestContent(e.target.value)}
+                    placeholder="Write your feedback..."
+                    className="w-full text-xs border border-gray-200/80 rounded-xl p-3 outline-none focus:border-blue-500 bg-white/90 text-gray-900"
                   />
                 </div>
-              </div>
 
-              {/* Toggle Controls */}
-              <div className="border-t border-[#ECE7E0]/60 pt-4 space-y-4">
-                <Switch
-                  label="Collect Photo"
-                  description="Allow avatars upload"
-                  checked={collectPhoto}
-                  onChange={setCollectPhoto}
-                />
-                <Switch
-                  label="Collect Star Rating"
-                  description="Show 5-star selector"
-                  checked={collectRating}
-                  onChange={setCollectRating}
-                />
-                <Switch
-                  label="Consent Checkbox"
-                  description="Explicit publish permission"
-                  checked={requireConsent}
-                  onChange={setRequireConsent}
-                />
-              </div>
-            </div>
-          </SectionCard>
-
-          {/* State-Aware Save Changes Button */}
-          <Button
-            className="w-full py-3"
-            variant="primary"
-            onClick={handleSave}
-            disabled={saving || !isDirty}
-            loading={saving}
-          >
-            {saveSuccess ? "Saved ✓" : isDirty ? "Save Changes" : "Saved ✓"}
-          </Button>
-        </div>
-
-        {/* 2. CENTER COLUMN: Visual Interactive Preview (lg:col-span-6) */}
-        <div className="lg:col-span-6 flex flex-col items-center gap-4 lg:order-2 order-1 w-full min-w-0">
-          
-          {/* Viewport Toggler */}
-          <div className="flex items-center gap-1 bg-[#ECE7E0]/60 p-1 rounded-xl shrink-0">
-            <button
-              onClick={() => setPreviewMode("phone")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                previewMode === "phone" ? "bg-white text-[#1A1A1A] shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
-              }`}
-            >
-              <Smartphone size={13} />
-              Phone
-            </button>
-            <button
-              onClick={() => setPreviewMode("desktop")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                previewMode === "desktop" ? "bg-white text-[#1A1A1A] shadow-sm" : "text-[#6B6B6B] hover:text-[#1A1A1A]"
-              }`}
-            >
-              <Monitor size={13} />
-              Desktop
-            </button>
-          </div>
-
-          {/* Device Previews Wrapper Container */}
-          <div className="w-full flex justify-center items-start min-h-[560px] bg-[#FAF8F5] border border-[#ECE7E0] rounded-3xl p-6 relative overflow-hidden transition-product duration-card ease-product min-w-0">
-            
-            {/* Phone Device Bezel Frame */}
-            {previewMode === "phone" ? (
-              <div className="w-[290px] h-[525px] rounded-[36px] border-[8px] border-[#1A1A1A] bg-white shadow-xl overflow-y-auto px-4 py-6 scrollbar-hide select-none transition-product duration-card ease-product">
-                <div className="flex flex-col gap-4 text-center">
-                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl text-white font-bold" style={{ backgroundColor: themeColor }}>
-                    {headline.charAt(0).toUpperCase()}
-                  </div>
-                  <h3 className="text-base font-extrabold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
-                    {headline}
-                  </h3>
-                  <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                    {prompt}
-                  </p>
-
-                  {/* Interactive ratings */}
-                  {collectRating && (
-                    <div className="flex items-center justify-center gap-1 my-1">
-                      {[...Array(5)].map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setPreviewRating(i + 1)}
-                          className="text-[#ECE7E0] hover:scale-110 active:scale-95 transition-transform"
-                          style={{ color: i < previewRating ? themeColor : "#ECE7E0" }}
-                          type="button"
-                        >
-                          <Star size={20} fill={i < previewRating ? themeColor : "none"} strokeWidth={2} />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Testimonial text inputs */}
-                  <div className="text-left space-y-3">
-                    <textarea
-                      rows={3}
-                      value={previewText}
-                      onChange={(e) => setPreviewText(e.target.value)}
-                      placeholder="Share your experience with us..."
-                      className="w-full rounded-xl border border-[#ECE7E0] px-3 py-2 text-xs text-[#1A1A1A] focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      value={previewName}
-                      onChange={(e) => setPreviewName(e.target.value)}
-                      placeholder="Your name"
-                      className="w-full rounded-xl border border-[#ECE7E0] px-3 py-2 text-xs text-[#1A1A1A] focus:outline-none"
-                    />
-
-                    {collectPhoto && (
-                      <div className="flex items-center gap-2 border border-dashed border-[#ECE7E0] rounded-xl p-2.5 text-center justify-center text-[10px] text-[#6B6B6B]">
-                        <Camera size={14} className="text-[#6B6B6B]" />
-                        <span>Add Profile Photo (optional)</span>
-                      </div>
-                    )}
-
-                    {requireConsent && (
-                      <label className="flex items-start gap-1.5 text-[10px] text-[#6B6B6B] leading-snug cursor-pointer select-none">
-                        <input type="checkbox" defaultChecked className="mt-0.5" />
-                        <span>I authorize publishing this testimonial on widgets.</span>
-                      </label>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="w-full rounded-xl py-2.5 text-xs font-semibold text-white transition-all shadow-sm"
-                    style={{ backgroundColor: themeColor }}
-                  >
-                    Submit Review
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full max-w-[720px] rounded-2xl border border-[#ECE7E0] bg-white shadow-lg overflow-hidden flex flex-col transition-product duration-card ease-product">
-                <div className="bg-[#FAF8F5] border-b border-[#ECE7E0] px-4 py-2 flex items-center gap-1.5 shrink-0">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-400"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    value={testName}
+                    onChange={(e) => setTestName(e.target.value)}
+                    placeholder="Alex Rivera"
+                    className="w-full text-xs border border-gray-200/80 rounded-xl px-3 py-2 outline-none focus:border-blue-500 bg-white/90 text-gray-900"
+                  />
                 </div>
 
-                <div className="p-8 md:p-12 flex flex-col gap-6 text-center max-w-[480px] mx-auto w-full">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl text-white font-extrabold text-lg" style={{ backgroundColor: themeColor }}>
-                    {headline.charAt(0).toUpperCase()}
-                  </div>
-                  <h3 className="text-xl font-black text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
-                    {headline}
-                  </h3>
-                  <p className="text-sm text-[#6B6B6B] leading-relaxed">
-                    {prompt}
-                  </p>
-
-                  {/* Ratings */}
-                  {collectRating && (
-                    <div className="flex items-center justify-center gap-1 my-1">
-                      {[...Array(5)].map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setPreviewRating(i + 1)}
-                          className="text-[#ECE7E0] hover:scale-110 active:scale-95 transition-transform"
-                          style={{ color: i < previewRating ? themeColor : "#ECE7E0" }}
-                          type="button"
-                        >
-                          <Star size={24} fill={i < previewRating ? themeColor : "none"} strokeWidth={2} />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="text-left space-y-4">
-                    <textarea
-                      rows={3}
-                      value={previewText}
-                      onChange={(e) => setPreviewText(e.target.value)}
-                      placeholder="Share your experience with us..."
-                      className="w-full rounded-xl border border-[#ECE7E0] px-4 py-2.5 text-xs text-[#1A1A1A] focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      value={previewName}
-                      onChange={(e) => setPreviewName(e.target.value)}
-                      placeholder="Your name"
-                      className="w-full rounded-xl border border-[#ECE7E0] px-4 py-2.5 text-xs text-[#1A1A1A] focus:outline-none"
-                    />
-
-                    {collectPhoto && (
-                      <div className="flex items-center gap-2 border border-dashed border-[#ECE7E0] rounded-xl p-3 text-center justify-center text-[10px] text-[#6B6B6B]">
-                        <Camera size={14} className="text-[#6B6B6B]" />
-                        <span>Add Profile Photo (optional)</span>
-                      </div>
-                    )}
-
-                    {requireConsent && (
-                      <label className="flex items-start gap-2 text-xs text-[#6B6B6B] leading-snug cursor-pointer select-none">
-                        <input type="checkbox" defaultChecked className="mt-0.5" />
-                        <span>I authorize publishing this testimonial on widgets.</span>
-                      </label>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="w-full rounded-xl py-3 text-xs font-semibold text-white transition-all shadow-sm"
-                    style={{ backgroundColor: themeColor }}
-                  >
-                    Submit Review
-                  </button>
-                </div>
-              </div>
+                <button
+                  type="submit"
+                  className="w-full py-2.5 px-4 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                  style={{ backgroundColor: themeColor }}
+                >
+                  Submit Review
+                </button>
+              </form>
             )}
-
           </div>
         </div>
-
-        {/* 3. RIGHT COLUMN: Distribute & Campaign launch (lg:col-span-3) */}
-        <div className="lg:col-span-3 space-y-6 lg:order-3 order-3">
-          
-          {/* Share links */}
-          <SectionCard className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Share Page</h3>
-            
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={shareUrl}
-                className="flex-1 rounded-xl border border-[#ECE7E0] bg-[#FAF8F5] px-3 py-2.5 text-xs text-[#6B6B6B] select-all cursor-text focus:outline-none truncate"
-              />
-              <button
-                onClick={handleCopyLink}
-                className="rounded-xl border border-[#ECE7E0] bg-white p-2.5 hover:bg-[#FAF8F5] transition-all text-[#1A1A1A]"
-                title="Copy Link"
-              >
-                {copiedLink ? <Check size={14} className="text-green-600" /> : <Mail size={14} />}
-              </button>
-            </div>
-
-            {/* Custom domain badges status under the QR code */}
-            {form.custom_domain ? (
-              <div className="flex flex-col gap-1 rounded-xl bg-green-50/50 border border-green-200/30 p-3 text-xs font-semibold text-green-800">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2E9E6B]"></span>
-                  <span>Custom Domain Active</span>
-                </div>
-                <span className="text-[10px] text-green-700 font-mono truncate">{form.custom_domain}</span>
-              </div>
-            ) : (
-              <Link
-                href="/dashboard/settings"
-                className="block text-center rounded-xl border border-dashed border-[#ECE7E0] p-3 text-[10px] font-bold text-[#E8743B] bg-[#FAF8F5]/30 hover:bg-[#FFF4EE]/25 transition-all"
-              >
-                Connect Custom Domain →
-              </Link>
-            )}
-
-            {/* QR code canvas rendering */}
-            <div className="flex flex-col items-center justify-center border border-[#ECE7E0] rounded-2xl p-4 bg-white shadow-xs">
-              <span className="text-[9px] font-bold text-[#8A8A8A] uppercase tracking-wider mb-2">QR Code Link</span>
-              {qrCodeDataUrl ? (
-                <img
-                  src={qrCodeDataUrl}
-                  alt="Review Form QR Code"
-                  className="h-28 w-28 object-contain"
-                />
-              ) : (
-                <div className="h-28 w-28 rounded bg-gray-50 flex items-center justify-center text-[10px] text-gray-400">
-                  Generating...
-                </div>
-              )}
-            </div>
-
-            <Button
-              className="w-full py-2.5"
-              variant="secondary"
-              icon={<ExternalLink size={12} />}
-              onClick={() => window.open(shareUrl, "_blank")}
-            >
-              Test Form (Preview)
-            </Button>
-          </SectionCard>
-
-          {/* Invitation Template */}
-          <SectionCard className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Invite Customers</h3>
-            <p className="text-[10px] text-[#6B6B6B] leading-relaxed">Copy a high-converting draft to request customer feedback.</p>
-            <Button
-              className="w-full py-2.5"
-              variant="secondary"
-              onClick={handleCopyInvite}
-            >
-              {copiedInvite ? "Copied ✓" : "Copy Template"}
-            </Button>
-          </SectionCard>
-
-          {/* Praise Importers */}
-          <SectionCard className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B]">Import Reviews</h3>
-            <p className="text-[10px] text-[#6B6B6B] leading-relaxed">Import praise directly from external networks:</p>
-
-            <div className="grid grid-cols-1 gap-2">
-              <Link
-                href="/dashboard/import"
-                className="flex items-center justify-between border border-[#ECE7E0] rounded-xl p-3 bg-white hover:border-[#E8743B]/40 hover:bg-[#FAF8F5]/30 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Upload size={14} className="text-blue-500" />
-                  <span className="text-xs font-bold text-[#1A1A1A]">Upload CSV</span>
-                </div>
-                <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full uppercase">Import</span>
-              </Link>
-
-              <Link
-                href="/dashboard/import"
-                className="flex items-center justify-between border border-[#ECE7E0] rounded-xl p-3 bg-white hover:border-[#E8743B]/40 hover:bg-[#FAF8F5]/30 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <TwitterIcon size={14} />
-                  <span className="text-xs font-bold text-[#1A1A1A]">Sync Twitter / X</span>
-                </div>
-                <span className="text-[10px] text-[#E8743B] font-semibold bg-[#FFF4EE] px-2 py-0.5 rounded-full uppercase">Connect</span>
-              </Link>
-            </div>
-          </SectionCard>
-
-        </div>
-
       </div>
-    </PageContainer>
+    </div>
   );
 }

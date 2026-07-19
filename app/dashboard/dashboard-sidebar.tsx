@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Logo from "@/components/Logo";
 import {
   LayoutDashboard,
-  CreditCard,
   Settings,
   Menu,
   X,
@@ -17,8 +16,10 @@ import {
   MessageSquare,
   Layers,
   FileText,
-  Upload,
-  BookOpen,
+  Star,
+  ChevronDown,
+  ChevronRight,
+  User,
 } from "lucide-react";
 
 function SidebarInner({
@@ -36,227 +37,216 @@ function SidebarInner({
 }) {
   const pathname = usePathname();
   const [recentReviews, setRecentReviews] = useState<any[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [isRecentActivityOpen, setIsRecentActivityOpen] = useState(true);
 
-  // Fetch recent reviews client-side
+  // Fetch recent reviews and pending count client-side
   useEffect(() => {
     const supabase = createClient();
     async function loadRecent() {
-      const { data } = await supabase
-        .from("testimonials")
-        .select("id, author_name, status, avatar_url")
-        .order("created_at", { ascending: false })
-        .limit(3);
+      const [{ data }, { count }] = await Promise.all([
+        supabase
+          .from("testimonials")
+          .select("id, author_name, status, avatar_url, rating, created_at")
+          .order("created_at", { ascending: false })
+          .limit(3),
+        supabase
+          .from("testimonials")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+      ]);
       if (data) {
         setRecentReviews(data);
+      }
+      if (count !== null) {
+        setPendingCount(count);
       }
     }
     loadRecent();
   }, []);
 
-  // Setup profile info
   const displayName = fullName || email?.split("@")[0] || "User";
-  const profileInitials = displayName
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || "?";
+
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const menuItems = [
+    { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Collect", href: "/dashboard/collect", icon: FileText },
+    { label: "Manage Reviews", href: "/dashboard/manage", icon: MessageSquare, badge: pendingCount },
+    { label: "Publish Widgets", href: "/dashboard/publish", icon: Layers },
+  ];
 
   return (
-    <div className="flex h-full flex-col bg-transparent">
+    <div className="flex h-full flex-col bg-[#fcfcfb] font-sans text-gray-800 select-none">
       {/* Brand Header */}
-      <div className="hidden md:flex h-20 shrink-0 items-center px-6 border-b border-[#ECE7E0]/30 bg-transparent">
-        <Link href="/dashboard" aria-label="Blovi dashboard" className="block w-full">
-          <div className="flex items-center gap-3 select-none">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#E8743B]">
-              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z" fill="white"/>
-                <path d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z" fill="white"/>
-              </svg>
-            </span>
-            <span className="font-bold text-lg tracking-tight text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
-              Blovi
-            </span>
+      <div className="p-4 flex items-center justify-between border-b border-[#ecebe6]/80 shrink-0">
+        <Link href="/dashboard" onClick={onItemClick} className="flex items-center space-x-2.5 group">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-xs shadow-blue-500/20 group-hover:bg-blue-700 transition-colors">
+            <span className="font-bold text-lg leading-none">P</span>
+          </div>
+          <div>
+            <span className="font-bold text-sm tracking-tight text-gray-900 block leading-tight">ProofKit</span>
+            <span className="text-[10px] text-gray-400 font-mono tracking-wider uppercase block">Social Proof</span>
           </div>
         </Link>
       </div>
 
-      {/* Navigation Content */}
-      <div className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
-        {/* Section 1: Dashboard */}
-        <div>
-          <div className="text-[9px] font-bold text-[#6B6B6B]/85 uppercase tracking-widest mb-2 pl-3">
+      {/* Primary Navigation */}
+      <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-4">
+        {/* Navigation Section */}
+        <div className="space-y-1">
+          <div className="px-2 pb-1.5 text-[10px] font-mono font-medium tracking-wider uppercase text-gray-400">
             Dashboard
           </div>
-          <nav className="flex flex-col gap-1">
-            {[
-              { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-              { label: "Collect", href: "/dashboard/collect", icon: FileText },
-              { label: "Manage", href: "/dashboard/manage", icon: MessageSquare },
-              { label: "Publish", href: "/dashboard/publish", icon: Layers },
-            ].map((item) => {
-              const active = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onItemClick}
-                  className={`flex items-center gap-2.5 rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
-                    active
-                      ? "bg-[#E8743B] text-white shadow-sm shadow-[#E8743B]/20"
-                      : "text-[#4B5563] hover:bg-black/5 hover:text-[#1A1A1A]"
-                  }`}
-                >
-                  <Icon size={16} strokeWidth={active ? 2.5 : 2} className="shrink-0" />
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                  isActive
+                    ? "bg-[#efede8] text-gray-900 font-semibold shadow-2xs"
+                    : "text-gray-600 hover:bg-[#efede8]/60 hover:text-gray-900"
+                }`}
+              >
+                <div className="flex items-center space-x-2.5">
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-blue-600" : "text-gray-400"}`} />
                   <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+                </div>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Section 2: Account */}
-        <div>
-          <div className="text-[9px] font-bold text-[#6B6B6B]/85 uppercase tracking-widest mb-2 pl-3">
+        {/* Account Settings */}
+        <div className="space-y-1">
+          <div className="px-2 pb-1.5 text-[10px] font-mono font-medium tracking-wider uppercase text-gray-400">
             Account
           </div>
-          <nav className="flex flex-col gap-1">
-            {[
-              { label: "Settings", href: "/dashboard/settings", icon: Settings },
-            ].map((item) => {
-              const active = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onItemClick}
-                  className={`flex items-center gap-2.5 rounded-xl py-2 px-3 text-sm font-semibold transition-all ${
-                    active
-                      ? "bg-[#E8743B] text-white shadow-sm shadow-[#E8743B]/20"
-                      : "text-[#4B5563] hover:bg-black/5 hover:text-[#1A1A1A]"
-                  }`}
-                >
-                  <Icon size={16} strokeWidth={active ? 2.5 : 2} className="shrink-0" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          <Link
+            href="/dashboard/settings"
+            onClick={onItemClick}
+            className={`w-full flex items-center space-x-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+              pathname === "/dashboard/settings"
+                ? "bg-[#efede8] text-gray-900 font-semibold shadow-2xs"
+                : "text-gray-600 hover:bg-[#efede8]/60 hover:text-gray-900"
+            }`}
+          >
+            <Settings className={`w-4 h-4 shrink-0 ${pathname === "/dashboard/settings" ? "text-blue-600" : "text-gray-400"}`} />
+            <span>Workspace Settings</span>
+          </Link>
         </div>
 
-        {/* Section 3: Recent Testimonials */}
-        <div>
-          <div className="flex items-center justify-between text-[9px] font-bold text-[#6B6B6B]/85 uppercase tracking-widest mb-2.5 pl-3">
-            <span>Recent Activity</span>
+        {/* Recent Submissions Tree */}
+        <div className="space-y-1 pt-3 border-t border-[#ecebe6]/60">
+          <button
+            onClick={() => setIsRecentActivityOpen(!isRecentActivityOpen)}
+            className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-mono font-medium tracking-wider uppercase text-gray-400 hover:text-gray-600 text-left cursor-pointer"
+          >
+            <div className="flex items-center space-x-1">
+              {isRecentActivityOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+              <span>Recent Submissions</span>
+            </div>
             <Link
               href="/dashboard/import"
-              onClick={onItemClick}
-              className="p-0.5 hover:bg-black/5 rounded-md transition-colors text-[#6B6B6B] hover:text-[#1A1A1A]"
-              aria-label="Import testimonial"
+              onClick={(e) => {
+                e.stopPropagation();
+                onItemClick();
+              }}
+              className="p-0.5 hover:bg-gray-200/50 rounded transition-colors text-gray-400 hover:text-gray-700"
             >
-              <Plus size={11} strokeWidth={2.5} />
+              <Plus className="w-3 h-3" />
             </Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            {recentReviews.length === 0 ? (
-              <p className="text-[10px] text-[#6B6B6B] pl-3 py-0.5 italic">
-                No submissions yet
-              </p>
-            ) : (
-              recentReviews.map((review) => {
-                const initials = review.author_name
-                  ? review.author_name
-                      .split(" ")
-                      .slice(0, 2)
-                      .map((n: string) => n[0])
-                      .join("")
-                      .toUpperCase()
-                  : "?";
-                const isApproved = review.status === "approved";
-                return (
-                  <Link
-                    key={review.id}
-                    href="/dashboard/manage"
-                    onClick={onItemClick}
-                    className="flex items-center gap-2.5 px-3 py-1 hover:bg-black/5 rounded-xl transition-all"
-                  >
-                    <div className="relative h-7 w-7 shrink-0">
-                      {review.avatar_url ? (
-                        <img
-                          src={review.avatar_url}
-                          alt={review.author_name}
-                          className="h-full w-full rounded-full object-cover border border-[#ECE7E0]"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-tr from-[#ECE7E0] to-[#FAF8F5] text-[9px] font-bold text-[#6B6B6B] border border-[#ECE7E0]">
-                          {initials}
-                        </div>
-                      )}
-                      <span
-                        className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-white ${
-                          isApproved ? "bg-green-500" : "bg-amber-500"
-                        }`}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-[#1A1A1A] truncate">
-                        {review.author_name || "Anonymous"}
-                      </p>
-                      <p className="text-[9px] font-bold tracking-wider uppercase text-[#6B6B6B]/80 leading-none mt-0.5">
-                        {isApproved ? "Approved" : "Pending"}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })
-            )}
-          </div>
+          </button>
+
+          {isRecentActivityOpen && (
+            <div className="pl-3.5 pr-1 py-1 space-y-1">
+              {recentReviews.length === 0 ? (
+                <p className="text-[11px] text-gray-400 italic px-2 py-1">No submissions yet</p>
+              ) : (
+                recentReviews.map((review) => {
+                  const isApproved = review.status === "approved";
+                  return (
+                    <Link
+                      key={review.id}
+                      href="/dashboard/manage"
+                      onClick={onItemClick}
+                      className="flex items-center justify-between px-2 py-1.5 rounded-md text-[11px] text-gray-600 hover:bg-[#efede8]/50 transition-colors"
+                    >
+                      <div className="flex items-center space-x-1.5 min-w-0">
+                        {isApproved ? (
+                          <Star className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full bg-blue-100 text-blue-600 text-[8px] font-bold flex items-center justify-center shrink-0">
+                            P
+                          </div>
+                        )}
+                        <span className="truncate">{review.author_name || "Anonymous"}</span>
+                      </div>
+                      <span className="text-[9px] text-gray-400 shrink-0 font-mono">
+                        {formatTime(review.created_at)}
+                      </span>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Bottom Account Card & Sign Out */}
-      <div className="mt-auto border-t border-[#ECE7E0]/30 p-4 space-y-3 bg-transparent">
-        {/* Upgrade Free Tier Banner */}
+      {/* Footer Profile & Actions */}
+      <div className="p-3 border-t border-[#ecebe6] bg-[#fcfcfb] space-y-2.5 shrink-0">
         {planTier === "free" && (
           <Link
             href="/dashboard/billing"
             onClick={onItemClick}
-            className="block rounded-2xl border border-[#E8743B]/20 bg-[#FFF4EE]/65 px-3.5 py-2.5 transition-all hover:border-[#E8743B]/40 hover:bg-[#FFF4EE]/80"
+            className="block rounded-lg border border-amber-200 bg-amber-50/70 p-2.5 transition-all hover:bg-amber-100/70"
           >
-            <p className="flex items-center gap-1.5 text-[9px] font-bold text-[#1A1A1A] uppercase tracking-wider">
-              <Sparkles size={11} className="text-[#E8743B]" />
-              Free Tier Active
-            </p>
-            <p className="mt-0.5 text-[9px] font-semibold text-[#E8743B]">
-              Upgrade for unlimited →
+            <div className="flex items-center space-x-1.5 text-[10px] font-bold text-amber-800 uppercase tracking-wider">
+              <Sparkles className="w-3 h-3 text-amber-600" />
+              <span>Free Plan Active</span>
+            </div>
+            <p className="mt-0.5 text-[10px] text-amber-700 font-medium">
+              Upgrade for unlimited widgets & pages →
             </p>
           </Link>
         )}
 
-        <div className="flex items-center justify-between gap-2.5 rounded-2xl border border-[#ECE7E0]/45 bg-white/40 p-3 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#E8743B] to-[#FEBC2E] text-xs font-bold text-white shadow-sm">
-              {profileInitials}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-xs font-bold text-[#1A1A1A]">
-                {displayName}
-              </p>
-              <p className="text-[9px] font-bold text-[#6B6B6B]/85 uppercase tracking-wider mt-0.5">
-                {planTier === "pro" ? "Pro Plan" : planTier === "business" ? "Business Plan" : "Free Member"}
-              </p>
+        <div className="flex items-center space-x-2.5 p-2 bg-white rounded-lg border border-[#ecebe6] shadow-2xs">
+          <div className="w-8 h-8 rounded-full bg-[#efede8] border border-gray-200 flex items-center justify-center text-gray-700 font-bold overflow-hidden shrink-0">
+            <User className="w-4 h-4 text-gray-500" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="font-semibold text-xs text-gray-900 block truncate leading-tight">
+              {displayName}
+            </span>
+            <div className="flex items-center space-x-1 mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+              <span className="text-[9px] text-gray-400 font-mono tracking-wider uppercase">
+                {planTier === "pro" ? "PRO MEMBER" : "FREE TIER"}
+              </span>
             </div>
           </div>
         </div>
 
         <button
           onClick={onSignOut}
-          className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-bold text-[#ef4444] bg-[#ef4444]/5 hover:bg-[#ef4444]/10 transition-all cursor-pointer border border-[#ef4444]/10"
+          className="w-full flex items-center justify-center space-x-1.5 px-3 py-1.5 border border-[#ecebe6] hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-xs text-gray-600 transition-all font-medium cursor-pointer"
         >
-          <LogOut size={13} />
-          Sign Out
+          <LogOut className="w-3.5 h-3.5 shrink-0" />
+          <span>Sign Out</span>
         </button>
       </div>
     </div>
@@ -272,7 +262,6 @@ export default function DashboardSidebar({
   fullName: string | null;
   planTier: string;
 }) {
-  const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -285,8 +274,8 @@ export default function DashboardSidebar({
 
   return (
     <>
-      {/* Desktop sidebar — floating translucent macOS card layout */}
-      <aside className="hidden md:flex fixed left-4 top-4 bottom-4 z-30 w-64 flex-col border border-[#ECE7E0]/45 bg-white/75 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] rounded-3xl overflow-hidden">
+      {/* Desktop fixed sidebar */}
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 z-30 w-64 flex-col border-r border-[#ecebe6] bg-[#fcfcfb] shadow-xs">
         <SidebarInner
           email={email}
           fullName={fullName}
@@ -297,14 +286,17 @@ export default function DashboardSidebar({
       </aside>
 
       {/* Mobile top bar */}
-      <header className="md:hidden fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-[#ECE7E0]/45 bg-white/75 backdrop-blur-xl px-4">
-        <Link href="/dashboard" aria-label="Blovi dashboard">
-          <Logo />
+      <header className="md:hidden fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-[#ecebe6] bg-[#fcfcfb] px-4">
+        <Link href="/dashboard" className="flex items-center space-x-2">
+          <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+            P
+          </div>
+          <span className="font-bold text-sm text-gray-900">ProofKit</span>
         </Link>
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation"
-          className="rounded-lg p-1.5 text-[#6B6B6B] hover:bg-black/5"
+          className="rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 cursor-pointer"
         >
           <Menu size={20} />
         </button>
@@ -313,26 +305,29 @@ export default function DashboardSidebar({
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
+          className="md:hidden fixed inset-0 z-40 bg-gray-900/30 backdrop-blur-xs transition-opacity"
           onClick={() => setMobileOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Mobile drawer — matching floating rounded card style */}
+      {/* Mobile drawer */}
       <aside
-        className={`md:hidden fixed left-4 top-4 bottom-4 z-50 flex w-[260px] flex-col border border-[#ECE7E0]/45 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl transition-transform duration-300 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-[110%]"
-        } overflow-hidden`}
+        className={`md:hidden fixed left-0 top-0 bottom-0 z-50 flex w-[260px] flex-col border-r border-[#ecebe6] bg-[#fcfcfb] shadow-xl transition-transform duration-300 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#ECE7E0]/45 px-4">
-          <Link href="/dashboard" aria-label="Blovi dashboard">
-            <Logo />
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#ecebe6] px-4">
+          <Link href="/dashboard" className="flex items-center space-x-2">
+            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+              P
+            </div>
+            <span className="font-bold text-sm text-gray-900">ProofKit</span>
           </Link>
           <button
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation"
-            className="rounded-lg p-1.5 text-[#6B6B6B] hover:bg-black/5"
+            className="rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 cursor-pointer"
           >
             <X size={20} />
           </button>

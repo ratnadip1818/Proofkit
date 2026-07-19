@@ -19,18 +19,18 @@ export const TOKENS = {
   },
   shadow: {
     none: "shadow-none",
-    subtle: "shadow-sm border border-[#ECE7E0]/40",
-    soft: "shadow-md border border-[#ECE7E0]/60",
-    bold: "shadow-xl border border-[#ECE7E0]",
+    subtle: "shadow-sm border border-hairline",
+    soft: "shadow-md border border-hairline",
+    bold: "shadow-xl border border-hairline",
   },
   colors: {
-    accent: "#0b54d8",
-    success: "#2E9E6B",
+    accent: "var(--color-accent)",
+    success: "var(--color-proof)",
     warning: "#D97706",
     danger: "#DC2626",
-    muted: "#6B6B6B",
-    bg: "#FAF8F5",
-    border: "#ECE7E0",
+    muted: "var(--color-ink-secondary)",
+    bg: "var(--color-canvas)",
+    border: "var(--color-hairline)",
   }
 };
 
@@ -47,22 +47,21 @@ export function PageContainer({
   title,
   subtitle,
   children,
-  maxWidth = "max-w-[1200px]",
+  maxWidth = "",
   rightHeaderElement,
 }: PageContainerProps) {
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen">
-      <div className={`mx-auto w-full ${maxWidth} px-5 md:px-10 py-10`}>
+    <div className="w-full bg-canvas min-h-screen">
+      <div className={`w-full ${maxWidth ? `mx-auto ${maxWidth}` : ""} px-5 md:px-10 py-10`}>
         {/* Unified Page Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1
-              className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="text-2xl font-extrabold tracking-tight text-ink font-display"
             >
               {title}
             </h1>
-            {subtitle && <p className="mt-1 text-sm text-[#6B6B6B]">{subtitle}</p>}
+            {subtitle && <p className="mt-1 text-sm text-ink-secondary">{subtitle}</p>}
           </div>
           {rightHeaderElement && <div className="flex items-center gap-2">{rightHeaderElement}</div>}
         </div>
@@ -85,8 +84,8 @@ export function SectionCard({ children, className = "", onClick }: SectionCardPr
   return (
     <div
       onClick={onClick}
-      className={`rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-sm transition-product duration-card ease-product ${
-        onClick ? "cursor-pointer hover:translate-y-[-2px] hover:shadow-md hover:border-[#E8743B]/30" : ""
+      className={`rounded-2xl border border-hairline bg-surface p-6 shadow-sm transition-product duration-card ease-product ${
+        onClick ? "cursor-pointer hover:translate-y-[-2px] hover:shadow-md hover:border-accent/30" : ""
       } ${className}`}
     >
       {children}
@@ -104,11 +103,11 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, icon, description }: SectionHeaderProps) {
   return (
     <div className="mb-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B6B] flex items-center gap-2">
-        {icon && <span className="text-[#E8743B] shrink-0">{icon}</span>}
+      <h3 className="text-xs font-bold uppercase tracking-wider text-ink-secondary flex items-center gap-2">
+        {icon && <span className="text-accent shrink-0">{icon}</span>}
         {title}
       </h3>
-      {description && <p className="text-[11px] text-[#6B6B6B] mt-0.5">{description}</p>}
+      {description && <p className="text-[11px] text-ink-secondary mt-0.5">{description}</p>}
     </div>
   );
 }
@@ -125,16 +124,16 @@ export function StatusBadge({ status, label }: StatusBadgeProps) {
       case "verified":
       case "approved":
       case "connected":
-        return { cls: "bg-green-50 text-[#2E9E6B] border-green-200/30", text: label || "Verified" };
+        return { cls: "bg-green-50/50 text-proof border-green-200/30", text: label || "Verified" };
       case "pending":
         return { cls: "bg-amber-50 text-amber-600 border-amber-200/30", text: label || "Pending" };
       case "failed":
         return { cls: "bg-red-50 text-red-600 border-red-200/30", text: label || "Needs Attention" };
       case "hidden":
-        return { cls: "bg-gray-50 text-[#6B6B6B] border-gray-200/30", text: label || "Archived" };
+        return { cls: "bg-gray-50 text-ink-secondary border-gray-200/30", text: label || "Archived" };
       case "archived":
       default:
-        return { cls: "bg-gray-50 text-[#6B6B6B] border-gray-200/30", text: label || "Archived" };
+        return { cls: "bg-gray-50 text-ink-secondary border-gray-200/30", text: label || "Archived" };
     }
   };
 
@@ -144,7 +143,7 @@ export function StatusBadge({ status, label }: StatusBadgeProps) {
     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider select-none ${style.cls}`}>
       <span className={`h-1 w-1 rounded-full ${
         status === "connected" || status === "verified" || status === "approved" 
-          ? "bg-[#2E9E6B]" 
+          ? "bg-proof" 
           : status === "pending" 
             ? "bg-amber-500" 
             : status === "failed" 
@@ -176,10 +175,10 @@ export function Button({
     "rounded-xl px-4 py-2.5 text-xs font-bold transition-product duration-button ease-product flex items-center justify-center gap-1.5 hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:active:translate-y-0 select-none shadow-xs";
   
   const variants = {
-    primary: "bg-[#E8743B] text-white hover:bg-[#CF5F2C]",
-    secondary: "border border-[#ECE7E0] bg-white text-[#1A1A1A] hover:bg-[#FAF8F5]",
+    primary: "bg-accent text-surface hover:bg-accent-hover",
+    secondary: "border border-hairline bg-surface text-ink hover:bg-canvas",
     danger: "bg-red-50 border border-red-200 text-red-600 hover:bg-red-100",
-    ghost: "bg-transparent text-[#6B6B6B] hover:bg-black/5 hover:text-[#1A1A1A] border border-transparent shadow-none",
+    ghost: "bg-transparent text-ink-secondary hover:bg-ink/5 hover:text-ink border border-transparent shadow-none",
   };
 
   return (
@@ -204,13 +203,13 @@ export function Input({ label, error, className = "", id, ...props }: InputProps
   return (
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
-        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-wide text-[#1A1A1A]">
+        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-wide text-ink">
           {label}
         </label>
       )}
       <input
         id={id}
-        className={`w-full rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-xs text-[#1A1A1A] placeholder-[#9CA3AF] focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/10 transition-product duration-hover ease-product ${
+        className={`w-full rounded-xl border border-hairline bg-surface px-3.5 py-2.5 text-xs text-ink placeholder-[#9CA3AF] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-product duration-hover ease-product ${
           error ? "border-red-500 focus:ring-red-500/10" : ""
         } ${className}`}
         {...props}
@@ -234,14 +233,14 @@ export function Textarea({ label, error, className = "", id, ...props }: Textare
   return (
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
-        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-wide text-[#1A1A1A]">
+        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-wide text-ink">
           {label}
         </label>
       )}
       <textarea
         id={id}
         rows={4}
-        className={`w-full rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-xs text-[#1A1A1A] placeholder-[#9CA3AF] focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/10 transition-product duration-hover ease-product ${
+        className={`w-full rounded-xl border border-hairline bg-surface px-3.5 py-2.5 text-xs text-ink placeholder-[#9CA3AF] focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10 transition-product duration-hover ease-product ${
           error ? "border-red-500 focus:ring-red-500/10" : ""
         } ${className}`}
         {...props}
@@ -265,13 +264,13 @@ export function Select({ label, options, className = "", id, ...props }: SelectP
   return (
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
-        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-wide text-[#1A1A1A]">
+        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-wide text-ink">
           {label}
         </label>
       )}
       <select
         id={id}
-        className={`w-full rounded-xl border border-[#ECE7E0] bg-white px-3 py-2 text-xs text-[#1A1A1A] focus:outline-none focus:border-[#E8743B] focus:ring-2 focus:ring-[#E8743B]/10 transition-product duration-hover ease-product ${className}`}
+        className={`w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-xs text-ink focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-product duration-hover ease-product ${className}`}
         {...props}
       >
         {options.map((opt) => (
@@ -297,8 +296,8 @@ export function Switch({ label, description, checked, onChange, disabled = false
   return (
     <label className={`flex items-center justify-between cursor-pointer select-none ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
       <div>
-        <span className="text-xs font-semibold text-[#1A1A1A] block">{label}</span>
-        {description && <span className="text-[10px] text-[#6B6B6B] block">{description}</span>}
+        <span className="text-xs font-semibold text-ink block">{label}</span>
+        {description && <span className="text-[10px] text-ink-secondary block">{description}</span>}
       </div>
       <input
         type="checkbox"
@@ -307,7 +306,7 @@ export function Switch({ label, description, checked, onChange, disabled = false
         onChange={(e) => !disabled && onChange(e.target.checked)}
         className="sr-only peer"
       />
-      <div className="relative w-9 h-5 bg-[#ECE7E0] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 transition-product duration-hover ease-product peer-checked:bg-[#E8743B]"></div>
+      <div className="relative w-9 h-5 bg-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 transition-product duration-hover ease-product peer-checked:bg-accent"></div>
     </label>
   );
 }
@@ -329,17 +328,17 @@ export function EmptyState({
   secondaryCta,
 }: EmptyStateProps) {
   return (
-    <div className="rounded-3xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center shadow-sm max-w-lg mx-auto select-none">
-      {icon && <div className="text-[#ECE7E0] mx-auto mb-4 flex justify-center">{icon}</div>}
-      <h3 className="text-sm font-bold text-[#1A1A1A]">{title}</h3>
-      <p className="text-xs text-[#6B6B6B] mt-1 max-w-sm mx-auto leading-relaxed">{description}</p>
+    <div className="rounded-3xl border border-dashed border-hairline bg-surface px-6 py-16 text-center shadow-sm max-w-lg mx-auto select-none">
+      {icon && <div className="text-hairline mx-auto mb-4 flex justify-center">{icon}</div>}
+      <h3 className="text-sm font-bold text-ink">{title}</h3>
+      <p className="text-xs text-ink-secondary mt-1 max-w-sm mx-auto leading-relaxed">{description}</p>
       
       {(primaryCta || secondaryCta) && (
         <div className="mt-6 flex items-center justify-center gap-3">
           {primaryCta && (
             <Link
               href={primaryCta.href}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#E8743B] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-product duration-button ease-product hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-md"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold text-surface shadow-sm transition-product duration-button ease-product hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-md"
             >
               {primaryCta.label}
               {primaryCta.icon}
@@ -348,7 +347,7 @@ export function EmptyState({
           {secondaryCta && (
             <Link
               href={secondaryCta.href}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[#ECE7E0] bg-white px-4 py-2.5 text-xs font-bold text-[#1A1A1A] transition-product duration-button ease-product hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-md"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-hairline bg-surface px-4 py-2.5 text-xs font-bold text-ink transition-product duration-button ease-product hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-md"
             >
               {secondaryCta.icon}
               {secondaryCta.label}
@@ -388,7 +387,7 @@ export function LoadingSkeleton({ type = "card" }: LoadingSkeletonProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#ECE7E0] bg-white p-5 space-y-4 shadow-sm w-full">
+    <div className="rounded-2xl border border-hairline bg-surface p-5 space-y-4 shadow-sm w-full">
       <div className="flex items-center gap-3">
         <div className="h-8 w-8 rounded-full animate-shimmer"></div>
         <div className="space-y-1.5 flex-1">

@@ -55,13 +55,13 @@ function CopyButton({ url }: { url: string }) {
     <button
       onClick={handleCopy}
       type="button"
-      className="flex items-center gap-1 rounded-md bg-[#FAF8F5] px-2 py-1 text-[11px] font-bold text-[#6B6B6B] border border-[#ECE7E0] hover:bg-[#F0EBE3] hover:text-[#1A1A1A] transition-colors"
+      className="flex items-center gap-1 rounded-md bg-canvas px-2 py-1 text-[11px] font-bold text-ink-secondary border border-hairline hover:bg-hairline hover:text-ink transition-colors cursor-pointer"
       title="Copy form link"
     >
       {copied ? (
         <>
-          <Check size={11} className="text-green-600" />
-          <span className="text-green-600">Copied!</span>
+          <Check size={11} className="text-proof" />
+          <span className="text-proof">Copied!</span>
         </>
       ) : (
         <>
@@ -99,12 +99,11 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1
-            className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-2xl font-extrabold tracking-tight text-ink font-display"
           >
             Forms
           </h1>
-          <p className="mt-1 text-sm text-[#6B6B6B]">
+          <p className="mt-1 text-sm text-ink-secondary">
             Manage your testimonial collection forms.
           </p>
         </div>
@@ -115,7 +114,7 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
           <button
             type="submit"
             disabled={createPending}
-            className="rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface transition-all hover:bg-accent-hover hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
           >
             {createPending ? "Creating…" : "Create new form"}
           </button>
@@ -123,8 +122,8 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
       </div>
 
       {forms.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#ECE7E0] bg-white px-6 py-16 text-center">
-          <p className="text-sm text-[#6B6B6B]">
+        <div className="rounded-2xl border border-dashed border-hairline bg-surface px-6 py-16 text-center">
+          <p className="text-sm text-ink-secondary">
             No forms yet. Create your first collection form above.
           </p>
         </div>
@@ -133,7 +132,7 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
           {forms.map((form) => {
             const formUrl = `${APP_URL}/c/${form.slug}`;
             const isDeleting = deletingId === form.id;
-            const themeColor = form.theme_color || "#E8743B";
+            const themeColor = form.theme_color || "#0B54D8";
             
             // Analytics computations
             const testimonialsList = form.testimonials || [];
@@ -144,7 +143,7 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
             return (
               <div
                 key={form.id}
-                className="relative flex flex-col justify-between rounded-2xl border border-[#ECE7E0] bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                className="relative flex flex-col justify-between rounded-2xl border border-hairline bg-surface p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 style={{ 
                   opacity: isDeleting ? 0.5 : 1,
                   borderTop: `4px solid ${themeColor}`
@@ -154,10 +153,10 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
                   {/* Card Title & Link */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="font-extrabold text-[#1A1A1A] text-base truncate" title={form.headline || "Untitled form"}>
+                      <p className="font-extrabold text-ink text-base truncate" title={form.headline || "Untitled form"}>
                         {form.headline || "Untitled form"}
                       </p>
-                      <p className="mt-0.5 font-mono text-xs text-[#E8743B] font-semibold truncate">
+                      <p className="mt-0.5 font-mono text-xs text-accent font-semibold truncate">
                         /c/{form.slug}
                       </p>
                     </div>
@@ -166,15 +165,15 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Open form"
-                      className="rounded-lg border border-[#ECE7E0] p-1.5 text-[#6B6B6B] transition-all hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] hover:bg-[#FAF8F5] hover:scale-105"
+                      className="rounded-lg border border-hairline p-1.5 text-ink-secondary transition-all hover:border-ink/20 hover:text-ink hover:bg-canvas hover:scale-105"
                     >
                       <ExternalLink size={14} />
                     </a>
                   </div>
 
                   {/* Copy Link Trigger */}
-                  <div className="mt-3 flex items-center justify-between gap-2 border-b border-[#FAF8F5] pb-3">
-                    <p className="text-[11px] text-[#8A8A8A] flex items-center gap-1">
+                  <div className="mt-3 flex items-center justify-between gap-2 border-b border-canvas pb-3">
+                    <p className="text-[11px] text-ink-secondary/70 flex items-center gap-1">
                       Created {formatDate(form.created_at)}
                     </p>
                     <CopyButton url={formUrl} />
@@ -203,45 +202,45 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
                   </div>
 
                   {/* Analytics Stats */}
-                  <div className="mt-4 rounded-xl bg-[#FAF8F5] border border-[#ECE7E0] p-3">
+                  <div className="mt-4 rounded-xl bg-canvas border border-hairline p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] flex items-center gap-1">
-                        <MessageSquare size={11} className="text-[#E8743B]" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-ink-secondary flex items-center gap-1">
+                        <MessageSquare size={11} className="text-accent" />
                         Submissions
                       </span>
-                      <span className="text-sm font-extrabold text-[#1A1A1A]">
+                      <span className="text-sm font-extrabold text-ink">
                         {totalCount}
                       </span>
                     </div>
-                    <div className="mt-2 grid grid-cols-2 gap-2 border-t border-[#ECE7E0]/60 pt-2 text-[11px]">
-                      <div className="flex items-center justify-between rounded bg-white px-2 py-1 border border-[#ECE7E0]/40">
-                        <span className="text-green-600 font-semibold">Approved</span>
-                        <span className="font-bold text-[#1A1A1A]">{approvedCount}</span>
+                    <div className="mt-2 grid grid-cols-2 gap-2 border-t border-hairline pt-2 text-[11px]">
+                      <div className="flex items-center justify-between rounded bg-surface px-2 py-1 border border-hairline">
+                        <span className="text-proof font-semibold">Approved</span>
+                        <span className="font-bold text-ink">{approvedCount}</span>
                       </div>
-                      <div className="flex items-center justify-between rounded bg-white px-2 py-1 border border-[#ECE7E0]/40">
+                      <div className="flex items-center justify-between rounded bg-surface px-2 py-1 border border-hairline">
                         <span className="text-amber-600 font-semibold">Pending</span>
-                        <span className="font-bold text-[#1A1A1A]">{pendingCount}</span>
+                        <span className="font-bold text-ink">{pendingCount}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="mt-5 pt-3 border-t border-[#ECE7E0] flex items-center justify-between gap-3">
+                <div className="mt-5 pt-3 border-t border-hairline flex items-center justify-between gap-3">
                   <div className="flex-1 flex gap-2">
                     <Link
                       href={`/dashboard/forms/${form.id}`}
-                      className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-[#FAF8F5] border border-[#ECE7E0] px-3 py-1.5 text-xs font-semibold text-[#1A1A1A] transition-all hover:bg-[#F0EBE3]"
+                      className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-canvas border border-hairline px-3 py-1.5 text-xs font-semibold text-ink transition-all hover:bg-hairline"
                     >
                       <span>View reviews</span>
-                      <ChevronRight size={12} className="text-[#6B6B6B]" />
+                      <ChevronRight size={12} className="text-ink-secondary" />
                     </Link>
                     <Link
                       href={`/dashboard/forms/${form.id}/edit`}
-                      className="flex items-center justify-center gap-1 rounded-lg bg-[#FAF8F5] border border-[#ECE7E0] px-3 py-1.5 text-xs font-semibold text-[#1A1A1A] transition-all hover:bg-[#F0EBE3]"
+                      className="flex items-center justify-center gap-1 rounded-lg bg-canvas border border-hairline px-3 py-1.5 text-xs font-semibold text-ink transition-all hover:bg-hairline"
                       title="Customize Form"
                     >
-                      <Settings2 size={12} className="text-[#6B6B6B]" />
+                      <Settings2 size={12} className="text-ink-secondary" />
                       <span>Customize</span>
                     </Link>
                   </div>
@@ -249,7 +248,7 @@ export default function FormsPanel({ forms }: { forms: FormRow[] }) {
                     onClick={() => handleDelete(form.id)}
                     disabled={isDeleting}
                     title="Delete form"
-                    className="rounded-lg border border-red-100 p-2 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
+                    className="rounded-lg border border-red-100 p-2 text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-50 cursor-pointer"
                   >
                     <Trash2 size={13} />
                   </button>

@@ -497,19 +497,32 @@ export async function verifyDomainDNS(domain: string): Promise<{ valid: boolean;
     const cleanDomain = domain.trim().toLowerCase();
     if (!cleanDomain) return { valid: false, error: "Domain name cannot be empty." };
 
-    // Resolve CNAME records
-    const records = await dns.promises.resolveCname(cleanDomain);
-    const hasCorrectCname = records.some(r => r.toLowerCase().includes("vercel-dns.com"));
+    // Try resolving CNAME records first (subdomains)
+    try {
+      const records = await dns.promises.resolveCname(cleanDomain);
+      const hasCorrectCname = records.some(r => r.toLowerCase().includes("vercel-dns.com"));
+      if (hasCorrectCname) {
+        return { valid: true };
+      }
+    } catch (e) {
+      // CNAME check failed or record doesn't exist (e.g. root domain)
+    }
 
-    if (hasCorrectCname) {
-      return { valid: true };
-    } else {
-      return { valid: false, error: `CNAME resolves to: ${records.join(", ")}` };
+    // Try resolving A records (root domains)
+    try {
+      const ips = await dns.promises.resolve4(cleanDomain);
+      const isVercelIp = ips.includes("76.76.21.21");
+      if (isVercelIp) {
+        return { valid: true };
+      }
+      return { 
+        valid: false, 
+        error: `DNS configuration is invalid. Subdomains must point to cname.vercel-dns.com (CNAME). Root domains must point to 76.76.21.21 (A record). Found IPs: ${ips.join(", ")}` 
+      };
+    } catch (err: any) {
+      return { valid: false, error: "No CNAME or A records found for this domain. Make sure your DNS is configured." };
     }
   } catch (err: any) {
-    if (err.code === "ENODATA" || err.code === "ENOTFOUND") {
-      return { valid: false, error: "No CNAME record found. Please verify your settings." };
-    }
     return { valid: false, error: `Verification failed: ${err.message}` };
   }
 }

@@ -46,14 +46,14 @@ export default async function DashboardLayout({
   if (!profile?.full_name) redirect("/onboarding");
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5]">
+    <div className="min-h-screen bg-[#FAF9F6] text-gray-800">
       <DashboardSidebar
         email={user?.email ?? null}
         fullName={profile?.full_name ?? null}
         planTier={profile?.is_lifetime === true ? "pro" : (profile?.plan_tier ?? "free")}
       />
-      {/* Offset: sidebar width on md+, top bar height on mobile */}
-      <main className="md:pl-72 pt-14 md:pt-6 md:pr-6 md:pb-6 min-h-screen">
+      {/* Offset: sidebar width 64 (16rem) on md+, top bar height on mobile */}
+      <main className="md:pl-64 pt-14 md:pt-0 min-h-screen bg-[#FAF9F6]">
         {children}
       </main>
     </div>

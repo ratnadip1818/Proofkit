@@ -9,7 +9,7 @@ export default function Logo({ size = 28 }: { size?: number }) {
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
-        <rect width="32" height="32" rx="8" fill="#E8743B" />
+        <rect width="32" height="32" rx="8" fill="var(--color-accent)" />
         {/* Bold thumbs-up icon */}
         <path
           d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
@@ -21,7 +21,7 @@ export default function Logo({ size = 28 }: { size?: number }) {
         />
       </svg>
       <span
-        style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.125rem", letterSpacing: "-0.02em", color: "#1A1A1A" }}
+        style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.125rem", letterSpacing: "-0.02em", color: "var(--color-ink)" }}
       >
         Blovi
       </span>

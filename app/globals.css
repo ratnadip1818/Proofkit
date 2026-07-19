@@ -27,19 +27,22 @@ body {
 
 @theme inline {
   /* Brand palette */
-  --color-canvas: #FAF8F5;
-  --color-surface: #FFFFFF;
-  --color-ink: #1A1A1A;
-  --color-ink-secondary: #6B6B6B;
-  --color-brand-deep: #16161D;
-  --color-accent: #0b54d8;
-  --color-accent-hover: #0945b3;
+  --color-canvas: #F7F4EB;
+  --color-surface: #FFFDF8;
+  --color-ink: #173B71;
+  --color-ink-secondary: #587091;
+  --color-brand-deep: #173B71;
+  --color-accent: #0B54D8;
+  --color-accent-hover: #0754D9;
   --color-proof: #2E9E6B;
-  --color-hairline: #ECE7E0;
+  --color-hairline: rgba(23, 59, 113, 0.1);
+  --color-brand-lime: #C6FFB1;
+  --color-brand-peach: #F9C2A9;
 
   /* Fonts */
-  --font-display: var(--font-jakarta), "Inter Tight", sans-serif;
-  --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-sans: var(--font-inter), "Inter", sans-serif;
+  --font-mono: var(--font-mono), "JetBrains Mono", monospace;
   --font-serif-accent: var(--font-serif), Georgia, serif;
 
   /* Magic UI animations */
@@ -63,15 +66,15 @@ body {
 }
 
 body {
-  background-color: #FAF8F5;
-  color: #1A1A1A;
+  background-color: #F7F4EB;
+  color: #173B71;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background-color: #E8743B;
-  color: #fff;
+  background-color: #C6FFB1;
+  color: #0B54D8;
 }
 
 /* ---------- Lenis smooth scroll ---------- */

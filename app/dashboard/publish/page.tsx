@@ -46,16 +46,16 @@ export default async function WidgetsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen lg:min-h-0 lg:h-[calc(100vh-48px)] lg:overflow-hidden flex flex-col">
-      <div className="mx-auto w-full max-w-[1200px] px-5 md:px-10 py-6 md:py-8 flex-1 flex flex-col min-h-0">
+    <div className="w-full bg-canvas min-h-screen lg:min-h-0 lg:h-[calc(100vh-48px)] lg:overflow-hidden flex flex-col">
+      <div className="w-full px-5 md:px-10 py-6 md:py-8 flex-1 flex flex-col min-h-0">
         <div className="mb-6 shrink-0">
           <h1
-            className="text-2xl font-extrabold tracking-tight text-[#1A1A1A]"
+            className="text-2xl font-extrabold tracking-tight text-ink"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Widgets
           </h1>
-          <p className="mt-1 text-sm text-[#6B6B6B]">
+          <p className="mt-1 text-sm text-ink-secondary">
             Build and customize your testimonial widgets.
           </p>
         </div>
