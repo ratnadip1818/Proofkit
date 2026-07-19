@@ -169,8 +169,10 @@ export async function updateForm(
     const newDomain = data.custom_domain ? cleanDomain(data.custom_domain) : null;
 
     if (oldDomain !== newDomain) {
-      const isSystemSubdomain = (domain: string) =>
-        domain.endsWith(".blovi.space") || domain.endsWith(".localhost");
+      const isSystemSubdomain = (domain: string) => {
+        const systemDomains = ["www.blovi.space", "blovi.space"];
+        return systemDomains.includes(domain) || domain.endsWith(".localhost");
+      };
 
       try {
         // Remove old custom domain from Vercel configuration
