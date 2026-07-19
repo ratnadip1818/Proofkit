@@ -132,157 +132,161 @@ export default function SettingsPanel({
   };
 
   return (
-    <div className="w-full space-y-8 animate-fade-in font-sans select-none text-ink">
+    <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
       {/* Title Header */}
       <div>
-        <h1 className="font-display font-bold text-2xl text-ink tracking-tight">
+        <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em] leading-tight">
           Workspace Settings
         </h1>
-        <p className="text-ink-secondary text-xs mt-1 leading-relaxed">
+        <p className="text-[#787774] text-sm mt-1 leading-relaxed">
           Configure business brand profiles, custom domain aliases, and account credentials.
         </p>
       </div>
 
       <div className="space-y-6">
-        {/* SECTION 1: WORKSPACE IDENTITY */}
-        <form onSubmit={handleSaveWorkspace} className="bg-white border border-[#ecebe6] rounded-2xl p-6 shadow-2xs space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-[#ecebe6]">
-            <div className="flex items-center space-x-2">
-              <Sliders className="w-4 h-4 text-blue-600" />
-              <h3 className="font-display font-semibold text-xs text-gray-900 uppercase tracking-wider">
-                Workspace Profile Settings
-              </h3>
-            </div>
+        {/* CARD 1: WORKSPACE PROFILE SETTINGS */}
+        <form onSubmit={handleSaveWorkspace} className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] space-y-5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
+              WORKSPACE PROFILE SETTINGS
+            </span>
             {workspaceSaved && (
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+              <span className="text-xs font-semibold text-[#16A34A] bg-[#16A34A]/10 px-2 py-0.5 rounded border border-[#16A34A]/20">
                 ✓ Changes Saved
               </span>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-800 block">Workspace Display Name</label>
+            <div>
+              <label className="text-xs font-medium text-[#1A1A1A] mb-1.5 block">Display Name</label>
               <input
                 type="text"
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
-                className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 bg-white"
-                placeholder="e.g. Acme Team"
+                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/12 bg-white text-[#1A1A1A]"
+                placeholder="ProofKit Inc."
                 required
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-800 block">Account Email</label>
+            <div>
+              <label className="text-xs font-medium text-[#1A1A1A] mb-1.5 block">Account Email</label>
               <input
                 type="email"
                 readOnly
                 value={email}
-                className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50 text-gray-500 outline-none"
+                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 bg-[#F7F6F3] text-[#787774] outline-none"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#ecebe6] flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-gray-900 block flex items-center space-x-1.5">
-                <span>Hide ProofKit Branding Badge</span>
-                <span className="px-1.5 py-0.25 rounded text-[9px] font-mono bg-blue-50 text-blue-600 border border-blue-200 font-bold uppercase">
-                  PRO
-                </span>
-              </span>
-              <span className="text-[11px] text-gray-500">Remove &apos;Powered by ProofKit&apos; footer from forms &amp; widgets</span>
-            </div>
-            <input
-              type="checkbox"
-              checked={hideBranding}
-              onChange={(e) => handleToggleBranding(e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-            />
-          </div>
+          <div className="pt-4 border-t border-[#E3E0DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              {/* Switch toggle */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={hideBranding}
+                onClick={() => handleToggleBranding(!hideBranding)}
+                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
+                  hideBranding ? "bg-[#2563EB]" : "bg-[#E3E0DB]"
+                }`}
+              >
+                <span
+                  className={`w-4 h-4 rounded-full bg-white shadow-sm absolute top-0.5 transition-transform ${
+                    hideBranding ? "translate-x-4.5" : "translate-x-0.5"
+                  }`}
+                />
+              </button>
 
-          <button
-            type="submit"
-            className="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-          >
-            Save Profile Changes
-          </button>
+              <div>
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-sm font-medium text-[#1A1A1A]">Hide ProofKit Branding</span>
+                  <span className="px-1.5 py-0.25 rounded text-[10px] font-semibold bg-[#2563EB]/10 text-[#2563EB] uppercase">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-xs text-[#787774] mt-0.5">
+                  Remove &quot;Powered by ProofKit&quot; from widgets and forms.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium text-sm rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors cursor-pointer shrink-0"
+            >
+              Save Profile
+            </button>
+          </div>
         </form>
 
-        {/* SECTION 2: CUSTOM DOMAIN */}
-        <form onSubmit={handleSaveDomain} className="bg-white border border-[#ecebe6] rounded-2xl p-6 shadow-2xs space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-[#ecebe6]">
-            <div className="flex items-center space-x-2">
-              <Globe className="w-4 h-4 text-blue-600" />
-              <h3 className="font-display font-semibold text-xs text-gray-900 uppercase tracking-wider">
-                Custom Sharing Domain
-              </h3>
-            </div>
+        {/* CARD 2: CUSTOM SHARING DOMAIN */}
+        <form onSubmit={handleSaveDomain} className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
+              CUSTOM SHARING DOMAIN
+            </span>
             {dnsVerified && (
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-green-50 border border-green-200 text-green-700 uppercase">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-[0.06em] bg-[#16A34A]/10 border border-[#16A34A]/20 text-[#16A34A] uppercase">
                 ACTIVE
               </span>
             )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-800 block">Custom Domain CNAME Alias</label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                placeholder="e.g. reviews.yourbrand.com"
-                className="flex-1 text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 bg-white"
-              />
-              <button
-                type="submit"
-                disabled={checkingDns}
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0"
-              >
-                {checkingDns ? "Verifying..." : "Connect Domain"}
-              </button>
-            </div>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
-              To use a custom domain, point a CNAME DNS record from your domain to <code className="font-mono bg-gray-100 px-1 py-0.5 rounded">cname.proofkit.space</code>.
-            </p>
+          <p className="text-sm text-[#787774] leading-relaxed">
+            Host your collection forms on your own domain (e.g. reviews.yourdomain.com).
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <input
+              type="text"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="reviews.blovi.space"
+              className="flex-1 text-xs font-mono border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/12 bg-white text-[#1A1A1A]"
+            />
+            <button
+              type="submit"
+              disabled={checkingDns}
+              className="px-4 py-2 bg-white hover:bg-[#F7F6F3] border border-[#E3E0DB] text-[#1A1A1A] font-medium text-sm rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors cursor-pointer shrink-0"
+            >
+              {checkingDns ? "Connecting..." : "Connect Domain"}
+            </button>
           </div>
         </form>
 
-        {/* SECTION 3: PASSWORD & SECURITY */}
-        <form onSubmit={handleUpdatePassword} className="bg-white border border-[#ecebe6] rounded-2xl p-6 shadow-2xs space-y-5">
-          <div className="flex items-center space-x-2 pb-3 border-b border-[#ecebe6]">
-            <Lock className="w-4 h-4 text-blue-600" />
-            <h3 className="font-display font-semibold text-xs text-gray-900 uppercase tracking-wider">
-              Update Password & Security
-            </h3>
-          </div>
+        {/* CARD 3: UPDATE PASSWORD & SECURITY */}
+        <form onSubmit={handleUpdatePassword} className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] space-y-5">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774] block">
+            UPDATE PASSWORD &amp; SECURITY
+          </span>
 
           {passwordMsg && (
-            <div className={`p-3 rounded-xl text-xs font-bold ${passwordState === "error" ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
+            <div className={`p-3 rounded-[6px] text-xs font-medium ${passwordState === "error" ? "bg-[#DC2626]/10 text-[#DC2626]" : "bg-[#16A34A]/10 text-[#16A34A]"}`}>
               {passwordMsg}
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-800 block">New Password</label>
+            <div>
+              <label className="text-xs font-medium text-[#1A1A1A] mb-1.5 block">Current Password</label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] bg-white text-[#1A1A1A]"
                 placeholder="••••••••"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-800 block">Confirm Password</label>
+            <div>
+              <label className="text-xs font-medium text-[#1A1A1A] mb-1.5 block">New Password</label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] bg-white text-[#1A1A1A]"
                 placeholder="••••••••"
               />
             </div>
@@ -291,35 +295,35 @@ export default function SettingsPanel({
           <button
             type="submit"
             disabled={!newPassword || passwordState === "saving"}
-            className="py-2.5 px-4 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 bg-white hover:bg-[#F7F6F3] border border-[#E3E0DB] text-[#1A1A1A] font-medium text-sm rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors cursor-pointer disabled:opacity-50"
           >
             {passwordState === "saving" ? "Updating..." : "Update Password"}
           </button>
         </form>
 
-        {/* DANGER ZONE */}
-        <div className="bg-red-50/50 border border-red-200/80 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center space-x-2 text-red-700">
-            <Trash2 className="w-4 h-4" />
-            <h3 className="font-bold text-xs uppercase tracking-wider">Danger Zone</h3>
+        {/* CARD 4: DANGER ZONE */}
+        <div className="bg-white border border-[#DC2626]/20 rounded-[12px] p-6 space-y-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#DC2626] block">
+              DANGER ZONE
+            </span>
+            <p className="text-xs text-[#DC2626]/80 mt-1 leading-relaxed">
+              Once you delete your workspace, there is no going back. Please be certain.
+            </p>
           </div>
 
-          <p className="text-xs text-red-600/90 leading-relaxed">
-            Permanently delete your workspace, custom collection links, and all customer reviews. Type <strong>DELETE</strong> below to confirm.
-          </p>
-
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
             <input
               type="text"
               value={deleteText}
               onChange={(e) => setDeleteText(e.target.value)}
               placeholder="Type DELETE to confirm"
-              className="flex-1 text-xs border border-red-200 rounded-xl px-3.5 py-2.5 bg-white outline-none focus:border-red-500 text-red-900"
+              className="flex-1 text-xs border border-[#DC2626]/30 rounded-[6px] px-3 py-2 bg-white outline-none focus:border-[#DC2626] text-[#DC2626]"
             />
             <button
               onClick={handleDeleteAccount}
               disabled={deleteText !== "DELETE" || deleting}
-              className="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 shrink-0"
+              className="px-4 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-medium text-sm rounded-[6px] transition-colors cursor-pointer disabled:opacity-50 shrink-0"
             >
               {deleting ? "Deleting..." : "Delete Workspace"}
             </button>
