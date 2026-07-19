@@ -76,33 +76,32 @@ export default function HomeWorkspaceClient({
   const firstName = profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
   return (
-    <div className="w-full py-8 space-y-8 animate-fade-in font-sans text-ink">
+    <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
       {/* 1. Header Greeting */}
       <div>
-        <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
+        <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em] leading-tight flex items-center space-x-2">
           <span>{greeting}, {firstName}</span>
-          <span className="animate-bounce">👋</span>
+          <span>👋</span>
         </h1>
-        <p className="text-ink-secondary text-xs mt-1 font-sans leading-relaxed">
+        <p className="text-[#787774] text-sm mt-1 leading-relaxed">
           Let's publish your first customer story and build trust with dynamic social proof widgets.
         </p>
       </div>
 
-      {/* 2. Next Best Action Card (Full Width) */}
-      <div className="bg-surface border border-accent/20 rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:border-accent/40">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-accent" />
+      {/* 2. Next Best Action Card (Border Left Accent) */}
+      <div className="bg-white border border-[#E3E0DB] border-l-[3px] border-l-[#2563EB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-3.5">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-accent/5 text-accent border border-accent/15 uppercase tracking-wider">
-              Next Best Action
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
+              NEXT BEST ACTION
             </span>
-            <span className="text-[10px] text-ink-secondary/70 font-mono flex items-center">
+            <span className="text-xs text-[#787774] font-mono flex items-center">
               <Clock className="w-3.5 h-3.5 mr-1" />
               2 min read
             </span>
           </div>
 
-          <h2 className="font-display font-bold text-base text-ink leading-tight mb-2">
+          <h2 className="text-base font-medium text-[#1A1A1A] leading-tight mb-2">
             {!hasForm
               ? "Create your first collection form"
               : testimonials.length === 0
@@ -111,7 +110,7 @@ export default function HomeWorkspaceClient({
               ? "Moderate pending customer testimonials"
               : "Publish your social proof widgets"}
           </h2>
-          <p className="text-ink-secondary text-xs leading-relaxed max-w-2xl mb-4">
+          <p className="text-[#787774] text-sm leading-relaxed max-w-2xl mb-4">
             {!hasForm
               ? "Set up a clean, high-converting collection page where clients can easily upload star ratings, text, and video reviews."
               : testimonials.length === 0
@@ -123,25 +122,21 @@ export default function HomeWorkspaceClient({
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-2">
-          <div className="flex-1 bg-canvas border border-hairline px-3.5 py-2.5 rounded-xl text-xs font-mono text-ink-secondary truncate select-all">
+          <div className="flex-1 bg-[#F7F6F3] border border-[#E3E0DB] px-3 py-2 rounded-[6px] text-xs font-mono text-[#1A1A1A] truncate select-all">
             {formUrl}
           </div>
           <button
             onClick={handleCopyUrl}
-            className={`flex items-center justify-center space-x-1.5 px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all duration-200 cursor-pointer shrink-0 ${
-              copiedUrl 
-                ? "bg-green-600 text-white" 
-                : "bg-accent hover:bg-accent-hover text-white active:scale-95"
-            }`}
+            className={`flex items-center justify-center space-x-1.5 px-4 py-2 rounded-[6px] text-xs font-medium border border-[#E3E0DB] bg-white text-[#1A1A1A] hover:bg-[#F7F6F3] transition-colors cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)]`}
           >
             {copiedUrl ? (
               <>
-                <Check className="w-3.5 h-3.5" />
+                <Check className="w-3.5 h-3.5 text-[#16A34A]" />
                 <span>Copied!</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3.5 h-3.5 text-[#787774]" />
                 <span>Copy Form URL</span>
               </>
             )}
@@ -152,139 +147,139 @@ export default function HomeWorkspaceClient({
       {/* 3. Middle Section: Setup Progress & Workspace Health */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Column 1: Setup Progress */}
-        <div className="bg-surface border border-hairline rounded-2xl p-6 shadow-xs flex flex-col justify-between h-full min-h-[300px]">
+        <div className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col justify-between h-full min-h-[300px]">
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-display font-bold text-xs uppercase tracking-wider text-ink-secondary">
-                Setup Progress
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
+                SETUP PROGRESS
               </span>
-              <span className="px-2.5 py-0.5 rounded-md bg-canvas text-ink-secondary text-[11px] font-mono font-bold">
+              <span className="px-2 py-0.5 rounded bg-[#E8E5E0] text-[#1A1A1A] text-xs font-medium">
                 {progressPercent}%
               </span>
             </div>
 
-            {/* Horizontal progress bar */}
-            <div className="w-full bg-canvas h-2 rounded-full overflow-hidden mb-6 border border-hairline/30">
+            {/* Horizontal progress bar (track #E3E0DB, fill #1A1A1A as per Notion spec) */}
+            <div className="w-full bg-[#E3E0DB] h-1.5 rounded-full overflow-hidden mb-6">
               <div
-                className="bg-accent h-2 rounded-full transition-all duration-500 ease-out"
+                className="bg-[#1A1A1A] h-1.5 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
 
             {/* Checklist */}
-            <div className="space-y-3.5">
-              <div className="flex items-center space-x-3 text-xs">
-                <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
-                <span className="text-ink-secondary line-through">Workspace created</span>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span className="text-[#787774] line-through">Workspace created</span>
               </div>
-              <div className="flex items-center space-x-3 text-xs">
+              <div className="flex items-center space-x-3 text-sm">
                 {step2 ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-ink-secondary/30 shrink-0" />
+                  <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
                 )}
-                <span className={step2 ? "text-ink-secondary line-through" : "text-ink font-medium"}>
+                <span className={step2 ? "text-[#787774] line-through" : "text-[#1A1A1A]"}>
                   Setup collection form
                 </span>
               </div>
-              <div className="flex items-center space-x-3 text-xs">
+              <div className="flex items-center space-x-3 text-sm">
                 {step3 ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-ink-secondary/30 shrink-0" />
+                  <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
                 )}
-                <span className={step3 ? "text-ink-secondary line-through" : "text-ink font-medium"}>
+                <span className={step3 ? "text-[#787774] line-through" : "text-[#1A1A1A]"}>
                   Collect reviews
                 </span>
               </div>
-              <div className="flex items-center space-x-3 text-xs">
+              <div className="flex items-center space-x-3 text-sm">
                 {step4 ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-ink-secondary/30 shrink-0" />
+                  <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
                 )}
-                <span className={step4 ? "text-ink-secondary line-through" : "text-ink font-medium"}>
+                <span className={step4 ? "text-[#787774] line-through" : "text-[#1A1A1A]"}>
                   Approve testimonials
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-5 border-t border-hairline mt-6">
+          <div className="pt-4 border-t border-[#E3E0DB] mt-6">
             <Link
               href="/dashboard/collect"
-              className="text-xs text-accent hover:text-accent-hover font-bold flex items-center space-x-1 hover:underline"
+              className="text-sm text-[#1A1A1A] font-medium flex items-center space-x-1 hover:underline"
             >
               <span>Go to Form Studio</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 text-[#787774]" />
             </Link>
           </div>
         </div>
 
         {/* Column 2: Workspace Health */}
-        <div className="space-y-4">
-          <h3 className="font-display font-bold text-xs uppercase tracking-wider text-ink-secondary">
-            Workspace Health
-          </h3>
+        <div className="space-y-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
+            WORKSPACE HEALTH
+          </div>
 
           <div className="space-y-3">
             {/* Inbox Status */}
-            <div className="bg-surface border border-hairline rounded-2xl p-4 flex items-center justify-between hover:border-ink-secondary/20 transition-all shadow-xs group">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-600 shrink-0">
-                  <Inbox className="w-5 h-5" />
+            <div className="bg-white border border-[#E3E0DB] rounded-[12px] p-4 flex items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-9 h-9 rounded-lg bg-[#F7F6F3] flex items-center justify-center text-[#787774] shrink-0">
+                  <Inbox className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="font-display font-semibold text-sm text-ink block leading-tight">
+                  <span className="font-medium text-sm text-[#1A1A1A] block leading-tight">
                     {pendingCount === 0 ? "Inbox Clean" : `${pendingCount} Pending Reviews`}
                   </span>
-                  <span className="text-[11px] text-ink-secondary block mt-0.5 leading-relaxed">
+                  <span className="text-xs text-[#787774] block mt-0.5">
                     {pendingCount === 0 ? "0 pending approvals" : "New submissions await moderation"}
                   </span>
                 </div>
               </div>
               <Link
                 href="/dashboard/manage"
-                className="text-[11px] font-bold text-ink-secondary hover:text-accent flex items-center gap-1 bg-canvas group-hover:bg-accent/5 px-3 py-1.5 rounded-lg border border-hairline transition-all"
+                className="text-xs text-[#1A1A1A] hover:underline font-medium"
               >
-                <span>View</span>
+                View
               </Link>
             </div>
 
             {/* Testimonials Live */}
-            <div className="bg-surface border border-hairline rounded-2xl p-4 flex items-center justify-between hover:border-ink-secondary/20 transition-all shadow-xs group">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
-                  <Layers className="w-5 h-5" />
+            <div className="bg-white border border-[#E3E0DB] rounded-[12px] p-4 flex items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-9 h-9 rounded-lg bg-[#F7F6F3] flex items-center justify-center text-[#787774] shrink-0">
+                  <Layers className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="font-display font-semibold text-sm text-ink block leading-tight">
+                  <span className="font-medium text-sm text-[#1A1A1A] block leading-tight">
                     {approvedCount} Streaming {approvedCount === 1 ? "Review" : "Reviews"}
                   </span>
-                  <span className="text-[11px] text-ink-secondary block mt-0.5 leading-relaxed">
+                  <span className="text-xs text-[#787774] block mt-0.5">
                     In the last 30 days
                   </span>
                 </div>
               </div>
               <Link
                 href="/dashboard/publish"
-                className="text-[11px] font-bold text-ink-secondary hover:text-accent flex items-center gap-1 bg-canvas group-hover:bg-accent/5 px-3 py-1.5 rounded-lg border border-hairline transition-all"
+                className="text-xs text-[#1A1A1A] hover:underline font-medium"
               >
-                <span>Analytics</span>
+                Analytics
               </Link>
             </div>
 
             {/* Collection Link */}
-            <div className="bg-surface border border-hairline rounded-2xl p-4 flex items-center justify-between hover:border-ink-secondary/20 transition-all shadow-xs group">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-600 shrink-0">
-                  <Link2 className="w-5 h-5" />
+            <div className="bg-white border border-[#E3E0DB] rounded-[12px] p-4 flex items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-9 h-9 rounded-lg bg-[#F7F6F3] flex items-center justify-center text-[#787774] shrink-0">
+                  <Link2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="font-display font-semibold text-sm text-ink block leading-tight">
+                  <span className="font-medium text-sm text-[#1A1A1A] block leading-tight">
                     Collection Page Active
                   </span>
-                  <span className="text-[11px] text-ink-secondary block mt-0.5 leading-relaxed">
+                  <span className="text-xs text-[#787774] block mt-0.5">
                     Accepting public submissions
                   </span>
                 </div>
@@ -293,9 +288,9 @@ export default function HomeWorkspaceClient({
                 href={formUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] font-bold text-ink-secondary hover:text-accent flex items-center gap-1 bg-canvas group-hover:bg-accent/5 px-3 py-1.5 rounded-lg border border-hairline transition-all"
+                className="text-xs text-[#1A1A1A] hover:underline font-medium"
               >
-                <span>Visit</span>
+                Visit
               </a>
             </div>
           </div>
@@ -303,14 +298,14 @@ export default function HomeWorkspaceClient({
       </div>
 
       {/* 4. Bottom Section: Recent Testimonials */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-display font-bold text-xs uppercase tracking-wider text-ink-secondary">
-            Recent Testimonials
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
+            RECENT TESTIMONIALS
           </h3>
           <Link
             href="/dashboard/manage"
-            className="text-xs font-bold text-ink hover:text-accent flex items-center gap-1 transition-all"
+            className="text-xs font-semibold text-[#1A1A1A] hover:underline flex items-center gap-1"
           >
             <span>VIEW ALL REVIEWS ({testimonials.length})</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -318,42 +313,42 @@ export default function HomeWorkspaceClient({
         </div>
 
         {testimonials.length === 0 ? (
-          <div className="bg-surface border-2 border-dashed border-hairline rounded-3xl p-16 text-center select-none shadow-xs">
-            <div className="text-accent/30 mx-auto mb-4 flex justify-center">
-              <Sparkles className="w-10 h-10 text-accent/40" />
+          <div className="bg-white/50 border border-dashed border-[#E3E0DB] rounded-[12px] py-16 px-4 text-center select-none flex flex-col items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-[#F7F6F3] flex items-center justify-center text-[#787774] mb-4">
+              <Sparkles className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-ink font-display">No reviews yet</h3>
-            <p className="text-xs text-ink-secondary mt-1.5 max-w-xs mx-auto leading-relaxed">
+            <h3 className="text-[15px] font-medium text-[#1A1A1A] mb-1">No reviews yet</h3>
+            <p className="text-sm text-[#787774] max-w-[320px] leading-relaxed">
               Share your link to start collecting social proof.
             </p>
           </div>
         ) : (
-          <div className="bg-surface border border-hairline rounded-2xl p-5 shadow-sm divide-y divide-hairline">
+          <div className="bg-white border border-[#E3E0DB] rounded-[12px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] divide-y divide-[#E3E0DB]">
             {testimonials.slice(0, 5).map((t) => (
-              <div key={t.id} className="py-4 flex items-center justify-between text-xs first:pt-0 last:pb-0">
-                <div className="flex items-center space-x-3.5">
-                  <div className="w-9 h-9 rounded-full bg-canvas flex items-center justify-center font-bold text-ink-secondary text-xs border border-hairline/45">
+              <div key={t.id} className="py-3 flex items-center justify-between text-sm first:pt-0 last:pb-0">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-[#F7F6F3] flex items-center justify-center font-bold text-[#1A1A1A] text-xs">
                     {t.author_name ? t.author_name[0].toUpperCase() : "?"}
                   </div>
                   <div>
-                    <span className="font-semibold text-ink block leading-tight">{t.author_name || "Anonymous"}</span>
-                    <span className="text-[10px] text-ink-secondary block mt-0.5">{t.author_role || "Customer"}</span>
+                    <span className="font-medium text-[#1A1A1A] block leading-tight">{t.author_name || "Anonymous"}</span>
+                    <span className="text-xs text-[#787774] block mt-0.5">{t.author_role || "Customer"}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-0.5 text-amber-400">
+                  <div className="flex items-center space-x-0.5 text-[#F59E0B]">
                     {Array.from({ length: t.rating || 5 }).map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="w-3.5 h-3.5 fill-[#F59E0B] text-[#F59E0B]" />
                     ))}
                   </div>
                   <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                       t.status === "approved"
-                        ? "bg-green-500/10 text-green-700 border border-green-500/20"
+                        ? "bg-[#16A34A]/10 text-[#16A34A] border border-[#16A34A]/20"
                         : t.status === "pending"
-                        ? "bg-amber-500/10 text-amber-700 border border-amber-500/20"
-                        : "bg-canvas text-ink-secondary"
+                        ? "bg-[#D97706]/10 text-[#D97706] border border-[#D97706]/20"
+                        : "bg-[#F7F6F3] text-[#787774]"
                     }`}
                   >
                     {t.status}

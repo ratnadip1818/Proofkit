@@ -26,23 +26,34 @@ body {
 }
 
 @theme inline {
-  /* Brand palette */
-  --color-canvas: #F7F4EB;
-  --color-surface: #FFFDF8;
-  --color-ink: #173B71;
-  --color-ink-secondary: #587091;
-  --color-brand-deep: #173B71;
-  --color-accent: #0B54D8;
-  --color-accent-hover: #0754D9;
-  --color-proof: #2E9E6B;
-  --color-hairline: rgba(23, 59, 113, 0.1);
-  --color-brand-lime: #C6FFB1;
-  --color-brand-peach: #F9C2A9;
+  /* Notion Design System Palette */
+  --color-canvas: #F7F6F3;
+  --color-sidebar: #EFECE8;
+  --color-hover: #E8E5E0;
+  --color-active: #E3E0DB;
+  --color-border-default: #E3E0DB;
+  --color-surface: #FFFFFF;
+  
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #787774;
+  --color-text-tertiary: #AFAFAC;
+
+  --color-ink: #1A1A1A;
+  --color-ink-secondary: #787774;
+  --color-hairline: #E3E0DB;
+
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-star: #F59E0B;
 
   /* Fonts */
-  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
-  --font-sans: var(--font-inter), "Inter", sans-serif;
-  --font-mono: var(--font-mono), "JetBrains Mono", monospace;
+  --font-sans: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-mono), 'JetBrains Mono', monospace;
   --font-serif-accent: var(--font-serif), Georgia, serif;
 
   /* Magic UI animations */
@@ -66,15 +77,15 @@ body {
 }
 
 body {
-  background-color: #F7F4EB;
-  color: #173B71;
+  background-color: #F7F6F3;
+  color: #1A1A1A;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background-color: #C6FFB1;
-  color: #0B54D8;
+  background-color: #E3E0DB;
+  color: #1A1A1A;
 }
 
 /* ---------- Lenis smooth scroll ---------- */
