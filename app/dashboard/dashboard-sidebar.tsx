@@ -84,8 +84,23 @@ function SidebarInner({
       {/* Brand Header */}
       <div className="p-4 flex items-center justify-between border-b border-[#E3E0DB] shrink-0">
         <Link href="/dashboard" onClick={onItemClick} className="flex items-center space-x-2.5 group">
-          <div className="w-7 h-7 rounded-[6px] bg-[#1A1A1A] flex items-center justify-center text-white shrink-0">
-            <span className="font-bold text-sm leading-none">P</span>
+          <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center text-white shrink-0 shadow-2xs">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
+                fill="white"
+              />
+              <path
+                d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z"
+                fill="white"
+              />
+            </svg>
           </div>
           <div>
             <span className="font-semibold text-[15px] tracking-tight text-[#1A1A1A] block leading-tight">ProofKit</span>
@@ -286,8 +301,23 @@ export default function DashboardSidebar({
       {/* Mobile top bar */}
       <header className="md:hidden fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-[#E3E0DB] bg-[#EFECE8] px-4">
         <Link href="/dashboard" className="flex items-center space-x-2">
-          <div className="w-7 h-7 rounded-[6px] bg-[#1A1A1A] flex items-center justify-center text-white font-bold text-sm">
-            P
+          <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center text-white shrink-0 shadow-2xs">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
+                fill="white"
+              />
+              <path
+                d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z"
+                fill="white"
+              />
+            </svg>
           </div>
           <span className="font-semibold text-sm text-[#1A1A1A]">ProofKit</span>
         </Link>
@@ -317,8 +347,23 @@ export default function DashboardSidebar({
       >
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#E3E0DB] px-4">
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-[6px] bg-[#1A1A1A] flex items-center justify-center text-white font-bold text-sm">
-              P
+            <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center text-white shrink-0 shadow-2xs">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
+                  fill="white"
+                />
+                <path
+                  d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z"
+                  fill="white"
+                />
+              </svg>
             </div>
             <span className="font-semibold text-sm text-[#1A1A1A]">ProofKit</span>
           </Link>
