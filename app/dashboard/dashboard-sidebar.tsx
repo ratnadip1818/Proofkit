@@ -103,7 +103,7 @@ function SidebarInner({
             </svg>
           </div>
           <div>
-            <span className="font-semibold text-[15px] tracking-tight text-[#1A1A1A] block leading-tight">ProofKit</span>
+            <span className="font-semibold text-[15px] tracking-tight text-[#1A1A1A] block leading-tight">Blovi</span>
             <span className="text-[9px] text-[#787774] font-semibold tracking-[0.08em] uppercase block">Social Proof</span>
           </div>
         </Link>
@@ -319,7 +319,7 @@ export default function DashboardSidebar({
               />
             </svg>
           </div>
-          <span className="font-semibold text-sm text-[#1A1A1A]">ProofKit</span>
+          <span className="font-semibold text-sm text-[#1A1A1A]">Blovi</span>
         </Link>
         <button
           onClick={() => setMobileOpen(true)}
@@ -365,7 +365,7 @@ export default function DashboardSidebar({
                 />
               </svg>
             </div>
-            <span className="font-semibold text-sm text-[#1A1A1A]">ProofKit</span>
+            <span className="font-semibold text-sm text-[#1A1A1A]">Blovi</span>
           </Link>
           <button
             onClick={() => setMobileOpen(false)}
