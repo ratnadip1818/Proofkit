@@ -10,7 +10,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Palette
+  Palette,
+  Maximize2,
+  ExternalLink,
+  X
 } from "lucide-react";
 import { SAMPLE_TESTIMONIALS, type Testimonial } from "../../embed/wall-renderer";
 import { styleRegistry, type WidgetPresetId } from "../../embed/styles";
@@ -40,6 +43,7 @@ export default function WidgetBuilder({
   const [borderRadius, setBorderRadius] = useState<"sharp" | "rounded" | "pill">("rounded");
   const [cardShadow, setCardShadow] = useState<"none" | "subtle" | "soft" | "bold">("soft");
   const [ratingFilter, setRatingFilter] = useState<number>(4);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Tabs & Controls
   const [wizardTab, setWizardTab] = useState<"design" | "embed">("design");
@@ -310,21 +314,85 @@ export default function SocialProof() {
         </div>
 
         {/* 2. RIGHT PANEL: Live Widget Preview Canvas (Span 7) */}
-        <div className="lg:col-span-7 bg-[#FAF9F6] border border-[#ecebe6] rounded-2xl p-6 min-h-[460px] flex flex-col justify-center items-center relative overflow-hidden">
-          <div className="absolute top-4 left-4 flex items-center space-x-2 text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
-            <Sparkles className="w-3 h-3 text-blue-600" />
-            <span>Live Render Output ({layout} - {preset.toUpperCase()})</span>
+        <div className="lg:col-span-7 bg-[#FAF9F6] border border-[#ecebe6] rounded-2xl p-5 min-h-[560px] flex flex-col relative overflow-hidden">
+          <div className="flex items-center justify-between pb-3 border-b border-[#ecebe6] mb-3">
+            <div className="flex items-center space-x-2 text-[11px] font-mono font-bold text-gray-500 uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+              <span>Live Render Output ({layout} - {preset.toUpperCase()})</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <a
+                href={previewIframeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 text-[11px] font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
+                title="Open raw preview in new tab"
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span>Open Raw</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(true)}
+                className="px-2.5 py-1 text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
+                title="View Fullscreen Preview"
+              >
+                <Maximize2 className="w-3 h-3" />
+                <span>Full Screen</span>
+              </button>
+            </div>
           </div>
 
-          <div className="w-full h-full min-h-[380px] flex items-center justify-center">
+          <div className="w-full flex-1 min-h-[480px] bg-white rounded-xl border border-gray-200 shadow-2xs overflow-hidden">
             <iframe
               src={previewIframeUrl}
-              className="w-full h-full border-none rounded-xl min-h-[380px]"
+              className="w-full h-full min-h-[480px] border-none"
               title="Widget Preview"
             />
           </div>
         </div>
       </div>
+
+      {/* FULLSCREEN PREVIEW MODAL OVERLAY */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-sm flex flex-col animate-fade-in">
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-xs">
+            <div className="flex items-center space-x-3">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+              <div>
+                <h3 className="font-bold text-sm text-gray-900 leading-tight">Full Screen Widget Preview</h3>
+                <p className="text-xs text-gray-500">Live render output — {layout.toUpperCase()} ({preset.toUpperCase()} PRESET)</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <a
+                href={previewIframeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center space-x-1.5 transition-all"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Open Tab</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(false)}
+                className="p-2 text-gray-500 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-all cursor-pointer"
+                title="Close Fullscreen"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 w-full bg-[#FAF9F6] p-6 overflow-hidden">
+            <iframe
+              src={previewIframeUrl}
+              className="w-full h-full border-none rounded-2xl shadow-xl bg-white"
+              title="Fullscreen Widget Preview"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
