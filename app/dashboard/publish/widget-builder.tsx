@@ -65,6 +65,7 @@ export default function WidgetBuilder({
   data-radius="${borderRadius}"
   data-shadow="${cardShadow}"
   data-accent="${accentColor}"
+  data-max="9"
   defer>
 </script>`;
     }
@@ -79,6 +80,7 @@ export default function SocialProofSection() {
       preset="${preset}"
       theme="${theme}"
       accentColor="${accentColor}"
+      max={9}
     />
   );
 }`;
@@ -91,14 +93,14 @@ import { ProofKitWidget } from '@proofkit/react';
 export default function SocialProof() {
   return (
     <section className="py-12">
-      <ProofKitWidget widgetId="${widgetId}" layout="${layout}" preset="${preset}" theme="${theme}" />
+      <ProofKitWidget widgetId="${widgetId}" layout="${layout}" preset="${preset}" theme="${theme}" max={9} />
     </section>
   );
 }`;
     }
     if (activeFramework === "framer") {
       return `1. Copy your direct embed URL:
-   ${APP_URL}/embed/${widgetId}?type=${layout}&preset=${preset}&theme=${theme}
+   ${APP_URL}/embed/${widgetId}?type=${layout}&preset=${preset}&theme=${theme}&max=9
 
 2. In Framer, add an "Embed / IFrame" component.
 3. Paste the URL into the Framer property panel.`;
@@ -106,7 +108,7 @@ export default function SocialProof() {
     return `1. Drag an "Embed" element into your Webflow page canvas.
 2. Paste the HTML snippet below:
 <div id="proofkit-widget" data-widget-id="${widgetId}"></div>
-<script src="${APP_URL}/widget.js" data-user="${widgetId}" data-type="${layout}" data-preset="${preset}" defer></script>`;
+<script src="${APP_URL}/widget.js" data-user="${widgetId}" data-type="${layout}" data-preset="${preset}" data-max="9" defer></script>`;
   };
 
   const handleCopyCode = () => {
@@ -115,7 +117,9 @@ export default function SocialProof() {
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const previewIframeUrl = `/embed/${userId || "demo-widget"}?demo=1&type=${layout}&preset=${preset}&theme=${theme}&radius=${borderRadius}&accent=${encodeURIComponent(accentColor)}`;
+  // Keep the dashboard preview separate from the cached customer embed route.
+  // This makes every preview reflect the currently deployed widget renderer.
+  const previewIframeUrl = `/embed/preview?demo=1&type=${layout}&preset=${preset}&theme=${theme}&radius=${borderRadius}&accent=${encodeURIComponent(accentColor)}&preview=gallery-v2`;
 
   return (
     <div className="w-full max-w-6xl mx-auto py-8 px-6 space-y-6 animate-fade-in font-sans select-none">
