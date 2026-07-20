@@ -1,0 +1,72 @@
+import type { ComponentType } from "react";
+import type { WidgetType, WidgetLayoutProps } from "../types/widget";
+import { WallLayout, type WallLayoutProps } from "./WallLayout";
+import { CarouselLayout, type CarouselLayoutProps } from "./CarouselLayout";
+import { MarqueeLayout, type MarqueeLayoutProps } from "./MarqueeLayout";
+import { SingleQuoteLayout, type SingleQuoteLayoutProps } from "./SingleQuoteLayout";
+
+export interface LayoutCapabilities {
+  supportsTagFiltering: boolean;
+  supportsPagination: boolean;
+  supportsAutoplay: boolean;
+  supportsMultipleItems: boolean;
+}
+
+export interface LayoutDefinition<P extends WidgetLayoutProps = WidgetLayoutProps> {
+  id: WidgetType;
+  name: string;
+  component: ComponentType<P>;
+  capabilities: LayoutCapabilities;
+}
+
+export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
+  wall: {
+    id: "wall",
+    name: "Wall of Love",
+    component: WallLayout,
+    capabilities: {
+      supportsTagFiltering: true,
+      supportsPagination: true,
+      supportsAutoplay: false,
+      supportsMultipleItems: true,
+    },
+  },
+  carousel: {
+    id: "carousel",
+    name: "Carousel Slider",
+    component: CarouselLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: true,
+      supportsMultipleItems: true,
+    },
+  },
+  marquee: {
+    id: "marquee",
+    name: "Infinite Marquee",
+    component: MarqueeLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: true,
+      supportsMultipleItems: true,
+    },
+  },
+  single: {
+    id: "single",
+    name: "Single Quote",
+    component: SingleQuoteLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: false,
+      supportsMultipleItems: false,
+    },
+  },
+};
+
+/** Get layout definition by WidgetType from registry */
+export function getLayoutDefinition(type: WidgetType): LayoutDefinition {
+  return layoutRegistry[type] || layoutRegistry.wall;
+}
