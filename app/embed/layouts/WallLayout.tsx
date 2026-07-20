@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import type { Testimonial } from "../constants";
 import { FONT, RADIUS_PX, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme, WallLayout as WallLayoutType } from "../types/widget";
+import type { WidgetPresetId } from "../styles/types";
+import { getPresetDefinition } from "../styles/registry";
 import {
   EmptyState,
   BadgeLink,
@@ -21,6 +23,7 @@ export interface WallLayoutProps {
   maxCount: number | null;
   accent?: string;
   radius?: WidgetRadius;
+  preset?: WidgetPresetId;
 }
 
 export function WallLayout({
@@ -32,8 +35,10 @@ export function WallLayout({
   maxCount,
   accent,
   radius = "rounded",
+  preset = "base",
 }: WallLayoutProps) {
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
+  const presetDef = getPresetDefinition(preset);
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(6);

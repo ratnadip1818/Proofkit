@@ -1,5 +1,6 @@
 import type { ThemeColors } from "./types";
 import type { WidgetRadius, WidgetStyle, WidgetTheme } from "../types/widget";
+import type { PresetVisualOverrides } from "../styles/types";
 
 export const RADIUS_PX: Record<WidgetRadius | "full", number> = {
   sharp: 4,
@@ -89,26 +90,34 @@ export const THEME: Record<WidgetTheme, ThemeColors> = {
 };
 
 /**
- * Resolve theme colors with an optional brand accent so the widget can
- * match the host site instead of always being Blovi-orange.
+ * Single shared style builder merging base theme, preset overrides, and brand accent.
  */
 export function buildStyle(
   theme: WidgetTheme,
   accent?: string,
-  radius: WidgetRadius = "rounded"
+  radius: WidgetRadius = "rounded",
+  presetOverrides?: PresetVisualOverrides
 ): WidgetStyle {
   const base = THEME[theme];
-  const colors: ThemeColors = accent
-    ? {
-        ...base,
-        accent,
-        starOn: theme === "light" ? accent : base.starOn,
-        avatarText: theme === "light" ? accent : base.avatarText,
-        avatarBg:
-          theme === "light"
-            ? `color-mix(in srgb, ${accent} 12%, white)`
-            : base.avatarBg,
-      }
+
+  // 1. Merge Base Theme + Declarative Preset Overrides
+  let colors: ThemeColors = presetOverrides?.colors
+    ? { ...base, ...presetOverrides.colors }
     : base;
+
+  // 2. Apply Brand Accent
+  if (accent) {
+    colors = {
+      ...colors,
+      accent,
+      starOn: theme === "light" ? accent : colors.starOn,
+      avatarText: theme === "light" ? accent : colors.avatarText,
+      avatarBg:
+        theme === "light"
+          ? `color-mix(in srgb, ${accent} 12%, white)`
+          : colors.avatarBg,
+    };
+  }
+
   return { colors, radius: RADIUS_PX[radius] };
 }

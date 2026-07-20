@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { Testimonial } from "../constants";
 import { FONT, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme } from "../types/widget";
+import type { WidgetPresetId } from "../styles/types";
+import { getPresetDefinition } from "../styles/registry";
 import {
   Stars,
   Avatar,
@@ -21,6 +23,7 @@ export interface CarouselLayoutProps {
   showBadge: boolean;
   accent?: string;
   radius?: WidgetRadius;
+  preset?: WidgetPresetId;
 }
 
 export function CarouselLayout({
@@ -30,8 +33,10 @@ export function CarouselLayout({
   showBadge,
   accent,
   radius = "rounded",
+  preset = "base",
 }: CarouselLayoutProps) {
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
+  const presetDef = getPresetDefinition(preset);
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);

@@ -1,5 +1,6 @@
 import type { Testimonial } from "../constants";
 import type { ThemeColors } from "../theme/types";
+import type { WidgetPresetId } from "../styles/types";
 
 /** Supported widget layout types */
 export type WidgetType = "wall" | "carousel" | "marquee" | "single";
@@ -35,11 +36,12 @@ export interface WidgetLayoutProps {
   showBadge: boolean;
   accent?: string;
   radius?: WidgetRadius;
+  preset?: WidgetPresetId;
 }
 
 /** Props for the Wall of Love grid layout */
 export interface WallLayoutProps extends WidgetLayoutProps {
-  layout: WallLayout;
+  layout?: WallLayout;
   maxCount: number | null;
 }
 
@@ -67,4 +69,5 @@ export interface WidgetConfig {
   radius: WidgetRadius;
   singleLayout: SingleQuoteLayout;
   showBadge: boolean;
+  preset?: WidgetPresetId;
 }

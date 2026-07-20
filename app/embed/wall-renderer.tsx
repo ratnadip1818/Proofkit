@@ -4,6 +4,8 @@ import { type Testimonial, SAMPLE_TESTIMONIALS } from "./constants";
 import { THEME, RADIUS_PX, buildStyle } from "./theme/tokens";
 import type { ThemeColors } from "./theme/types";
 import type { WallLayout as WallLayoutType, WidgetRadius, WidgetStyle, WidgetType, WidgetTheme as WallTheme } from "./types/widget";
+import type { WidgetPresetId } from "./styles/types";
+import { getPresetDefinition, styleRegistry, type PresetDefinition } from "./styles";
 import {
   WallLayout,
   CarouselLayout,
@@ -23,10 +25,21 @@ export type {
   WidgetType,
   WidgetRadius,
   WidgetStyle,
+  WidgetPresetId,
+  PresetDefinition,
   LayoutDefinition,
   LayoutCapabilities,
 };
-export { SAMPLE_TESTIMONIALS, RADIUS_PX, buildStyle, THEME, layoutRegistry, getLayoutDefinition };
+export {
+  SAMPLE_TESTIMONIALS,
+  RADIUS_PX,
+  buildStyle,
+  THEME,
+  layoutRegistry,
+  getLayoutDefinition,
+  styleRegistry,
+  getPresetDefinition,
+};
 
 // Backward-compatible named exports delegating to isolated layout modules
 export const WallContent = WallLayout;
@@ -36,10 +49,11 @@ export const SingleQuoteContent = SingleQuoteLayout;
 
 /**
  * Main Widget Renderer component.
- * Acts as an orchestrator delegating layout rendering to the Layout Registry.
+ * Acts as an orchestrator resolving both Layout Engine and Style Preset Engine.
  */
 export default function WidgetRenderer({
   type = "wall",
+  preset = "base",
   testimonials = [],
   testimonial = null,
   layout = "grid",
@@ -52,6 +66,7 @@ export default function WidgetRenderer({
   radius = "rounded",
 }: {
   type?: WidgetType;
+  preset?: WidgetPresetId;
   testimonials?: Testimonial[];
   testimonial?: Testimonial | null;
   layout?: WallLayoutType;
@@ -63,8 +78,8 @@ export default function WidgetRenderer({
   accent?: string;
   radius?: WidgetRadius;
 }) {
-  const definition = getLayoutDefinition(type);
-  const LayoutComponent = definition.component;
+  const layoutDef = getLayoutDefinition(type);
+  const presetDef = getPresetDefinition(preset);
 
   if (type === "single") {
     return (
@@ -76,6 +91,7 @@ export default function WidgetRenderer({
         accent={accent}
         radius={radius}
         layout={singleLayout}
+        preset={presetDef.id}
         testimonials={testimonials}
       />
     );
@@ -90,6 +106,7 @@ export default function WidgetRenderer({
         showBadge={showBadge}
         accent={accent}
         radius={radius}
+        preset={presetDef.id}
       />
     );
   }
@@ -103,6 +120,7 @@ export default function WidgetRenderer({
         showBadge={showBadge}
         accent={accent}
         radius={radius}
+        preset={presetDef.id}
       />
     );
   }
@@ -117,6 +135,7 @@ export default function WidgetRenderer({
       maxCount={maxCount}
       accent={accent}
       radius={radius}
+      preset={presetDef.id}
     />
   );
 }

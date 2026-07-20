@@ -3,6 +3,8 @@
 import type { Testimonial } from "../constants";
 import { FONT, SHADOWS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme, SingleQuoteLayout as SingleQuoteLayoutType } from "../types/widget";
+import type { WidgetPresetId } from "../styles/types";
+import { getPresetDefinition } from "../styles/registry";
 import {
   Stars,
   Avatar,
@@ -20,6 +22,7 @@ export interface SingleQuoteLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   layout?: SingleQuoteLayoutType;
+  preset?: WidgetPresetId;
 }
 
 export function SingleQuoteLayout({
@@ -30,8 +33,10 @@ export function SingleQuoteLayout({
   accent,
   radius = "rounded",
   layout = "card",
+  preset = "base",
 }: SingleQuoteLayoutProps) {
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius);
+  const presetDef = getPresetDefinition(preset);
+  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
 
   if (!testimonial) {
     return (
