@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, ArrowRight, ShieldCheck, HelpCircle } from "lucide-react";
+import { Check } from "lucide-react";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
@@ -264,18 +264,15 @@ export default function PricingPage() {
                     Why Blovi isn't another subscription.
                   </h2>
 
-                  <div className="mt-6 space-y-4 text-sm md:text-base leading-relaxed text-[#4A4A4A] font-serif-accent italic">
-                    <p>
-                      "I don't believe customer testimonials should become another monthly bill.
+                  <div className="mt-6 space-y-4 text-sm md:text-base leading-relaxed text-[#4A4A4A]">
+                    <p className="font-serif-accent italic text-base md:text-lg text-[#1A1A1A]">
+                      "If Blovi saves you time and helps you earn trust, pay once and keep it forever."
                     </p>
                     <p>
-                      You earned every review.
+                      Customer testimonials belong to the business that earned them. You earned every review—you shouldn't have to rent them back every month under an endless software subscription.
                     </p>
                     <p>
-                      You should own them forever.
-                    </p>
-                    <p className="not-italic font-sans font-medium text-[#1A1A1A]">
-                      That's why Blovi has a lifetime plan."
+                      That's why Blovi offers a simple lifetime option: test it for free, upgrade when it earns your trust, and never worry about monthly recurring bills again.
                     </p>
                   </div>
 
@@ -344,8 +341,6 @@ export default function PricingPage() {
               </FadeIn>
             </div>
           </section>
-
-
 
           {/* 7. FAQ */}
           <section className="w-full border-t border-[#ECE7E0] bg-white py-24 px-5 md:px-10">
