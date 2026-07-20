@@ -21,7 +21,7 @@ const PROMISES = [
   },
   {
     title: "Honest, predictable software",
-    body: "Start free, test it on your site, and upgrade only when Blovi proves its value. 14-day refund policy, no questions asked.",
+    body: "Start free, test it on your site, and upgrade only when Blovi proves its value. Backed by AppSumo's 60-day money-back guarantee.",
   },
 ];
 

@@ -38,7 +38,7 @@ const FAQ_OBJECTIONS = [
   },
   {
     q: "Is there a refund policy?",
-    a: "Yes. We offer a 14-day no-questions-asked refund policy. If Blovi doesn't fit your needs, email us and we'll refund you immediately.",
+    a: "Yes. All Blovi lifetime licenses purchased or redeemed through AppSumo are backed by AppSumo's 60-day money-back guarantee.",
   },
   {
     q: "What happens if Blovi shuts down?",

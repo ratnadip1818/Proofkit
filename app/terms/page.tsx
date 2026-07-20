@@ -38,7 +38,7 @@ export default function TermsPage() {
                   2. Lifetime Licenses &amp; Pricing
                 </h2>
                 <p className="text-[#6B6B6B] leading-relaxed">
-                  Blovi Pro is offered as a simple one-time lifetime payment ($49). There are no mandatory monthly subscription fees or recurring rent. Purchasing a lifetime license grants you access to core widget features, custom branding, and future performance updates for as long as Blovi operates as a commercial service.
+                  Blovi Pro is offered as a simple one-time lifetime license key redeemed through AppSumo. There are no mandatory monthly subscription fees or recurring rent. Redeeming a lifetime license grants you access to core widget features, custom branding, and future performance updates for as long as Blovi operates as a commercial service.
                 </p>
               </section>
 
@@ -81,11 +81,11 @@ export default function TermsPage() {
                   6. Payments &amp; Refund Policy
                 </h2>
                 <p className="text-[#6B6B6B] leading-relaxed">
-                  Purchases made or redeemed via AppSumo are backed by AppSumo's <strong className="text-[#1A1A1A]">60-day money-back guarantee</strong>. Direct purchases are backed by our <strong className="text-[#1A1A1A]">14-day founder guarantee</strong>. Please review our{" "}
+                  Blovi Pro lifetime licenses purchased or redeemed via AppSumo are backed by AppSumo's standard <strong className="text-[#1A1A1A]">60-day money-back guarantee</strong>. Please review our{" "}
                   <Link href="/refund" className="text-[#2563EB] font-semibold hover:underline">
                     Refund Policy
                   </Link>{" "}
-                  for full instructions.
+                  for full instructions on managing your license or requesting a refund.
                 </p>
               </section>
 

@@ -21,7 +21,7 @@ const CARDS = [
   {
     icon: CreditCard,
     title: "Billing & Refunds",
-    desc: "Receipts, account questions, or requesting a refund within 14 days. Quick and hassle-free.",
+    desc: "License redemption, account setup, or refund assistance under our 60-day AppSumo policy.",
     email: "hello@blovi.space",
     link: { href: "/refund", label: "View refund policy" },
   },
