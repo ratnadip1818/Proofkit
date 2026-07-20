@@ -1,102 +1,224 @@
 import Link from "next/link";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
-import PageHeader from "@/components/landing/PageHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
+import FadeIn from "@/components/FadeIn";
 
 export const metadata = {
-  title: "About — Blovi",
+  title: "About — Founder Manifesto — Blovi",
   description:
-    "Blovi is a one-person company built with one opinion: collecting and displaying your customer testimonials shouldn't require a monthly subscription.",
+    "Software should stay simple, honest, and affordable. Learn why Blovi is intentionally built small by a solo founder.",
 };
 
-const PROMISES = [
+const BELIEFS = [
   {
-    title: "Simple, one-time lifetime payment",
-    body: "Blovi Pro is $49 once. No recurring subscriptions, no monthly rent. Pay once and own your social proof forever.",
+    title: "Software should stay simple.",
+    body: "No cluttered dashboards, no feature bloat, and no steep learning curves. Software should get out of your way and let you focus on your work.",
   },
   {
-    title: "You talk directly to the creator",
-    body: "Support isn't outsourced to a queue. When you write to hello@blovi.space, the person who designed and coded Blovi reads and replies.",
+    title: "Software should stay honest.",
+    body: "No dark patterns, no surprise renewals, and no artificial feature locks. Transparent tools build lasting relationships.",
   },
   {
-    title: "Honest, predictable software",
-    body: "Start free, test it on your site, and upgrade only when Blovi proves its value. Backed by AppSumo's 60-day money-back guarantee.",
+    title: "Software should stay affordable.",
+    body: "Essential utilities shouldn't demand an expensive monthly tax. Great tools should remain accessible to independent creators and small businesses.",
+  },
+  {
+    title: "Customer trust belongs to customers.",
+    body: "You earned every kind word, review, and testimonial from your customers. You shouldn't have to pay a monthly lease to keep displaying them.",
   },
 ];
 
 export default function AboutPage() {
   return (
     <SmoothScroll>
-      <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-[#FAF8F5]">
+      <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-[#FAF8F5] text-[#1A1A1A]">
         <LandingNavbar />
         <main className="flex w-full flex-1 flex-col">
-          <PageHeader
-            eyebrow="About Blovi"
-            title="Small,"
-            accent="on purpose."
-            description="No corporate fluff. No sales team. Just one person building calm software for founders."
-          />
-
-          <section className="w-full bg-[#FAF8F5] px-5 pb-28 md:px-10">
-            <div className="mx-auto w-full max-w-[680px]">
-              <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 md:p-10 shadow-xs">
-                <p className="text-base leading-relaxed text-[#1A1A1A] md:text-lg font-medium">
-                  Blovi is an independent, one-person business. I design the interface, write the code, fix bugs, and answer every support email myself.
+          
+          {/* 1. HERO */}
+          <section className="w-full px-5 pt-36 pb-16 md:px-10 md:pt-44 text-center">
+            <div className="mx-auto w-full max-w-[720px]">
+              <FadeIn>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#2563EB]">
+                  About Blovi
                 </p>
-                <p className="mt-5 text-base leading-relaxed text-[#6B6B6B] md:text-lg">
-                  Today, Blovi helps founders, agencies, and creators collect customer testimonials, manage them in one organized dashboard, and publish clean Wall of Love widgets on their websites so they can own their reputation instead of renting it.
-                </p>
-                <p className="mt-5 text-base leading-relaxed text-[#6B6B6B] md:text-lg">
-                  I built Blovi because I didn't want founders paying every month for testimonials they already earned. The kind words your customers leave are some of the most valuable assets your business owns—you shouldn't have to rent them back every month.
-                </p>
-                <p className="mt-5 text-base leading-relaxed text-[#6B6B6B] md:text-lg">
-                  That's why Blovi stays small on purpose. No aggressive VC growth targets, no forced subscription upgrades. Just simple, reliable software that helps you showcase trust forever.
-                </p>
-              </div>
-
-              <div className="mt-6 grid gap-4 sm:grid-cols-1">
-                {PROMISES.map((p) => (
-                  <div
-                    key={p.title}
-                    className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-xs"
+                <h1
+                  className="text-[clamp(2.5rem,6vw,4.25rem)] font-extrabold tracking-[-0.035em] text-[#1A1A1A] leading-[1.08]"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  Small,{" "}
+                  <span
+                    className="font-normal italic text-[#2563EB]"
+                    style={{ fontFamily: "var(--font-serif-accent)" }}
                   >
-                    <p
-                      className="text-base font-bold text-[#1A1A1A]"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      {p.title}
+                    on purpose.
+                  </span>
+                </h1>
+                <p className="mx-auto mt-6 text-lg md:text-xl text-[#525252] leading-relaxed font-medium">
+                  Software should stay simple, honest, and affordable.
+                </p>
+              </FadeIn>
+            </div>
+          </section>
+
+          {/* 2. FOUNDER LETTER */}
+          <section className="w-full px-5 pb-20 md:px-10">
+            <div className="mx-auto w-full max-w-[720px]">
+              <FadeIn delay={0.05}>
+                <div className="space-y-6 text-base md:text-lg text-[#333333] leading-relaxed">
+                  <p className="font-semibold text-[#1A1A1A] text-lg md:text-xl">
+                    Most software companies follow the same path.
+                  </p>
+                  
+                  <p>
+                    They start with a focused product that solves a real problem. Then come the investor milestones, aggressive growth targets, and mandatory team expansions. Before long, the clean software you loved turns into a bloated platform with endless menus, rising prices, and mandatory monthly subscriptions.
+                  </p>
+
+                  <p>
+                    Blovi is built to take the opposite approach.
+                  </p>
+
+                  <p>
+                    I design the interface, write the code, fix bugs, and answer every support email myself. Staying a solo company isn't a temporary stepping stone—it is a deliberate choice to keep software calm, high-quality, and independent.
+                  </p>
+                </div>
+              </FadeIn>
+
+              {/* 3. WHAT I BELIEVE */}
+              <FadeIn delay={0.1}>
+                <div className="mt-20 border-t border-[#ECE7E0] pt-16">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2563EB] mb-3">
+                    Philosophy
+                  </p>
+                  <h2
+                    className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1A1A1A] mb-10"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    What I Believe
+                  </h2>
+
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {BELIEFS.map((belief) => (
+                      <div
+                        key={belief.title}
+                        className="rounded-2xl border border-[#ECE7E0] bg-white p-7 shadow-xs flex flex-col justify-between"
+                      >
+                        <div>
+                          <h3
+                            className="text-base font-bold text-[#1A1A1A] mb-2"
+                            style={{ fontFamily: "var(--font-display)" }}
+                          >
+                            {belief.title}
+                          </h3>
+                          <p className="text-sm text-[#6B6B6B] leading-relaxed">
+                            {belief.body}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FadeIn>
+
+              {/* 4. WHY AVOID SUBSCRIPTIONS */}
+              <FadeIn delay={0.12}>
+                <div className="mt-20 border-t border-[#ECE7E0] pt-16">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2563EB] mb-3">
+                    Pricing Philosophy
+                  </p>
+                  <h2
+                    className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1A1A1A] mb-6"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    Why Blovi avoids recurring subscriptions.
+                  </h2>
+
+                  <div className="space-y-6 text-base md:text-lg text-[#333333] leading-relaxed">
+                    <p>
+                      Testimonials aren't heavy cloud infrastructure. Once a customer leaves a kind review and you embed it on your website, serving those words shouldn't become an expensive recurring bill.
                     </p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-[#6B6B6B]">
-                      {p.body}
+
+                    <p>
+                      Instead of renting your reputation back to you every month, Blovi is structured around lifetime ownership. You pay once when the software proves its value, and you keep your social proof forever.
+                    </p>
+
+                    <p>
+                      This aligns my incentives directly with yours: my focus stays on speed, reliability, and polish—not on finding clever ways to lock you into endless subscription tiers.
                     </p>
                   </div>
-                ))}
-              </div>
+                </div>
+              </FadeIn>
 
-              <div className="mt-10 text-center">
-                <p className="text-sm text-[#6B6B6B]">
-                  Have a question, feedback, or need help setting up?
-                </p>
-                <a
-                  href="mailto:hello@blovi.space"
-                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#1A1A1A] px-7 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#2563EB] hover:scale-[1.02]"
-                >
-                  hello@blovi.space
-                </a>
-                <p className="mt-6 text-xs text-[#9CA3AF]">
-                  — Founder & Creator of Blovi
-                </p>
-                <p className="mt-8 text-sm text-[#6B6B6B]">
-                  Curious how it works?{" "}
-                  <Link
-                    href="/how-it-works"
-                    className="font-semibold text-[#2563EB] hover:underline"
+              {/* 5. DIRECT FOUNDER SUPPORT */}
+              <FadeIn delay={0.14}>
+                <div className="mt-20 border-t border-[#ECE7E0] pt-16">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2563EB] mb-3">
+                    Personal Support
+                  </p>
+                  <h2
+                    className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1A1A1A] mb-6"
+                    style={{ fontFamily: "var(--font-display)" }}
                   >
-                    See the workflow
-                  </Link>
-                </p>
-              </div>
+                    Support isn't a department.
+                  </h2>
+
+                  <div className="space-y-6 text-base md:text-lg text-[#333333] leading-relaxed">
+                    <p>
+                      When you email Blovi, there is no support ticket system, no automated AI chatbot, and no outsourced support team reading from a script.
+                    </p>
+
+                    <p>
+                      Every email goes straight to my personal inbox. The same person who wrote the code reads your message and replies to your question. If you report a bug or suggest a feature, it goes directly to the person who can actually fix or build it.
+                    </p>
+                  </div>
+                </div>
+              </FadeIn>
+
+              {/* 6. CLOSING MANIFESTO */}
+              <FadeIn delay={0.16}>
+                <div className="mt-20 border-t border-[#ECE7E0] pt-16 pb-12">
+                  <div className="rounded-3xl border border-[#ECE7E0] bg-white p-8 md:p-12 shadow-xs space-y-6 text-base md:text-lg text-[#1A1A1A]">
+                    <p className="font-serif-accent italic text-lg md:text-xl text-[#1A1A1A]">
+                      Blovi will probably never be the biggest testimonial platform.
+                    </p>
+
+                    <p className="font-serif-accent italic text-lg md:text-xl text-[#1A1A1A]">
+                      I'd rather build one founders genuinely enjoy using.
+                    </p>
+
+                    <p className="font-extrabold text-xl md:text-2xl text-[#2563EB]" style={{ fontFamily: "var(--font-display)" }}>
+                      Small, on purpose.
+                    </p>
+
+                    <div className="mt-8 border-t border-[#ECE7E0] pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-bold text-[#1A1A1A]">Ratnadip Ubale</p>
+                        <p className="text-xs text-[#6B6B6B]">Founder &amp; Creator of Blovi</p>
+                      </div>
+                      <a
+                        href="mailto:hello@blovi.space"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#1A1A1A] px-6 py-3 text-xs font-bold text-white transition-all hover:bg-[#2563EB] hover:scale-[1.02]"
+                      >
+                        hello@blovi.space
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="mt-10 text-center">
+                    <p className="text-sm text-[#6B6B6B]">
+                      Curious how it works in practice?{" "}
+                      <Link
+                        href="/how-it-works"
+                        className="font-semibold text-[#2563EB] hover:underline"
+                      >
+                        See the product workflow
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </FadeIn>
+
             </div>
           </section>
 
