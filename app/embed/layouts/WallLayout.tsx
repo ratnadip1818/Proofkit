@@ -24,6 +24,8 @@ export interface WallLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  heading?: string;
+  subheading?: string;
 }
 
 export function WallLayout({
@@ -36,6 +38,8 @@ export function WallLayout({
   accent,
   radius = "rounded",
   preset = "base",
+  heading = "Loved by the best teams",
+  subheading = "Software companies and agencies rely on Blovi to turn happy customers into their best growth engine.",
 }: WallLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
@@ -48,12 +52,12 @@ export function WallLayout({
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
-      if (w < 600) {
-        setPageSize(1);
-      } else if (w < 900) {
-        setPageSize(4);
-      } else {
+      if (w < 640) {
+        setPageSize(3);
+      } else if (w < 1024) {
         setPageSize(6);
+      } else {
+        setPageSize(9);
       }
     };
 
@@ -100,47 +104,56 @@ export function WallLayout({
     }
   }, [selectedTag, filteredList.length, pageIndex, pageSize]);
 
-  const displayCount = renderedList.length;
-  const containerMaxWidth =
-    displayCount === 1 ? "450px" :
-    displayCount === 2 ? "820px" :
-    "880px";
-
   return (
-    <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
+    <div style={{ fontFamily: FONT, padding: "24px 16px 48px 16px", background: colors.pageBg, color: colors.text }}>
       <style>{`
-        .blovi-flex-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
-          justify-content: center;
-          max-width: ${containerMaxWidth};
+        .blovi-masonry {
+          column-count: 1;
+          column-gap: 1.5rem;
+          max-width: 1200px;
           margin: 0 auto;
         }
-        .blovi-flex-card-wrapper {
-          flex: 0 0 280px;
-          max-width: 280px;
-          box-sizing: border-box;
-        }
-        @media (max-width: 900px) {
-          .blovi-flex-grid {
-            max-width: 580px;
-          }
-          .blovi-flex-card-wrapper {
-            flex: 0 0 280px;
-            max-width: 280px;
+        @media (min-width: 640px) {
+          .blovi-masonry {
+            column-count: 2;
           }
         }
-        @media (max-width: 600px) {
-          .blovi-flex-grid {
-            max-width: 100%;
+        @media (min-width: 1024px) {
+          .blovi-masonry {
+            column-count: 3;
           }
-          .blovi-flex-card-wrapper {
-            flex: 1 1 100%;
-            max-width: 100%;
-          }
+        }
+        .blovi-masonry-item {
+          break-inside: avoid;
         }
       `}</style>
+
+      {/* Hero Header Section */}
+      <div style={{ maxWidth: "672px", margin: "0 auto 48px auto", textAlign: "center" }}>
+        <h2
+          style={{
+            fontSize: "32px",
+            fontWeight: 600,
+            letterSpacing: "-0.025em",
+            color: colors.name,
+            margin: "0 0 16px 0",
+            lineHeight: "1.2",
+          }}
+        >
+          {heading}
+        </h2>
+        <p
+          style={{
+            fontSize: "16px",
+            lineHeight: "1.6",
+            color: colors.role,
+            margin: 0,
+          }}
+        >
+          {subheading}
+        </p>
+      </div>
+
       {/* Dynamic Tag Filter Pills */}
       {allTags.length > 0 && (
         <div
@@ -149,7 +162,7 @@ export function WallLayout({
             flexWrap: "wrap",
             gap: "8px",
             justifyContent: "center",
-            marginBottom: "24px",
+            marginBottom: "32px",
           }}
         >
           <button
@@ -201,9 +214,9 @@ export function WallLayout({
         <EmptyState colors={colors} />
       ) : (
         <div style={{ width: "100%", padding: "8px 0" }}>
-          <div className="blovi-flex-grid">
+          <div className="blovi-masonry">
             {renderedList.map((t, idx) => (
-              <div key={t.id} className="blovi-flex-card-wrapper">
+              <div key={t.id} className="blovi-masonry-item">
                 <TestimonialCard
                   t={t}
                   showRatings={showRatings}
@@ -221,7 +234,7 @@ export function WallLayout({
 
       {/* Show More / Show Less Button */}
       {totalItems > pageSize && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "24px", marginBottom: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "32px", marginBottom: "16px" }}>
           <button
             type="button"
             onClick={() => {
