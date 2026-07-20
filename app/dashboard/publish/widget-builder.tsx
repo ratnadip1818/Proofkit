@@ -161,7 +161,32 @@ export default function SocialProof() {
           <div className="p-5 space-y-5">
             {wizardTab === "design" ? (
               <div className="space-y-4">
-                {/* Dynamic Preset Selector */}
+                {/* 1. Widget Layout Style (Wall of Love for MVP) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-800 block">Widget Layout Style</label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {[
+                      { id: "wall", label: "Wall of Love" },
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setLayout(item.id as WidgetLayout)}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-left cursor-pointer flex items-center justify-between ${
+                          layout === item.id
+                            ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
+                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        <span className="text-[10px] font-semibold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                          Active
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Dynamic Preset Selector */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-800 flex items-center space-x-1.5">
                     <Palette className="w-3.5 h-3.5 text-blue-600" />
@@ -185,33 +210,6 @@ export default function SocialProof() {
                         </button>
                       );
                     })}
-                  </div>
-                </div>
-
-                {/* Layout Type Selector */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-800 block">Widget Layout Style</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "wall", label: "Wall of Love" },
-                      { id: "carousel", label: "Carousel" },
-                      { id: "grid", label: "Grid" },
-                      { id: "badge", label: "Badge" },
-                      { id: "toast", label: "Toast Popup" },
-                      { id: "marquee", label: "Marquee" },
-                    ].map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => setLayout(item.id as WidgetLayout)}
-                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                          layout === item.id
-                            ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
-                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
                   </div>
                 </div>
 
