@@ -1,20 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  WallContent,
-  CarouselContent,
-  MarqueeContent,
-  SingleQuoteContent,
-  type WidgetType,
-  type WidgetRadius,
-} from "./wall-renderer";
+import WidgetRenderer from "./wall-renderer";
+import type { WidgetType, WidgetRadius } from "./types/widget";
+import type { WidgetPresetId } from "./styles/types";
+import { styleRegistry } from "./styles";
 import { SAMPLE_TESTIMONIALS, type Testimonial } from "./constants";
 import { FREE_WIDGET_TESTIMONIAL_LIMIT } from "@/lib/limits";
 
 interface WidgetConfig {
   isDemo: boolean;
   requestedType: WidgetType;
+  preset: WidgetPresetId;
   theme: "light" | "dark";
   showRatings: boolean;
   maxCount: number | null;
@@ -34,9 +31,10 @@ export default function WidgetClientWrapper({
 }) {
   // Client-side config states initialized to sensible defaults
   const [config, setConfig] = useState<WidgetConfig>(() => {
-    const defaultState = {
+    const defaultState: WidgetConfig = {
       isDemo: false,
       requestedType: "wall" as WidgetType,
+      preset: "base" as WidgetPresetId,
       theme: "light" as "light" | "dark",
       showRatings: true,
       maxCount: null as number | null,
@@ -56,6 +54,9 @@ export default function WidgetClientWrapper({
       spType === "carousel" || spType === "marquee" || spType === "single"
         ? spType
         : "wall";
+
+    const spPreset = searchParams.get("preset") as WidgetPresetId;
+    const preset: WidgetPresetId = spPreset && styleRegistry[spPreset] ? spPreset : "base";
 
     const theme = searchParams.get("theme") === "dark" ? "dark" : "light";
     const showRatings = searchParams.get("ratings") !== "false";
@@ -80,6 +81,7 @@ export default function WidgetClientWrapper({
     return {
       isDemo,
       requestedType,
+      preset,
       theme,
       showRatings,
       maxCount,
@@ -126,6 +128,7 @@ export default function WidgetClientWrapper({
   const {
     isDemo,
     requestedType,
+    preset,
     theme,
     showRatings,
     maxCount,
@@ -149,46 +152,20 @@ export default function WidgetClientWrapper({
 
   return (
     <div id="proofkit-widget-wrapper" style={{ width: "100%", overflow: "hidden" }}>
-      {type === "carousel" ? (
-        <CarouselContent
-          testimonials={list}
-          theme={theme}
-          showRatings={showRatings}
-          showBadge={showBadge}
-          accent={accent}
-          radius={radius}
-        />
-      ) : type === "marquee" ? (
-        <MarqueeContent
-          testimonials={list}
-          theme={theme}
-          showRatings={showRatings}
-          showBadge={showBadge}
-          accent={accent}
-          radius={radius}
-        />
-      ) : type === "single" ? (
-        <SingleQuoteContent
-          testimonial={list[featuredIndex] ?? list[0] ?? null}
-          theme={theme}
-          showRatings={showRatings}
-          showBadge={showBadge}
-          accent={accent}
-          radius={radius}
-          layout={singleLayout}
-        />
-      ) : (
-        <WallContent
-          testimonials={list}
-          layout={layout}
-          theme={theme}
-          showRatings={showRatings}
-          showBadge={showBadge}
-          maxCount={maxCount}
-          accent={accent}
-          radius={radius}
-        />
-      )}
+      <WidgetRenderer
+        type={type}
+        preset={preset}
+        testimonials={list}
+        testimonial={list[featuredIndex] ?? list[0] ?? null}
+        layout={layout}
+        singleLayout={singleLayout}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        maxCount={maxCount}
+        accent={accent}
+        radius={radius}
+      />
 
       {capped && (
         <div style={{ textAlign: "center", paddingBottom: "12px" }}>

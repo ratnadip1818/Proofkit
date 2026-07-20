@@ -45,9 +45,9 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
 
   const APP_URL = typeof window !== "undefined" ? window.location.origin : "https://www.blovi.space";
 
-  const genericSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="wall" data-layout="grid"></script>`;
-  const carouselSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="carousel" data-max="9"></script>`;
-  const marqueeSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="marquee" data-max="all"></script>`;
+  const genericSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="wall" data-preset="base" data-layout="grid"></script>`;
+  const carouselSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="carousel" data-preset="base" data-max="9"></script>`;
+  const marqueeSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="marquee" data-preset="base" data-max="all"></script>`;
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
