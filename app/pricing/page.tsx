@@ -19,19 +19,6 @@ const PHILOSOPHY_ROWS = [
   { feature: "Support", blovi: "Direct founder support", saas: "Support ticket queue" },
 ];
 
-const REVIEWS = [
-  {
-    quote: "The setup took less than 5 minutes. Paying once instead of adding another $29/mo subscription was an easy decision.",
-    author: "Marc K.",
-    role: "Founder, ShipFast",
-  },
-  {
-    quote: "Blovi makes our Wall of Love look like it was custom-coded into our landing page. The $49 lifetime deal paid for itself immediately.",
-    author: "Elena R.",
-    role: "Indie Creator",
-  },
-];
-
 const FAQ_OBJECTIONS = [
   {
     q: "Why lifetime?",
@@ -358,26 +345,7 @@ export default function PricingPage() {
             </div>
           </section>
 
-          {/* 6. SOCIAL PROOF */}
-          <section className="w-full border-t border-[#ECE7E0] bg-[#FAF8F5] py-20 px-5 md:px-10">
-            <div className="mx-auto w-full max-w-[760px]">
-              <FadeIn>
-                <div className="grid gap-6 sm:grid-cols-2">
-                  {REVIEWS.map((rev, idx) => (
-                    <div key={idx} className="rounded-2xl border border-[#ECE7E0] bg-white p-6 shadow-xs flex flex-col justify-between">
-                      <p className="text-xs leading-relaxed text-[#4A4A4A] italic">
-                        "{rev.quote}"
-                      </p>
-                      <div className="mt-4 pt-3 border-t border-[#ECE7E0] flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-[#1A1A1A]">{rev.author}</span>
-                        <span className="text-[#8A8A8A]">{rev.role}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </FadeIn>
-            </div>
-          </section>
+
 
           {/* 7. FAQ */}
           <section className="w-full border-t border-[#ECE7E0] bg-white py-24 px-5 md:px-10">
