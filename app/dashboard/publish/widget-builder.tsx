@@ -121,9 +121,8 @@ export default function SocialProof() {
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  // Keep the dashboard preview separate from the cached customer embed route.
-  // This makes every preview reflect the currently deployed widget renderer.
-  const previewIframeUrl = `/embed/preview?demo=1&type=${layout}&preset=${preset}&theme=${theme}&radius=${borderRadius}&accent=${encodeURIComponent(accentColor)}&preview=gallery-v2`;
+  // Live widget preview URL using the actual widgetId so real user testimonials are rendered
+  const previewIframeUrl = `/embed/${userId || "demo-widget"}?type=${layout}&preset=${preset}&theme=${theme}&radius=${borderRadius}&accent=${encodeURIComponent(accentColor)}`;
 
   return (
     <div className="w-full max-w-6xl mx-auto py-8 px-6 space-y-6 animate-fade-in font-sans select-none">
