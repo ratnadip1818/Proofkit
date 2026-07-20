@@ -40,7 +40,7 @@ export function Avatar({
         />
       );
     }
-    const initial = name.trim().charAt(0).toUpperCase() || "?";
+
     return (
       <div
         style={{
@@ -52,13 +52,16 @@ export function Avatar({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: size * 0.4,
-          fontWeight: 700,
           flexShrink: 0,
           border: `1px solid ${colors.cardBorder}`,
+          overflow: "hidden",
         }}
       >
-        {initial}
+        <svg width={size * 0.65} height={size * 0.65} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="22" cy="22" r="22" fill="#E2E8F0" />
+          <circle cx="22" cy="16" r="7" fill="#94A3B8" />
+          <path d="M9 36C9 28.8203 14.8203 23 22 23C29.1797 23 35 28.8203 35 36V40H9V36Z" fill="#94A3B8" />
+        </svg>
       </div>
     );
   };

@@ -94,6 +94,9 @@ export function WallLayout({
   const startIndex = pageIndex * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
   const renderedList = filteredList.slice(startIndex, endIndex);
+  const gallerySurfaces = theme === "light"
+    ? ["#fffefd", "#f8fcfa", "#f9fbff", "#fffdf8", "#fbfaff", "#f9fcfc"]
+    : [];
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -105,11 +108,11 @@ export function WallLayout({
   }, [selectedTag, filteredList.length, pageIndex, pageSize]);
 
   return (
-    <div style={{ fontFamily: FONT, padding: "24px 16px 48px 16px", background: colors.pageBg, color: colors.text }}>
+    <div style={{ fontFamily: FONT, padding: "56px 16px 52px", background: colors.pageBg, color: colors.text }}>
       <style>{`
         .blovi-masonry {
           column-count: 1;
-          column-gap: 1.5rem;
+          column-gap: 20px;
           max-width: 1200px;
           margin: 0 auto;
         }
@@ -129,12 +132,12 @@ export function WallLayout({
       `}</style>
 
       {/* Hero Header Section */}
-      <div style={{ maxWidth: "672px", margin: "0 auto 48px auto", textAlign: "center" }}>
+      <div style={{ maxWidth: "672px", margin: "0 auto 52px auto", textAlign: "center" }}>
         <h2
           style={{
-            fontSize: "32px",
-            fontWeight: 600,
-            letterSpacing: "-0.025em",
+            fontSize: "clamp(30px, 4vw, 42px)",
+            fontWeight: 700,
+            letterSpacing: "-0.045em",
             color: colors.name,
             margin: "0 0 16px 0",
             lineHeight: "1.2",
@@ -225,6 +228,7 @@ export function WallLayout({
                   layout={layout}
                   index={idx}
                   onReadMore={setActiveModalTestimonial}
+                  surface={gallerySurfaces.length ? gallerySurfaces[idx % gallerySurfaces.length] : undefined}
                 />
               </div>
             ))}

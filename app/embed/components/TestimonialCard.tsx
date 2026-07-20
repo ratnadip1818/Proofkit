@@ -14,6 +14,7 @@ export function TestimonialCard({
   layout,
   index = 0,
   onReadMore,
+  surface,
 }: {
   t: Testimonial;
   showRatings: boolean;
@@ -22,43 +23,45 @@ export function TestimonialCard({
   layout?: WallLayout;
   index?: number;
   onReadMore?: (t: Testimonial) => void;
+  /** Optional wall-only surface tint. Other layouts retain the selected theme surface. */
+  surface?: string;
 }) {
   const text = t.display_body ?? t.body_original;
   const isFeatured = Boolean((t as any).featured || text.length > 180 || index === 0);
   const threshold = isFeatured ? 260 : 160;
   const shouldClamp = text.length > threshold;
+  const isLightSurface = colors.cardBg === "#ffffff" || colors.cardBg === "#fffdfa";
+
+  const cardStyle: React.CSSProperties = {
+    position: "relative",
+    background: (t as any).tint ?? surface ?? colors.cardBg,
+    border: isLightSurface ? "1px solid rgba(0,0,0,0.04)" : `1px solid ${colors.cardBorder}`,
+    borderRadius: `${Math.max(radius, 10)}px`,
+    padding: isFeatured ? "32px 32px" : "28px",
+    display: "flex",
+    flexDirection: "column",
+    breakInside: "avoid",
+    marginBottom: "1.5rem",
+    overflow: "hidden",
+    boxShadow: isLightSurface ? "0 2px 12px rgba(0,0,0,0.03)" : SHADOWS.cardDark,
+    boxSizing: "border-box",
+    animationDelay: `${index * 0.05}s`,
+  };
 
   return (
-    <div
-      className="blovi-card"
-      style={{
-        position: "relative",
-        background: colors.cardBg,
-        border: `1px solid ${colors.cardBorder}`,
-        borderRadius: `${Math.max(radius, 10)}px`,
-        padding: isFeatured ? "28px 24px" : "24px",
-        display: "flex",
-        flexDirection: "column",
-        breakInside: "avoid",
-        marginBottom: "1.5rem",
-        overflow: "hidden",
-        boxShadow: colors.cardBg === "#ffffff" ? "0 2px 12px rgba(0,0,0,0.03)" : SHADOWS.cardDark,
-        boxSizing: "border-box",
-        animationDelay: `${index * 0.05}s`,
-      }}
-    >
+    <div className="blovi-card blovi-masonry-item" style={cardStyle}>
       {showRatings && t.rating !== null && (
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "20px" }}>
           <Stars rating={t.rating} colors={colors} />
         </div>
       )}
       
       {shouldClamp ? (
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, marginBottom: "24px" }}>
+        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, marginBottom: "32px" }}>
           <p
             style={{
               margin: 0,
-              fontSize: isFeatured ? "18px" : "15px",
+              fontSize: isFeatured ? "19px" : "15px",
               fontWeight: isFeatured ? 500 : 400,
               letterSpacing: isFeatured ? "-0.01em" : "normal",
               lineHeight: "1.6",
@@ -101,8 +104,8 @@ export function TestimonialCard({
       ) : (
         <p
           style={{
-            margin: "0 0 24px 0",
-            fontSize: isFeatured ? "18px" : "15px",
+            margin: "0 0 32px 0",
+            fontSize: isFeatured ? "19px" : "15px",
             fontWeight: isFeatured ? 500 : 400,
             letterSpacing: isFeatured ? "-0.01em" : "normal",
             lineHeight: "1.6",
@@ -115,27 +118,27 @@ export function TestimonialCard({
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "auto" }}>
-        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={42} source={t.source} />
+        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={44} source={t.source} />
         <div style={{ minWidth: 0 }}>
-          <p
+          <div
             style={{
               margin: 0,
-              fontSize: "13.5px",
-              fontWeight: 600,
+              fontSize: "13px",
+              fontWeight: 500,
               color: colors.name,
               display: "flex",
               alignItems: "center",
               gap: "4px",
-              lineHeight: "1.3",
+              lineHeight: "1.375",
             }}
           >
             {t.author_name}
             <VerifiedBadge id={t.id} />
-          </p>
+          </div>
           {t.author_role && (
-            <p style={{ margin: "2px 0 0", fontSize: "12px", color: colors.role, lineHeight: "1.3" }}>
+            <div style={{ margin: "2px 0 0", fontSize: "12px", color: colors.role, lineHeight: "1.375" }}>
               {t.author_role}
-            </p>
+            </div>
           )}
         </div>
       </div>
