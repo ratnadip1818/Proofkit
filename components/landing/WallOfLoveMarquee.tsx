@@ -16,7 +16,7 @@ export default function WallOfLoveMarquee() {
           >
             Be one of our{" "}
             <span
-              className="font-normal italic text-[#E8743B]"
+              className="font-normal italic text-[#2563EB]"
               style={{ fontFamily: "var(--font-serif-accent)" }}
             >
               first customers.
@@ -29,7 +29,7 @@ export default function WallOfLoveMarquee() {
           <div className="mt-9 text-center">
             <Link
               href="/signup"
-              className="group inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(232,116,59,0.35)] transition-all hover:scale-[1.03] hover:bg-[#CF5F2C] active:scale-95"
+              className="group inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_rgba(37,99,235,0.35)] transition-all hover:scale-[1.03] hover:bg-[#1d4ed8] active:scale-95"
             >
               Get early access — $49 one-time
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />

@@ -72,7 +72,7 @@ export default function TermsPage() {
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
                 Payments are processed securely by Paddle, our merchant of record. Paid plans are billed as a one-time charge. See our{" "}
-                <Link href="/refund" className="text-[#E8743B] hover:underline">
+                <Link href="/refund" className="text-[#2563EB] hover:underline">
                   Refund Policy
                 </Link>{" "}
                 for details on our 30-day money-back guarantee.
@@ -105,7 +105,7 @@ export default function TermsPage() {
                 Questions about these terms?{" "}
                 <a
                   href="mailto:hello@blovi.space"
-                  className="text-[#E8743B] hover:underline"
+                  className="text-[#2563EB] hover:underline"
                 >
                   hello@blovi.space
                 </a>

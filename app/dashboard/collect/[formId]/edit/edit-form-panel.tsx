@@ -35,10 +35,10 @@ interface FormRow {
 }
 
 const inputClass =
-  "w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#8A8A8A] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-4 focus:ring-[#E8743B]/10";
+  "w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#8A8A8A] transition-all focus:border-[#2563EB] focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10";
 
 const COLOR_PRESETS = [
-  { name: "Orange", hex: "#E8743B", bg: "bg-[#E8743B]" },
+  { name: "Brand Blue", hex: "#2563EB", bg: "bg-[#2563EB]" },
   { name: "Indigo", hex: "#6366F1", bg: "bg-[#6366F1]" },
   { name: "Emerald", hex: "#10B981", bg: "bg-[#10B981]" },
   { name: "Purple", hex: "#8B5CF6", bg: "bg-[#8B5CF6]" },
@@ -62,7 +62,7 @@ function Toggle({
   return (
     <div className="flex items-start justify-between gap-4 rounded-xl border border-[#ECE7E0] bg-[#FAF8F5]/50 p-4 transition-all hover:bg-[#FAF8F5]">
       <div className="flex gap-3">
-        <div className={`mt-0.5 rounded-lg p-2 ${checked ? "bg-[#E8743B]/10 text-[#E8743B]" : "bg-[#ECE7E0]/60 text-[#8A8A8A]"} transition-colors`}>
+        <div className={`mt-0.5 rounded-lg p-2 ${checked ? "bg-[#2563EB]/10 text-[#2563EB]" : "bg-[#ECE7E0]/60 text-[#8A8A8A]"} transition-colors`}>
           <Icon size={16} />
         </div>
         <div>
@@ -75,8 +75,8 @@ function Toggle({
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative mt-1 h-6 w-11 shrink-0 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#E8743B]/25 ${
-          checked ? "bg-[#E8743B]" : "bg-[#ECE7E0]"
+        className={`relative mt-1 h-6 w-11 shrink-0 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/25 ${
+          checked ? "bg-[#2563EB]" : "bg-[#ECE7E0]"
         }`}
       >
         <span
@@ -167,7 +167,7 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
             className="text-2xl font-extrabold tracking-tight text-[#1A1A1A] flex items-center gap-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <Sparkles size={22} className="text-[#E8743B] fill-[#E8743B]/10" />
+            <Sparkles size={22} className="text-[#2563EB] fill-[#2563EB]/10" />
             Customize collection form
           </h1>
           <p className="mt-1 text-sm text-[#6B6B6B]">
@@ -190,7 +190,7 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 flex items-center gap-1.5"
+            className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#1d4ed8] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 flex items-center gap-1.5"
           >
             {saving ? "Saving changes…" : "Save changes"}
           </button>
@@ -462,7 +462,7 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
                         </>
                       ) : (
                         <>
-                          <AlertCircle size={15} className="mt-0.5 shrink-0 text-[#E8743B]" />
+                          <AlertCircle size={15} className="mt-0.5 shrink-0 text-[#2563EB]" />
                           <div>
                             <span className="font-bold">CNAME Setup Pending</span>
                             <p className="mt-0.5 text-[10px] opacity-80">{dnsStatus.error}</p>
@@ -577,7 +577,7 @@ export default function EditFormPanel({ form }: { form: FormRow }) {
                       <input
                         type="checkbox"
                         disabled
-                        className="mt-0.5 h-3.5 w-3.5 rounded border-[#ECE7E0] accent-[#E8743B]"
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-[#ECE7E0] accent-[#2563EB]"
                       />
                       <span>I consent to having my testimonial displayed publicly.</span>
                     </label>

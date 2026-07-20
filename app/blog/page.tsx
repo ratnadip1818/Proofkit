@@ -22,7 +22,7 @@ export default function BlogPage() {
           <section className="w-full px-5 pb-16 pt-36 text-center md:px-10 md:pt-44">
             <div className="mx-auto w-full max-w-[800px]">
               <FadeIn>
-                <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E8743B] md:text-xs">
+                <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563EB] md:text-xs">
                   Resources & Insights
                 </p>
                 <h1
@@ -31,7 +31,7 @@ export default function BlogPage() {
                 >
                   Blovi{" "}
                   <span
-                    className="font-normal italic text-[#E8743B]"
+                    className="font-normal italic text-[#2563EB]"
                     style={{ fontFamily: "var(--font-serif-accent)" }}
                   >
                     Blog
@@ -66,7 +66,7 @@ export default function BlogPage() {
                           </div>
                           
                           <h2
-                            className="text-xl font-bold text-[#1A1A1A] line-clamp-2 group-hover:text-[#E8743B] transition-colors"
+                            className="text-xl font-bold text-[#1A1A1A] line-clamp-2 group-hover:text-[#2563EB] transition-colors"
                             style={{ fontFamily: "var(--font-display)" }}
                           >
                             <Link href={`/blog/${post.slug}`}>
@@ -82,7 +82,7 @@ export default function BlogPage() {
                         <div className="mt-8 pt-4 border-t border-[#FAF8F5]">
                           <Link
                             href={`/blog/${post.slug}`}
-                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#E8743B] hover:text-[#CF5F2C] transition-colors"
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] hover:text-[#1d4ed8] transition-colors"
                           >
                             Read article
                             <ArrowRight

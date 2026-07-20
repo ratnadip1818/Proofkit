@@ -11,7 +11,7 @@ export const metadata = {
 // Simple inline Stars component for clean rendering
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-0.5 text-[#E8743B]" aria-label={`${rating} out of 5 stars`}>
+    <div className="flex gap-0.5 text-[#2563EB]" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <span key={i} className="text-lg">
           {i < rating ? "★" : "☆"}
@@ -34,7 +34,7 @@ function Avatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }
   }
   const firstLetter = name.charAt(0).toUpperCase();
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFF4EE] font-bold text-[#E8743B] border border-[#ECE7E0]">
+    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFF6FF] font-bold text-[#2563EB] border border-[#ECE7E0]">
       {firstLetter}
     </div>
   );
@@ -80,7 +80,7 @@ export default async function VerifyPage({ params }: PageProps) {
       <header className="w-full border-b border-[#ECE7E0] bg-white py-5 px-6 md:px-10">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-decoration-none">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#E8743B] text-sm font-extrabold text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#2563EB] text-sm font-extrabold text-white">
               B
             </span>
             <span
@@ -120,7 +120,7 @@ export default async function VerifyPage({ params }: PageProps) {
           {/* Subtle quote watermark */}
           <span
             aria-hidden="true"
-            className="absolute top-2 right-8 text-[120px] font-serif text-[#E8743B] opacity-[0.06] select-none pointer-events-none"
+            className="absolute top-2 right-8 text-[120px] font-serif text-[#2563EB] opacity-[0.06] select-none pointer-events-none"
           >
             ”
           </span>
@@ -162,7 +162,7 @@ export default async function VerifyPage({ params }: PageProps) {
         {/* Metadata Details */}
         <div className="w-full max-w-2xl mt-6 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-5 flex items-start gap-3.5">
-            <div className="mt-0.5 text-[#E8743B]">
+            <div className="mt-0.5 text-[#2563EB]">
               <Calendar size={18} />
             </div>
             <div>
@@ -174,7 +174,7 @@ export default async function VerifyPage({ params }: PageProps) {
           </div>
 
           <div className="rounded-2xl border border-[#ECE7E0] bg-white p-5 flex items-start gap-3.5">
-            <div className="mt-0.5 text-[#E8743B]">
+            <div className="mt-0.5 text-[#2563EB]">
               <Globe size={18} />
             </div>
             <div>
@@ -200,7 +200,7 @@ export default async function VerifyPage({ params }: PageProps) {
             </p>
             <Link
               href="/"
-              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-[#E8743B] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02]"
+              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.02]"
             >
               Get Blovi for $49
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />

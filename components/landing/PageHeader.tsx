@@ -12,7 +12,7 @@ export default function PageHeader({
   return (
     <section className="w-full bg-[#FAF8F5] px-5 pb-16 pt-36 text-center md:px-10 md:pt-44">
       <div className="mx-auto w-full max-w-[800px]">
-        <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E8743B] md:text-xs">
+        <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563EB] md:text-xs">
           {eyebrow}
         </p>
         <h1
@@ -21,7 +21,7 @@ export default function PageHeader({
         >
           {title}{" "}
           <span
-            className="font-normal italic text-[#E8743B]"
+            className="font-normal italic text-[#2563EB]"
             style={{ fontFamily: "var(--font-serif-accent)" }}
           >
             {accent}

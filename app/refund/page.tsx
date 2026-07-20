@@ -74,7 +74,7 @@ export default function RefundPage() {
                 Any questions about setting up or using your lifetime plan? Email us at{" "}
                 <a
                   href="mailto:hello@blovi.space"
-                  className="text-[#E8743B] hover:underline"
+                  className="text-[#2563EB] hover:underline"
                 >
                   hello@blovi.space
                 </a>

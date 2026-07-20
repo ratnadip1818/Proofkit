@@ -45,14 +45,14 @@ export default function CookieConsent() {
   return (
     <div className="fixed bottom-5 right-5 z-[100] max-w-sm rounded-2xl border border-[#ECE7E0] bg-white p-5 shadow-[0_12px_36px_rgba(26,26,26,0.1)] md:max-w-md animate-in fade-in slide-in-from-bottom-6 duration-500">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFF4EE] text-[#E8743B] border border-[#E8743B]/20">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20">
           <ShieldCheck size={18} />
         </div>
         <div className="space-y-1">
           <p className="text-sm font-bold text-[#1A1A1A]">Cookie Preferences</p>
           <p className="text-xs text-[#6B6B6B] leading-relaxed">
             We use anonymized cookies to measure traffic and improve your collection form dashboard experience. See our{" "}
-            <a href="/privacy" className="font-semibold text-[#E8743B] hover:underline">
+            <a href="/privacy" className="font-semibold text-[#2563EB] hover:underline">
               Privacy Policy
             </a>.
           </p>
@@ -67,7 +67,7 @@ export default function CookieConsent() {
         </button>
         <button
           onClick={handleAccept}
-          className="rounded-full bg-[#1A1A1A] px-4 py-2 text-xs font-bold text-white transition-all hover:bg-[#E8743B] active:scale-95 shadow-sm"
+          className="rounded-full bg-[#1A1A1A] px-4 py-2 text-xs font-bold text-white transition-all hover:bg-[#2563EB] active:scale-95 shadow-sm"
         >
           Accept
         </button>

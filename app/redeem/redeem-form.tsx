@@ -54,7 +54,7 @@ export default function RedeemForm({ initialEmail, initialIsPro }: RedeemFormPro
         <div className="pt-2">
           <Link
             href="/dashboard"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#E8743B] active:scale-98"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#2563EB] active:scale-98"
           >
             Go to Dashboard
             <ArrowRight size={16} />
@@ -81,7 +81,7 @@ export default function RedeemForm({ initialEmail, initialIsPro }: RedeemFormPro
         <div className="pt-2">
           <Link
             href="/dashboard"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#E8743B] active:scale-98"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#2563EB] active:scale-98"
           >
             Go to Dashboard
             <ArrowRight size={16} />
@@ -123,14 +123,14 @@ export default function RedeemForm({ initialEmail, initialIsPro }: RedeemFormPro
             disabled={isPending}
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-gray-400 shadow-sm transition-all focus:border-[#E8743B] focus:outline-none focus:ring-1 focus:ring-[#E8743B] disabled:bg-gray-50"
+            className="w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3.5 text-sm text-[#1A1A1A] placeholder-gray-400 shadow-sm transition-all focus:border-[#2563EB] focus:outline-none focus:ring-1 focus:ring-[#2563EB] disabled:bg-gray-50"
           />
         </div>
 
         <button
           type="submit"
           disabled={isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#E8743B] active:scale-98 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#2563EB] active:scale-98 disabled:opacity-50"
         >
           {isPending ? (
             <>

@@ -94,7 +94,7 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
         </div>
         <Link
           href="/dashboard/testimonials"
-          className="text-xs font-bold text-[#E8743B] uppercase tracking-wider transition-colors hover:text-[#CF5F2C] flex items-center gap-1"
+          className="text-xs font-bold text-[#2563EB] uppercase tracking-wider transition-colors hover:text-[#1d4ed8] flex items-center gap-1"
         >
           Manage <Plus size={12} />
         </Link>
@@ -102,7 +102,7 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
 
       {recent.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#ECE7E0] bg-[#FAF8F5]/30 rounded-2xl p-8 text-center min-h-[220px]">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E8743B]/10 text-[#E8743B] mb-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2563EB]/10 text-[#2563EB] mb-3">
             <MessageSquare size={22} />
           </span>
           <h3 className="text-sm font-bold text-[#1A1A1A]">No testimonials yet</h3>
@@ -123,7 +123,7 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
             )}
             <Link
               href="/dashboard/import"
-              className="rounded-xl bg-[#E8743B] px-4 py-2 text-xs font-bold text-white hover:bg-[#CF5F2C] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-98"
+              className="rounded-xl bg-[#2563EB] px-4 py-2 text-xs font-bold text-white hover:bg-[#1d4ed8] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-98"
             >
               <TwitterIcon size={12} /> Import Tweet
             </Link>
@@ -159,7 +159,7 @@ export default function RecentFeed({ testimonials, formUrl }: RecentFeedProps) {
                         }}
                       />
                     ) : (
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF4EE] text-xs font-bold text-[#E8743B] border border-[#E8743B]/10">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EFF6FF] text-xs font-bold text-[#2563EB] border border-[#2563EB]/10">
                         {initials}
                       </div>
                     )}

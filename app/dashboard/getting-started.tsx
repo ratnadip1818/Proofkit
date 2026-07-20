@@ -80,7 +80,7 @@ export default function GettingStarted({
             </p>
           </div>
           <div className="text-right">
-            <span className="text-base font-black text-[#E8743B]">{percent}%</span>
+            <span className="text-base font-black text-[#2563EB]">{percent}%</span>
             <span className="text-[10px] font-bold text-[#6B6B6B] uppercase block tracking-wider">Complete</span>
           </div>
         </div>
@@ -88,55 +88,48 @@ export default function GettingStarted({
         {/* Gradient Progress Bar */}
         <div className="mt-4 h-2 w-full rounded-full bg-[#FAF8F5] overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#E8743B] to-[#F19E6E] transition-all duration-500 ease-out"
+            className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA] transition-all duration-500 ease-out"
             style={{ width: `${percent}%` }}
           />
         </div>
 
-        {/* Steps List */}
-        <div className="mt-6 space-y-3">
-          {steps.map((step) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={step.id}
-                className={`flex items-start gap-3 rounded-2xl p-3 border transition-all duration-200 ${
-                  step.completed 
-                    ? "bg-[#FAF8F5]/30 border-[#ECE7E0]/20 opacity-80" 
-                    : "bg-white border-[#ECE7E0]/40 hover:border-[#E8743B]/30 hover:shadow-[0_4px_12px_rgba(232,116,59,0.02)]"
-                }`}
-              >
-                <div className="mt-0.5 shrink-0">
-                  {step.completed ? (
-                    <CheckCircle2 size={18} className="text-[#2E9E6B]" fill="rgba(46,158,107,0.1)" />
-                  ) : (
-                    <Circle size={18} className="text-zinc-300 group-hover:text-[#E8743B]" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={`text-sm font-bold leading-tight ${
-                      step.completed ? "text-[#6B6B6B] line-through decoration-[#6B6B6B]/30" : "text-[#1A1A1A]"
-                    }`}
-                  >
-                    {step.title}
-                  </p>
-                  <p className="mt-1 text-xs text-[#6B6B6B] leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-                {!step.completed && (
-                  <Link
-                    href={step.link}
-                    className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-[#E8743B] uppercase tracking-wider transition-colors hover:text-[#CF5F2C] self-center ml-2 border border-[#E8743B]/25 hover:border-[#CF5F2C] rounded-full px-2.5 py-1 bg-white"
-                  >
-                    <span>{step.actionLabel}</span>
-                    <ArrowRight size={10} />
-                  </Link>
+        {/* Steps Grid */}
+        <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+          {steps.map((step) => (
+            <div
+              key={step.id}
+              className={`flex items-start gap-3 rounded-2xl p-3 border transition-all duration-200 ${
+                step.completed 
+                  ? "bg-[#FAF8F5]/30 border-[#ECE7E0]/20 opacity-80" 
+                  : "bg-white border-[#ECE7E0]/40 hover:border-[#2563EB]/30 hover:shadow-[0_4px_12px_rgba(37,99,235,0.02)]"
+              }`}
+            >
+              <div className="mt-0.5 shrink-0">
+                {step.completed ? (
+                  <CheckCircle2 size={18} className="text-[#2E9E6B]" fill="rgba(46,158,107,0.1)" />
+                ) : (
+                  <Circle size={18} className="text-zinc-300 group-hover:text-[#2563EB]" />
                 )}
               </div>
-            );
-          })}
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs font-bold ${step.completed ? "text-[#8A8A8A] line-through" : "text-[#1A1A1A]"}`}>
+                  {step.title}
+                </p>
+                <p className="text-[11px] text-[#6B6B6B] truncate mt-0.5">
+                  {step.description}
+                </p>
+              </div>
+              {!step.completed && (
+                <Link
+                  href={step.link}
+                  className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-[#2563EB] uppercase tracking-wider transition-colors hover:text-[#1d4ed8] self-center ml-2 border border-[#2563EB]/25 hover:border-[#1d4ed8] rounded-full px-2.5 py-1 bg-white"
+                >
+                  <span>{step.actionLabel}</span>
+                  <ArrowRight size={10} />
+                </Link>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

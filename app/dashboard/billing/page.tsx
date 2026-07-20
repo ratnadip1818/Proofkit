@@ -119,7 +119,7 @@ export default async function BillingPage() {
             </div>
             <a
               href="/redeem"
-              className="rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#E8743B] active:scale-95"
+              className="rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#2563EB] active:scale-95"
             >
               Redeem Code
             </a>
@@ -159,8 +159,8 @@ export default async function BillingPage() {
                     Thank you for your support. You have full access to all premium widgets, themes, and layouts included in your tier.
                   </p>
                 </div>
-                <div className="h-16 w-16 bg-[#FFF4EE] text-[#E8743B] rounded-full flex items-center justify-center shrink-0 shadow-sm border border-[#E8743B]/20">
-                  <Heart size={28} className="fill-[#E8743B]" />
+                <div className="h-16 w-16 bg-[#EFF6FF] text-[#2563EB] rounded-full flex items-center justify-center shrink-0 shadow-sm border border-[#2563EB]/20">
+                  <Heart size={28} className="fill-[#2563EB]" />
                 </div>
               </div>
 
@@ -232,15 +232,15 @@ export default async function BillingPage() {
             </div>
 
             {/* Pro Plan */}
-            <div className="relative overflow-hidden rounded-2xl border-2 border-[#E8743B] bg-white p-6 shadow-md flex flex-col justify-between">
+            <div className="relative overflow-hidden rounded-2xl border-2 border-[#2563EB] bg-white p-6 shadow-md flex flex-col justify-between">
               <BorderBeam duration={8} />
               
               <div>
                 <div className="flex justify-between items-center">
-                  <span className="inline-flex rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-xs font-semibold text-[#E8743B] border border-[#E8743B]/20">
+                  <span className="inline-flex rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-xs font-semibold text-[#2563EB] border border-[#2563EB]/20">
                     Pro Plan
                   </span>
-                  <span className="text-[10px] font-bold tracking-widest text-[#E8743B] uppercase animate-pulse">Popular</span>
+                  <span className="text-[10px] font-bold tracking-widest text-[#2563EB] uppercase animate-pulse">Popular</span>
                 </div>
                 <div className="mt-4">
                   <span className="text-3xl font-extrabold text-[#1A1A1A] font-display">$49</span>
@@ -251,7 +251,7 @@ export default async function BillingPage() {
                 </p>
 
                 <div className="mt-6 border-t border-[#ECE7E0] pt-6">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#E8743B] mb-4">Pro Features</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#2563EB] mb-4">Pro Features</p>
                   <ul className="space-y-3">
                     {PRO_FEATURES.map((feature) => (
                       <li key={feature} className="flex items-start gap-2.5 text-xs text-[#1A1A1A]">
@@ -268,7 +268,7 @@ export default async function BillingPage() {
               <div className="mt-8 pt-4 border-t border-[#ECE7E0]/60">
                 <Link
                   href="/redeem"
-                  className="w-full inline-flex items-center justify-center rounded-xl bg-[#E8743B] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer text-center"
+                  className="w-full inline-flex items-center justify-center rounded-xl bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer text-center"
                 >
                   Redeem AppSumo Code
                 </Link>
@@ -284,7 +284,7 @@ export default async function BillingPage() {
         {/* FAQ Section */}
         <div className="mt-12 rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
           <h3 className="text-base font-bold text-[#1A1A1A] flex items-center gap-2 mb-6" style={{ fontFamily: "var(--font-display)" }}>
-            <HelpCircle className="text-[#E8743B]" size={18} />
+            <HelpCircle className="text-[#2563EB]" size={18} />
             Frequently Asked Questions
           </h3>
           <div className="divide-y divide-[#ECE7E0]">
@@ -302,7 +302,7 @@ export default async function BillingPage() {
           Have custom requirements or need billing help? Contact us at{" "}
           <a
             href="mailto:hello@blovi.space"
-            className="font-medium text-[#E8743B] hover:underline"
+            className="font-medium text-[#2563EB] hover:underline"
           >
             hello@blovi.space
           </a>

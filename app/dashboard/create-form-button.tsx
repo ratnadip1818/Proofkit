@@ -23,7 +23,7 @@ export default function CreateFormButton() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-[#E8743B] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create collection form"}
       </button>

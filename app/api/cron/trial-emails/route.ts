@@ -17,10 +17,10 @@ const HOUR = 60 * 60 * 1000;
 function emailShell(heading: string, body: string, cta: string) {
   return `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1A1A1A;">
-      <p style="font-size:20px;font-weight:800;color:#E8743B;margin-bottom:4px;">Blovi</p>
+      <p style="font-size:20px;font-weight:800;color:#2563EB;margin-bottom:4px;">Blovi</p>
       <h2 style="margin:16px 0 8px;">${heading}</h2>
       <p style="color:#6B6B6B;line-height:1.6;">${body}</p>
-      <a href="${SITE_URL}/dashboard/billing" style="display:inline-block;margin-top:20px;background:#E8743B;color:white;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;">
+      <a href="${SITE_URL}/dashboard/billing" style="display:inline-block;margin-top:20px;background:#2563EB;color:white;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;">
         ${cta}
       </a>
       <p style="margin-top:24px;font-size:12px;color:#9CA3AF;">

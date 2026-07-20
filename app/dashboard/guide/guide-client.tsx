@@ -288,7 +288,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                       onClick={() => setActivePlatform(pid)}
                       className={`flex items-center gap-3 shrink-0 text-left w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
                         isActive
-                          ? "bg-[#E8743B] text-white shadow-sm shadow-[#E8743B]/20"
+                          ? "bg-[#2563EB] text-white shadow-sm shadow-[#2563EB]/20"
                           : "text-[#4B5563] bg-transparent hover:bg-black/5 hover:text-[#1A1A1A]"
                       }`}
                     >
@@ -319,7 +319,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                     <span className="text-[10px] font-bold uppercase text-[#1A1A1A]">Testimonial Slider</span>
                     <button 
                       onClick={() => copyToClipboard(carouselSnippet, "preset-carousel")}
-                      className="text-[9px] font-bold text-[#E8743B] uppercase tracking-wider flex items-center gap-1 hover:text-[#CF5F2C]"
+                      className="text-[9px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-1 hover:text-[#CF5F2C]"
                     >
                       {copiedSnippet === "preset-carousel" ? (
                         <>
@@ -345,7 +345,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                     <span className="text-[10px] font-bold uppercase text-[#1A1A1A]">Infinite Marquee</span>
                     <button 
                       onClick={() => copyToClipboard(marqueeSnippet, "preset-marquee")}
-                      className="text-[9px] font-bold text-[#E8743B] uppercase tracking-wider flex items-center gap-1 hover:text-[#CF5F2C]"
+                      className="text-[9px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-1 hover:text-[#CF5F2C]"
                     >
                       {copiedSnippet === "preset-marquee" ? (
                         <>
@@ -415,7 +415,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                             </span>
                             <button
                               onClick={() => copyToClipboard(step.code!, `snippet-${idx}`)}
-                              className="flex items-center gap-1 text-[10px] font-bold text-[#E8743B] uppercase tracking-wider hover:text-white transition-colors"
+                              className="flex items-center gap-1 text-[10px] font-bold text-[#2563EB] uppercase tracking-wider hover:text-white transition-colors"
                             >
                               {copiedSnippet === `snippet-${idx}` ? (
                                 <>
@@ -446,7 +446,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
             {/* Troubleshooting Card */}
             <div className="rounded-3xl border border-[#ECE7E0] bg-white p-6 md:p-8 shadow-sm">
               <div className="flex items-center gap-2 pb-4 border-b border-[#ECE7E0]/60 mb-5">
-                <HelpCircle size={18} className="text-[#E8743B]" />
+                <HelpCircle size={18} className="text-[#2563EB]" />
                 <h3 className="text-sm font-bold text-[#1A1A1A] uppercase tracking-widest">
                   Troubleshooting & Best Practices
                 </h3>
@@ -455,7 +455,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
               <div className="space-y-4">
                 {/* Rule 1: CLS */}
                 <div className="flex gap-3 items-start rounded-2xl border border-[#ECE7E0]/50 p-4 bg-[#FAF8F5]/30">
-                  <Monitor size={18} className="text-[#E8743B] shrink-0 mt-0.5" />
+                  <Monitor size={18} className="text-[#2563EB] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">
                       Prevent Cumulative Layout Shift (CLS)
@@ -468,7 +468,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
 
                 {/* Rule 2: Smooth Scroll */}
                 <div className="flex gap-3 items-start rounded-2xl border border-[#ECE7E0]/50 p-4 bg-[#FAF8F5]/30">
-                  <Smartphone size={18} className="text-[#E8743B] shrink-0 mt-0.5" />
+                  <Smartphone size={18} className="text-[#2563EB] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">
                       Smooth Scrolling Libraries (Lenis / Locomotive)
@@ -481,7 +481,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
 
                 {/* Rule 3: Fonts */}
                 <div className="flex gap-3 items-start rounded-2xl border border-[#ECE7E0]/50 p-4 bg-[#FAF8F5]/30">
-                  <Info size={18} className="text-[#E8743B] shrink-0 mt-0.5" />
+                  <Info size={18} className="text-[#2563EB] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">
                       Dynamic Heights & Lazy Fonts Loading

@@ -10,7 +10,7 @@ const BARS = [
   { label: "WiserReview", price: "$9/mo", total: 324, color: "#D4CEC7" },
   { label: "Testimonial.to", price: "$25/mo", total: 900, color: "#BFBAB2" },
   { label: "Senja", price: "$29/mo", total: 1044, color: "#9C968D" },
-  { label: "Blovi", price: "$49/yr", total: 147, color: "#E8743B", hero: true },
+  { label: "Blovi", price: "$49/yr", total: 147, color: "#2563EB", hero: true },
 ];
 
 const MAX = 1044;
@@ -47,7 +47,7 @@ export default function CostCompare() {
     >
       <div className="mx-auto w-full max-w-[1100px]">
         <Reveal>
-          <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E8743B] md:text-xs">
+          <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563EB] md:text-xs">
             The real cost
           </p>
           <h2
@@ -56,7 +56,7 @@ export default function CostCompare() {
           >
             Stop{" "}
             <span
-              className="font-normal italic text-[#E8743B]"
+              className="font-normal italic text-[#2563EB]"
               style={{ fontFamily: "var(--font-serif-accent)" }}
             >
               renting
@@ -80,11 +80,11 @@ export default function CostCompare() {
               </p>
               <p className="mt-2 text-sm text-[#6B6B6B]">…and still counting, every month</p>
             </div>
-            <div className="relative overflow-hidden rounded-3xl border-2 border-[#E8743B] bg-white p-8 text-center shadow-[0_24px_56px_rgba(232,116,59,0.18)] md:p-10">
-              <span className="absolute right-0 top-0 rounded-bl-2xl bg-[#E8743B] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
+            <div className="relative overflow-hidden rounded-3xl border-2 border-[#2563EB] bg-white p-8 text-center shadow-[0_24px_56px_rgba(232,116,59,0.18)] md:p-10">
+              <span className="absolute right-0 top-0 rounded-bl-2xl bg-[#2563EB] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
                 Best value
               </span>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#E8743B]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#2563EB]">
                 Blovi Pro
               </p>
               <p
@@ -115,7 +115,7 @@ export default function CostCompare() {
                   <div className="mb-2 flex items-baseline justify-between gap-3">
                     <span
                       className={`text-sm ${
-                        bar.hero ? "font-bold text-[#E8743B]" : "font-medium text-[#6B6B6B]"
+                        bar.hero ? "font-bold text-[#2563EB]" : "font-medium text-[#6B6B6B]"
                       }`}
                     >
                       {bar.label}{" "}
@@ -123,7 +123,7 @@ export default function CostCompare() {
                     </span>
                     <span
                       className={`shrink-0 text-sm font-bold tabular-nums ${
-                        bar.hero ? "text-[#E8743B]" : "text-[#1A1A1A]"
+                        bar.hero ? "text-[#2563EB]" : "text-[#1A1A1A]"
                       }`}
                     >
                       ${bar.total.toLocaleString()}

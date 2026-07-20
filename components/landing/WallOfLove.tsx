@@ -60,7 +60,7 @@ export default function WallOfLove() {
       <div className="mx-auto max-w-[1200px]">
         {/* Section Header */}
         <div className="text-center mb-14">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#E8743B] mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#2563EB] mb-4">
             Wall of Love
           </p>
           <h2
@@ -69,7 +69,7 @@ export default function WallOfLove() {
           >
             Loved by founders &{" "}
             <span
-              className="italic text-[#E8743B]"
+              className="italic text-[#2563EB]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               makers

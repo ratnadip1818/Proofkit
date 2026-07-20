@@ -50,7 +50,7 @@ export default function EmbedCode({ userId }: { userId: string }) {
             <div className="min-w-0 flex-1 overflow-x-auto">
               <code className="block font-mono text-[11px] leading-relaxed text-zinc-300 whitespace-nowrap px-1.5 py-1">
                 <span className="text-zinc-500">&lt;</span>
-                <span className="text-[#E8743B]">script</span>
+                <span className="text-[#2563EB]">script</span>
                 <span className="text-sky-300"> src</span>
                 <span className="text-zinc-400">=</span>
                 <span className="text-emerald-400">&quot;{APP_URL}/widget.js&quot;</span>
@@ -58,7 +58,7 @@ export default function EmbedCode({ userId }: { userId: string }) {
                 <span className="text-zinc-400">=</span>
                 <span className="text-emerald-400">&quot;{userId}&quot;</span>
                 <span className="text-zinc-500">&gt;&lt;/</span>
-                <span className="text-[#E8743B]">script</span>
+                <span className="text-[#2563EB]">script</span>
                 <span className="text-zinc-500">&gt;</span>
               </code>
             </div>
@@ -77,9 +77,9 @@ export default function EmbedCode({ userId }: { userId: string }) {
         </div>
 
         <div className="mt-3 text-[11px] text-[#6B6B6B] flex items-center gap-1.5 pl-1">
-          <span className="h-1 w-1 rounded-full bg-[#E8743B] shrink-0" />
+          <span className="h-1 w-1 rounded-full bg-[#2563EB] shrink-0" />
           <span>Using Framer, Webflow, or Shopify?</span>
-          <Link href="/dashboard/guide" className="font-bold text-[#E8743B] hover:underline">
+          <Link href="/dashboard/guide" className="font-bold text-[#2563EB] hover:underline">
             Read our Setup Guide →
           </Link>
         </div>

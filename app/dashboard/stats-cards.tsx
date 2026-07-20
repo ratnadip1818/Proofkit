@@ -8,9 +8,9 @@ const STAT_CONFIG = [
     label: "Total",
     icon: MessageSquare,
     key: "all",
-    iconBg: "bg-[#E8743B]/10",
-    iconColor: "text-[#E8743B]",
-    hoverClasses: "hover:shadow-[0_12px_30px_rgba(232,116,59,0.08)] hover:border-[#E8743B]/30",
+    iconBg: "bg-[#2563EB]/10",
+    iconColor: "text-[#2563EB]",
+    hoverClasses: "hover:shadow-[0_12px_30px_rgba(232,116,59,0.08)] hover:border-[#2563EB]/30",
   },
   {
     label: "Pending",
@@ -68,7 +68,7 @@ export default function StatsCards({
   const getDotClass = (key: "all" | "pending" | "approved" | "hidden") => {
     switch (key) {
       case "all":
-        return "bg-[#E8743B]";
+        return "bg-[#2563EB]";
       case "pending":
         return "bg-amber-400";
       case "approved":

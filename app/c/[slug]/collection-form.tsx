@@ -31,7 +31,7 @@ function StarRating({
           onClick={() => onChange(star)}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
-          className="text-3xl leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B]/40 rounded"
+          className="text-3xl leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 rounded"
         >
           <span
             className={
@@ -47,7 +47,7 @@ function StarRating({
 }
 
 const inputClass =
-  "w-full rounded-lg border border-[#ECE7E0] px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20";
+  "w-full rounded-lg border border-[#ECE7E0] px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#6B6B6B] transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20";
 
 export default function CollectionForm({ form }: { form: FormRow }) {
   const [authorName, setAuthorName] = useState("");
@@ -223,7 +223,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
               </svg>
             </div>
           )}
-          <label className="cursor-pointer rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#E8743B]/40">
+          <label className="cursor-pointer rounded-lg border border-[#ECE7E0] bg-white px-3 py-2 text-xs font-medium text-[#6B6B6B] transition-colors hover:border-[#1A1A1A]/20 hover:text-[#1A1A1A] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#2563EB]/40">
             {avatarPreview ? "Change photo" : "Upload photo"}
             <input
               type="file"
@@ -314,7 +314,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-[#ECE7E0] accent-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/40"
+            className="mt-0.5 h-4 w-4 rounded border-[#ECE7E0] accent-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
           />
           <span className="text-sm text-[#6B6B6B]">
             I consent to having my testimonial displayed publicly.
@@ -334,10 +334,10 @@ export default function CollectionForm({ form }: { form: FormRow }) {
         style={{
           backgroundColor:
             !form.theme_color || form.theme_color === "#000000"
-              ? "#E8743B"
+              ? "#2563EB"
               : form.theme_color,
         }}
-        className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:brightness-90 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8743B] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:brightness-90 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Submitting…" : "Submit testimonial"}
       </button>

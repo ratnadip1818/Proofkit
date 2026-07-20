@@ -379,7 +379,7 @@ export default function ImportPanel() {
               {activeTab === tab.value && (
                 <motion.div
                   layoutId="active-import-tab"
-                  className="absolute inset-0 bg-[#E8743B] rounded-lg -z-10 shadow-sm"
+                  className="absolute inset-0 bg-[#2563EB] rounded-lg -z-10 shadow-sm"
                   transition={{ type: "spring", stiffness: 380, damping: 32 }}
                 />
               )}
@@ -413,13 +413,13 @@ export default function ImportPanel() {
                       placeholder="https://x.com/username/status/123456789"
                       value={twitterUrl}
                       onChange={(e) => setTwitterUrl(e.target.value)}
-                      className="w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                      className="w-full rounded-xl border border-[#ECE7E0] bg-white px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                     />
                     <button
                       type="button"
                       onClick={handleFetchTwitter}
                       disabled={loadingTwitter}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3 text-sm font-bold text-white transition-all hover:bg-[#E8743B] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer active:scale-98"
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] px-5 py-3 text-sm font-bold text-white transition-all hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer active:scale-98"
                     >
                       {loadingTwitter && <Loader2 size={15} className="animate-spin" />}
                       {loadingTwitter ? "Fetching Tweet Details..." : "Fetch Tweet"}
@@ -519,7 +519,7 @@ export default function ImportPanel() {
                     type="button"
                     onClick={handleSaveTwitter}
                     disabled={loadingTwitter}
-                    className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
+                    className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
                   >
                     Import Testimonial
                   </button>
@@ -571,7 +571,7 @@ export default function ImportPanel() {
                     placeholder="https://www.producthunt.com/@atish or @atish"
                     value={phProfileUrl}
                     onChange={(e) => setPhProfileUrl(e.target.value)}
-                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                   />
                 </div>
 
@@ -585,7 +585,7 @@ export default function ImportPanel() {
                     placeholder="Atish"
                     value={phAuthorName}
                     onChange={(e) => setPhAuthorName(e.target.value)}
-                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20"
+                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                   />
                 </div>
 
@@ -599,7 +599,7 @@ export default function ImportPanel() {
                     rows={4}
                     value={phBody}
                     onChange={(e) => setPhBody(e.target.value)}
-                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#E8743B] focus:outline-none focus:ring-2 focus:ring-[#E8743B]/20 resize-none"
+                    className="rounded-xl border border-[#ECE7E0] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9CA3AF] transition-all focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 resize-none"
                   />
                 </div>
               </div>
@@ -627,7 +627,7 @@ export default function ImportPanel() {
                   type="button"
                   onClick={handleSaveProductHunt}
                   disabled={phLoading || !phAuthorName.trim() || !phBody.trim()}
-                  className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                  className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                 >
                   {phLoading ? "Saving..." : "Import Review"}
                 </button>
@@ -725,16 +725,16 @@ export default function ImportPanel() {
             {/* Guide Card */}
             <div className="md:col-span-1 rounded-2xl border border-[#ECE7E0] bg-[#FAF8F5]/60 p-5 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wide text-[#1A1A1A] flex items-center gap-1.5">
-                <HelpCircle size={15} className="text-[#E8743B]" />
+                <HelpCircle size={15} className="text-[#2563EB]" />
                 Formatting Guide
               </h3>
               <p className="text-xs text-[#6B6B6B] leading-relaxed">
                 Make sure your CSV file has a header row with columns matching exactly:
               </p>
               <div className="rounded-xl border border-[#ECE7E0] bg-white p-3.5 font-mono text-[10px] text-[#1A1A1A] space-y-1.5 shadow-sm">
-                <p><strong className="text-[#E8743B]">name:</strong> Author name</p>
+                <p><strong className="text-[#2563EB]">name:</strong> Author name</p>
                 <p><strong>role:</strong> Subtitle/Title (opt)</p>
-                <p><strong className="text-[#E8743B]">testimonial:</strong> Review text</p>
+                <p><strong className="text-[#2563EB]">testimonial:</strong> Review text</p>
                 <p><strong>rating:</strong> Number 1-5 (opt)</p>
               </div>
             </div>
@@ -749,11 +749,11 @@ export default function ImportPanel() {
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all ${
                   dragActive
-                    ? "border-[#E8743B] bg-[#FFF4EE]/20 scale-[0.99]"
-                    : "border-[#ECE7E0] bg-white hover:border-[#E8743B]/60"
+                    ? "border-[#2563EB] bg-[#EFF6FF]/20 scale-[0.99]"
+                    : "border-[#ECE7E0] bg-white hover:border-[#2563EB]/60"
                 }`}
               >
-                <div className="h-12 w-12 rounded-full bg-[#FFF4EE] text-[#E8743B] flex items-center justify-center mb-3">
+                <div className="h-12 w-12 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center mb-3">
                   <Upload size={22} />
                 </div>
                 <p className="text-sm font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-display)" }}>
@@ -785,7 +785,7 @@ export default function ImportPanel() {
                 </div>
                 {fileName && (
                   <div className="mt-4 flex items-center gap-1.5 rounded-lg bg-[#FAF8F5] border border-[#ECE7E0] px-3.5 py-1.5 text-xs font-semibold text-[#1A1A1A]">
-                    <FileText size={12} className="text-[#E8743B]" />
+                    <FileText size={12} className="text-[#2563EB]" />
                     {fileName}
                   </div>
                 )}
@@ -858,7 +858,7 @@ export default function ImportPanel() {
                   type="button"
                   onClick={handleImport}
                   disabled={importing || validRows.length === 0}
-                  className="rounded-xl bg-[#E8743B] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-40 flex items-center gap-2 cursor-pointer shadow-sm"
+                  className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#CF5F2C] disabled:cursor-not-allowed disabled:opacity-40 flex items-center gap-2 cursor-pointer shadow-sm"
                 >
                   {importing && <Loader2 size={14} className="animate-spin" />}
                   {importing

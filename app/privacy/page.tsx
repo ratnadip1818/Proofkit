@@ -62,31 +62,31 @@ export default function PrivacyPage() {
               <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
                 <li>
                   <strong className="text-[#1A1A1A]">Supabase</strong> — database and authentication.{" "}
-                  <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
                     Privacy policy
                   </a>
                 </li>
                 <li>
                   <strong className="text-[#1A1A1A]">Vercel</strong> — application hosting.{" "}
-                  <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
                     Privacy policy
                   </a>
                 </li>
                 <li>
                   <strong className="text-[#1A1A1A]">Resend</strong> — transactional email delivery.{" "}
-                  <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
                     Privacy policy
                   </a>
                 </li>
                 <li>
                   <strong className="text-[#1A1A1A]">Paddle</strong> — payment processing and billing (Paddle acts as the merchant of record).{" "}
-                  <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
                     Privacy policy
                   </a>
                 </li>
                 <li>
                   <strong className="text-[#1A1A1A]">Google Analytics</strong> — anonymized traffic tracking.{" "}
-                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#E8743B] hover:underline">
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
                     Privacy policy
                   </a>
                 </li>
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
                 For any privacy-related questions or data deletion requests, email us at{" "}
                 <a
                   href="mailto:hello@blovi.space"
-                  className="text-[#E8743B] hover:underline"
+                  className="text-[#2563EB] hover:underline"
                 >
                   hello@blovi.space
                 </a>

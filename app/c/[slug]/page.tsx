@@ -115,7 +115,7 @@ export default async function CollectionPage({
             Are you the owner?{" "}
             <a
               href="/"
-              className="font-semibold text-[#E8743B] hover:underline"
+              className="font-semibold text-[#2563EB] hover:underline"
             >
               Upgrade for unlimited testimonials
             </a>
