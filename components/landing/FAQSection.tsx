@@ -5,28 +5,32 @@ import Reveal from "./Reveal";
 
 const FAQ_ITEMS = [
   {
-    q: "Can I use Blovi for free?",
-    a: "Yes. You can start collecting reviews for free. Upgrade to lifetime access only when you need custom domains, zero branding, and premium widgets."
+    q: "Why lifetime?",
+    a: "I don't believe your customer testimonials should become another monthly bill. You earned every review—you should own them forever."
   },
   {
-    q: "Do I need to write code to embed widgets?",
-    a: "No. You only copy and paste a single script tag into your landing page or framework container. It works with HTML, React, Next.js, Framer, and Webflow."
+    q: "Can I start free?",
+    a: "Yes. You can collect your first customer stories and publish your first Wall of Love completely free, with no credit card required."
   },
   {
-    q: "Can I import reviews from external platforms?",
-    a: "Yes. You can import your reviews instantly via CSV format or manually verify specific external reviews."
+    q: "Can I upgrade later?",
+    a: "Absolutely. Start with the free tier to test Blovi on your site. When you're ready for unlimited testimonials, custom branding, and extra layouts, upgrade to Lifetime."
   },
   {
-    q: "How does the custom domain verification work?",
-    a: "Once you connect your own domain (e.g. reviews.yourbrand.com), Blovi automatically configures Vercel edge routes so visitors submit reviews natively on your brand subdomain."
+    q: "Do I receive future updates?",
+    a: "Yes. Every lifetime license includes future core widget improvements, performance optimizations, and CDN speed enhancements."
   },
   {
-    q: "Is there a recurring subscription?",
-    a: "No. The Lifetime plan is a one-time purchase. You receive ongoing widget updates and server caching without monthly recurring costs."
+    q: "Is there a refund policy?",
+    a: "Yes. We offer a 14-day no-questions-asked refund policy. If Blovi doesn't fit your needs, email us and we'll refund you immediately."
   },
   {
-    q: "Will the review widget slow down my website?",
-    a: "No. Blovi testimonial widgets compile statically and serve via CDN edge servers in under 50ms, maintaining a perfect Google Lighthouse SEO rank."
+    q: "What happens if Blovi shuts down?",
+    a: "Blovi runs on lightweight serverless architecture with virtually zero overhead. Your widgets and embed scripts will remain active and hosted."
+  },
+  {
+    q: "How do custom domains work?",
+    a: "You can point your custom domain (like feedback.yourbrand.com) directly to Blovi so visitors submit testimonials natively on your site."
   }
 ];
 
