@@ -4,6 +4,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata = {
   title: "Privacy Policy — Blovi",
+  description: "Learn how Blovi collects, protects, and handles your data with strict privacy standards.",
 };
 
 export default function PrivacyPage() {
@@ -12,141 +13,131 @@ export default function PrivacyPage() {
       <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-[#FAF8F5]">
         <LandingNavbar />
         <main className="mx-auto w-full max-w-[1200px] px-5 md:px-10 pb-16 pt-36 md:pt-44 flex-1">
-        <div className="max-w-2xl">
-          <p className="text-sm text-[#6B6B6B] mb-2">Last updated: July 2026</p>
-          <h1
-            className="text-4xl font-bold text-[#1A1A1A] mb-8"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Privacy Policy
-          </h1>
+          <div className="max-w-2xl">
+            <p className="text-sm text-[#6B6B6B] mb-2 font-medium">Last updated: July 2026</p>
+            <h1
+              className="text-4xl font-extrabold text-[#1A1A1A] mb-8 tracking-tight"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Privacy Policy
+            </h1>
 
-          <div className="space-y-8 text-[#1A1A1A]">
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                1. What We Collect
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed mb-3">
-                We collect the minimum data necessary to provide the Blovi service:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
-                <li><strong className="text-[#1A1A1A]">Email address</strong> — used to create and manage your account</li>
-                <li><strong className="text-[#1A1A1A]">Testimonial content</strong> — text, ratings, and author details submitted through your collection forms</li>
-                <li><strong className="text-[#1A1A1A]">Payment information</strong> — handled entirely by Paddle; we never see or store your card details</li>
-                <li><strong className="text-[#1A1A1A]">Usage data</strong> — anonymized page view statistics using Google Analytics and Vercel Analytics to monitor site performance</li>
-              </ul>
-            </section>
+            <div className="space-y-8 text-[#1A1A1A]">
+              <section>
+                <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
+                  1. What We Collect
+                </h2>
+                <p className="text-[#6B6B6B] leading-relaxed mb-3">
+                  We collect only the minimum data necessary to provide Blovi's testimonial collection and widget rendering service:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
+                  <li><strong className="text-[#1A1A1A]">Account Information</strong> — your email address and name used to create and manage your account.</li>
+                  <li><strong className="text-[#1A1A1A]">Testimonial Content</strong> — text, star ratings, author names, roles, and avatar images submitted through your collection forms or imported by you.</li>
+                  <li><strong className="text-[#1A1A1A]">Imported Social Proof</strong> — public tweet data or Product Hunt reviews when you import testimonials via URL.</li>
+                  <li><strong className="text-[#1A1A1A]">Payment Details</strong> — processed securely by Paddle (Merchant of Record) or AppSumo; we never see or store your credit card or bank details.</li>
+                  <li><strong className="text-[#1A1A1A]">Technical &amp; Widget Logs</strong> — anonymized HTTP header information for widget embedding, CDN performance, and error logging.</li>
+                </ul>
+              </section>
 
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                2. How We Use Your Data
-              </h2>
-              <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
-                <li>To authenticate you and provide access to your dashboard</li>
-                <li>To store and display testimonials you&apos;ve collected</li>
-                <li>To send transactional emails (account confirmation, new testimonial notifications, password reset)</li>
-                <li>To process your payment and manage your subscription</li>
-              </ul>
-              <p className="text-[#6B6B6B] leading-relaxed mt-3">
-                We do <strong className="text-[#1A1A1A]">not</strong> sell, rent, or share your personal data with third parties for marketing purposes.
-              </p>
-            </section>
+              <section>
+                <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
+                  2. How We Use Your Data
+                </h2>
+                <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
+                  <li>To authenticate your login and provide access to your dashboard.</li>
+                  <li>To store, manage, and render your customer testimonials on your website.</li>
+                  <li>To deliver transactional emails (account creation, new testimonial submission alerts, password resets).</li>
+                  <li>To process your one-time lifetime payment and manage license activation.</li>
+                </ul>
+                <p className="text-[#6B6B6B] leading-relaxed mt-3">
+                  We <strong className="text-[#1A1A1A]">never</strong> sell, rent, trade, or share your data or your customers' testimonials with third-party advertisers or data brokers.
+                </p>
+              </section>
 
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                3. Third-Party Services
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed mb-3">
-                Blovi relies on a small number of trusted third-party services to operate. Each only receives the data it needs to perform its function:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
-                <li>
-                  <strong className="text-[#1A1A1A]">Supabase</strong> — database and authentication.{" "}
-                  <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
-                    Privacy policy
+              <section>
+                <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
+                  3. Infrastructure &amp; Third-Party Processors
+                </h2>
+                <p className="text-[#6B6B6B] leading-relaxed mb-3">
+                  Blovi runs on lightweight, modern cloud infrastructure. We partner with a small set of trusted service providers:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
+                  <li>
+                    <strong className="text-[#1A1A1A]">Supabase</strong> — database, authentication, and secure media storage (PostgreSQL hosted on AWS with Row-Level Security).{" "}
+                    <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
+                      Privacy policy
+                    </a>
+                  </li>
+                  <li>
+                    <strong className="text-[#1A1A1A]">Vercel</strong> — global Edge network application hosting and CDN delivery for embedded widgets (<code className="text-xs bg-[#ECE7E0]/60 px-1 py-0.5 rounded text-[#1A1A1A]">widget.js</code>).{" "}
+                    <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
+                      Privacy policy
+                    </a>
+                  </li>
+                  <li>
+                    <strong className="text-[#1A1A1A]">Paddle</strong> — payment gateway and Merchant of Record for direct website purchases.{" "}
+                    <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
+                      Privacy policy
+                    </a>
+                  </li>
+                  <li>
+                    <strong className="text-[#1A1A1A]">Resend</strong> — transactional email delivery service.{" "}
+                    <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
+                      Privacy policy
+                    </a>
+                  </li>
+                  <li>
+                    <strong className="text-[#1A1A1A]">Unavatar.io</strong> — avatar fetching proxy for public social proof imports.{" "}
+                    <a href="https://unavatar.io" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
+                      Service details
+                    </a>
+                  </li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
+                  4. Data Security &amp; Ownership
+                </h2>
+                <p className="text-[#6B6B6B] leading-relaxed">
+                  All data in transit is encrypted using HTTPS/TLS 1.3, and database records are encrypted at rest. Row-Level Security (RLS) policies ensure your testimonials and collection forms are strictly isolated to your account.
+                </p>
+                <p className="text-[#6B6B6B] leading-relaxed mt-2">
+                  <strong className="text-[#1A1A1A]">You own your testimonials.</strong> Blovi does not claim ownership over the customer feedback you collect or display.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
+                  5. Your Rights &amp; Data Control (GDPR)
+                </h2>
+                <p className="text-[#6B6B6B] leading-relaxed mb-3">
+                  We extend full data rights to all Blovi users worldwide:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
+                  <li><strong className="text-[#1A1A1A]">Access &amp; Export:</strong> Export all your testimonials in CSV format directly from your dashboard at any time.</li>
+                  <li><strong className="text-[#1A1A1A]">Correction &amp; Moderation:</strong> Edit, approve, hide, or delete individual testimonials inside your dashboard.</li>
+                  <li><strong className="text-[#1A1A1A]">Account Erasure:</strong> Request full account and data deletion by emailing support.</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
+                  6. Contact
+                </h2>
+                <p className="text-[#6B6B6B] leading-relaxed">
+                  For privacy inquiries, data requests, or account deletion, email the founder directly at{" "}
+                  <a
+                    href="mailto:hello@blovi.space"
+                    className="text-[#2563EB] font-semibold hover:underline"
+                  >
+                    hello@blovi.space
                   </a>
-                </li>
-                <li>
-                  <strong className="text-[#1A1A1A]">Vercel</strong> — application hosting.{" "}
-                  <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
-                    Privacy policy
-                  </a>
-                </li>
-                <li>
-                  <strong className="text-[#1A1A1A]">Resend</strong> — transactional email delivery.{" "}
-                  <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
-                    Privacy policy
-                  </a>
-                </li>
-                <li>
-                  <strong className="text-[#1A1A1A]">Paddle</strong> — payment processing and billing (Paddle acts as the merchant of record).{" "}
-                  <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
-                    Privacy policy
-                  </a>
-                </li>
-                <li>
-                  <strong className="text-[#1A1A1A]">Google Analytics</strong> — anonymized traffic tracking.{" "}
-                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
-                    Privacy policy
-                  </a>
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                4. Data Storage
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed">
-                Your data is stored securely using <strong className="text-[#1A1A1A]">Supabase</strong>, a GDPR-compliant database platform hosted on AWS infrastructure. Data is encrypted at rest and in transit.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                5. Your Rights (GDPR)
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed mb-3">
-                If you&apos;re located in the European Economic Area or UK, you have rights under the GDPR. Regardless of location, we extend the same rights to all Blovi users:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
-                <li>Access the personal data we hold about you</li>
-                <li>Correct inaccurate personal data</li>
-                <li>Request deletion of your account and all associated data</li>
-                <li>Export your testimonial data at any time from your dashboard</li>
-                <li>Object to or restrict certain processing of your data</li>
-              </ul>
-              <p className="text-[#6B6B6B] leading-relaxed mt-3">
-                To exercise any of these rights, email us using the contact details below. We respond within 5 business days.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                6. Cookies
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed">
-                Blovi uses essential session cookies to keep you logged in, as well as analytics cookies set by Google Analytics to help us understand site usage. We do not use advertising or marketing retargeting cookies.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                7. Contact
-              </h2>
-              <p className="text-[#6B6B6B] leading-relaxed">
-                For any privacy-related questions or data deletion requests, email us at{" "}
-                <a
-                  href="mailto:hello@blovi.space"
-                  className="text-[#2563EB] hover:underline"
-                >
-                  hello@blovi.space
-                </a>
-                . We respond within 5 business days.
-              </p>
-            </section>
+                  . We respond personally within 24 hours.
+                </p>
+              </section>
+            </div>
           </div>
-        </div>
         </main>
         <LandingFooter />
       </div>
