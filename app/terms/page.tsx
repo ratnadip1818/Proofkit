@@ -81,7 +81,7 @@ export default function TermsPage() {
                   6. Payments &amp; Refund Policy
                 </h2>
                 <p className="text-[#6B6B6B] leading-relaxed">
-                  Direct website purchases are processed by Paddle, our Merchant of Record, and include a <strong className="text-[#1A1A1A]">14-day no-questions-asked refund policy</strong>. Purchases made or redeemed via AppSumo are backed by AppSumo's <strong className="text-[#1A1A1A]">60-day guarantee</strong>. Please review our{" "}
+                  Purchases made or redeemed via AppSumo are backed by AppSumo's <strong className="text-[#1A1A1A]">60-day money-back guarantee</strong>. Direct purchases are backed by our <strong className="text-[#1A1A1A]">14-day founder guarantee</strong>. Please review our{" "}
                   <Link href="/refund" className="text-[#2563EB] font-semibold hover:underline">
                     Refund Policy
                   </Link>{" "}

@@ -4,7 +4,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata = {
   title: "Refund Policy — Blovi",
-  description: "Blovi's 14-day direct refund policy and AppSumo 60-day guarantee guidelines.",
+  description: "Blovi's 14-day direct refund guarantee and AppSumo 60-day guarantee guidelines.",
 };
 
 export default function RefundPage() {
@@ -34,14 +34,14 @@ export default function RefundPage() {
 
               <section>
                 <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                  2. Direct Purchases (Paddle) — 14-Day Money-Back Guarantee
+                  2. Direct Purchases — 14-Day Money-Back Guarantee
                 </h2>
                 <p className="text-[#6B6B6B] leading-relaxed mb-3">
-                  For purchases made directly on Blovi.space via Paddle:
+                  For licenses purchased directly from Blovi:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-[#6B6B6B] leading-relaxed">
                   <li>You have a <strong className="text-[#1A1A1A]">14-day no-questions-asked money-back guarantee</strong> from your date of purchase.</li>
-                  <li>To request a refund, simply email <a href="mailto:hello@blovi.space" className="text-[#2563EB] font-semibold hover:underline">hello@blovi.space</a> with your purchase email or order ID.</li>
+                  <li>To request a refund, simply email <a href="mailto:hello@blovi.space" className="text-[#2563EB] font-semibold hover:underline">hello@blovi.space</a> with your purchase email or license code.</li>
                   <li>I will process your full refund promptly within 24 hours. No hidden forms, calls, or hurdles required.</li>
                 </ul>
               </section>
@@ -65,7 +65,7 @@ export default function RefundPage() {
                   4. Processing Times
                 </h2>
                 <p className="text-[#6B6B6B] leading-relaxed">
-                  Once a refund is issued, your bank or payment provider typically credits your original payment method within 3–5 business days for Paddle direct purchases, or 5–10 business days for AppSumo refunds.
+                  Once a refund is issued, your bank or payment provider typically credits your original payment method within 3–5 business days for direct purchases, or 5–10 business days for AppSumo refunds.
                 </p>
               </section>
 

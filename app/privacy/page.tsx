@@ -34,7 +34,7 @@ export default function PrivacyPage() {
                   <li><strong className="text-[#1A1A1A]">Account Information</strong> — your email address and name used to create and manage your account.</li>
                   <li><strong className="text-[#1A1A1A]">Testimonial Content</strong> — text, star ratings, author names, roles, and avatar images submitted through your collection forms or imported by you.</li>
                   <li><strong className="text-[#1A1A1A]">Imported Social Proof</strong> — public tweet data or Product Hunt reviews when you import testimonials via URL.</li>
-                  <li><strong className="text-[#1A1A1A]">Payment Details</strong> — processed securely by Paddle (Merchant of Record) or AppSumo; we never see or store your credit card or bank details.</li>
+                  <li><strong className="text-[#1A1A1A]">Payment &amp; License Redemption Details</strong> — processed securely by authorized payment partners (e.g., AppSumo); we never see or store your credit card or bank details.</li>
                   <li><strong className="text-[#1A1A1A]">Technical &amp; Widget Logs</strong> — anonymized HTTP header information for widget embedding, CDN performance, and error logging.</li>
                 </ul>
               </section>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
                   <li>To authenticate your login and provide access to your dashboard.</li>
                   <li>To store, manage, and render your customer testimonials on your website.</li>
                   <li>To deliver transactional emails (account creation, new testimonial submission alerts, password resets).</li>
-                  <li>To process your one-time lifetime payment and manage license activation.</li>
+                  <li>To manage license activation and support your lifetime account.</li>
                 </ul>
                 <p className="text-[#6B6B6B] leading-relaxed mt-3">
                   We <strong className="text-[#1A1A1A]">never</strong> sell, rent, trade, or share your data or your customers' testimonials with third-party advertisers or data brokers.
@@ -71,12 +71,6 @@ export default function PrivacyPage() {
                   <li>
                     <strong className="text-[#1A1A1A]">Vercel</strong> — global Edge network application hosting and CDN delivery for embedded widgets (<code className="text-xs bg-[#ECE7E0]/60 px-1 py-0.5 rounded text-[#1A1A1A]">widget.js</code>).{" "}
                     <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
-                      Privacy policy
-                    </a>
-                  </li>
-                  <li>
-                    <strong className="text-[#1A1A1A]">Paddle</strong> — payment gateway and Merchant of Record for direct website purchases.{" "}
-                    <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
                       Privacy policy
                     </a>
                   </li>
