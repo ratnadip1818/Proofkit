@@ -176,14 +176,14 @@ export default function WidgetBuilder({
   return (
     <div className="flex min-h-screen bg-[#F5F4F1] font-sans text-gray-900 overflow-hidden">
       {/* LEFT PANEL */}
-      <div className="w-[440px] bg-white border-r border-gray-200 flex flex-col h-screen shrink-0 shadow-sm z-10">
-        <div className="px-8 pt-8 shrink-0">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-1">
-            <div className="flex items-center gap-4">
+      <div className="w-[360px] bg-white border-r border-gray-200 flex flex-col h-screen shrink-0 shadow-sm z-10">
+        <div className="px-6 pt-6 shrink-0">
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-1">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setTab("design")}
-                className={`text-sm font-semibold cursor-pointer pb-4 -mb-[17px] transition-all border-b-2 ${
+                className={`text-xs font-semibold cursor-pointer pb-3 -mb-[13px] transition-all border-b-2 ${
                   tab === "design"
                     ? "text-blue-600 border-blue-600"
                     : "text-gray-500 border-transparent hover:text-gray-800"
@@ -191,11 +191,11 @@ export default function WidgetBuilder({
               >
                 1. Widget Design
               </button>
-              <Code size={16} className="text-gray-300" />
+              <Code size={14} className="text-gray-300" />
               <button
                 type="button"
                 onClick={() => setTab("embed")}
-                className={`text-sm font-medium cursor-pointer pb-4 -mb-[17px] transition-all border-b-2 ${
+                className={`text-xs font-medium cursor-pointer pb-3 -mb-[13px] transition-all border-b-2 ${
                   tab === "embed"
                     ? "text-blue-600 border-blue-600"
                     : "text-gray-500 border-transparent hover:text-gray-800"
@@ -207,7 +207,7 @@ export default function WidgetBuilder({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {tab === "design" ? (
             <>
               {/* Widget Layout Style */}
