@@ -1,22 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Settings,
   Code,
   Zap,
   ExternalLink,
   Maximize2,
-  User,
-  ChevronLeft,
   ChevronRight,
-  Star,
   Layout,
   Check,
   Copy,
   X,
   Sparkles,
-  Save,
   Sliders,
   Layers,
   Quote,
@@ -87,7 +82,6 @@ export default function WidgetBuilder({
   const [showPhotos, setShowPhotos] = useState(true);
   const [useGravatar, setUseGravatar] = useState(true);
   const [fallbackAvatar, setFallbackAvatar] = useState("Placeholder");
-  const [fontFamily, setFontFamily] = useState("Inter (Default)");
   const [showBranding, setShowBranding] = useState(true);
   const [textColor, setTextColor] = useState("#374151");
   const [primaryColor, setPrimaryColor] = useState("#2564EB");
@@ -101,8 +95,38 @@ export default function WidgetBuilder({
   const [variationDrawerOpen, setVariationDrawerOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
+  // Auto-sync configuration changes to database in the background
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveWidgetConfig({
+        preset,
+        theme,
+        primary_color: primaryColor,
+        text_color: textColor,
+        rating_color: ratingColor,
+        rating_border_color: ratingBorderColor,
+        highlight_color: highlightColor,
+        show_photos: showPhotos,
+        use_gravatar: useGravatar,
+        fallback_avatar: fallbackAvatar,
+        show_branding: showBranding,
+      });
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [
+    preset,
+    theme,
+    primaryColor,
+    textColor,
+    ratingColor,
+    ratingBorderColor,
+    highlightColor,
+    showPhotos,
+    useGravatar,
+    fallbackAvatar,
+    showBranding,
+  ]);
 
   const colorFields = [
     { label: "Text Color", value: textColor, onChange: setTextColor },
@@ -113,7 +137,9 @@ export default function WidgetBuilder({
   ];
 
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
-  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=wall&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&max=9&desktop=1`;
+  
+  // Live preview URL including all live color, photo, and avatar fallback parameters
+  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=wall&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&showBranding=${showBranding}&max=9&desktop=1`;
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
@@ -135,32 +161,6 @@ export default function WidgetBuilder({
     navigator.clipboard.writeText(getEmbedCode());
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setSaveStatus(null);
-    const { error } = await saveWidgetConfig({
-      preset,
-      theme,
-      primary_color: primaryColor,
-      text_color: textColor,
-      rating_color: ratingColor,
-      rating_border_color: ratingBorderColor,
-      highlight_color: highlightColor,
-      show_photos: showPhotos,
-      use_gravatar: useGravatar,
-      fallback_avatar: fallbackAvatar,
-      font_family: fontFamily.split(" ")[0],
-      show_branding: showBranding,
-    });
-    setSaving(false);
-    if (error) {
-      setSaveStatus("Failed to save settings");
-    } else {
-      setSaveStatus("Saved successfully!");
-      setTimeout(() => setSaveStatus(null), 3000);
-    }
   };
 
   const variationsList = [
@@ -238,7 +238,7 @@ export default function WidgetBuilder({
 
               <hr className="border-gray-100" />
 
-              {/* 2. Variations (formerly Widget Design Preset) with Drawer Trigger */}
+              {/* 2. Variations with Drawer Trigger */}
               <section>
                 <div className="font-medium text-sm text-gray-900 mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -290,7 +290,7 @@ export default function WidgetBuilder({
 
               <hr className="border-gray-100" />
 
-              {/* 3. Theme (Renamed from Color Theme, removed Transparent option) */}
+              {/* 3. Theme (Light & Dark) */}
               <section>
                 <div className="font-medium text-sm text-gray-900 mb-3">Theme</div>
                 <div className="flex bg-gray-100/80 p-1 rounded-xl border border-gray-200/50">
@@ -321,7 +321,7 @@ export default function WidgetBuilder({
                 </div>
               </section>
 
-              {/* Colors */}
+              {/* 4. Colors */}
               <section>
                 <div className="font-medium text-sm text-gray-900 mb-3">Colors</div>
                 <div className="space-y-2.5">
@@ -358,7 +358,7 @@ export default function WidgetBuilder({
 
               <hr className="border-gray-100" />
 
-              {/* Show Customer Photos */}
+              {/* 5. Show Customer Photos & Fallback Avatar */}
               <section>
                 <div className="flex items-center justify-between mb-5">
                   <span className="font-medium text-sm text-gray-900">Show Customer Photos</span>
@@ -386,26 +386,11 @@ export default function WidgetBuilder({
                 )}
               </section>
 
-              {/* Typography */}
-              <section>
-                <div className="font-medium text-sm text-gray-900 mb-3">Typography</div>
-                <select
-                  value={fontFamily}
-                  onChange={(e) => setFontFamily(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
-                >
-                  <option>Inter (Default)</option>
-                  <option>Roboto</option>
-                  <option>Open Sans</option>
-                  <option>Outfit</option>
-                </select>
-              </section>
-
               <hr className="border-gray-100" />
 
-              {/* Branding */}
+              {/* 6. Branding */}
               <section>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pb-6">
                   <span className="font-medium text-sm text-gray-900">Show Blovi Powered By</span>
                   <Switch checked={showBranding} onChange={setShowBranding} />
                 </div>
@@ -430,24 +415,6 @@ export default function WidgetBuilder({
               </div>
             </div>
           )}
-        </div>
-
-        {/* SAVE BUTTON AT BOTTOM OF LEFT PANEL */}
-        <div className="p-6 border-t border-gray-200 bg-white shrink-0 flex items-center justify-between">
-          {saveStatus && (
-            <span className={`text-xs font-semibold ${saveStatus.includes("Failed") ? "text-red-600" : "text-emerald-600"}`}>
-              {saveStatus}
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="ml-auto flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold shadow-sm transition-all cursor-pointer"
-          >
-            <Save size={16} />
-            <span>{saving ? "Saving..." : "Save Settings"}</span>
-          </button>
         </div>
       </div>
 
