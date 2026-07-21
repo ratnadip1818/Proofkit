@@ -16,7 +16,13 @@ import {
   Copy,
   X,
   Sparkles,
-  Save
+  Save,
+  Sliders,
+  Layers,
+  Quote,
+  Sun,
+  Moon,
+  Palette
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
 
@@ -75,7 +81,7 @@ export default function WidgetBuilder({
   email?: string;
   testimonials: TestimonialItem[];
 }) {
-  // Widget Customization States mapped to persisable config
+  // Widget Customization States mapped to persistable config
   const [preset, setPreset] = useState("base");
   const [theme, setTheme] = useState("light");
   const [showPhotos, setShowPhotos] = useState(true);
@@ -89,30 +95,14 @@ export default function WidgetBuilder({
   const [ratingBorderColor, setRatingBorderColor] = useState("#4E46E5");
   const [highlightColor, setHighlightColor] = useState("#FFCD3640");
 
-  // UI state
+  // UI Drawer & Tab States
   const [tab, setTab] = useState<"design" | "embed">("design");
+  const [layoutDrawerOpen, setLayoutDrawerOpen] = useState(false);
+  const [variationDrawerOpen, setVariationDrawerOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
-
-  // Active testimonial data from DB or fallback
-  const activeTestimonial = testimonials.length > 0
-    ? testimonials[testimonialIndex % testimonials.length]
-    : {
-        author_name: "Ratnadip Ubale",
-        author_role: "Founder at Blovi",
-        display_body: "Blovi transformed how we collect social proof. Our conversion rate jumped 34% in the first month.",
-        body_original: "Blovi transformed how we collect social proof. Our conversion rate jumped 34% in the first month.",
-        rating: 5,
-        avatar_url: null,
-      };
-
-  const reviewText = activeTestimonial.display_body || activeTestimonial.body_original || "Blovi is great, cheap and good.";
-  const authorName = activeTestimonial.author_name || "Ratnadip Ubale";
-  const authorRole = activeTestimonial.author_role || "Customer";
-  const starRating = activeTestimonial.rating ?? 5;
 
   const colorFields = [
     { label: "Text Color", value: textColor, onChange: setTextColor },
@@ -173,8 +163,23 @@ export default function WidgetBuilder({
     }
   };
 
+  const variationsList = [
+    { id: "base", name: "Base", desc: "Clean modern card with soft borders and balanced spacing." },
+    { id: "editorial", name: "Editorial", desc: "Classic typography with magazine-style metadata and refined rules." },
+    { id: "modern", name: "Modern", desc: "High-contrast dynamic layout with vibrant primary accents and rounded pills." },
+    { id: "luxury", name: "Luxury", desc: "Sleek dark gold-trimmed borders and elegant high-end styling." },
+    { id: "minimal", name: "Minimal", desc: "Ultra-clean borderless presentation focusing purely on review text." },
+  ];
+
+  const layoutStylesList = [
+    { id: "wall", name: "Wall of Love", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout, active: true },
+    { id: "marquee", name: "Marquee Stream", desc: "Continuous auto-scrolling ticker bar ideal for headers & footers.", icon: Layers, active: false },
+    { id: "carousel", name: "Card Carousel", desc: "Interactive swipeable carousel slider for landing page sections.", icon: Sliders, active: false },
+    { id: "single", name: "Single Quote Badge", desc: "Minimalist high-converting quote card for checkout & CTA buttons.", icon: Quote, active: false },
+  ];
+
   return (
-    <div className="flex min-h-screen bg-[#F5F4F1] font-sans text-gray-900 overflow-hidden">
+    <div className="flex min-h-screen bg-[#F5F4F1] font-sans text-gray-900 overflow-hidden relative">
       {/* LEFT PANEL */}
       <div className="w-[360px] bg-white border-r border-gray-200 flex flex-col h-screen shrink-0 shadow-sm z-10">
         <div className="px-6 pt-6 shrink-0">
@@ -210,65 +215,109 @@ export default function WidgetBuilder({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {tab === "design" ? (
             <>
-              {/* Widget Layout Style */}
+              {/* 1. Widget Layout Style with Drawer Trigger */}
               <section>
-                <div className="font-medium text-sm text-gray-900 mb-3">Widget Layout Style</div>
+                <div className="font-medium text-sm text-gray-900 mb-3 flex items-center justify-between">
+                  <span>Widget Layout Style</span>
+                </div>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-800 hover:bg-gray-50 shadow-xs cursor-pointer"
+                  onClick={() => setLayoutDrawerOpen(true)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 hover:border-gray-300 hover:bg-gray-50 shadow-xs cursor-pointer transition-all"
                 >
-                  <Layout size={16} className="text-gray-500" />
-                  Wall of Love
-                  <span className="bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-blue-100 ml-1">
-                    Active
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <Layout size={16} className="text-blue-600" />
+                    <span className="font-semibold text-gray-900">Wall of Love</span>
+                    <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-blue-100">
+                      Active
+                    </span>
+                  </div>
+                  <ChevronRight size={16} className="text-gray-400" />
                 </button>
               </section>
 
               <hr className="border-gray-100" />
 
-              {/* Widget Design Preset */}
+              {/* 2. Variations (formerly Widget Design Preset) with Drawer Trigger */}
               <section>
-                <div className="flex items-center gap-2 mb-4">
-                  <Settings size={16} className="text-gray-400" />
-                  <span className="font-medium text-sm text-gray-900">Widget Design Preset</span>
+                <div className="font-medium text-sm text-gray-900 mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Palette size={16} className="text-gray-400" />
+                    <span>Variations</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setVariationDrawerOpen(true)}
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
+                  >
+                    View All
+                  </button>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {["Base", "Editorial", "Modern", "Luxury", "Minimal"].map((p) => (
+
+                <button
+                  type="button"
+                  onClick={() => setVariationDrawerOpen(true)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 hover:border-gray-300 hover:bg-gray-50 shadow-xs cursor-pointer transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles size={16} className="text-amber-500" />
+                    <span className="font-semibold text-gray-900 capitalize">{preset}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 font-normal">Change</span>
+                    <ChevronRight size={16} className="text-gray-400" />
+                  </div>
+                </button>
+
+                {/* Quick Selection Pills */}
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {variationsList.map((p) => (
                     <button
-                      key={p}
+                      key={p.id}
                       type="button"
-                      onClick={() => setPreset(p.toLowerCase())}
-                      className={`px-4 py-2 text-sm rounded-lg border transition-all cursor-pointer ${
-                        preset === p.toLowerCase()
+                      onClick={() => setPreset(p.id)}
+                      className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
+                        preset === p.id
                           ? "border-blue-600 bg-blue-50/50 text-blue-700 font-semibold shadow-xs"
                           : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 font-medium"
                       }`}
                     >
-                      {p}
+                      {p.name}
                     </button>
                   ))}
                 </div>
               </section>
 
-              {/* Color Theme */}
+              <hr className="border-gray-100" />
+
+              {/* 3. Theme (Renamed from Color Theme, removed Transparent option) */}
               <section>
-                <div className="font-medium text-sm text-gray-900 mb-3">Color Theme</div>
+                <div className="font-medium text-sm text-gray-900 mb-3">Theme</div>
                 <div className="flex bg-gray-100/80 p-1 rounded-xl border border-gray-200/50">
-                  {["Light", "Dark", "Transparent"].map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setTheme(t.toLowerCase())}
-                      className={`flex-1 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer ${
-                        theme === t.toLowerCase()
-                          ? "bg-white shadow-xs text-gray-900 border border-gray-200/50 font-semibold"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setTheme("light")}
+                    className={`flex-1 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                      theme === "light"
+                        ? "bg-white shadow-xs text-gray-900 border border-gray-200/50 font-semibold"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <Sun size={14} className={theme === "light" ? "text-amber-500" : "text-gray-400"} />
+                    Light
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme("dark")}
+                    className={`flex-1 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                      theme === "dark"
+                        ? "bg-white shadow-xs text-gray-900 border border-gray-200/50 font-semibold"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <Moon size={14} className={theme === "dark" ? "text-indigo-600" : "text-gray-400"} />
+                    Dark
+                  </button>
                 </div>
               </section>
 
@@ -407,7 +456,7 @@ export default function WidgetBuilder({
         <div className="px-10 py-6 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest bg-white/50 px-3 py-1.5 rounded-full border border-gray-200/50 shadow-xs">
             <Zap size={14} className="text-amber-500 fill-amber-500" />
-            Live Render Output (Wall · {preset})
+            Live Render Output (Wall · {preset.toUpperCase()})
           </div>
           <div className="flex gap-3">
             <a
@@ -439,6 +488,155 @@ export default function WidgetBuilder({
           </div>
         </div>
       </div>
+
+      {/* 1. LAYOUT STYLE DRAWER MODAL */}
+      {layoutDrawerOpen && (
+        <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 flex flex-col space-y-5 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                  <Layout size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-gray-900">Widget Layout Style</h3>
+                  <p className="text-xs text-gray-500">Select how customer reviews are rendered on your site</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLayoutDrawerOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              {layoutStylesList.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      if (item.active) {
+                        setLayoutDrawerOpen(false);
+                      }
+                    }}
+                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+                      item.active
+                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-600/30"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/80 opacity-75"
+                    }`}
+                  >
+                    <div className={`p-2.5 rounded-lg shrink-0 ${item.active ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"}`}>
+                      <Icon size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-sm text-gray-900">{item.name}</span>
+                        {item.active ? (
+                          <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                            Coming Soon
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLayoutDrawerOpen(false)}
+                className="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
+              >
+                Close Drawer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. VARIATIONS DRAWER MODAL */}
+      {variationDrawerOpen && (
+        <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 flex flex-col space-y-5 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-gray-900">Preset Variations</h3>
+                  <p className="text-xs text-gray-500">Choose a curated visual style theme for your widget cards</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVariationDrawerOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              {variationsList.map((item) => {
+                const isSelected = preset === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setPreset(item.id);
+                      setVariationDrawerOpen(false);
+                    }}
+                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                      isSelected
+                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-600/30"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-bold text-sm text-gray-900 capitalize">{item.name}</span>
+                        {isSelected && (
+                          <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                    </div>
+                    {isSelected && (
+                      <div className="p-1 rounded-full bg-blue-600 text-white shrink-0 mt-0.5">
+                        <Check size={14} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setVariationDrawerOpen(false)}
+                className="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FULLSCREEN PREVIEW MODAL */}
       {isFullscreen && (
