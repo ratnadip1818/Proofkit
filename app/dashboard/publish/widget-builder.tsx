@@ -1,28 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
-  Copy,
-  Check,
+  Settings,
   Code,
-  Sliders,
-  Star,
+  Zap,
+  ExternalLink,
+  Maximize2,
+  User,
   ChevronLeft,
   ChevronRight,
+  Star,
+  Layout,
+  Check,
+  Copy,
+  X,
   Sparkles,
-  Palette,
-  Maximize2,
-  ExternalLink,
-  X
+  Save
 } from "lucide-react";
-import { SAMPLE_TESTIMONIALS, type Testimonial } from "../../embed/wall-renderer";
-import { styleRegistry, type WidgetPresetId } from "../../embed/styles";
+import { saveWidgetConfig } from "../actions";
 
-const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
+export interface TestimonialItem {
+  id?: string;
+  author_name: string;
+  author_role?: string | null;
+  body_original?: string;
+  display_body?: string;
+  rating?: number | null;
+  avatar_url?: string | null;
+}
 
-type WidgetLayout = "wall" | "carousel" | "grid" | "badge" | "toast" | "marquee";
-type WidgetTheme = "light" | "dark" | "transparent";
-type FrameworkType = "html" | "react" | "next" | "framer" | "webflow";
+function Switch({
+  checked,
+  onChange,
+  size = "default",
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  size?: "sm" | "default";
+}) {
+  const isSm = size === "sm";
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex items-center shrink-0 rounded-full transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ${
+        checked ? "bg-blue-600" : "bg-gray-200"
+      } ${isSm ? "h-4 w-8" : "h-6 w-11"}`}
+    >
+      <span
+        className={`inline-block bg-white rounded-full transition-transform shadow-sm ${
+          isSm ? "h-3 w-3" : "h-5 w-5"
+        }`}
+        style={{
+          transform: checked
+            ? `translateX(${isSm ? "14px" : "22px"})`
+            : "translateX(2px)",
+        }}
+      />
+    </button>
+  );
+}
 
 export default function WidgetBuilder({
   userId,
@@ -33,86 +73,72 @@ export default function WidgetBuilder({
   userId: string;
   isLifetime: boolean;
   email?: string;
-  testimonials: Testimonial[];
+  testimonials: TestimonialItem[];
 }) {
-  // Widget Customization States
-  const [layout, setLayout] = useState<WidgetLayout>("wall");
-  const [preset, setPreset] = useState<WidgetPresetId>("base");
-  const [theme, setTheme] = useState<WidgetTheme>("light");
-  const [accentColor, setAccentColor] = useState("#2563EB");
-  const [borderRadius, setBorderRadius] = useState<"sharp" | "rounded" | "pill">("rounded");
-  const [cardShadow, setCardShadow] = useState<"none" | "subtle" | "soft" | "bold">("soft");
-  const [ratingFilter, setRatingFilter] = useState<number>(4);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  // Widget Customization States mapped to persisable config
+  const [preset, setPreset] = useState("base");
+  const [theme, setTheme] = useState("light");
+  const [showPhotos, setShowPhotos] = useState(true);
+  const [useGravatar, setUseGravatar] = useState(true);
+  const [fallbackAvatar, setFallbackAvatar] = useState("Placeholder");
+  const [fontFamily, setFontFamily] = useState("Inter (Default)");
+  const [showBranding, setShowBranding] = useState(true);
+  const [textColor, setTextColor] = useState("#374151");
+  const [primaryColor, setPrimaryColor] = useState("#2564EB");
+  const [ratingColor, setRatingColor] = useState("#FBBF24");
+  const [ratingBorderColor, setRatingBorderColor] = useState("#4E46E5");
+  const [highlightColor, setHighlightColor] = useState("#FFCD3640");
 
-  // Tabs & Controls
-  const [wizardTab, setWizardTab] = useState<"design" | "embed">("design");
-  const [activeFramework, setActiveFramework] = useState<FrameworkType>("html");
+  // UI state
+  const [tab, setTab] = useState<"design" | "embed">("design");
   const [copiedCode, setCopiedCode] = useState(false);
-  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  const displayTestimonials = testimonials.length > 0 ? testimonials : SAMPLE_TESTIMONIALS;
-  const filteredTestimonials = displayTestimonials.filter((t) => (t.rating || 5) >= ratingFilter);
+  // Active testimonial data from DB or fallback
+  const activeTestimonial = testimonials.length > 0
+    ? testimonials[testimonialIndex % testimonials.length]
+    : {
+        author_name: "Ratnadip Ubale",
+        author_role: "Founder at Blovi",
+        display_body: "Blovi transformed how we collect social proof. Our conversion rate jumped 34% in the first month.",
+        body_original: "Blovi transformed how we collect social proof. Our conversion rate jumped 34% in the first month.",
+        rating: 5,
+        avatar_url: null,
+      };
+
+  const reviewText = activeTestimonial.display_body || activeTestimonial.body_original || "Blovi is great, cheap and good.";
+  const authorName = activeTestimonial.author_name || "Ratnadip Ubale";
+  const authorRole = activeTestimonial.author_role || "Customer";
+  const starRating = activeTestimonial.rating ?? 5;
+
+  const colorFields = [
+    { label: "Text Color", value: textColor, onChange: setTextColor },
+    { label: "Primary Color", value: primaryColor, onChange: setPrimaryColor },
+    { label: "Rating Color", value: ratingColor, onChange: setRatingColor },
+    { label: "Rating Border Color", value: ratingBorderColor, onChange: setRatingBorderColor },
+    { label: "Highlight Color", value: highlightColor, onChange: setHighlightColor },
+  ];
+
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
+  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}`;
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
-
-    if (activeFramework === "html") {
-      return `<!-- Blovi Widget: ${layout.toUpperCase()} (${preset.toUpperCase()} PRESET) -->
+    return `<!-- Blovi Widget: WALL OF LOVE (${preset.toUpperCase()} PRESET) -->
 <div id="proofkit-widget" data-widget-id="${widgetId}"></div>
 <script 
-  src="${APP_URL}/widget.js" 
+  src="${appUrl}/widget.js" 
   data-user="${widgetId}"
-  data-type="${layout}"
+  data-type="wall"
   data-preset="${preset}"
   data-theme="${theme}"
-  data-radius="${borderRadius}"
-  data-shadow="${cardShadow}"
-  data-accent="${accentColor}"
+  data-accent="${primaryColor}"
   data-max="9"
   defer>
 </script>`;
-    }
-    if (activeFramework === "react") {
-      return `import { ProofKitWidget } from '@proofkit/react';
-
-export default function SocialProofSection() {
-  return (
-    <ProofKitWidget 
-      widgetId="${widgetId}" 
-      layout="${layout}"
-      preset="${preset}"
-      theme="${theme}"
-      accentColor="${accentColor}"
-      max={9}
-    />
-  );
-}`;
-    }
-    if (activeFramework === "next") {
-      return `// components/SocialProof.tsx
-'use client';
-import { ProofKitWidget } from '@proofkit/react';
-
-export default function SocialProof() {
-  return (
-    <section className="py-12">
-      <ProofKitWidget widgetId="${widgetId}" layout="${layout}" preset="${preset}" theme="${theme}" max={9} />
-    </section>
-  );
-}`;
-    }
-    if (activeFramework === "framer") {
-      return `1. Copy your direct embed URL:
-   ${APP_URL}/embed/${widgetId}?type=${layout}&preset=${preset}&theme=${theme}&max=9
-
-2. In Framer, add an "Embed / IFrame" component.
-3. Paste the URL into the Framer property panel.`;
-    }
-    return `1. Drag an "Embed" element into your Webflow page canvas.
-2. Paste the HTML snippet below:
-<div id="proofkit-widget" data-widget-id="${widgetId}"></div>
-<script src="${APP_URL}/widget.js" data-user="${widgetId}" data-type="${layout}" data-preset="${preset}" data-max="9" defer></script>`;
   };
 
   const handleCopyCode = () => {
@@ -121,238 +147,412 @@ export default function SocialProof() {
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  // Live widget preview URL using the actual widgetId so real user testimonials are rendered
-  const previewIframeUrl = `/embed/${userId || "demo-widget"}?type=${layout}&preset=${preset}&theme=${theme}&radius=${borderRadius}&accent=${encodeURIComponent(accentColor)}`;
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveStatus(null);
+    const { error } = await saveWidgetConfig({
+      preset,
+      theme,
+      primary_color: primaryColor,
+      text_color: textColor,
+      rating_color: ratingColor,
+      rating_border_color: ratingBorderColor,
+      highlight_color: highlightColor,
+      show_photos: showPhotos,
+      use_gravatar: useGravatar,
+      fallback_avatar: fallbackAvatar,
+      font_family: fontFamily.split(" ")[0],
+      show_branding: showBranding,
+    });
+    setSaving(false);
+    if (error) {
+      setSaveStatus("Failed to save settings");
+    } else {
+      setSaveStatus("Saved successfully!");
+      setTimeout(() => setSaveStatus(null), 3000);
+    }
+  };
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-8 px-6 space-y-6 animate-fade-in font-sans select-none">
-      {/* Header */}
-      <div>
-        <h1 className="font-display font-bold text-2xl text-gray-900 tracking-tight">
-          Publish & Embed Widgets
-        </h1>
-        <p className="text-gray-500 text-xs mt-1 leading-relaxed">
-          Customize high-converting testimonial widgets and generate script tags for your live site.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* 1. LEFT PANEL: Controls & Embed Exporter (Span 5) */}
-        <div className="lg:col-span-5 bg-white border border-[#ecebe6] rounded-2xl shadow-2xs overflow-hidden flex flex-col">
-          {/* Tab Switcher */}
-          <div className="grid grid-cols-2 border-b border-[#ecebe6] bg-gray-50/60">
-            <button
-              onClick={() => setWizardTab("design")}
-              className={`py-3 px-4 text-xs font-bold transition-all flex items-center justify-center space-x-2 border-b-2 cursor-pointer ${
-                wizardTab === "design"
-                  ? "border-blue-600 text-blue-600 bg-white"
-                  : "border-transparent text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              <span>1. Widget Design</span>
-            </button>
-            <button
-              onClick={() => setWizardTab("embed")}
-              className={`py-3 px-4 text-xs font-bold transition-all flex items-center justify-center space-x-2 border-b-2 cursor-pointer ${
-                wizardTab === "embed"
-                  ? "border-blue-600 text-blue-600 bg-white"
-                  : "border-transparent text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              <Code className="w-3.5 h-3.5" />
-              <span>2. Get Code Snippet</span>
-            </button>
+    <div className="flex min-h-screen bg-[#F5F4F1] font-sans text-gray-900 overflow-hidden">
+      {/* LEFT PANEL */}
+      <div className="w-[440px] bg-white border-r border-gray-200 flex flex-col h-screen shrink-0 shadow-sm z-10">
+        <div className="px-8 pt-8 shrink-0">
+          <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-1">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setTab("design")}
+                className={`text-sm font-semibold cursor-pointer pb-4 -mb-[17px] transition-all border-b-2 ${
+                  tab === "design"
+                    ? "text-blue-600 border-blue-600"
+                    : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
+              >
+                1. Widget Design
+              </button>
+              <Code size={16} className="text-gray-300" />
+              <button
+                type="button"
+                onClick={() => setTab("embed")}
+                className={`text-sm font-medium cursor-pointer pb-4 -mb-[17px] transition-all border-b-2 ${
+                  tab === "embed"
+                    ? "text-blue-600 border-blue-600"
+                    : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
+              >
+                2. Get Code Snippet
+              </button>
+            </div>
           </div>
+        </div>
 
-          <div className="p-5 space-y-5">
-            {wizardTab === "design" ? (
-              <div className="space-y-4">
-                {/* 1. Widget Layout Style (Wall of Love for MVP) */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-800 block">Widget Layout Style</label>
-                  <div className="grid grid-cols-1 gap-2">
-                    {[
-                      { id: "wall", label: "Wall of Love" },
-                    ].map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => setLayout(item.id as WidgetLayout)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border text-left cursor-pointer flex items-center justify-between ${
-                          layout === item.id
-                            ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
-                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        <span className="text-[10px] font-semibold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                          Active
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+          {tab === "design" ? (
+            <>
+              {/* Widget Layout Style */}
+              <section>
+                <div className="font-medium text-sm text-gray-900 mb-3">Widget Layout Style</div>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-800 hover:bg-gray-50 shadow-xs cursor-pointer"
+                >
+                  <Layout size={16} className="text-gray-500" />
+                  Wall of Love
+                  <span className="bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-blue-100 ml-1">
+                    Active
+                  </span>
+                </button>
+              </section>
 
-                {/* 2. Dynamic Preset Selector */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-800 flex items-center space-x-1.5">
-                    <Palette className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Widget Design Preset</span>
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Object.values(styleRegistry).map((def) => {
-                      const isSelected = preset === def.id;
-                      return (
-                        <button
-                          key={def.id}
-                          onClick={() => setPreset(def.id)}
-                          title={def.description}
-                          className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer ${
-                            isSelected
-                              ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
-                              : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {def.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+              <hr className="border-gray-100" />
 
-                {/* Theme Selector */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-800 block">Color Theme</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["light", "dark", "transparent"] as WidgetTheme[]).map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => setTheme(t)}
-                        className={`py-2 px-2.5 rounded-xl text-xs font-bold capitalize transition-all border text-center cursor-pointer ${
-                          theme === t
-                            ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
-                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
+              {/* Widget Design Preset */}
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <Settings size={16} className="text-gray-400" />
+                  <span className="font-medium text-sm text-gray-900">Widget Design Preset</span>
                 </div>
-
-                {/* Accent Color Swatch */}
-                <div className="space-y-1.5 pt-1">
-                  <label className="text-xs font-bold text-gray-800 block">Brand Accent Color</label>
-                  <div className="flex items-center space-x-2">
-                    {["#2563EB", "#10B981", "#6366F1", "#EC4899", "#EF4444", "#1F2937"].map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setAccentColor(c)}
-                        className={`w-6 h-6 rounded-full border border-gray-200 cursor-pointer ${
-                          accentColor === c ? "ring-2 ring-blue-500 ring-offset-2 scale-110" : ""
-                        }`}
-                        style={{ backgroundColor: c }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Rating Filter Slider */}
-                <div className="space-y-1.5 pt-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-gray-800">
-                    <span>Minimum Rating Filter</span>
-                    <span className="text-amber-500 font-mono">{ratingFilter}★ and above</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={1}
-                    max={5}
-                    step={1}
-                    value={ratingFilter}
-                    onChange={(e) => setRatingFilter(Number(e.target.value))}
-                    className="w-full accent-blue-600 cursor-pointer"
-                  />
-                </div>
-              </div>
-            ) : (
-              /* EMBED SNIPPET WIZARD */
-              <div className="space-y-4">
-                {/* Platform tabs */}
-                <div className="flex items-center space-x-1 border-b border-[#ecebe6] pb-2">
-                  {(["html", "react", "next", "framer", "webflow"] as FrameworkType[]).map((fw) => (
+                <div className="flex flex-wrap gap-2">
+                  {["Base", "Editorial", "Modern", "Luxury", "Minimal"].map((p) => (
                     <button
-                      key={fw}
-                      onClick={() => setActiveFramework(fw)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer ${
-                        activeFramework === fw
-                          ? "bg-blue-600 text-white shadow-2xs"
-                          : "text-gray-500 hover:text-gray-900"
+                      key={p}
+                      type="button"
+                      onClick={() => setPreset(p.toLowerCase())}
+                      className={`px-4 py-2 text-sm rounded-lg border transition-all cursor-pointer ${
+                        preset === p.toLowerCase()
+                          ? "border-blue-600 bg-blue-50/50 text-blue-700 font-semibold shadow-xs"
+                          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 font-medium"
                       }`}
                     >
-                      {fw}
+                      {p}
                     </button>
                   ))}
                 </div>
+              </section>
 
-                {/* Code display block */}
-                <div className="relative">
-                  <pre className="bg-[#1E293B] text-gray-100 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-gray-800">
-                    {getEmbedCode()}
-                  </pre>
-                  <button
-                    onClick={handleCopyCode}
-                    className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1 shadow-2xs transition-all cursor-pointer"
-                  >
-                    {copiedCode ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedCode ? "Copied" : "Copy Code"}</span>
-                  </button>
+              {/* Color Theme */}
+              <section>
+                <div className="font-medium text-sm text-gray-900 mb-3">Color Theme</div>
+                <div className="flex bg-gray-100/80 p-1 rounded-xl border border-gray-200/50">
+                  {["Light", "Dark", "Transparent"].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTheme(t.toLowerCase())}
+                      className={`flex-1 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer ${
+                        theme === t.toLowerCase()
+                          ? "bg-white shadow-xs text-gray-900 border border-gray-200/50 font-semibold"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
+              </section>
+
+              {/* Colors */}
+              <section>
+                <div className="font-medium text-sm text-gray-900 mb-3">Colors</div>
+                <div className="space-y-2.5">
+                  {colorFields.map(({ label, value, onChange }) => {
+                    const swatchColor = value.length === 9 ? value.slice(0, 7) : value;
+                    return (
+                      <div key={label}>
+                        <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
+                          {label}
+                        </div>
+                        <label className="flex items-center gap-2.5 border border-gray-200 rounded-lg px-3 py-2.5 bg-white hover:border-gray-300 transition-colors cursor-pointer">
+                          <div
+                            className="w-5 h-5 rounded-full border border-gray-200 shrink-0 shadow-inner"
+                            style={{ backgroundColor: swatchColor }}
+                          />
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            className="flex-1 text-sm font-mono text-gray-700 bg-transparent focus:outline-none"
+                          />
+                          <input
+                            type="color"
+                            value={swatchColor}
+                            onChange={(e) => onChange(e.target.value)}
+                            className="w-0 h-0 opacity-0 absolute"
+                          />
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <hr className="border-gray-100" />
+
+              {/* Show Customer Photos */}
+              <section>
+                <div className="flex items-center justify-between mb-5">
+                  <span className="font-medium text-sm text-gray-900">Show Customer Photos</span>
+                  <Switch checked={showPhotos} onChange={setShowPhotos} />
+                </div>
+                {showPhotos && (
+                  <div className="ml-2 pl-5 border-l-2 border-gray-100 space-y-5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-600">Use Gravatar if available</span>
+                      <Switch size="sm" checked={useGravatar} onChange={setUseGravatar} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-600 mb-2">Fallback Avatar</div>
+                      <select
+                        value={fallbackAvatar}
+                        onChange={(e) => setFallbackAvatar(e.target.value)}
+                        className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+                      >
+                        <option>Placeholder</option>
+                        <option>Initials</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              {/* Typography */}
+              <section>
+                <div className="font-medium text-sm text-gray-900 mb-3">Typography</div>
+                <select
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
+                >
+                  <option>Inter (Default)</option>
+                  <option>Roboto</option>
+                  <option>Open Sans</option>
+                  <option>Outfit</option>
+                </select>
+              </section>
+
+              <hr className="border-gray-100" />
+
+              {/* Branding */}
+              <section>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm text-gray-900">Show Blovi Powered By</span>
+                  <Switch checked={showBranding} onChange={setShowBranding} />
+                </div>
+              </section>
+            </>
+          ) : (
+            /* GET CODE SNIPPET TAB */
+            <div className="space-y-4">
+              <div className="font-medium text-sm text-gray-900 mb-2">Embed Code Snippet</div>
+              <div className="relative">
+                <pre className="bg-[#1E293B] text-gray-100 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-gray-800">
+                  {getEmbedCode()}
+                </pre>
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1 shadow-xs cursor-pointer transition-all"
+                >
+                  {copiedCode ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedCode ? "Copied" : "Copy Code"}</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* SAVE BUTTON AT BOTTOM OF LEFT PANEL */}
+        <div className="p-6 border-t border-gray-200 bg-white shrink-0 flex items-center justify-between">
+          {saveStatus && (
+            <span className={`text-xs font-semibold ${saveStatus.includes("Failed") ? "text-red-600" : "text-emerald-600"}`}>
+              {saveStatus}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="ml-auto flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold shadow-sm transition-all cursor-pointer"
+          >
+            <Save size={16} />
+            <span>{saving ? "Saving..." : "Save Settings"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* RIGHT PANEL */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <div className="px-10 py-6 flex justify-between items-center shrink-0">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest bg-white/50 px-3 py-1.5 rounded-full border border-gray-200/50 shadow-xs">
+            <Zap size={14} className="text-amber-500 fill-amber-500" />
+            Live Render Output (Wall · {preset})
+          </div>
+          <div className="flex gap-3">
+            <a
+              href={rawPreviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-xs transition-all"
+            >
+              <ExternalLink size={16} className="text-gray-400" /> Open Raw
+            </a>
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold text-white shadow-xs transition-all cursor-pointer"
+            >
+              <Maximize2 size={16} /> Full Screen
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-10 flex flex-col items-center justify-center">
+          <div className="w-full max-w-4xl flex flex-col items-center">
+            <div className="text-center mb-14 space-y-4">
+              <h2 className="text-[32px] font-extrabold text-gray-900 tracking-tight">
+                Loved by the best teams
+              </h2>
+              <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
+                Software companies and agencies rely on Blovi to turn happy customers
+                into their best growth engine.
+              </p>
+            </div>
+
+            {/* Testimonial Card */}
+            <div className="max-w-md w-full mx-auto">
+              <div
+                className={`rounded-2xl overflow-hidden transition-colors duration-300 ${
+                  theme === "light" ? "border border-gray-100 shadow-xs" : ""
+                } ${theme === "dark" ? "border border-gray-700 shadow-xl" : ""}`}
+                style={{
+                  backgroundColor:
+                    theme === "dark"
+                      ? "#111827"
+                      : theme === "transparent"
+                      ? "transparent"
+                      : "#FFFFFF",
+                }}
+              >
+                <div
+                  className="h-1.5 w-full transition-colors duration-300"
+                  style={{ backgroundColor: primaryColor }}
+                />
+                <div className="p-7">
+                  <div className="flex justify-between items-start mb-5">
+                    <div className="flex items-center gap-3.5">
+                      {showPhotos && (
+                        activeTestimonial.avatar_url ? (
+                          <img
+                            src={activeTestimonial.avatar_url}
+                            alt={authorName}
+                            className="w-11 h-11 rounded-full object-cover border border-gray-200/50"
+                          />
+                        ) : (
+                          <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200/50">
+                            <User size={20} />
+                          </div>
+                        )
+                      )}
+                      <div>
+                        <div
+                          className="font-bold text-[15px]"
+                          style={{ color: theme === "dark" ? "#F9FAFB" : textColor }}
+                        >
+                          {authorName}
+                        </div>
+                        <div className="text-[13px] text-gray-500 font-medium">{authorRole}</div>
+                      </div>
+                    </div>
+                    {testimonials.length > 1 && (
+                      <div className="flex gap-1.5 opacity-60">
+                        <button
+                          type="button"
+                          onClick={() => setTestimonialIndex((prev) => (prev > 0 ? prev - 1 : testimonials.length - 1))}
+                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer ${
+                            theme === "dark"
+                              ? "border-gray-600 text-gray-400"
+                              : "border-gray-200 text-gray-400 hover:bg-gray-50"
+                          }`}
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)}
+                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer ${
+                            theme === "dark"
+                              ? "border-gray-600 text-gray-400"
+                              : "border-gray-200 text-gray-400 hover:bg-gray-50"
+                          }`}
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-1 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={16}
+                        style={
+                          star <= starRating
+                            ? { color: ratingColor, fill: ratingColor }
+                            : { color: theme === "dark" ? "#374151" : "#E5E7EB" }
+                        }
+                      />
+                    ))}
+                  </div>
+                  <p
+                    className="text-[15px] leading-relaxed font-medium"
+                    style={{ color: theme === "dark" ? "#D1D5DB" : textColor }}
+                  >
+                    "{reviewText}"
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {showBranding && (
+              <div className="mt-10 flex items-center justify-center">
+                <a
+                  href="#"
+                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-400 hover:text-gray-600"
+                >
+                  <span className="flex items-center justify-center w-5 h-5 rounded bg-blue-50 text-blue-600">
+                    <Zap size={12} className="fill-blue-600" />
+                  </span>
+                  Powered by Blovi
+                </a>
               </div>
             )}
           </div>
         </div>
-
-        {/* 2. RIGHT PANEL: Live Widget Preview Canvas (Span 7) */}
-        <div className="lg:col-span-7 bg-[#FAF9F6] border border-[#ecebe6] rounded-2xl p-5 min-h-[560px] flex flex-col relative overflow-hidden">
-          <div className="flex items-center justify-between pb-3 border-b border-[#ecebe6] mb-3">
-            <div className="flex items-center space-x-2 text-[11px] font-mono font-bold text-gray-500 uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>Live Render Output ({layout} - {preset.toUpperCase()})</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <a
-                href={previewIframeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-2.5 py-1 text-[11px] font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-lg shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
-                title="Open raw preview in new tab"
-              >
-                <ExternalLink className="w-3 h-3" />
-                <span>Open Raw</span>
-              </a>
-              <button
-                type="button"
-                onClick={() => setIsFullscreen(true)}
-                className="px-2.5 py-1 text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
-                title="View Fullscreen Preview"
-              >
-                <Maximize2 className="w-3 h-3" />
-                <span>Full Screen</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="w-full flex-1 min-h-[480px] bg-white rounded-xl border border-gray-200 shadow-2xs overflow-hidden">
-            <iframe
-              src={previewIframeUrl}
-              className="w-full h-full min-h-[480px] border-none"
-              title="Widget Preview"
-            />
-          </div>
-        </div>
       </div>
 
-      {/* FULLSCREEN PREVIEW MODAL OVERLAY */}
+      {/* FULLSCREEN PREVIEW MODAL */}
       {isFullscreen && (
         <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-sm flex flex-col animate-fade-in">
           <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-xs">
@@ -360,12 +560,12 @@ export default function SocialProof() {
               <Sparkles className="w-5 h-5 text-blue-600" />
               <div>
                 <h3 className="font-bold text-sm text-gray-900 leading-tight">Full Screen Widget Preview</h3>
-                <p className="text-xs text-gray-500">Live render output — {layout.toUpperCase()} ({preset.toUpperCase()} PRESET)</p>
+                <p className="text-xs text-gray-500">Live render output — WALL ({preset.toUpperCase()} PRESET)</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               <a
-                href={previewIframeUrl}
+                href={rawPreviewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center space-x-1.5 transition-all"
@@ -377,7 +577,6 @@ export default function SocialProof() {
                 type="button"
                 onClick={() => setIsFullscreen(false)}
                 className="p-2 text-gray-500 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-all cursor-pointer"
-                title="Close Fullscreen"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -385,7 +584,7 @@ export default function SocialProof() {
           </div>
           <div className="flex-1 w-full bg-[#FAF9F6] p-6 overflow-hidden">
             <iframe
-              src={previewIframeUrl}
+              src={rawPreviewUrl}
               className="w-full h-full border-none rounded-2xl shadow-xl bg-white"
               title="Fullscreen Widget Preview"
             />

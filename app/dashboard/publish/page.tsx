@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import WidgetBuilder from "./widget-builder";
 
 export const metadata = {
-  title: "Publish Widgets — Blovi",
+  title: "Publish & Design Widgets — Blovi",
   description: "Customize and build social proof widgets including Wall of Love, Marquee, and Carousels.",
 };
 
@@ -51,29 +51,13 @@ export default async function WidgetsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="w-full bg-canvas min-h-screen lg:min-h-0 lg:h-[calc(100vh-48px)] lg:overflow-hidden flex flex-col">
-      <div className="w-full px-5 md:px-10 py-6 md:py-8 flex-1 flex flex-col min-h-0">
-        <div className="mb-6 shrink-0">
-          <h1
-            className="text-2xl font-extrabold tracking-tight text-ink"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Widgets
-          </h1>
-          <p className="mt-1 text-sm text-ink-secondary">
-            Build and customize your testimonial widgets.
-          </p>
-        </div>
-
-        <div className="flex-1 flex flex-col min-h-0">
-          <WidgetBuilder
-            userId={user.id}
-            isLifetime={isPaid}
-            email={user.email}
-            testimonials={testimonials ?? []}
-          />
-        </div>
-      </div>
+    <div className="w-full h-screen overflow-hidden flex flex-col bg-[#F5F4F1]">
+      <WidgetBuilder
+        userId={user.id}
+        isLifetime={isPaid}
+        email={user.email}
+        testimonials={testimonials ?? []}
+      />
     </div>
   );
 }

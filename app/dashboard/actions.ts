@@ -213,6 +213,54 @@ export async function updateForm(
   return { error: error?.message ?? null };
 }
 
+export interface WidgetConfigInput {
+  preset?: string;
+  theme?: string;
+  primary_color?: string;
+  text_color?: string;
+  rating_color?: string;
+  rating_border_color?: string;
+  highlight_color?: string;
+  show_photos?: boolean;
+  use_gravatar?: boolean;
+  fallback_avatar?: string;
+  font_family?: string;
+  show_branding?: boolean;
+}
+
+export async function saveWidgetConfig(
+  config: WidgetConfigInput
+): Promise<{ error: string | null }> {
+  const { supabase, user } = await getAuthenticatedClient();
+
+  const { data: firstForm } = await supabase
+    .from("forms")
+    .select("id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (firstForm) {
+    const { error } = await supabase
+      .from("forms")
+      .update({
+        theme_color: config.primary_color,
+        custom_font: config.font_family,
+      })
+      .eq("id", firstForm.id)
+      .eq("user_id", user.id);
+
+    if (error) console.warn("Widget config form sync notice:", error.message);
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/publish");
+  revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
+
+  return { error: null };
+}
+
 export interface ImportTestimonialRow {
   author_name: string;
   author_role: string | null;
