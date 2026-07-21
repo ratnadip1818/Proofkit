@@ -54,7 +54,7 @@
   }
 
   var params = [];
-  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "textColor", "ratingColor", "showPhotos", "fallbackAvatar"].forEach(
+  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding"].forEach(
     function (key) {
       var val = getAttr(key);
       if (!val) return;

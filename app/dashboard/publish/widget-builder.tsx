@@ -152,8 +152,14 @@ export default function WidgetBuilder({
   data-preset="${preset}"
   data-theme="${theme}"
   data-accent="${primaryColor}"
-  data-rating-color="${ratingColor}"
   data-text-color="${textColor}"
+  data-rating-color="${ratingColor}"
+  data-rating-border-color="${ratingBorderColor}"
+  data-highlight-color="${highlightColor}"
+  data-show-photos="${showPhotos}"
+  data-use-gravatar="${useGravatar}"
+  data-fallback-avatar="${fallbackAvatar}"
+  data-show-branding="${showBranding}"
   data-max="9"
   defer>
 </script>`;
