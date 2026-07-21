@@ -46,12 +46,14 @@ export default async function DashboardPage() {
   }
 
   return (
-    <HomeWorkspaceClient
-      user={{ id: user.id, email: user.email }}
-      form={form}
-      testimonials={testimonials ?? []}
-      profile={profile}
-      appUrl={APP_URL}
-    />
+    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+      <HomeWorkspaceClient
+        user={{ id: user.id, email: user.email }}
+        form={form}
+        testimonials={testimonials ?? []}
+        profile={profile}
+        appUrl={APP_URL}
+      />
+    </div>
   );
 }

@@ -40,11 +40,13 @@ export default async function SettingsPage() {
   const isPaid = planTier === "pro" || planTier === "business";
 
   return (
-    <SettingsPanel
-      email={user.email ?? ""}
-      fullName={profile?.full_name ?? ""}
-      isLifetime={isPaid}
-      form={form}
-    />
+    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+      <SettingsPanel
+        email={user.email ?? ""}
+        fullName={profile?.full_name ?? ""}
+        isLifetime={isPaid}
+        form={form}
+      />
+    </div>
   );
 }

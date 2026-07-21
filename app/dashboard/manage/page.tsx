@@ -38,10 +38,12 @@ export default async function ManagePage() {
   const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
 
   return (
-    <ManageWorkspaceClient
-      user={{ id: user.id, email: user.email }}
-      testimonials={rawTestimonials ?? []}
-      formUrl={formUrl}
-    />
+    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+      <ManageWorkspaceClient
+        user={{ id: user.id, email: user.email }}
+        testimonials={rawTestimonials ?? []}
+        formUrl={formUrl}
+      />
+    </div>
   );
 }
