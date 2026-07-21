@@ -334,60 +334,9 @@ Thank you so much for your support!`;
                   <Switch checked={collectPhoto} onChange={setCollectPhoto} />
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pb-6">
                   <span className="text-xs font-medium text-gray-900">Require Consent Checkbox</span>
                   <Switch checked={requireConsent} onChange={setRequireConsent} />
-                </div>
-              </section>
-
-              <hr className="border-gray-100" />
-
-              {/* Typography Font Selector */}
-              <section className="space-y-2">
-                <label className="text-xs font-bold text-gray-900 flex items-center space-x-1.5">
-                  <Type className="w-4 h-4 text-blue-600" />
-                  <span>Form Typography</span>
-                </label>
-                <div className="space-y-1.5">
-                  {FONTS.map((font) => (
-                    <button
-                      key={font.id}
-                      type="button"
-                      onClick={() => setSelectedFont(font.id)}
-                      className={`w-full py-2 px-3 rounded-xl text-xs font-semibold text-left transition-all border cursor-pointer flex items-center justify-between ${
-                        selectedFont === font.id
-                          ? "bg-blue-50/50 border-blue-600 text-blue-700 shadow-xs"
-                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      <span style={{ fontFamily: font.family }}>{font.label}</span>
-                      {selectedFont === font.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              {/* Background Theme & Canvas */}
-              <section className="space-y-2 pb-6">
-                <label className="text-xs font-bold text-gray-900 flex items-center space-x-1.5">
-                  <Palette className="w-4 h-4 text-blue-600" />
-                  <span>Canvas Theme</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {BACKGROUND_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => setSelectedBg(preset.id)}
-                      className={`p-2.5 rounded-xl text-xs font-bold text-left transition-all border cursor-pointer ${
-                        selectedBg === preset.id
-                          ? "ring-2 ring-blue-600 ring-offset-1 border-blue-600 shadow-xs"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <span className="block">{preset.label}</span>
-                    </button>
-                  ))}
                 </div>
               </section>
             </>
@@ -482,7 +431,7 @@ Thank you so much for your support!`;
         <div className="px-10 py-6 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest bg-white/50 px-3 py-1.5 rounded-full border border-gray-200/50 shadow-xs">
             <Sparkles size={14} className="text-amber-500 fill-amber-500" />
-            Live Form Preview ({selectedFont})
+            Live Form Preview
           </div>
           <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200 shadow-xs">
             <button
