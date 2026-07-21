@@ -297,27 +297,57 @@ Thank you so much for your support!`;
               <hr className="border-gray-100" />
 
               {/* Brand Accent Color */}
-              <section className="space-y-2">
-                <label className="text-xs font-bold text-gray-900 block">Button Brand Accent Color</label>
-                <div className="flex items-center space-x-2.5">
-                  {ACCENT_COLORS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setThemeColor(color)}
-                      className={`w-7 h-7 rounded-full transition-transform cursor-pointer border ${
-                        themeColor === color ? "ring-2 ring-blue-500 ring-offset-2 scale-110" : "hover:scale-105"
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-gray-900 block">Button Brand Accent Color</label>
+                  <span className="text-[11px] font-mono font-semibold text-gray-500 uppercase">
+                    {themeColor}
+                  </span>
+                </div>
+
+                {/* Preset Swatches */}
+                <div className="flex items-center gap-2">
+                  {ACCENT_COLORS.map((color) => {
+                    const isSelected = themeColor.toLowerCase() === color.toLowerCase();
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setThemeColor(color)}
+                        className={`w-7 h-7 rounded-full transition-all cursor-pointer flex items-center justify-center ${
+                          isSelected
+                            ? "ring-2 ring-blue-600 ring-offset-2 scale-110 shadow-xs"
+                            : "hover:scale-105 border border-gray-200/80"
+                        }`}
+                        style={{ backgroundColor: color }}
+                      >
+                        {isSelected && <Check size={12} className="text-white drop-shadow-xs" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Hex Code & Color Picker */}
+                <label className="flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-2 bg-white hover:border-gray-300 transition-colors cursor-pointer shadow-xs relative">
+                  <div
+                    className="w-5 h-5 rounded-full border border-gray-200 shrink-0 shadow-inner"
+                    style={{ backgroundColor: themeColor.startsWith("#") ? themeColor : `#${themeColor}` }}
+                  />
                   <input
-                    type="color"
+                    type="text"
                     value={themeColor}
                     onChange={(e) => setThemeColor(e.target.value)}
-                    className="w-7 h-7 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                    placeholder="#2563EB"
+                    className="flex-1 text-xs font-mono font-semibold text-gray-800 bg-transparent focus:outline-none uppercase"
                   />
-                </div>
+                  <input
+                    type="color"
+                    value={themeColor.startsWith("#") && themeColor.length === 7 ? themeColor : "#2563EB"}
+                    onChange={(e) => setThemeColor(e.target.value)}
+                    className="w-0 h-0 opacity-0 absolute"
+                  />
+                  <span className="text-[11px] font-semibold text-blue-600 hover:text-blue-700">Custom</span>
+                </label>
               </section>
 
               <hr className="border-gray-100" />
