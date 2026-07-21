@@ -127,7 +127,7 @@ export default async function CollectionPage({
 
   return (
     <div 
-      className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-5 md:px-10 py-12"
+      className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-4 md:px-8 py-12"
       style={{ fontFamily: `'${customFont}', sans-serif` }}
     >
       <link
@@ -137,20 +137,7 @@ export default async function CollectionPage({
       {customCss && (
         <style dangerouslySetInnerHTML={{ __html: customCss }} />
       )}
-      <div className="w-full max-w-lg">
-        <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
-          <h1
-            className="text-2xl font-bold text-[#1A1A1A]"
-            style={{ fontFamily: "inherit" }}
-          >
-            {form.headline}
-          </h1>
-          <p className="mt-2 text-[#6B6B6B]">{form.prompt}</p>
-          <div className="mt-8">
-            <CollectionForm form={form as FormRow} />
-          </div>
-        </div>
-      </div>
+      <CollectionForm form={form as FormRow} />
     </div>
   );
 }
