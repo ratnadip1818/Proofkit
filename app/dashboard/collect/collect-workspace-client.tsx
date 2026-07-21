@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import QRCode from "qrcode";
 import { 
   Check, 
@@ -14,12 +13,14 @@ import {
   Star,
   Camera,
   Copy,
-  QrCode,
   Share2,
   Sliders,
   Sparkles,
   Type,
-  Palette
+  Palette,
+  Download,
+  Send,
+  MessageSquare
 } from "lucide-react";
 import { updateForm } from "../actions";
 
@@ -63,6 +64,40 @@ const BACKGROUND_PRESETS = [
   { id: "obsidian", label: "Obsidian Dark", class: "bg-gray-950 text-white border-gray-800" },
 ];
 
+function Switch({
+  checked,
+  onChange,
+  size = "default",
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  size?: "sm" | "default";
+}) {
+  const isSm = size === "sm";
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex items-center shrink-0 rounded-full transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ${
+        checked ? "bg-blue-600" : "bg-gray-200"
+      } ${isSm ? "h-4 w-8" : "h-6 w-11"}`}
+    >
+      <span
+        className={`inline-block bg-white rounded-full transition-transform shadow-sm ${
+          isSm ? "h-3 w-3" : "h-5 w-5"
+        }`}
+        style={{
+          transform: checked
+            ? `translateX(${isSm ? "14px" : "22px"})`
+            : "translateX(2px)",
+        }}
+      />
+    </button>
+  );
+}
+
 export default function CollectWorkspaceClient({
   user,
   form,
@@ -81,61 +116,69 @@ export default function CollectWorkspaceClient({
   const [selectedFont, setSelectedFont] = useState(form.custom_font || "Inter");
   const [selectedBg, setSelectedBg] = useState(form.custom_css || "canvas");
 
-  // Initial values for clean/dirty state tracking
-  const [initialValues, setInitialValues] = useState({
-    headline: form.headline,
-    prompt: form.prompt,
-    thankYouMessage: form.thank_you_message,
-    themeColor: form.theme_color,
-    collectPhoto: form.collect_photo,
-    collectRating: form.collect_rating,
-    requireConsent: form.require_consent,
-    customFont: form.custom_font,
-    customCss: form.custom_css,
-  });
-
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "dirty">("saved");
-  const [wizardTab, setWizardTab] = useState<"design" | "share">("design");
+  const [savingStatus, setSavingStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [tab, setTab] = useState<"design" | "share">("design");
   const [deviceMode, setDeviceMode] = useState<"mobile" | "desktop">("mobile");
 
   // Local interactive preview states
   const [testRating, setTestRating] = useState(5);
   const [testContent, setTestContent] = useState("");
   const [testName, setTestName] = useState("");
+  const [testRole, setTestRole] = useState("");
   const [testSubmitted, setTestSubmitted] = useState(false);
 
   // Share & QR code states
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedEmailText, setCopiedEmailText] = useState(false);
 
   const shareUrl = form.custom_domain
     ? `https://${form.custom_domain}`
     : `${appUrl}/c/${form.slug}`;
 
-  // Check dirty state
+  // Background Auto-Sync effect
   useEffect(() => {
-    const isDirty =
-      headline !== initialValues.headline ||
-      prompt !== initialValues.prompt ||
-      thankYouMessage !== initialValues.thankYouMessage ||
-      themeColor !== initialValues.themeColor ||
-      collectPhoto !== initialValues.collectPhoto ||
-      collectRating !== initialValues.collectRating ||
-      requireConsent !== initialValues.requireConsent ||
-      selectedFont !== initialValues.customFont ||
-      selectedBg !== initialValues.customCss;
+    setSavingStatus("saving");
+    const timer = setTimeout(async () => {
+      try {
+        await updateForm(form.id, {
+          headline,
+          prompt,
+          thank_you_message: thankYouMessage,
+          theme_color: themeColor,
+          collect_photo: collectPhoto,
+          collect_rating: collectRating,
+          require_consent: requireConsent,
+          custom_font: selectedFont,
+          custom_css: selectedBg,
+        });
+        setSavingStatus("saved");
+      } catch (err) {
+        console.error("Failed auto-syncing form:", err);
+        setSavingStatus("idle");
+      }
+    }, 800);
 
-    if (isDirty && saveStatus === "saved") {
-      setSaveStatus("dirty");
-    }
-  }, [headline, prompt, thankYouMessage, themeColor, collectPhoto, collectRating, requireConsent, selectedFont, selectedBg, initialValues, saveStatus]);
+    return () => clearTimeout(timer);
+  }, [
+    headline,
+    prompt,
+    thankYouMessage,
+    themeColor,
+    collectPhoto,
+    collectRating,
+    requireConsent,
+    selectedFont,
+    selectedBg,
+    form.id,
+  ]);
 
   // Generate QR Code for Share Tab
   useEffect(() => {
     async function generateQR() {
       try {
         const url = await QRCode.toDataURL(shareUrl, {
-          width: 250,
+          width: 300,
           margin: 2,
           color: { dark: "#1E293B", light: "#FFFFFF" },
         });
@@ -147,196 +190,113 @@ export default function CollectWorkspaceClient({
     generateQR();
   }, [shareUrl]);
 
-  const handleSaveForm = async () => {
-    setSaveStatus("saving");
-    try {
-      await updateForm(form.id, {
-        headline,
-        prompt,
-        thank_you_message: thankYouMessage,
-        theme_color: themeColor,
-        collect_photo: collectPhoto,
-        collect_rating: collectRating,
-        require_consent: requireConsent,
-        custom_font: selectedFont,
-        custom_css: selectedBg,
-      });
-      setInitialValues({
-        headline,
-        prompt,
-        thankYouMessage,
-        themeColor,
-        collectPhoto,
-        collectRating,
-        requireConsent,
-        customFont: selectedFont,
-        customCss: selectedBg,
-      });
-      setSaveStatus("saved");
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to save form settings", error);
-      setSaveStatus("dirty");
-    }
-  };
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const emailInviteText = `Hi there!
+
+We'd love to hear your feedback on your recent experience with us. It takes less than 60 seconds to leave a review:
+
+👉 ${shareUrl}
+
+Thank you so much for your support!`;
+
+  const handleCopyEmailText = () => {
+    navigator.clipboard.writeText(emailInviteText);
+    setCopiedEmailText(true);
+    setTimeout(() => setCopiedEmailText(false), 2000);
+  };
+
   const activeFontFamily = FONTS.find((f) => f.id === selectedFont)?.family || "var(--font-sans)";
   const activeBgPreset = BACKGROUND_PRESETS.find((b) => b.id === selectedBg) || BACKGROUND_PRESETS[0];
 
   return (
-    <div className="w-full flex flex-col lg:flex-row h-[calc(100vh-56px)] animate-fade-in font-sans bg-canvas overflow-hidden select-none">
-      {/* 1. LEFT PANEL: Form Builder & Advanced Branding Customizer */}
-      <div className="w-full lg:w-1/2 flex flex-col h-full p-6 lg:p-8 bg-surface overflow-y-auto shrink-0 border-r border-hairline">
-        {/* Header & Save Indicator */}
-        <div className="flex items-center justify-between pb-3">
-          <div className="flex items-center space-x-2">
-            <span
-              className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse"
-              style={{ backgroundColor: themeColor }}
-            />
-            <span className="font-display font-bold text-xs uppercase tracking-wider text-gray-800">
-              Advanced Form Customizer
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            {saveStatus === "saved" && (
-              <span className="flex items-center space-x-1 text-emerald-600 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200 text-xs">
-                <span>✓ Saved</span>
-              </span>
-            )}
-            {saveStatus === "saving" && (
-              <span className="text-xs font-semibold text-blue-600 animate-pulse bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                Saving...
-              </span>
-            )}
-            {saveStatus === "dirty" && (
+    <div className="flex min-h-screen bg-[#F5F4F1] font-sans text-gray-900 overflow-hidden relative">
+      {/* LEFT PANEL */}
+      <div className="w-[360px] bg-white border-r border-gray-200 flex flex-col h-screen shrink-0 shadow-sm z-10">
+        <div className="px-6 pt-6 shrink-0">
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-1">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={handleSaveForm}
-                className="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 hover:bg-amber-100 transition-all cursor-pointer shadow-2xs"
+                onClick={() => setTab("design")}
+                className={`text-xs font-semibold cursor-pointer pb-3 -mb-[13px] transition-all border-b-2 ${
+                  tab === "design"
+                    ? "text-blue-600 border-blue-600"
+                    : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
               >
-                ● Save Changes
+                1. Form Design
               </button>
-            )}
+              <Share2 size={14} className="text-gray-300" />
+              <button
+                type="button"
+                onClick={() => setTab("share")}
+                className={`text-xs font-medium cursor-pointer pb-3 -mb-[13px] transition-all border-b-2 ${
+                  tab === "share"
+                    ? "text-blue-600 border-blue-600"
+                    : "text-gray-500 border-transparent hover:text-gray-800"
+                }`}
+              >
+                2. Share & Invites
+              </button>
+            </div>
+
+            {/* Auto Sync Status Badge */}
+            <div className="text-[10px] font-bold uppercase tracking-wider">
+              {savingStatus === "saving" && <span className="text-blue-600 animate-pulse">Saving...</span>}
+              {savingStatus === "saved" && <span className="text-emerald-600">✓ Saved</span>}
+            </div>
           </div>
         </div>
 
-        <div className="border-b border-[#ecebe6] mb-4" />
-
-        {/* Tab Controls */}
-        <div className="grid grid-cols-2 p-1 bg-gray-100 rounded-xl mb-5 shrink-0">
-          <button
-            type="button"
-            onClick={() => setWizardTab("design")}
-            className={`py-2 px-3 text-xs font-bold transition-all rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer ${
-              wizardTab === "design"
-                ? "bg-white text-gray-900 shadow-2xs border border-gray-200"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>1. Form & Branding</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setWizardTab("share")}
-            className={`py-2 px-3 text-xs font-bold transition-all rounded-lg flex items-center justify-center space-x-1.5 cursor-pointer ${
-              wizardTab === "share"
-                ? "bg-white text-gray-900 shadow-2xs border border-gray-200"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>2. Share & Export</span>
-          </button>
-        </div>
-
-        {/* Form Controls Content */}
-        <div className="space-y-5 flex-1">
-          {wizardTab === "design" ? (
-            <div className="space-y-4">
-              {/* Form Title */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-800 block">Form Headline</label>
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {tab === "design" ? (
+            <>
+              {/* Headline Copy */}
+              <section className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-900 block">Form Headline</label>
                 <input
                   type="text"
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
-                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 text-gray-800 bg-white shadow-3xs"
-                  placeholder="e.g. Share your experience with ProofKit"
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-600 text-gray-900 bg-white shadow-xs font-medium"
+                  placeholder="e.g. Share your experience with us"
                 />
-              </div>
+              </section>
 
               {/* Prompt Description */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-800 block">Prompt Description</label>
+              <section className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-900 block">Prompt Description</label>
                 <textarea
                   rows={2}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-500 text-gray-800 resize-none leading-relaxed bg-white shadow-3xs"
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-600 text-gray-900 resize-none leading-relaxed bg-white shadow-xs font-medium"
                   placeholder="e.g. Would you recommend our product?"
                 />
-              </div>
+              </section>
 
-              {/* Typography Font Selector */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-gray-800 flex items-center space-x-1.5">
-                  <Type className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Typography Font Selector</span>
-                </label>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {FONTS.map((font) => (
-                    <button
-                      key={font.id}
-                      type="button"
-                      onClick={() => setSelectedFont(font.id)}
-                      className={`w-full py-2 px-3 rounded-xl text-xs font-bold text-left transition-all border cursor-pointer flex items-center justify-between ${
-                        selectedFont === font.id
-                          ? "bg-blue-50 border-blue-600 text-blue-700 shadow-2xs"
-                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      <span style={{ fontFamily: font.family }}>{font.label}</span>
-                      {selectedFont === font.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Thank You Message */}
+              <section className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-900 block">Thank You Message</label>
+                <textarea
+                  rows={2}
+                  value={thankYouMessage}
+                  onChange={(e) => setThankYouMessage(e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-600 text-gray-900 resize-none leading-relaxed bg-white shadow-xs font-medium"
+                  placeholder="e.g. Thank you for your feedback!"
+                />
+              </section>
 
-              {/* Background Style & Gradient Selector */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-gray-800 flex items-center space-x-1.5">
-                  <Palette className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Background Theme & Gradient</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {BACKGROUND_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => setSelectedBg(preset.id)}
-                      className={`p-2.5 rounded-xl text-xs font-bold text-left transition-all border cursor-pointer ${
-                        selectedBg === preset.id
-                          ? "ring-2 ring-blue-600 ring-offset-1 border-blue-600 shadow-2xs"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <span className="block">{preset.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <hr className="border-gray-100" />
 
-              {/* Brand Accent Color Swatches */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-gray-800 block">Brand Button Accent Color</label>
+              {/* Brand Accent Color */}
+              <section className="space-y-2">
+                <label className="text-xs font-bold text-gray-900 block">Button Brand Accent Color</label>
                 <div className="flex items-center space-x-2.5">
                   {ACCENT_COLORS.map((color) => (
                     <button
@@ -356,181 +316,254 @@ export default function CollectWorkspaceClient({
                     className="w-7 h-7 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
                   />
                 </div>
-              </div>
+              </section>
 
-              {/* Feature Toggles */}
-              <div className="space-y-2 pt-3 border-t border-[#ecebe6]">
-                <label className="text-xs font-bold text-gray-800 block">Form Collection Options</label>
+              <hr className="border-gray-100" />
+
+              {/* Form Collection Toggles */}
+              <section className="space-y-4">
+                <div className="font-semibold text-xs text-gray-400 uppercase tracking-wider">Field Controls</div>
                 
-                <label className="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 bg-[#FAF9F6] cursor-pointer">
-                  <span className="text-xs font-medium text-gray-700">Collect Star Rating</span>
-                  <input
-                    type="checkbox"
-                    checked={collectRating}
-                    onChange={(e) => setCollectRating(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                  />
-                </label>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-900">Collect Star Rating</span>
+                  <Switch checked={collectRating} onChange={setCollectRating} />
+                </div>
 
-                <label className="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 bg-[#FAF9F6] cursor-pointer">
-                  <span className="text-xs font-medium text-gray-700">Require Permission Consent</span>
-                  <input
-                    type="checkbox"
-                    checked={requireConsent}
-                    onChange={(e) => setRequireConsent(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                  />
-                </label>
-              </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-900">Collect Customer Photo</span>
+                  <Switch checked={collectPhoto} onChange={setCollectPhoto} />
+                </div>
 
-              {/* Save Action */}
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={handleSaveForm}
-                  disabled={saveStatus === "saving"}
-                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center space-x-2"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{saveStatus === "saving" ? "Saving Form Settings..." : "Save Custom Branding"}</span>
-                </button>
-              </div>
-            </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-900">Require Consent Checkbox</span>
+                  <Switch checked={requireConsent} onChange={setRequireConsent} />
+                </div>
+              </section>
+
+              <hr className="border-gray-100" />
+
+              {/* Typography Font Selector */}
+              <section className="space-y-2">
+                <label className="text-xs font-bold text-gray-900 flex items-center space-x-1.5">
+                  <Type className="w-4 h-4 text-blue-600" />
+                  <span>Form Typography</span>
+                </label>
+                <div className="space-y-1.5">
+                  {FONTS.map((font) => (
+                    <button
+                      key={font.id}
+                      type="button"
+                      onClick={() => setSelectedFont(font.id)}
+                      className={`w-full py-2 px-3 rounded-xl text-xs font-semibold text-left transition-all border cursor-pointer flex items-center justify-between ${
+                        selectedFont === font.id
+                          ? "bg-blue-50/50 border-blue-600 text-blue-700 shadow-xs"
+                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span style={{ fontFamily: font.family }}>{font.label}</span>
+                      {selectedFont === font.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {/* Background Theme & Canvas */}
+              <section className="space-y-2 pb-6">
+                <label className="text-xs font-bold text-gray-900 flex items-center space-x-1.5">
+                  <Palette className="w-4 h-4 text-blue-600" />
+                  <span>Canvas Theme</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {BACKGROUND_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setSelectedBg(preset.id)}
+                      className={`p-2.5 rounded-xl text-xs font-bold text-left transition-all border cursor-pointer ${
+                        selectedBg === preset.id
+                          ? "ring-2 ring-blue-600 ring-offset-1 border-blue-600 shadow-xs"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <span className="block">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </>
           ) : (
-            /* SUB-TAB B: SHARE & EXPORT WIZARD */
-            <div className="space-y-5">
-              <div className="bg-[#FAF9F6] border border-[#ecebe6] rounded-xl p-4 space-y-3">
-                <span className="text-xs font-bold text-gray-900 block">Direct Collection Link</span>
+            /* TAB 2: SHARE & INVITES */
+            <div className="space-y-6">
+              {/* Direct Link */}
+              <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-900">Direct Share Link</span>
+                  <a
+                    href={shareUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-blue-600 font-semibold hover:underline inline-flex items-center space-x-1"
+                  >
+                    <span>Open Live Form</span>
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
                     readOnly
                     value={shareUrl}
-                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-700 outline-none"
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-700 outline-none"
                   />
                   <button
+                    type="button"
                     onClick={handleCopyLink}
-                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer"
+                    className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs"
                   >
-                    {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedLink ? <Check size={14} /> : <Copy size={14} />}
                     <span>{copiedLink ? "Copied" : "Copy"}</span>
                   </button>
                 </div>
-                <a
-                  href={shareUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-blue-600 font-semibold hover:underline inline-flex items-center space-x-1"
-                >
-                  <span>Open live collection page in new tab</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
+              </section>
 
-              <div className="bg-[#FAF9F6] border border-[#ecebe6] rounded-xl p-4 flex items-center space-x-4">
+              {/* QR Code */}
+              <section className="bg-white border border-gray-200 rounded-xl p-4 flex items-center space-x-4 shadow-xs">
                 {qrCodeDataUrl ? (
-                  <img src={qrCodeDataUrl} alt="Collection QR Code" className="w-24 h-24 rounded-lg border border-gray-200 shadow-2xs" />
+                  <img src={qrCodeDataUrl} alt="Collection QR Code" className="w-24 h-24 rounded-lg border border-gray-200 shadow-xs shrink-0" />
                 ) : (
-                  <div className="w-24 h-24 rounded-lg bg-gray-200 animate-pulse" />
+                  <div className="w-24 h-24 rounded-lg bg-gray-100 animate-pulse shrink-0" />
                 )}
                 <div>
-                  <span className="font-bold text-xs text-gray-900 block">QR Code Generator</span>
+                  <span className="font-bold text-xs text-gray-900 block">Printable QR Code</span>
                   <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
-                    Download or print this QR code to collect customer testimonials at physical locations or flyers.
+                    Download this QR code for print packaging, receipts, or table stands.
                   </p>
                   {qrCodeDataUrl && (
                     <a
                       href={qrCodeDataUrl}
-                      download={`proofkit-qr-${form.slug}.png`}
-                      className="mt-2 text-xs font-bold text-blue-600 hover:underline inline-block"
+                      download={`blovi-qr-${form.slug}.png`}
+                      className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition-all cursor-pointer"
                     >
-                      Download QR Code Image ↓
+                      <Download size={12} />
+                      Download QR Code
                     </a>
                   )}
                 </div>
-              </div>
+              </section>
+
+              {/* Pre-written Customer Email Template */}
+              <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Mail size={16} className="text-blue-600" />
+                    <span className="text-xs font-bold text-gray-900">Email Invite Template</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyEmailText}
+                    className="text-xs text-blue-600 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    {copiedEmailText ? <Check size={12} /> : <Copy size={12} />}
+                    <span>{copiedEmailText ? "Copied Email" : "Copy Template"}</span>
+                  </button>
+                </div>
+                <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {emailInviteText}
+                </pre>
+              </section>
             </div>
           )}
         </div>
       </div>
 
-      {/* 2. RIGHT PANEL: Live Interactive Form Canvas */}
-      <div className="w-full lg:w-1/2 bg-canvas flex flex-col h-full overflow-hidden shrink-0">
-        <div className="h-12 border-b border-hairline bg-surface px-6 flex items-center justify-between shrink-0">
-          <span className="text-xs font-bold text-ink-secondary uppercase tracking-wider">Live Preview Canvas ({selectedFont})</span>
-          <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
+      {/* RIGHT PANEL: LIVE INTERACTIVE PREVIEW */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Top Viewport Header */}
+        <div className="px-10 py-6 flex justify-between items-center shrink-0">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest bg-white/50 px-3 py-1.5 rounded-full border border-gray-200/50 shadow-xs">
+            <Sparkles size={14} className="text-amber-500 fill-amber-500" />
+            Live Form Preview ({selectedFont})
+          </div>
+          <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200 shadow-xs">
             <button
+              type="button"
               onClick={() => setDeviceMode("mobile")}
-              className={`p-1.5 rounded-md transition-all cursor-pointer ${
-                deviceMode === "mobile" ? "bg-white shadow-2xs text-blue-600" : "text-gray-500 hover:text-gray-800"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                deviceMode === "mobile"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
-              title="Mobile View"
             >
-              <Smartphone className="w-4 h-4" />
+              <Smartphone size={14} />
+              Mobile Phone
             </button>
             <button
+              type="button"
               onClick={() => setDeviceMode("desktop")}
-              className={`p-1.5 rounded-md transition-all cursor-pointer ${
-                deviceMode === "desktop" ? "bg-white shadow-2xs text-blue-600" : "text-gray-500 hover:text-gray-800"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                deviceMode === "desktop"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
-              title="Desktop View"
             >
-              <Monitor className="w-4 h-4" />
+              <Monitor size={14} />
+              Desktop View
             </button>
           </div>
         </div>
 
-        {/* Form Display Frame with Font & Background Styling */}
-        <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
+        {/* Live Canvas Viewport */}
+        <div className="flex-1 w-full h-full p-4 md:p-6 overflow-y-auto flex items-center justify-center">
           <div
             style={{ fontFamily: activeFontFamily }}
-            className={`transition-all duration-300 rounded-2xl border p-6 lg:p-8 space-y-5 shadow-md ${activeBgPreset.class} ${
+            className={`transition-all duration-300 rounded-3xl border p-8 space-y-6 shadow-xl ${activeBgPreset.class} ${
               deviceMode === "mobile" ? "w-full max-w-sm" : "w-full max-w-xl"
             }`}
           >
             {testSubmitted ? (
-              <div className="py-8 text-center space-y-3">
+              <div className="py-12 text-center space-y-4">
                 <div
-                  className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-white text-xl font-bold"
+                  className="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-md"
                   style={{ backgroundColor: themeColor }}
                 >
                   ✓
                 </div>
-                <h3 className="font-bold text-base">Thank You!</h3>
-                <p className="text-xs opacity-80 leading-relaxed max-w-xs mx-auto">
+                <h3 className="font-bold text-xl">Thank You!</h3>
+                <p className="text-sm opacity-80 leading-relaxed max-w-xs mx-auto">
                   {thankYouMessage}
                 </p>
                 <button
+                  type="button"
                   onClick={() => setTestSubmitted(false)}
-                  className="mt-4 text-xs font-bold underline cursor-pointer"
+                  className="mt-6 text-xs font-bold underline cursor-pointer"
                   style={{ color: themeColor }}
                 >
-                  ← Reset Preview Form
+                  ← Test Form Again
                 </button>
               </div>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setTestSubmitted(true); }} className="space-y-4">
-                <div className="space-y-1.5">
+              <form onSubmit={(e) => { e.preventDefault(); setTestSubmitted(true); }} className="space-y-5">
+                <div className="space-y-2">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-xs"
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xs"
                     style={{ backgroundColor: themeColor }}
                   >
-                    P
+                    B
                   </div>
-                  <h2 className="font-bold text-lg leading-tight">
+                  <h2 className="font-bold text-2xl leading-tight">
                     {headline}
                   </h2>
-                  <p className="text-xs opacity-75 leading-relaxed">
+                  <p className="text-sm opacity-80 leading-relaxed">
                     {prompt}
                   </p>
                 </div>
 
                 {collectRating && (
-                  <div className="space-y-1 pt-1">
-                    <label className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
                       Overall Rating
                     </label>
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
@@ -538,42 +571,70 @@ export default function CollectWorkspaceClient({
                           onClick={() => setTestRating(star)}
                           className="p-1 text-amber-400 hover:scale-110 transition-transform cursor-pointer"
                         >
-                          <Star className={`w-6 h-6 ${star <= testRating ? "fill-amber-400" : "opacity-30"}`} />
+                          <Star className={`w-7 h-7 ${star <= testRating ? "fill-amber-400" : "opacity-30"}`} />
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
                     Your Review
                   </label>
                   <textarea
                     rows={3}
                     value={testContent}
                     onChange={(e) => setTestContent(e.target.value)}
-                    placeholder="Write your feedback..."
-                    className="w-full text-xs border border-gray-200/80 rounded-xl p-3 outline-none focus:border-blue-500 bg-white/90 text-gray-900"
+                    placeholder="Write your experience..."
+                    className="w-full text-sm border border-gray-200/80 rounded-xl p-3.5 outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 text-gray-900"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    value={testName}
-                    onChange={(e) => setTestName(e.target.value)}
-                    placeholder="Alex Rivera"
-                    className="w-full text-xs border border-gray-200/80 rounded-xl px-3 py-2 outline-none focus:border-blue-500 bg-white/90 text-gray-900"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      value={testName}
+                      onChange={(e) => setTestName(e.target.value)}
+                      placeholder="Alex Rivera"
+                      className="w-full text-sm border border-gray-200/80 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 text-gray-900"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
+                      Your Title / Role
+                    </label>
+                    <input
+                      type="text"
+                      value={testRole}
+                      onChange={(e) => setTestRole(e.target.value)}
+                      placeholder="Product Designer"
+                      className="w-full text-sm border border-gray-200/80 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 text-gray-900"
+                    />
+                  </div>
                 </div>
+
+                {collectPhoto && (
+                  <div className="p-4 border-2 border-dashed border-gray-300/80 rounded-2xl text-center space-y-1 bg-white/50 cursor-pointer">
+                    <Camera className="w-5 h-5 mx-auto text-gray-400" />
+                    <span className="text-xs font-semibold block text-gray-700">Upload Photo (Optional)</span>
+                  </div>
+                )}
+
+                {requireConsent && (
+                  <label className="flex items-start space-x-2 text-xs opacity-75 cursor-pointer pt-1">
+                    <input type="checkbox" defaultChecked required className="mt-0.5 rounded text-blue-600" />
+                    <span>I give permission to use this testimonial on your website and marketing materials.</span>
+                  </label>
+                )}
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                  className="w-full py-3.5 px-5 text-white font-bold text-sm rounded-xl shadow-md transition-all cursor-pointer"
                   style={{ backgroundColor: themeColor }}
                 >
                   Submit Review

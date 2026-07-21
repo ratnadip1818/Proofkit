@@ -39,23 +39,21 @@ export default async function CollectPage() {
   }
 
   return (
-    <div className="max-w-[960px] mx-auto p-6 md:p-12">
-      <CollectWorkspaceClient
-        user={{ id: user.id, email: user.email }}
-        form={{
-          id: form.id,
-          slug: form.slug,
-          headline: form.headline ?? "Leave a review",
-          prompt: form.prompt ?? "Tell us what you think about our product.",
-          thank_you_message: form.thank_you_message ?? "Thank you for your feedback!",
-          theme_color: form.theme_color ?? "#2563EB",
-          collect_photo: !!form.collect_photo,
-          collect_rating: form.collect_rating ?? true,
-          require_consent: form.require_consent ?? true,
-          custom_domain: form.custom_domain || null,
-        }}
-        appUrl={APP_URL}
-      />
-    </div>
+    <CollectWorkspaceClient
+      user={{ id: user.id, email: user.email }}
+      form={{
+        id: form.id,
+        slug: form.slug,
+        headline: form.headline ?? "Leave a review",
+        prompt: form.prompt ?? "Tell us what you think about our product.",
+        thank_you_message: form.thank_you_message ?? "Thank you for your feedback!",
+        theme_color: form.theme_color ?? "#2563EB",
+        collect_photo: !!form.collect_photo,
+        collect_rating: form.collect_rating ?? true,
+        require_consent: form.require_consent ?? true,
+        custom_domain: form.custom_domain || null,
+      }}
+      appUrl={APP_URL}
+    />
   );
 }
