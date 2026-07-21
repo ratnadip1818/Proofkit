@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { 
   Check, 
+  CheckCircle,
+  Lock,
   ExternalLink, 
   Smartphone, 
   Monitor, 
@@ -464,130 +466,129 @@ Thank you so much for your support!`;
         {/* Live Canvas Viewport */}
         <div className="flex-1 w-full h-full p-4 md:p-6 overflow-y-auto flex items-center justify-center">
           <div
-            style={{ fontFamily: activeFontFamily }}
-            className={`transition-all duration-300 rounded-3xl border p-8 space-y-6 shadow-xl ${activeBgPreset.class} ${
-              deviceMode === "mobile" ? "w-full max-w-sm" : "w-full max-w-xl"
+            className={`transition-all duration-300 bg-white rounded-2xl shadow-md border border-gray-100 p-8 ${
+              deviceMode === "mobile" ? "w-full max-w-sm" : "w-full max-w-lg"
             }`}
           >
             {testSubmitted ? (
-              <div className="py-12 text-center space-y-4">
+              <div className="py-10 text-center space-y-5 animate-scale-in">
                 <div
-                  className="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-md"
-                  style={{ backgroundColor: themeColor }}
+                  className="mx-auto w-16 h-16 rounded-full flex items-center justify-center shadow-xs"
+                  style={{ backgroundColor: `${themeColor}15`, color: themeColor }}
                 >
-                  ✓
+                  <CheckCircle className="w-9 h-9" />
                 </div>
-                <h3 className="font-bold text-xl">Thank You!</h3>
-                <p className="text-sm opacity-80 leading-relaxed max-w-xs mx-auto">
-                  {thankYouMessage}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setTestSubmitted(false)}
-                  className="mt-6 text-xs font-bold underline cursor-pointer"
-                  style={{ color: themeColor }}
-                >
-                  ← Test Form Again
-                </button>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gray-900 tracking-tight">Thank you!</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">
+                    {thankYouMessage}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setTestSubmitted(false)}
+                    className="mt-4 text-xs font-bold underline cursor-pointer block mx-auto"
+                    style={{ color: themeColor }}
+                  >
+                    ← Test Form Again
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={(e) => { e.preventDefault(); setTestSubmitted(true); }} className="space-y-5">
-                <div className="space-y-2">
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-xs"
-                    style={{ backgroundColor: themeColor }}
-                  >
-                    B
-                  </div>
-                  <h2 className="font-bold text-2xl leading-tight">
+                <div className="text-center mb-6 space-y-1">
+                  <h2 className="text-[20px] font-semibold text-gray-900">
                     {headline}
                   </h2>
-                  <p className="text-sm opacity-80 leading-relaxed">
-                    {prompt}
-                  </p>
+                  {prompt && (
+                    <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
+                      {prompt}
+                    </p>
+                  )}
                 </div>
 
                 {collectRating && (
-                  <div className="space-y-1.5 pt-2">
-                    <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
-                      Overall Rating
-                    </label>
-                    <div className="flex items-center space-x-1.5">
+                  <div className="flex justify-center">
+                    <div className="flex gap-1.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           type="button"
                           onClick={() => setTestRating(star)}
-                          className="p-1 text-amber-400 hover:scale-110 transition-transform cursor-pointer"
+                          className="p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-full transition-transform hover:scale-110 cursor-pointer"
                         >
-                          <Star className={`w-7 h-7 ${star <= testRating ? "fill-amber-400" : "opacity-30"}`} />
+                          <Star
+                            className={`w-8 h-8 transition-colors ${
+                              star <= testRating
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-gray-200"
+                            }`}
+                          />
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
-                    Your Review
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={testContent}
-                    onChange={(e) => setTestContent(e.target.value)}
-                    placeholder="Write your experience..."
-                    className="w-full text-sm border border-gray-200/80 rounded-xl p-3.5 outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 text-gray-900"
+                <textarea
+                  required
+                  rows={4}
+                  value={testContent}
+                  onChange={(e) => setTestContent(e.target.value)}
+                  placeholder="What did you love? How has it helped you?"
+                  className="w-full resize-y rounded-lg border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    required
+                    value={testName}
+                    onChange={(e) => setTestName(e.target.value)}
+                    placeholder="Full name"
+                    className="h-11 rounded-lg border border-gray-200 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <input
+                    value={testRole}
+                    onChange={(e) => setTestRole(e.target.value)}
+                    placeholder="Role / Company (optional)"
+                    className="h-11 rounded-lg border border-gray-200 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      value={testName}
-                      onChange={(e) => setTestName(e.target.value)}
-                      placeholder="Alex Rivera"
-                      className="w-full text-sm border border-gray-200/80 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 text-gray-900"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider block opacity-70">
-                      Your Title / Role
-                    </label>
-                    <input
-                      type="text"
-                      value={testRole}
-                      onChange={(e) => setTestRole(e.target.value)}
-                      placeholder="Product Designer"
-                      className="w-full text-sm border border-gray-200/80 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 text-gray-900"
-                    />
-                  </div>
-                </div>
-
                 {collectPhoto && (
-                  <div className="p-4 border-2 border-dashed border-gray-300/80 rounded-2xl text-center space-y-1 bg-white/50 cursor-pointer">
-                    <Camera className="w-5 h-5 mx-auto text-gray-400" />
-                    <span className="text-xs font-semibold block text-gray-700">Upload Photo (Optional)</span>
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="w-12 h-12 flex-shrink-0 rounded-full border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      <span className="font-medium text-gray-900">Add a photo</span> (optional)
+                    </span>
                   </div>
                 )}
 
                 {requireConsent && (
-                  <label className="flex items-start space-x-2 text-xs opacity-75 cursor-pointer pt-1">
-                    <input type="checkbox" defaultChecked required className="mt-0.5 rounded text-blue-600" />
+                  <label className="flex items-start gap-2.5 text-xs text-gray-600 cursor-pointer pt-1">
+                    <input
+                      type="checkbox"
+                      defaultChecked
+                      className="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
                     <span>I give permission to use this testimonial on your website and marketing materials.</span>
                   </label>
                 )}
 
-                <button
-                  type="submit"
-                  className="w-full py-3.5 px-5 text-white font-bold text-sm rounded-xl shadow-md transition-all cursor-pointer"
-                  style={{ backgroundColor: themeColor }}
-                >
-                  Submit Review
-                </button>
+                <div className="pt-2 space-y-3 text-center">
+                  <button
+                    type="submit"
+                    style={{ backgroundColor: themeColor }}
+                    className="w-full h-12 rounded-xl text-white text-base font-medium shadow-md shadow-blue-100/50 hover:brightness-95 transition-all cursor-pointer"
+                  >
+                    Submit testimonial
+                  </button>
+                  <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
+                    <Lock className="w-3 h-3" />
+                    <span>Encrypted · GDPR ready · Never shared</span>
+                  </div>
+                </div>
               </form>
             )}
           </div>
