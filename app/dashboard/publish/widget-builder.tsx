@@ -123,7 +123,7 @@ export default function WidgetBuilder({
   ];
 
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
-  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}`;
+  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=wall&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&max=9&desktop=1`;
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";

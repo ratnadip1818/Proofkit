@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Testimonial } from "../constants";
+import { SAMPLE_TESTIMONIALS, type Testimonial } from "../constants";
 import { FONT, RADIUS_PX, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme, WallLayout as WallLayoutType } from "../types/widget";
 import type { WidgetPresetId } from "../styles/types";
@@ -41,15 +41,21 @@ export function WallLayout({
   heading = "Loved by the best teams",
   subheading = "Software companies and agencies rely on Blovi to turn happy customers into their best growth engine.",
 }: WallLayoutProps) {
+  const isDesktopPreview = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("desktop") === "1";
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(isDesktopPreview ? 9 : 6);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
   // Synchronize and update pageSize dynamically based on responsive layout rules
   useEffect(() => {
+    if (isDesktopPreview) {
+      setPageSize(9);
+      return;
+    }
+
     const handleResize = () => {
       const w = window.innerWidth;
       if (w < 640) {
@@ -64,7 +70,7 @@ export function WallLayout({
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isDesktopPreview]);
 
   // Reset page index when tag filter, maxCount, or screen size changes
   const [prevSelectedTag, setPrevSelectedTag] = useState(selectedTag);
@@ -83,7 +89,11 @@ export function WallLayout({
     new Set(testimonials.flatMap((t) => t.tags || []))
   ).filter(Boolean);
 
-  const list = maxCount !== null ? testimonials.slice(0, maxCount) : testimonials;
+  let list = maxCount !== null ? testimonials.slice(0, maxCount) : testimonials;
+  if (isDesktopPreview && list.length < 9) {
+    const fillers = SAMPLE_TESTIMONIALS.slice(0, 9 - list.length);
+    list = [...list, ...fillers];
+  }
 
   // Filter list by selected tag
   const filteredList = selectedTag
@@ -108,23 +118,27 @@ export function WallLayout({
   }, [selectedTag, filteredList.length, pageIndex, pageSize]);
 
   return (
-    <div style={{ fontFamily: FONT, padding: "56px 16px 52px", background: colors.pageBg, color: colors.text }}>
+    <div style={{ fontFamily: FONT, padding: "32px 16px", background: colors.pageBg, color: colors.text }}>
       <style>{`
         .blovi-masonry {
-          column-count: 1;
+          column-count: ${isDesktopPreview ? 3 : 1};
           column-gap: 20px;
           max-width: 1200px;
           margin: 0 auto;
         }
-        @media (min-width: 640px) {
-          .blovi-masonry {
-            column-count: 2;
-          }
-        }
-        @media (min-width: 1024px) {
-          .blovi-masonry {
-            column-count: 3;
-          }
+        ${
+          isDesktopPreview
+            ? `.blovi-masonry { column-count: 3 !important; }`
+            : `@media (min-width: 640px) {
+                .blovi-masonry {
+                  column-count: 2;
+                }
+              }
+              @media (min-width: 1024px) {
+                .blovi-masonry {
+                  column-count: 3;
+                }
+              }`
         }
         .blovi-masonry-item {
           break-inside: avoid;
