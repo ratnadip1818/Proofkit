@@ -428,126 +428,14 @@ export default function WidgetBuilder({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-10 flex flex-col items-center justify-center">
-          <div className="w-full max-w-4xl flex flex-col items-center">
-            <div className="text-center mb-14 space-y-4">
-              <h2 className="text-[32px] font-extrabold text-gray-900 tracking-tight">
-                Loved by the best teams
-              </h2>
-              <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
-                Software companies and agencies rely on Blovi to turn happy customers
-                into their best growth engine.
-              </p>
-            </div>
-
-            {/* Testimonial Card */}
-            <div className="max-w-md w-full mx-auto">
-              <div
-                className={`rounded-2xl overflow-hidden transition-colors duration-300 ${
-                  theme === "light" ? "border border-gray-100 shadow-xs" : ""
-                } ${theme === "dark" ? "border border-gray-700 shadow-xl" : ""}`}
-                style={{
-                  backgroundColor:
-                    theme === "dark"
-                      ? "#111827"
-                      : theme === "transparent"
-                      ? "transparent"
-                      : "#FFFFFF",
-                }}
-              >
-                <div
-                  className="h-1.5 w-full transition-colors duration-300"
-                  style={{ backgroundColor: primaryColor }}
-                />
-                <div className="p-7">
-                  <div className="flex justify-between items-start mb-5">
-                    <div className="flex items-center gap-3.5">
-                      {showPhotos && (
-                        activeTestimonial.avatar_url ? (
-                          <img
-                            src={activeTestimonial.avatar_url}
-                            alt={authorName}
-                            className="w-11 h-11 rounded-full object-cover border border-gray-200/50"
-                          />
-                        ) : (
-                          <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200/50">
-                            <User size={20} />
-                          </div>
-                        )
-                      )}
-                      <div>
-                        <div
-                          className="font-bold text-[15px]"
-                          style={{ color: theme === "dark" ? "#F9FAFB" : textColor }}
-                        >
-                          {authorName}
-                        </div>
-                        <div className="text-[13px] text-gray-500 font-medium">{authorRole}</div>
-                      </div>
-                    </div>
-                    {testimonials.length > 1 && (
-                      <div className="flex gap-1.5 opacity-60">
-                        <button
-                          type="button"
-                          onClick={() => setTestimonialIndex((prev) => (prev > 0 ? prev - 1 : testimonials.length - 1))}
-                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer ${
-                            theme === "dark"
-                              ? "border-gray-600 text-gray-400"
-                              : "border-gray-200 text-gray-400 hover:bg-gray-50"
-                          }`}
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)}
-                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer ${
-                            theme === "dark"
-                              ? "border-gray-600 text-gray-400"
-                              : "border-gray-200 text-gray-400 hover:bg-gray-50"
-                          }`}
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-1 mb-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        size={16}
-                        style={
-                          star <= starRating
-                            ? { color: ratingColor, fill: ratingColor }
-                            : { color: theme === "dark" ? "#374151" : "#E5E7EB" }
-                        }
-                      />
-                    ))}
-                  </div>
-                  <p
-                    className="text-[15px] leading-relaxed font-medium"
-                    style={{ color: theme === "dark" ? "#D1D5DB" : textColor }}
-                  >
-                    "{reviewText}"
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {showBranding && (
-              <div className="mt-10 flex items-center justify-center">
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-gray-400 hover:text-gray-600"
-                >
-                  <span className="flex items-center justify-center w-5 h-5 rounded bg-blue-50 text-blue-600">
-                    <Zap size={12} className="fill-blue-600" />
-                  </span>
-                  Powered by Blovi
-                </a>
-              </div>
-            )}
+        {/* Right Panel Main View: Live Iframe Preview */}
+        <div className="flex-1 w-full h-full p-4 md:p-6 overflow-hidden flex flex-col">
+          <div className="w-full flex-1 bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+            <iframe
+              src={rawPreviewUrl}
+              className="w-full h-full border-none"
+              title="Live Render Output"
+            />
           </div>
         </div>
       </div>
