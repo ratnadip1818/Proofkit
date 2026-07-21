@@ -13,10 +13,11 @@
 
   // Helper to get attribute from script tag or container element
   function getAttr(key) {
-    var val = currentScript.getAttribute("data-" + key);
+    var kebabKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+    var val = currentScript.getAttribute("data-" + key) || currentScript.getAttribute("data-" + kebabKey);
     if (val) return val;
     if (targetContainer) {
-      val = targetContainer.getAttribute("data-" + key);
+      val = targetContainer.getAttribute("data-" + key) || targetContainer.getAttribute("data-" + kebabKey);
       if (val) return val;
     }
     return null;
@@ -53,7 +54,7 @@
   }
 
   var params = [];
-  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius"].forEach(
+  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "textColor", "ratingColor", "showPhotos", "fallbackAvatar"].forEach(
     function (key) {
       var val = getAttr(key);
       if (!val) return;

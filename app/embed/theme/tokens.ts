@@ -110,7 +110,6 @@ export function buildStyle(
     colors = {
       ...colors,
       accent,
-      starOn: theme === "light" ? accent : colors.starOn,
       avatarText: theme === "light" ? accent : colors.avatarText,
       avatarBg:
         theme === "light"

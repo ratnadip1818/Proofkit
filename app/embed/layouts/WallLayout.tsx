@@ -133,12 +133,12 @@ export function WallLayout({
         ${
           isDesktopPreview
             ? `.blovi-masonry { column-count: 3 !important; }`
-            : `@media (min-width: 640px) {
+            : `@media (min-width: 520px) {
                 .blovi-masonry {
                   column-count: 2;
                 }
               }
-              @media (min-width: 1024px) {
+              @media (min-width: 768px) {
                 .blovi-masonry {
                   column-count: 3;
                 }
