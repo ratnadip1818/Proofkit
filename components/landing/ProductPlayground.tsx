@@ -3,21 +3,20 @@
 import React, { useState } from "react";
 import {
   WallContent,
-  CarouselContent,
-  MarqueeContent,
-  SingleQuoteContent,
-  type WidgetType,
   type WidgetRadius,
   type WallTheme
 } from "@/app/embed/wall-renderer";
+import type { WidgetPresetId } from "@/app/embed/styles/types";
 import { SAMPLE_TESTIMONIALS } from "@/app/embed/constants";
 import Reveal from "./Reveal";
+import { Layout, Sparkles, Sun, Moon } from "lucide-react";
 
-const WIDGET_STYLES: { id: WidgetType; label: string }[] = [
-  { id: "wall", label: "Wall of Love" },
-  { id: "carousel", label: "Carousel" },
-  { id: "marquee", label: "Marquee" },
-  { id: "single", label: "Single Quote" }
+const PRESET_VARIATIONS: { id: WidgetPresetId; label: string }[] = [
+  { id: "base", label: "Base" },
+  { id: "editorial", label: "Editorial" },
+  { id: "modern", label: "Modern" },
+  { id: "luxury", label: "Luxury" },
+  { id: "minimal", label: "Minimal" }
 ];
 
 const THEMES: { id: WallTheme; label: string }[] = [
@@ -33,14 +32,15 @@ const RADIUSES: { id: WidgetRadius; label: string }[] = [
 
 const COLOR_PRESETS = [
   { name: "Brand Blue", hex: "#2563EB" },
-  { name: "Sky", hex: "#6366F1" },
   { name: "Emerald", hex: "#10B981" },
-  { name: "Purple", hex: "#8B5CF6" },
-  { name: "Cyan", hex: "#06B6D4" },
+  { name: "Indigo", hex: "#6366F1" },
+  { name: "Pink", hex: "#EC4899" },
+  { name: "Red", hex: "#EF4444" },
+  { name: "Dark", hex: "#1F2937" },
 ];
 
 export default function ProductPlayground() {
-  const [style, setStyle] = useState<WidgetType>("wall");
+  const [preset, setPreset] = useState<WidgetPresetId>("base");
   const [theme, setTheme] = useState<WallTheme>("light");
   const [radius, setRadius] = useState<WidgetRadius>("pill");
   const [accent, setAccent] = useState("#2563EB");
@@ -80,23 +80,39 @@ export default function ProductPlayground() {
           {/* Left Column: Configuration Controls (col-span-4) */}
           <div className="lg:col-span-4 flex flex-col gap-6 rounded-[28px] border border-[#d8d3c5] bg-[#fffdf8] p-6 shadow-[0_12px_30px_rgba(74,64,42,0.06)]">
             
-            {/* Widget Style Selection */}
+            {/* Widget Layout Style */}
             <div>
               <label className="block text-[10px] font-bold text-[#7a8091] uppercase tracking-wider mb-2.5">
-                Choose a layout
+                Widget Layout Style
               </label>
-              <div className="flex flex-col gap-1.5">
-                {WIDGET_STYLES.map((s) => (
+              <div className="w-full flex items-center justify-between px-4 py-3 bg-white border border-[#0b61d9] rounded-xl text-xs font-bold text-[#0b61d9] bg-[#e9f1ff]/50 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <Layout size={16} className="text-[#0b61d9]" />
+                  <span>Wall of Love</span>
+                </div>
+                <span className="bg-[#0b61d9] text-white text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                  Active
+                </span>
+              </div>
+            </div>
+
+            {/* Variations Preset Selection */}
+            <div>
+              <label className="block text-[10px] font-bold text-[#7a8091] uppercase tracking-wider mb-2.5">
+                Preset Variations
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {PRESET_VARIATIONS.map((p) => (
                   <button
-                    key={s.id}
-                    onClick={() => setStyle(s.id)}
-                    className={`w-full text-left px-4 py-3 rounded-xl border text-xs font-bold transition-product duration-hover ease-product ${
-                      style === s.id
+                    key={p.id}
+                    onClick={() => setPreset(p.id)}
+                    className={`text-center px-3 py-2.5 rounded-xl border text-xs font-bold transition-product duration-hover ease-product cursor-pointer capitalize ${
+                      preset === p.id
                         ? "border-[#0b61d9] bg-[#e9f1ff] text-[#0b61d9] translate-y-[-1px] shadow-sm"
                         : "border-[#e3ded1] bg-white text-[#6c7280] hover:border-[#0b61d9]/25 hover:text-[#173b71]"
                     }`}
                   >
-                    {s.label}
+                    {p.label}
                   </button>
                 ))}
               </div>
@@ -108,15 +124,17 @@ export default function ProductPlayground() {
                 Brand Accent Color
               </label>
               <div className="flex items-center gap-2">
-                {COLOR_PRESETS.map((preset) => (
+                {COLOR_PRESETS.map((p) => (
                   <button
-                    key={preset.hex}
-                    onClick={() => setAccent(preset.hex)}
-                    className={`h-7 w-7 rounded-full border border-black/10 transition-transform active:scale-95 flex items-center justify-center`}
-                    style={{ backgroundColor: preset.hex }}
-                    title={preset.name}
+                    key={p.hex}
+                    onClick={() => setAccent(p.hex)}
+                    className={`h-7 w-7 rounded-full border border-black/10 transition-transform active:scale-95 flex items-center justify-center cursor-pointer ${
+                      accent === p.hex ? "ring-2 ring-[#0b61d9] ring-offset-1 scale-105" : ""
+                    }`}
+                    style={{ backgroundColor: p.hex }}
+                    title={p.name}
                   >
-                    {accent === preset.hex && (
+                    {accent === p.hex && (
                       <span className="h-1.5 w-1.5 rounded-full bg-white shadow-xs" />
                     )}
                   </button>
@@ -126,7 +144,7 @@ export default function ProductPlayground() {
                   type="color"
                   value={accent}
                   onChange={(e) => setAccent(e.target.value)}
-                  className="h-7 w-7 cursor-pointer rounded border-0"
+                  className="h-7 w-7 cursor-pointer rounded border-0 bg-transparent"
                 />
               </div>
             </div>
@@ -141,12 +159,13 @@ export default function ProductPlayground() {
                   <button
                     key={t.id}
                     onClick={() => setTheme(t.id)}
-                    className={`px-4 py-2.5 rounded-xl border text-xs font-bold text-center transition-product duration-hover ease-product ${
+                    className={`px-4 py-2.5 rounded-xl border text-xs font-bold text-center transition-product duration-hover ease-product cursor-pointer flex items-center justify-center gap-1.5 ${
                       theme === t.id
                         ? "border-[#0b61d9] bg-[#e9f1ff] text-[#0b61d9] translate-y-[-1px] shadow-sm"
                         : "border-[#e3ded1] bg-white text-[#6c7280] hover:border-[#0b61d9]/25 hover:text-[#173b71]"
                     }`}
                   >
+                    {t.id === "light" ? <Sun size={14} /> : <Moon size={14} />}
                     {t.label}
                   </button>
                 ))}
@@ -163,7 +182,7 @@ export default function ProductPlayground() {
                   <button
                     key={r.id}
                     onClick={() => setRadius(r.id)}
-                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold text-center transition-product duration-hover ease-product ${
+                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold text-center transition-product duration-hover ease-product cursor-pointer ${
                       radius === r.id
                         ? "border-[#0b61d9] bg-[#e9f1ff] text-[#0b61d9] translate-y-[-1px] shadow-sm"
                         : "border-[#e3ded1] bg-white text-[#6c7280] hover:border-[#0b61d9]/25 hover:text-[#173b71]"
@@ -195,66 +214,31 @@ export default function ProductPlayground() {
 
                 <div className="flex items-center gap-1.5 rounded-full border border-[#c6ffb1]/30 bg-[#c6ffb1]/10 px-2 py-0.5 text-[9px] font-bold text-[#c6ffb1]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#c6ffb1] animate-pulse"></span>
-                  Active
+                  Wall of Love ({preset.toUpperCase()})
                 </div>
               </div>
 
               {/* Live Preview Canvas container */}
               <div
-                className={`w-full p-8 md:p-12 transition-colors duration-card ease-product min-h-[400px] flex items-center justify-center overflow-x-hidden ${
+                className={`w-full p-6 md:p-8 transition-colors duration-card ease-product min-h-[420px] flex items-center justify-center overflow-x-hidden ${
                   theme === "dark" ? "bg-[#111111]" : "bg-[#fffdf8]"
                 }`}
               >
                 <div
-                  key={`${style}-${theme}-${radius}-${accent}`}
+                  key={`${preset}-${theme}-${radius}-${accent}`}
                   className="playground-preview w-full max-w-full overflow-hidden animate-modal-in"
                 >
-                  {style === "wall" && (
-                    <WallContent
-                      testimonials={SAMPLE_TESTIMONIALS.slice(0, 6)}
-                      layout="grid"
-                      theme={theme}
-                      showRatings={true}
-                      showBadge={false}
-                      maxCount={6}
-                      accent={accent}
-                      radius={radius}
-                    />
-                  )}
-
-                  {style === "carousel" && (
-                    <CarouselContent
-                      testimonials={SAMPLE_TESTIMONIALS}
-                      theme={theme}
-                      showRatings={true}
-                      showBadge={false}
-                      accent={accent}
-                      radius={radius}
-                    />
-                  )}
-
-                  {style === "marquee" && (
-                    <MarqueeContent
-                      testimonials={SAMPLE_TESTIMONIALS}
-                      theme={theme}
-                      showRatings={true}
-                      showBadge={false}
-                      accent={accent}
-                      radius={radius}
-                    />
-                  )}
-
-                  {style === "single" && (
-                    <SingleQuoteContent
-                      testimonial={SAMPLE_TESTIMONIALS[0]}
-                      theme={theme}
-                      showRatings={true}
-                      showBadge={false}
-                      accent={accent}
-                      radius={radius}
-                      layout="card"
-                    />
-                  )}
+                  <WallContent
+                    testimonials={SAMPLE_TESTIMONIALS.slice(0, 6)}
+                    layout="grid"
+                    theme={theme}
+                    showRatings={true}
+                    showBadge={false}
+                    maxCount={6}
+                    accent={accent}
+                    radius={radius}
+                    preset={preset}
+                  />
                 </div>
               </div>
 
