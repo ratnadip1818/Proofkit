@@ -94,10 +94,6 @@ export function WallLayout({
   ).filter(Boolean);
 
   let list = maxCount !== null ? testimonials.slice(0, maxCount) : testimonials;
-  if (isDesktopPreview && list.length < 9) {
-    const fillers = SAMPLE_TESTIMONIALS.slice(0, 9 - list.length);
-    list = [...list, ...fillers];
-  }
 
   // Filter list by selected tag
   const filteredList = selectedTag
