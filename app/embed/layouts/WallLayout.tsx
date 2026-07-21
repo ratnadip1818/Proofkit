@@ -131,32 +131,6 @@ export function WallLayout({
         }
       `}</style>
 
-      {/* Hero Header Section */}
-      <div style={{ maxWidth: "672px", margin: "0 auto 52px auto", textAlign: "center" }}>
-        <h2
-          style={{
-            fontSize: "clamp(30px, 4vw, 42px)",
-            fontWeight: 700,
-            letterSpacing: "-0.045em",
-            color: colors.name,
-            margin: "0 0 16px 0",
-            lineHeight: "1.2",
-          }}
-        >
-          {heading}
-        </h2>
-        <p
-          style={{
-            fontSize: "16px",
-            lineHeight: "1.6",
-            color: colors.role,
-            margin: 0,
-          }}
-        >
-          {subheading}
-        </p>
-      </div>
-
       {/* Dynamic Tag Filter Pills */}
       {allTags.length > 0 && (
         <div
