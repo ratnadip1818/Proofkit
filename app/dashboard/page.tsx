@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const [{ data: form }, { data: testimonials }] = await Promise.all([
     supabase
       .from("forms")
-      .select("id, slug")
+      .select("id, slug, custom_domain")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .limit(1)

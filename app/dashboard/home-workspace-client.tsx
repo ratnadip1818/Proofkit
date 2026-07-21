@@ -31,7 +31,7 @@ interface Testimonial {
 
 interface HomeWorkspaceClientProps {
   user: { id: string; email?: string | null };
-  form: { id: string; slug: string } | null;
+  form: { id: string; slug: string; custom_domain?: string | null } | null;
   testimonials: Testimonial[];
   profile: { full_name?: string | null } | null;
   appUrl: string;
@@ -57,7 +57,11 @@ export default function HomeWorkspaceClient({
   const approvedCount = testimonials.filter((t) => t.status === "approved").length;
   const pendingCount = testimonials.filter((t) => t.status === "pending").length;
   const hasForm = !!form;
-  const formUrl = hasForm ? `${appUrl}/c/${form.slug}` : `${appUrl}/c/demo`;
+  const formUrl = hasForm
+    ? form.custom_domain
+      ? `https://${form.custom_domain}`
+      : `${appUrl}/c/${form.slug}`
+    : `${appUrl}/c/demo`;
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(formUrl);
@@ -76,8 +80,7 @@ export default function HomeWorkspaceClient({
   const firstName = profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
   return (
-    <div className="max-w-[960px] mx-auto p-6 md:p-12">
-      <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
+    <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
       {/* 1. Header Greeting */}
       <div>
         <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em] leading-tight flex items-center space-x-2">
@@ -359,7 +362,6 @@ export default function HomeWorkspaceClient({
             ))}
           </div>
         )}
-      </div>
       </div>
     </div>
   );
