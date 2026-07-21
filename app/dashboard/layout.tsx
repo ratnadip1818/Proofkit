@@ -54,9 +54,7 @@ export default async function DashboardLayout({
       />
       {/* Offset: sidebar width 220px on md+, top bar height on mobile */}
       <main className="md:pl-[220px] pt-14 md:pt-0 min-h-screen bg-[#F7F6F3]">
-        <div className="max-w-[960px] mx-auto p-6 md:p-12">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );

@@ -76,7 +76,8 @@ export default function HomeWorkspaceClient({
   const firstName = profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
   return (
-    <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
+    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+      <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
       {/* 1. Header Greeting */}
       <div>
         <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em] leading-tight flex items-center space-x-2">
@@ -358,6 +359,7 @@ export default function HomeWorkspaceClient({
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
