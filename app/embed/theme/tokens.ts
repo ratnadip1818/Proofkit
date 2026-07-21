@@ -119,5 +119,18 @@ export function buildStyle(
     };
   }
 
+  // 3. Apply custom color overrides from searchParams if present
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const textColor = params.get("textColor");
+    const ratingColor = params.get("ratingColor");
+    if (textColor && textColor.startsWith("#")) {
+      colors = { ...colors, text: textColor, name: textColor };
+    }
+    if (ratingColor && ratingColor.startsWith("#")) {
+      colors = { ...colors, starOn: ratingColor };
+    }
+  }
+
   return { colors, radius: RADIUS_PX[radius] };
 }

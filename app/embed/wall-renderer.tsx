@@ -64,6 +64,8 @@ export default function WidgetRenderer({
   maxCount = null,
   accent,
   radius = "rounded",
+  showPhotos = true,
+  fallbackAvatar = "Placeholder",
 }: {
   type?: WidgetType;
   preset?: WidgetPresetId;
@@ -77,6 +79,8 @@ export default function WidgetRenderer({
   maxCount?: number | null;
   accent?: string;
   radius?: WidgetRadius;
+  showPhotos?: boolean;
+  fallbackAvatar?: string;
 }) {
   const layoutDef = getLayoutDefinition(type);
   const presetDef = getPresetDefinition(preset);
@@ -136,6 +140,8 @@ export default function WidgetRenderer({
       accent={accent}
       radius={radius}
       preset={presetDef.id}
+      showPhotos={showPhotos}
+      fallbackAvatar={fallbackAvatar}
     />
   );
 }

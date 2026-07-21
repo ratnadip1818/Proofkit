@@ -26,6 +26,8 @@ export interface WallLayoutProps {
   preset?: WidgetPresetId;
   heading?: string;
   subheading?: string;
+  showPhotos?: boolean;
+  fallbackAvatar?: string;
 }
 
 export function WallLayout({
@@ -40,6 +42,8 @@ export function WallLayout({
   preset = "base",
   heading = "Loved by the best teams",
   subheading = "Software companies and agencies rely on Blovi to turn happy customers into their best growth engine.",
+  showPhotos = true,
+  fallbackAvatar = "Placeholder",
 }: WallLayoutProps) {
   const isDesktopPreview = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("desktop") === "1";
   const presetDef = getPresetDefinition(preset);
@@ -217,6 +221,8 @@ export function WallLayout({
                   index={idx}
                   onReadMore={setActiveModalTestimonial}
                   surface={gallerySurfaces.length ? gallerySurfaces[idx % gallerySurfaces.length] : undefined}
+                  showPhotos={showPhotos}
+                  fallbackAvatar={fallbackAvatar}
                 />
               </div>
             ))}

@@ -15,6 +15,8 @@ export function TestimonialCard({
   index = 0,
   onReadMore,
   surface,
+  showPhotos = true,
+  fallbackAvatar = "Placeholder",
 }: {
   t: Testimonial;
   showRatings: boolean;
@@ -25,6 +27,8 @@ export function TestimonialCard({
   onReadMore?: (t: Testimonial) => void;
   /** Optional wall-only surface tint. Other layouts retain the selected theme surface. */
   surface?: string;
+  showPhotos?: boolean;
+  fallbackAvatar?: string;
 }) {
   const text = t.display_body ?? t.body_original;
   const isFeatured = Boolean((t as any).featured || text.length > 180 || index === 0);
@@ -118,7 +122,7 @@ export function TestimonialCard({
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "auto" }}>
-        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={44} source={t.source} />
+        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={44} source={t.source} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
         <div style={{ minWidth: 0 }}>
           <div
             style={{

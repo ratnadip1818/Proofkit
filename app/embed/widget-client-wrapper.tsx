@@ -20,6 +20,8 @@ interface WidgetConfig {
   radius: WidgetRadius;
   singleLayout: "card" | "minimal";
   showBadge: boolean;
+  showPhotos: boolean;
+  fallbackAvatar: string;
 }
 
 export default function WidgetClientWrapper({
@@ -43,6 +45,8 @@ export default function WidgetClientWrapper({
       radius: "rounded" as WidgetRadius,
       singleLayout: "card" as "card" | "minimal",
       showBadge: !isLifetime,
+      showPhotos: true,
+      fallbackAvatar: "Placeholder",
     };
 
     if (typeof window === "undefined") return defaultState;
@@ -77,6 +81,8 @@ export default function WidgetClientWrapper({
 
     const singleLayout = searchParams.get("layout") === "minimal" ? "minimal" : "card";
     const showBadge = !isLifetime || searchParams.get("badge") !== "false";
+    const showPhotos = searchParams.get("showPhotos") !== "false";
+    const fallbackAvatar = searchParams.get("fallbackAvatar") || "Placeholder";
 
     return {
       isDemo,
@@ -90,6 +96,8 @@ export default function WidgetClientWrapper({
       radius,
       singleLayout,
       showBadge,
+      showPhotos,
+      fallbackAvatar,
     };
   });
 
@@ -137,6 +145,8 @@ export default function WidgetClientWrapper({
     radius,
     singleLayout,
     showBadge,
+    showPhotos,
+    fallbackAvatar,
   } = config;
 
   // Free tier: Wall of Love only, capped at the most recent approved testimonials
@@ -165,6 +175,8 @@ export default function WidgetClientWrapper({
         maxCount={maxCount}
         accent={accent}
         radius={radius}
+        showPhotos={showPhotos}
+        fallbackAvatar={fallbackAvatar}
       />
 
       {capped && (

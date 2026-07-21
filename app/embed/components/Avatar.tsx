@@ -1,19 +1,33 @@
 import type { ThemeColors } from "../theme/types";
 import { BRAND_COLORS } from "../theme/brand";
 
+function getInitials(name: string) {
+  const parts = (name || "Anonymous").trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return (name || "A").slice(0, 2).toUpperCase();
+}
+
 export function Avatar({
   name,
   avatarUrl,
   colors,
   size = 40,
   source,
+  showPhotos = true,
+  fallbackAvatar = "Placeholder",
 }: {
   name: string;
   avatarUrl?: string | null;
   colors: ThemeColors;
   size?: number;
   source?: string | null;
+  showPhotos?: boolean;
+  fallbackAvatar?: string;
 }) {
+  if (!showPhotos) return null;
+
   const renderAvatarContent = () => {
     if (avatarUrl) {
       let optimizedUrl = avatarUrl;
@@ -38,6 +52,33 @@ export function Avatar({
             border: `1px solid ${colors.cardBorder}`,
           }}
         />
+      );
+    }
+
+    if (fallbackAvatar === "None") return null;
+
+    if (fallbackAvatar === "Initials") {
+      return (
+        <div
+          style={{
+            width: size,
+            height: size,
+            borderRadius: "50%",
+            background: colors.avatarBg || colors.accent || "#2563EB",
+            color: colors.avatarText || "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            fontWeight: 700,
+            fontSize: `${Math.round(size * 0.4)}px`,
+            border: `1px solid ${colors.cardBorder}`,
+            overflow: "hidden",
+            userSelect: "none",
+          }}
+        >
+          {getInitials(name)}
+        </div>
       );
     }
 
