@@ -65,7 +65,7 @@ export function TestimonialCard({
           <p
             style={{
               margin: 0,
-              fontSize: isFeatured ? "17px" : "15px",
+              fontSize: "15px",
               fontWeight: 400,
               lineHeight: "1.6",
               color: colors.text,
@@ -108,7 +108,7 @@ export function TestimonialCard({
         <p
           style={{
             margin: "0 0 24px 0",
-            fontSize: isFeatured ? "17px" : "15px",
+            fontSize: "15px",
             fontWeight: 400,
             lineHeight: "1.6",
             color: colors.text,
