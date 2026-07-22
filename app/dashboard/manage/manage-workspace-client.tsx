@@ -376,7 +376,7 @@ export default function ManageWorkspaceClient({
                         ))}
                       </div>
                       <p className="text-xs text-gray-600 line-clamp-2 max-w-md">
-                        "{review.display_body || review.body_original}"
+                        {review.display_body || review.body_original}
                       </p>
                     </div>
                   </td>
@@ -462,8 +462,8 @@ export default function ManageWorkspaceClient({
                   </span>
                 </div>
 
-                <p className="text-xs text-gray-700 leading-relaxed italic">
-                  "{review.display_body || review.body_original}"
+                <p className="text-xs text-gray-700 leading-relaxed not-italic">
+                  {review.display_body || review.body_original}
                 </p>
               </div>
 
