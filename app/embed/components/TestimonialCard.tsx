@@ -31,8 +31,8 @@ export function TestimonialCard({
   fallbackAvatar?: string;
 }) {
   const text = t.display_body ?? t.body_original;
-  const isFeatured = Boolean((t as any).featured || text.length > 180 || index === 0);
-  const threshold = isFeatured ? 260 : 160;
+  const isFeatured = Boolean((t as any).featured);
+  const threshold = 180;
   const shouldClamp = text.length > threshold;
   const isLightSurface = colors.cardBg === "#ffffff" || colors.cardBg === "#fffdfa";
 
@@ -41,11 +41,11 @@ export function TestimonialCard({
     background: (t as any).tint ?? surface ?? colors.cardBg,
     border: isLightSurface ? "1px solid rgba(0,0,0,0.04)" : `1px solid ${colors.cardBorder}`,
     borderRadius: `${Math.max(radius, 10)}px`,
-    padding: isFeatured ? "32px 32px" : "28px",
+    padding: "26px",
     display: "flex",
     flexDirection: "column",
     breakInside: "avoid",
-    marginBottom: "1.5rem",
+    marginBottom: "1.25rem",
     overflow: "hidden",
     boxShadow: isLightSurface ? "0 2px 12px rgba(0,0,0,0.03)" : SHADOWS.cardDark,
     boxSizing: "border-box",
@@ -55,23 +55,22 @@ export function TestimonialCard({
   return (
     <div className="blovi-card blovi-masonry-item" style={cardStyle}>
       {showRatings && t.rating !== null && (
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "16px" }}>
           <Stars rating={t.rating} colors={colors} />
         </div>
       )}
       
       {shouldClamp ? (
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, marginBottom: "32px" }}>
+        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, marginBottom: "24px" }}>
           <p
             style={{
               margin: 0,
-              fontSize: isFeatured ? "19px" : "15px",
-              fontWeight: isFeatured ? 500 : 400,
-              letterSpacing: isFeatured ? "-0.01em" : "normal",
+              fontSize: isFeatured ? "17px" : "15px",
+              fontWeight: 400,
               lineHeight: "1.6",
               color: colors.text,
               display: "-webkit-box",
-              WebkitLineClamp: isFeatured ? 6 : 4,
+              WebkitLineClamp: 4,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -108,10 +107,9 @@ export function TestimonialCard({
       ) : (
         <p
           style={{
-            margin: "0 0 32px 0",
-            fontSize: isFeatured ? "19px" : "15px",
-            fontWeight: isFeatured ? 500 : 400,
-            letterSpacing: isFeatured ? "-0.01em" : "normal",
+            margin: "0 0 24px 0",
+            fontSize: isFeatured ? "17px" : "15px",
+            fontWeight: 400,
             lineHeight: "1.6",
             color: colors.text,
             flexGrow: 1,
