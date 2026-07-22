@@ -76,7 +76,7 @@ export function TestimonialCard({
               textOverflow: "ellipsis",
             }}
           >
-            "{text}"
+            {text}
           </p>
           <button
             type="button"
@@ -115,30 +115,30 @@ export function TestimonialCard({
             flexGrow: 1,
           }}
         >
-          "{text}"
+          {text}
         </p>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "auto" }}>
-        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={44} source={t.source} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "auto" }}>
+        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
         <div style={{ minWidth: 0 }}>
           <div
             style={{
               margin: 0,
-              fontSize: "13px",
-              fontWeight: 500,
+              fontSize: "12.5px",
+              fontWeight: 600,
               color: colors.name,
               display: "flex",
               alignItems: "center",
               gap: "4px",
-              lineHeight: "1.375",
+              lineHeight: "1.3",
             }}
           >
             {t.author_name}
             <VerifiedBadge id={t.id} />
           </div>
           {t.author_role && (
-            <div style={{ margin: "2px 0 0", fontSize: "12px", color: colors.role, lineHeight: "1.375" }}>
+            <div style={{ margin: "1px 0 0", fontSize: "11.5px", color: colors.role, lineHeight: "1.3" }}>
               {t.author_role}
             </div>
           )}
