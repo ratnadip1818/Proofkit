@@ -174,10 +174,6 @@ export default function WidgetBuilder({
 
   const variationsList = [
     { id: "base", name: "Base", desc: "Clean modern card with soft borders and balanced spacing." },
-    { id: "editorial", name: "Editorial", desc: "Classic typography with magazine-style metadata and refined rules." },
-    { id: "modern", name: "Modern", desc: "High-contrast dynamic layout with vibrant primary accents and rounded pills." },
-    { id: "luxury", name: "Luxury", desc: "Sleek dark gold-trimmed borders and elegant high-end styling." },
-    { id: "minimal", name: "Minimal", desc: "Ultra-clean borderless presentation focusing purely on review text." },
   ];
 
   const layoutStylesList = [
