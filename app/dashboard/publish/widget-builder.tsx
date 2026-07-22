@@ -425,29 +425,6 @@ export default function WidgetBuilder({
 
       {/* RIGHT PANEL */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <div className="px-10 py-6 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest bg-white/50 px-3 py-1.5 rounded-full border border-gray-200/50 shadow-xs">
-            <Zap size={14} className="text-amber-500 fill-amber-500" />
-            Live Render Output (Wall · {preset.toUpperCase()})
-          </div>
-          <div className="flex gap-3">
-            <a
-              href={rawPreviewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-xs transition-all"
-            >
-              <ExternalLink size={16} className="text-gray-400" /> Open Raw
-            </a>
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold text-white shadow-xs transition-all cursor-pointer"
-            >
-              <Maximize2 size={16} /> Full Screen
-            </button>
-          </div>
-        </div>
 
         {/* Right Panel Main View: Live Iframe Preview */}
         <div className="flex-1 w-full h-full p-4 md:p-6 overflow-hidden flex flex-col">
