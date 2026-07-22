@@ -27,6 +27,7 @@ export async function approveTestimonial(id: string): Promise<void> {
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/manage");
+  revalidatePath("/dashboard/publish");
   revalidatePath("/embed/" + user.id);
   updateTag("widget-" + user.id);
 }
@@ -40,6 +41,7 @@ export async function hideTestimonial(id: string): Promise<void> {
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/manage");
+  revalidatePath("/dashboard/publish");
   revalidatePath("/embed/" + user.id);
   updateTag("widget-" + user.id);
 }
@@ -53,6 +55,7 @@ export async function deleteTestimonial(id: string): Promise<void> {
     .eq("user_id", user.id);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/manage");
+  revalidatePath("/dashboard/publish");
   revalidatePath("/embed/" + user.id);
   updateTag("widget-" + user.id);
 }

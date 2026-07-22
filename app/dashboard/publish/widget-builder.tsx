@@ -138,8 +138,9 @@ export default function WidgetBuilder({
 
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
   
-  // Live preview URL including all live color, photo, and avatar fallback parameters
-  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=wall&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&showBranding=${showBranding}&max=9&desktop=1`;
+  const testimonialsKey = testimonials.map((t) => t.id).join("-") || "none";
+  // Live preview URL including all live color, photo, avatar fallback parameters, and cache-busting version key
+  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=wall&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&showBranding=${showBranding}&max=9&desktop=1&v=${testimonialsKey}`;
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
