@@ -75,13 +75,16 @@ export async function submitTestimonial(
     };
   }
 
+  // Sanitize body text: strip any leading/trailing double or single quotes entered by the user
+  const sanitizedBody = input.body.trim().replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
+
   const { error: insertError } = await supabase.from("testimonials").insert({
     user_id: input.userId,
     form_id: input.formId,
     author_name: input.authorName,
     author_role: input.authorRole,
-    body_original: input.body,
-    display_body: input.body,
+    body_original: sanitizedBody,
+    display_body: sanitizedBody,
     rating: input.rating,
     consent: input.consent,
     avatar_url: input.avatarUrl,

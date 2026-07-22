@@ -30,7 +30,8 @@ export function TestimonialCard({
   showPhotos?: boolean;
   fallbackAvatar?: string;
 }) {
-  const text = t.display_body ?? t.body_original;
+  const rawText = t.display_body ?? t.body_original ?? "";
+  const text = rawText.replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
   const isFeatured = Boolean((t as any).featured);
   const threshold = 180;
   const shouldClamp = text.length > threshold;
