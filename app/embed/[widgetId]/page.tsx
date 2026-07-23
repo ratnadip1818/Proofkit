@@ -3,8 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { type Testimonial } from "../constants";
 import WidgetClientWrapper from "../widget-client-wrapper";
 
-// Cache the widget iframe at the edge for 12 hours (stale-while-revalidate is handled automatically by Next.js / Vercel CDN)
-export const revalidate = 43200;
+// Force dynamic rendering so newly approved testimonials show immediately across all embeds
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // Export generateStaticParams to convert this route into a statically generated / ISR route
 export async function generateStaticParams() {
