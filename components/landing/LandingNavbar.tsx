@@ -22,7 +22,7 @@ export default function LandingNavbar() {
   
   const shouldReduceMotion = useReducedMotion();
   const pathname = usePathname();
-  const lightNav = pathname === "/" && !scrolled;
+  const lightNav = false;
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 24);

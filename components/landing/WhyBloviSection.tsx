@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BadgeCheck, Mail, MessageCircle, Sparkles, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, Check, Mail, MessageCircle, Sparkles, Star } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 const rawSignals = [
@@ -90,7 +90,7 @@ export default function WhyBloviSection() {
                       <span className={`flex h-6 w-6 items-center justify-center rounded-lg ${signal.color}`}><Icon size={13} /></span>
                       <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#82796d]">{signal.source}</span>
                     </div>
-                    <p className="mt-3 text-[13px] font-medium leading-relaxed tracking-[-0.015em] text-[#4e4a43]">“{signal.message}”</p>
+                    <p className="mt-3 text-[13px] font-medium leading-relaxed tracking-[-0.015em] text-[#4e4a43]">{signal.message}</p>
                     <p className="mt-3 text-[10px] font-semibold text-[#9a9083]">{signal.author}</p>
                   </motion.article>
                 );
@@ -98,19 +98,56 @@ export default function WhyBloviSection() {
             </div>
           </motion.div>
 
+          {/* Animated Hand-Drawn Loopy Arrow Connector */}
           <motion.div
-            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.9 }}
+            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.55, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex min-h-[92px] items-center justify-center lg:min-h-0"
+            transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="relative flex min-h-[90px] flex-col items-center justify-center lg:min-h-0 py-4"
           >
-            <div className="hidden h-full w-px bg-gradient-to-b from-transparent via-[#2563EB]/25 to-transparent lg:block" />
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-[#2563EB]/15 bg-[#EFF6FF] text-[#2563EB] shadow-[0_10px_30px_rgba(37,99,235,0.12)]">
-              <Sparkles size={19} />
-              <span className="absolute -right-7 top-1/2 hidden h-px w-7 bg-[#2563EB]/30 lg:block" />
-              <span className="absolute -left-7 top-1/2 hidden h-px w-7 bg-[#2563EB]/30 lg:block" />
-            </div>
+            {/* Animated Swirling Loopy Arrow */}
+            <motion.div
+              animate={shouldReduceMotion ? {} : { y: [0, -5, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+              className="relative flex flex-col items-center justify-center gap-1"
+            >
+              <svg
+                width="110"
+                height="65"
+                viewBox="0 0 110 65"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-24 h-14 text-[#2563EB] drop-shadow-[0_4px_12px_rgba(37,99,235,0.25)]"
+              >
+                {/* Hand-drawn swirl path with loop */}
+                <motion.path
+                  d="M 6 42 C 22 14, 42 8, 46 28 C 49 44, 34 50, 32 34 C 30 16, 56 18, 72 30 C 82 37, 92 34, 101 32"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{ pathLength: 0 }}
+                  whileInView={{ pathLength: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.1, ease: "easeInOut", delay: 0.2 }}
+                />
+                {/* Arrowhead */}
+                <motion.path
+                  d="M 92 24 L 102 32 L 93 40"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 1.2 }}
+                />
+              </svg>
+            </motion.div>
           </motion.div>
 
           <motion.div
@@ -118,44 +155,81 @@ export default function WhyBloviSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            className="relative min-h-[470px] overflow-hidden rounded-[30px] bg-[#2563EB] p-5 text-white shadow-[0_24px_55px_rgba(37,99,235,0.2)] md:p-7"
+            className="relative flex flex-col justify-between min-h-[505px] overflow-hidden rounded-[30px] bg-[#2563EB] p-7 text-white shadow-[0_24px_55px_rgba(37,99,235,0.2)] md:p-8"
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_77%_20%,rgba(198,255,177,.24),transparent_25%),radial-gradient(circle_at_16%_92%,rgba(118,201,255,.28),transparent_31%)]" />
+            
+            {/* Top Title Bar */}
             <div className="relative flex items-start justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/60">With Blovi</p>
-                <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.04em]">A living library of trust.</h3>
+                <h3 className="mt-1.5 text-[22px] font-semibold tracking-[-0.04em]">A living library of trust.</h3>
               </div>
               <span className="rounded-full bg-[#c6ffb1] px-2.5 py-1 text-[10px] font-bold text-[#2563EB]">Curated</span>
             </div>
 
+            {/* Inner Content Stack */}
             <motion.div
               initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="relative mt-7 rounded-[22px] border border-white/55 bg-[#fffdf8] p-4 text-[#173b71] shadow-[0_18px_42px_rgba(1,34,98,0.24)]"
+              className="my-auto py-3 flex flex-col items-center gap-6 w-full"
             >
-              <div className="flex items-center justify-between border-b border-[#dfe7f1] pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#2563EB] text-sm font-bold text-white">b</span>
-                  <div><p className="text-[11px] font-bold leading-none">Blovi proof library</p><p className="mt-1 text-[9px] text-[#7083a5]">Ready to publish</p></div>
+              {/* Actual Blovi Review Card (With Side Margins & Real Tick) */}
+              <div className="w-full max-w-[84%] md:max-w-[82%] rounded-2xl bg-white p-5 text-gray-900 shadow-xl border border-gray-100/90">
+                {/* 5 Stars */}
+                <div className="flex gap-1 text-amber-400 mb-2.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
-                <BadgeCheck size={17} className="text-[#269a64]" />
+
+                {/* Review Body */}
+                <p className="text-[13.5px] font-normal leading-relaxed text-gray-700">
+                  Super clean UI and surprisingly easy to use. Exactly what I needed.
+                </p>
+
+                {/* Author Info with Blovi Real Verified Tick */}
+                <div className="mt-3.5 flex items-center gap-2.5 pt-2.5 border-t border-gray-100">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-700">
+                    M
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[13px] font-bold text-gray-900">Michael</span>
+                    <BadgeCheck size={16} className="text-[#2563EB] fill-blue-100" strokeWidth={2.2} />
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-4 rounded-2xl bg-[#edf8e7] p-4">
-                <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.12em] text-[#5d846d]"><span>Selected testimonial</span><span>5.0 ★</span></div>
-                <blockquote className="mt-3 text-[15px] font-semibold leading-snug tracking-[-0.025em]">“It feels like the kindest things our customers say finally have a home.”</blockquote>
-                <div className="mt-4 flex items-center gap-2 border-t border-[#d7ead2] pt-3"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f7b8a5] text-[10px] font-bold text-[#804635]">MC</span><div><p className="text-[10px] font-bold">Maya Chen</p><p className="mt-0.5 text-[9px] text-[#668070]">Founder, Maker House</p></div><span className="ml-auto rounded-full bg-white px-2 py-1 text-[9px] font-bold text-[#2876d6]">Verified</span></div>
-              </div>
+              {/* Stepper Progress Bar (Pixel-Perfect SVG Line, Dots, and Text Alignment) */}
+              <div className="w-full max-w-[260px] mx-auto text-white">
+                <div className="relative flex justify-center">
+                  <svg width="240" height="42" viewBox="0 0 240 42" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-11">
+                    {/* Continuous Line Connecting Dot 1 to Dot 3 */}
+                    <line x1="20" y1="12" x2="220" y2="12" stroke="#c6ffb1" strokeWidth="2.5" strokeLinecap="round" />
 
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {["Collect", "Curate", "Publish"].map((step, index) => <div key={step} className="rounded-xl border border-[#e0e9f2] px-2 py-2"><p className="text-[9px] text-[#8291aa]">0{index + 1}</p><p className="mt-1 text-[10px] font-bold">{step}</p></div>)}
+                    {/* Step 1 Dot: Collect (x=20, y=12) */}
+                    <circle cx="20" cy="12" r="7.5" fill="white" />
+                    <circle cx="20" cy="12" r="3.5" fill="#2563EB" />
+                    <text x="20" y="36" textAnchor="middle" fill="rgba(255,255,255,0.9)" fontSize="10.5" fontWeight="500" className="font-sans">Collect</text>
+
+                    {/* Step 2 Dot: Curate (x=120, y=12) */}
+                    <circle cx="120" cy="12" r="7.5" fill="white" />
+                    <circle cx="120" cy="12" r="3.5" fill="#2563EB" />
+                    <text x="120" y="36" textAnchor="middle" fill="rgba(255,255,255,0.9)" fontSize="10.5" fontWeight="500" className="font-sans">Curate</text>
+
+                    {/* Step 3 Dot: Publish (x=220, y=12) */}
+                    <circle cx="220" cy="12" r="7.5" fill="#c6ffb1" />
+                    <circle cx="220" cy="12" r="3.5" fill="#2563EB" />
+                    <text x="220" y="36" textAnchor="middle" fill="#c6ffb1" fontSize="10.5" fontWeight="700" className="font-sans">Publish</text>
+                  </svg>
+                </div>
               </div>
             </motion.div>
 
-            <a href="#how-it-works" className="relative mt-5 inline-flex items-center gap-2 text-[12px] font-semibold text-[#c6ffb1] transition hover:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            {/* Bottom Link */}
+            <a href="#how-it-works" className="relative pt-1 inline-flex items-center gap-2 text-[12px] font-semibold text-[#c6ffb1] transition hover:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
               See the full workflow <ArrowRight size={14} />
             </a>
           </motion.div>
