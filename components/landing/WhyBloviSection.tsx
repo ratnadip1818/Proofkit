@@ -168,64 +168,21 @@ export default function WhyBloviSection() {
               <span className="rounded-full bg-[#c6ffb1] px-2.5 py-1 text-[10px] font-bold text-[#2563EB]">Curated</span>
             </div>
 
-            {/* Inner Content Stack */}
+            {/* Inner Content Stack (Emotional Founder Copy - Option 8) */}
             <motion.div
               initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="my-auto py-3 flex flex-col items-center gap-6 w-full"
+              className="my-auto py-8 md:py-12 px-2 text-left flex flex-col justify-center gap-4 w-full"
             >
-              {/* Actual Blovi Review Card (With Side Margins & Real Tick) */}
-              <div className="w-full max-w-[84%] md:max-w-[82%] rounded-2xl bg-white p-5 text-gray-900 shadow-xl border border-gray-100/90">
-                {/* 5 Stars */}
-                <div className="flex gap-1 text-amber-400 mb-2.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-
-                {/* Review Body */}
-                <p className="text-[13.5px] font-normal leading-relaxed text-gray-700">
-                  Super clean UI and surprisingly easy to use. Exactly what I needed.
-                </p>
-
-                {/* Author Info with Blovi Real Verified Tick */}
-                <div className="mt-3.5 flex items-center gap-2.5 pt-2.5 border-t border-gray-100">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-700">
-                    M
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[13px] font-bold text-gray-900">Michael</span>
-                    <BadgeCheck size={16} className="text-[#2563EB] fill-blue-100" strokeWidth={2.2} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Stepper Progress Bar (Pixel-Perfect SVG Line, Dots, and Text Alignment) */}
-              <div className="w-full max-w-[260px] mx-auto text-white">
-                <div className="relative flex justify-center">
-                  <svg width="240" height="42" viewBox="0 0 240 42" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-11">
-                    {/* Continuous Line Connecting Dot 1 to Dot 3 */}
-                    <line x1="20" y1="12" x2="220" y2="12" stroke="#c6ffb1" strokeWidth="2.5" strokeLinecap="round" />
-
-                    {/* Step 1 Dot: Collect (x=20, y=12) */}
-                    <circle cx="20" cy="12" r="7.5" fill="white" />
-                    <circle cx="20" cy="12" r="3.5" fill="#2563EB" />
-                    <text x="20" y="36" textAnchor="middle" fill="rgba(255,255,255,0.9)" fontSize="10.5" fontWeight="500" className="font-sans">Collect</text>
-
-                    {/* Step 2 Dot: Curate (x=120, y=12) */}
-                    <circle cx="120" cy="12" r="7.5" fill="white" />
-                    <circle cx="120" cy="12" r="3.5" fill="#2563EB" />
-                    <text x="120" y="36" textAnchor="middle" fill="rgba(255,255,255,0.9)" fontSize="10.5" fontWeight="500" className="font-sans">Curate</text>
-
-                    {/* Step 3 Dot: Publish (x=220, y=12) */}
-                    <circle cx="220" cy="12" r="7.5" fill="#c6ffb1" />
-                    <circle cx="220" cy="12" r="3.5" fill="#2563EB" />
-                    <text x="220" y="36" textAnchor="middle" fill="#c6ffb1" fontSize="10.5" fontWeight="700" className="font-sans">Publish</text>
-                  </svg>
-                </div>
-              </div>
+              <h3 className="text-[28px] sm:text-[34px] md:text-[38px] font-semibold leading-[1.1] tracking-[-0.04em] text-white">
+                You earned their trust. <br className="hidden sm:inline" />
+                Now let the world see it.
+              </h3>
+              <p className="text-[15px] md:text-[17px] font-normal leading-relaxed text-white/85 max-w-[460px]">
+                Building trust takes years of hard work. Blovi makes that trust visible in seconds by showcasing your best customer reviews right on your homepage.
+              </p>
             </motion.div>
 
             {/* Bottom Link */}

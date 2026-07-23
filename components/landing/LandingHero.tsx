@@ -34,7 +34,7 @@ export default function LandingHero() {
               {[
                 "Collect testimonials",
                 "Manage them",
-                "Showcase anywhere on site, emails",
+                "Showcase on your website",
               ].map((bullet) => (
                 <div key={bullet} className="flex items-center gap-3">
                   <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">

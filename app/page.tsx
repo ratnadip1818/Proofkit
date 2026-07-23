@@ -3,11 +3,8 @@ import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingHero from "@/components/landing/LandingHero";
 import WhyBloviSection from "@/components/landing/WhyBloviSection";
-import WhyFoundersChoose from "@/components/landing/WhyFoundersChoose";
 import ProductPlayground from "@/components/landing/ProductPlayground";
 import HowItWorksStacked from "@/components/landing/HowItWorksStacked";
-import PricingSection from "@/components/landing/PricingSection";
-import FAQSection from "@/components/landing/FAQSection";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -29,11 +26,8 @@ export default async function LandingPage({
         <main className="flex w-full flex-1 flex-col">
           <LandingHero />
           <WhyBloviSection />
-          <WhyFoundersChoose />
           <ProductPlayground />
           <HowItWorksStacked />
-          <PricingSection />
-          <FAQSection />
           <FinalCTASection />
           <LandingFooter />
         </main>

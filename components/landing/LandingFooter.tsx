@@ -18,25 +18,7 @@ const LEGAL_LINKS = [
 export default function LandingFooter() {
   return (
     <footer className="relative w-full overflow-hidden bg-[#12110F] select-none border-t border-white/5" role="contentinfo">
-      <div className="mx-auto w-full max-w-[1100px] px-5 py-20 md:px-10">
-        
-        {/* Understated Closing CTA */}
-        <div className="border-b border-white/5 pb-12 mb-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div>
-            <h3 className="text-lg font-bold text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
-              Ready to start building trust?
-            </h3>
-            <p className="text-xs text-[#9CA3AF] mt-1.5">
-              Help your next customer trust your business.
-            </p>
-          </div>
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center rounded-xl bg-[#2563EB] px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-product duration-button ease-product hover:bg-[#1d4ed8] hover:translate-y-[-1px] shrink-0 self-start sm:self-center"
-          >
-            Start Free
-          </Link>
-        </div>
+      <div className="mx-auto w-full max-w-[1100px] px-5 py-16 md:px-10">
 
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="space-y-4">

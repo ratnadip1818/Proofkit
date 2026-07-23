@@ -33,7 +33,7 @@ export default function FinalCTASection() {
         </Reveal>
 
         <Reveal delay={0.14}>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-10 flex flex-col items-center justify-center">
             <Link
               href="/signup"
               className="group flex items-center gap-2 rounded-full bg-[#2563EB] px-8 py-4 text-sm font-bold text-white shadow-xs transition-product duration-button ease-product hover:bg-[#1d4ed8] hover:translate-y-[-1px] hover:shadow-md"
@@ -41,17 +41,11 @@ export default function FinalCTASection() {
               Start Free
               <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <Link
-              href="#playground"
-              className="flex items-center rounded-full border border-[#ECE7E0] bg-white px-8 py-4 text-sm font-bold text-[#1A1A1A] transition-product duration-button ease-product hover:translate-y-[-1px] hover:shadow-md"
-            >
-              View Live Demo
-            </Link>
           </div>
         </Reveal>
 
         <Reveal delay={0.18}>
-          <p className="mt-6 text-[10px] text-[#8A8A8A] font-semibold uppercase tracking-wider">
+          <p className="mt-4 text-[8px] text-[#9AA0A6] font-medium uppercase tracking-widest opacity-60">
             No credit card required to get started.
           </p>
         </Reveal>
