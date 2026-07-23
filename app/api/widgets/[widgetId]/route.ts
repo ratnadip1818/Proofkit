@@ -28,9 +28,9 @@ export async function GET(
     headers: {
       "Access-Control-Allow-Origin": "*", // Allows embedding on any client website
       "Access-Control-Allow-Methods": "GET",
-      // Instant updates: Disable stale CDN caching
-      "Cache-Control": "no-store, max-age=0, must-revalidate",
-      "CDN-Cache-Control": "no-store, max-age=0, must-revalidate",
+      // Cache-Control: Cache at edge for 1 hour, stale-while-revalidate for 60 seconds
+      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=60",
+      "CDN-Cache-Control": "public, s-maxage=3600, stale-while-revalidate=60",
     },
   });
 }
