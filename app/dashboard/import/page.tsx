@@ -17,19 +17,19 @@ export default async function ImportPage() {
 
   return (
     <div className="max-w-[960px] mx-auto p-6 md:p-12">
-      <div className="mb-8">
-        <h1
-          className="text-2xl font-bold tracking-tight text-[#1A1A1A]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Import Testimonials
-        </h1>
-        <p className="mt-1 text-sm text-[#787774]">
-          Import reviews from Twitter/X, Product Hunt, LinkedIn, or bulk import via CSV.
-        </p>
-      </div>
+      <div className="w-full py-8 animate-fade-in font-sans text-ink">
+        {/* Page Header */}
+        <div className="pb-6 border-b border-hairline mb-8">
+          <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
+            <span>Import Testimonials</span>
+          </h1>
+          <p className="text-ink-secondary text-xs mt-1 leading-relaxed">
+            Import reviews from Twitter/X, Product Hunt, LinkedIn, or bulk import via CSV.
+          </p>
+        </div>
 
-      <ImportPanel />
+        <ImportPanel />
+      </div>
     </div>
   );
 }

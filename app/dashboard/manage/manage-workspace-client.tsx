@@ -166,7 +166,7 @@ export default function ManageWorkspaceClient({
   return (
     <div className="w-full py-8 animate-fade-in font-sans relative min-h-[calc(100vh-64px)] select-none text-ink">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-hairline mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-hairline mb-8 gap-4">
         <div>
           <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
             <span>Manage Testimonials</span>

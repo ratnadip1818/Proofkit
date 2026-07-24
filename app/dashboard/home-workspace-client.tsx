@@ -80,14 +80,14 @@ export default function HomeWorkspaceClient({
   const firstName = profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
   return (
-    <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
+    <div className="w-full py-8 animate-fade-in font-sans text-ink space-y-8">
       {/* 1. Header Greeting */}
-      <div>
-        <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em] leading-tight flex items-center space-x-2">
+      <div className="pb-6 border-b border-hairline mb-8">
+        <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
           <span>{greeting}, {firstName}</span>
           <span>👋</span>
         </h1>
-        <p className="text-[#787774] text-sm mt-1 leading-relaxed">
+        <p className="text-ink-secondary text-xs mt-1 leading-relaxed">
           Let's publish your first customer story and build trust with dynamic social proof widgets.
         </p>
       </div>
