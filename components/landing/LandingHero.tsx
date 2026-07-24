@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Play, Check } from "lucide-react";
+import { ArrowUpRight, Play, Check, Star } from "lucide-react";
 
 export default function LandingHero() {
   return (
@@ -47,7 +47,7 @@ export default function LandingHero() {
               ))}
             </div>
 
-            {/* CTA Buttons (Unchanged) */}
+            {/* CTA Buttons */}
             <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <Link
                 href="/signup"
@@ -68,6 +68,32 @@ export default function LandingHero() {
                 </span>
                 See how it works
               </a>
+            </div>
+
+            {/* AppSumo Featured Partner Trust Bar */}
+            <div className="mt-9 flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-6 border-t border-gray-100">
+              <a
+                href="https://appsumo.com/products/blovi?utm_source=partner-badge&utm_medium=referral&utm_campaign=partner-255021"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-transform duration-200 hover:scale-[1.02] shrink-0"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://appsumo2ppnuxt.b-cdn.net/img/as-badge-featured.2433f63.png"
+                  alt="AppSumo badge"
+                  className="h-10 w-auto object-contain"
+                />
+              </a>
+
+              <div className="hidden sm:block h-7 w-px bg-gray-200" />
+
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <p className="text-xs font-semibold text-gray-700">
+                  <span className="font-bold text-gray-900">Official AppSumo Select Partner</span> &mdash; Lifetime Deal Available
+                </p>
+              </div>
             </div>
 
           </div>

@@ -3,7 +3,7 @@ import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingHero from "@/components/landing/LandingHero";
 import WhyBloviSection from "@/components/landing/WhyBloviSection";
-import ProductPlayground from "@/components/landing/ProductPlayground";
+import TrustManifestoSection from "@/components/landing/TrustManifestoSection";
 import HowItWorksStacked from "@/components/landing/HowItWorksStacked";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
@@ -26,7 +26,7 @@ export default async function LandingPage({
         <main className="flex w-full flex-1 flex-col">
           <LandingHero />
           <WhyBloviSection />
-          <ProductPlayground />
+          <TrustManifestoSection />
           <HowItWorksStacked />
           <FinalCTASection />
           <LandingFooter />

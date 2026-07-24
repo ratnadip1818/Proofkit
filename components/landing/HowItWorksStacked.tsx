@@ -2,14 +2,31 @@
 
 import React, { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Copy, Check, Star } from "lucide-react";
+import { Copy, Check, Sliders, Inbox, Filter, Code, Sparkles, ShieldCheck, Globe, Layers } from "lucide-react";
 
 const STEPS = [
   {
     stepNumber: "01",
     subhead: "Step 01 — Collection",
-    title: "Collect",
-    body: "Share your form link with customers. They write a review, give a rating, done.",
+    title: "Effortlessly collect the social proof you need",
+    body: "Share a clean, branded form link or import praise your customers already shared.",
+    features: [
+      {
+        icon: Sliders,
+        title: "Customizable Forms",
+        desc: "Collect star ratings, quotes, and buyer photos with custom colors."
+      },
+      {
+        icon: Inbox,
+        title: "Multi-Platform Import",
+        desc: "Pull existing testimonials from Twitter/X, Google Reviews, and LinkedIn."
+      },
+      {
+        icon: Globe,
+        title: "Custom Domain",
+        desc: "Share collection forms on your own branded domain for a professional look."
+      }
+    ],
     imageSrc: "/images/step-collect-form.png",
     imageAlt: "Blovi Testimonial Collection Form",
     imageOnLeft: false,
@@ -18,8 +35,20 @@ const STEPS = [
   {
     stepNumber: "02",
     subhead: "Step 02 — Management",
-    title: "Manage",
-    body: "All reviews land in one dashboard. Pick the best ones to showcase.",
+    title: "Manage the customer proof in 1 dashboard",
+    body: "All customer feedback lands in one calm workspace so you can select your best proof.",
+    features: [
+      {
+        icon: Filter,
+        title: "Centralized Workspace",
+        desc: "Organize quotes with status tags, ratings, and customer handles."
+      },
+      {
+        icon: ShieldCheck,
+        title: "Smart Verification",
+        desc: "Tag verified buyers and display authenticity badges automatically."
+      }
+    ],
     imageSrc: "/images/step-manage-table.png",
     imageAlt: "Blovi Testimonials Management Dashboard",
     imageOnLeft: true,
@@ -28,8 +57,20 @@ const STEPS = [
   {
     stepNumber: "03",
     subhead: "Step 03 — Publishing",
-    title: "Showcase",
-    body: "Paste one line of code on your site. Your Wall of Love goes live instantly.",
+    title: "Showcase proof anywhere & boost conversions",
+    body: "Showcase your customer proof on any website with one simple line of code.",
+    features: [
+      {
+        icon: Layers,
+        title: "Wall of Love Widgets",
+        desc: "Display responsive testimonial grids that match your brand perfectly."
+      },
+      {
+        icon: Globe,
+        title: "No-Code Integration",
+        desc: "Paste 1 snippet into Framer, Webflow, Shopify, or Next.js in seconds."
+      }
+    ],
     imageSrc: "",
     imageAlt: "Blovi Custom Showcase Visual",
     imageOnLeft: false,
@@ -75,7 +116,7 @@ export default function HowItWorksStacked({ titleAs: TitleTag = "h2" }: { titleA
         </motion.div>
 
         {/* 3 Alternating Step Rows */}
-        <div className="flex flex-col gap-24 md:gap-32">
+        <div className="flex flex-col gap-24 md:gap-36">
           {STEPS.map((step) => (
             <motion.div
               key={step.stepNumber}
@@ -83,56 +124,96 @@ export default function HowItWorksStacked({ titleAs: TitleTag = "h2" }: { titleA
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="grid gap-6 sm:gap-8 lg:grid-cols-12 lg:items-center lg:gap-8"
+              className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12"
             >
-              {/* Text Left / Image Right */}
+              {/* Text Left / Visual Right */}
               {!step.imageOnLeft ? (
                 <>
-                  <div className="lg:col-span-5 flex flex-col justify-center gap-4 lg:ml-auto lg:mr-0 max-w-[440px]">
-                    <p
-                      className="text-[17px] font-normal italic text-[#2563EB]"
-                      style={{ fontFamily: "var(--font-serif-accent)" }}
-                    >
-                      {step.subhead}
-                    </p>
-                    <h3 className="text-[36px] sm:text-[44px] md:text-[48px] font-bold tracking-[-0.04em] leading-[1.05] text-[#173b71]">
-                      {step.title}
-                    </h3>
-                    <p className="text-[16px] md:text-[18px] font-normal leading-relaxed text-[#587091] max-w-[460px]">
-                      {step.body}
-                    </p>
+                  {/* Left Column: Rich Senja-Style Typography & Micro-Features */}
+                  <div className="lg:col-span-6 flex flex-col justify-center gap-6 lg:ml-auto lg:mr-0 max-w-[500px]">
+                    <div>
+                      <p
+                        className="text-[16px] font-medium italic text-[#2563EB] mb-2"
+                        style={{ fontFamily: "var(--font-serif-accent)" }}
+                      >
+                        {step.subhead}
+                      </p>
+                      <h3
+                        className="text-[28px] sm:text-[36px] md:text-[40px] font-extrabold tracking-[-0.035em] leading-[1.1] text-[#173b71]"
+                        style={{ fontFamily: "var(--font-display)" }}
+                      >
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 text-[15px] leading-relaxed text-[#587091]">
+                        {step.body}
+                      </p>
+                    </div>
+
+                    {/* Senja-Style Micro Feature Grid */}
+                    <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-200/70">
+                      {step.features.map((feat, i) => {
+                        const Icon = feat.icon;
+                        return (
+                          <div key={i} className="space-y-1.5">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-50 text-[#2563EB] border border-blue-100/80 shadow-2xs">
+                              <Icon size={17} />
+                            </div>
+                            <h4 className="text-xs font-bold text-slate-900">{feat.title}</h4>
+                            <p className="text-[11.5px] leading-relaxed text-slate-500">{feat.desc}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="lg:col-span-7">
-                    {step.frameType === "custom" ? (
-                      <ShowcaseVisual />
-                    ) : (
-                      <ScreenshotFrame step={step} />
-                    )}
+
+                  {/* Right Column: Uniform Background Canvas Card Container */}
+                  <div className="lg:col-span-6">
+                    <UniformCanvasFrame step={step} />
                   </div>
                 </>
               ) : (
-                /* Image Left / Text Right (Alternating) */
+                /* Visual Left / Text Right (Alternating) */
                 <>
-                  <div className="lg:col-span-7 order-2 lg:order-1">
-                    {step.frameType === "custom" ? (
-                      <ShowcaseVisual />
-                    ) : (
-                      <ScreenshotFrame step={step} />
-                    )}
+                  {/* Left Column: Uniform Background Canvas Card Container */}
+                  <div className="lg:col-span-6 order-2 lg:order-1">
+                    <UniformCanvasFrame step={step} />
                   </div>
-                  <div className="lg:col-span-5 order-1 lg:order-2 flex flex-col justify-center gap-4 lg:mr-auto lg:ml-0 max-w-[440px]">
-                    <p
-                      className="text-[17px] font-normal italic text-[#2563EB]"
-                      style={{ fontFamily: "var(--font-serif-accent)" }}
-                    >
-                      {step.subhead}
-                    </p>
-                    <h3 className="text-[36px] sm:text-[44px] md:text-[48px] font-bold tracking-[-0.04em] leading-[1.05] text-[#173b71]">
-                      {step.title}
-                    </h3>
-                    <p className="text-[16px] md:text-[18px] font-normal leading-relaxed text-[#587091] max-w-[460px]">
-                      {step.body}
-                    </p>
+
+                  {/* Right Column: Rich Senja-Style Typography & Micro-Features */}
+                  <div className="lg:col-span-6 order-1 lg:order-2 flex flex-col justify-center gap-6 lg:mr-auto lg:ml-0 max-w-[500px]">
+                    <div>
+                      <p
+                        className="text-[16px] font-medium italic text-[#2563EB] mb-2"
+                        style={{ fontFamily: "var(--font-serif-accent)" }}
+                      >
+                        {step.subhead}
+                      </p>
+                      <h3
+                        className="text-[28px] sm:text-[36px] md:text-[40px] font-extrabold tracking-[-0.035em] leading-[1.1] text-[#173b71]"
+                        style={{ fontFamily: "var(--font-display)" }}
+                      >
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 text-[15px] leading-relaxed text-[#587091]">
+                        {step.body}
+                      </p>
+                    </div>
+
+                    {/* Senja-Style Micro Feature Grid */}
+                    <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-200/70">
+                      {step.features.map((feat, i) => {
+                        const Icon = feat.icon;
+                        return (
+                          <div key={i} className="space-y-1.5">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-50 text-[#2563EB] border border-blue-100/80 shadow-2xs">
+                              <Icon size={17} />
+                            </div>
+                            <h4 className="text-xs font-bold text-slate-900">{feat.title}</h4>
+                            <p className="text-[11.5px] leading-relaxed text-slate-500">{feat.desc}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </>
               )}
@@ -144,8 +225,59 @@ export default function HowItWorksStacked({ titleAs: TitleTag = "h2" }: { titleA
   );
 }
 
-{/* Custom Showcase Visual Component for Step 3 */}
-function ShowcaseVisual() {
+{/* UNIFORM BACKGROUND CANVAS FRAME CONTAINER FOR PERFECT 100% VISUAL CONSISTENCY */}
+function UniformCanvasFrame({ step }: { step: typeof STEPS[0] }) {
+  return (
+    <div className="relative w-full max-w-[520px] mx-auto">
+      {/* Soft Ambient Glow */}
+      <div className="pointer-events-none absolute -inset-4 rounded-[36px] bg-gradient-to-tr from-[#2563EB]/10 to-transparent blur-2xl opacity-60" />
+
+      {/* Uniform Rectangle Background Card Frame */}
+      <div className="relative w-full rounded-[30px] border border-slate-200/90 bg-[#FAF8F5] p-4 sm:p-6 shadow-[0_16px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_24px_55px_rgba(0,0,0,0.1)] hover:border-blue-300">
+        
+        {step.frameType === "custom" ? (
+          <ShowcaseCodeBox />
+        ) : step.frameType === "browser" ? (
+          /* Step 2 Browser Dashboard Mockup Frame (Borderless, seamless like Step 3) */
+          <div className="w-full rounded-[20px] bg-white overflow-hidden">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 bg-gray-50/80 px-3.5 py-2">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
+                <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
+                <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
+              </div>
+              <div className="w-36 truncate rounded-md bg-white/80 px-2.5 py-0.5 text-center font-sans text-[9.5px] font-medium text-gray-400 select-all">
+                app.blovi.space/manage
+              </div>
+              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wider">Dashboard</span>
+            </div>
+
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={step.imageSrc}
+              alt={step.imageAlt}
+              className="w-full h-auto object-contain block"
+            />
+          </div>
+        ) : (
+          /* Step 1 Collection Form (Direct, no inner container) */
+          <div className="flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={step.imageSrc}
+              alt={step.imageAlt}
+              className="w-full max-w-[340px] h-auto object-contain block"
+            />
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+{/* Showcase Embed Code Box Component */}
+function ShowcaseCodeBox() {
   const [copied, setCopied] = useState(false);
 
   const exactEmbedCode = `<!-- Blovi Widget: WALL OF LOVE (BASE PRESET) -->
@@ -176,131 +308,73 @@ function ShowcaseVisual() {
   };
 
   return (
-    <div className="relative w-full max-w-[460px] mx-auto">
-      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#0f172a] text-white shadow-[0_20px_50px_rgba(0,0,0,0.14)]">
-        {/* Top Header Bar */}
-        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-3">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
-          </div>
-          <span className="font-mono text-[10.5px] font-semibold text-slate-400">
-            Embed Code Snippet
-          </span>
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-lg bg-[#2563EB] px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-blue-600 active:scale-95 cursor-pointer shadow-xs"
-          >
-            {copied ? <Check size={12} /> : <Copy size={12} />}
-            <span>{copied ? "Copied!" : "Copy Code"}</span>
-          </button>
+    <div className="w-full overflow-hidden rounded-[22px] border border-slate-800 bg-[#0f172a] text-white shadow-md">
+      {/* Top Header Bar */}
+      <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-3.5 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
+          <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
+          <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
         </div>
-
-        {/* Full Code Display */}
-        <div className="p-4 font-mono text-[11px] leading-relaxed text-blue-100 select-all overflow-x-auto">
-          <span className="text-slate-500">&lt;!-- Blovi Widget: WALL OF LOVE (BASE PRESET) --&gt;</span>
-          <br />
-          <span className="text-pink-400">&lt;div</span>{" "}
-          <span className="text-amber-300">id</span>=
-          <span className="text-emerald-300">&quot;proofkit-widget&quot;</span>{" "}
-          <span className="text-amber-300">data-widget-id</span>=
-          <span className="text-emerald-300">&quot;6cfa32bf-191c-4507-8ddd-542912b35993&quot;</span>
-          <span className="text-pink-400">&gt;&lt;/div&gt;</span>
-          <br />
-          <span className="text-pink-400">&lt;script</span>
-          <br />
-          {"  "}<span className="text-amber-300">src</span>=<span className="text-emerald-300">&quot;https://www.blovi.space/widget.js&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-user</span>=<span className="text-emerald-300">&quot;6cfa32bf-191c-4507-8ddd-542912b35993&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-type</span>=<span className="text-emerald-300">&quot;wall&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-preset</span>=<span className="text-emerald-300">&quot;base&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-theme</span>=<span className="text-emerald-300">&quot;light&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-accent</span>=<span className="text-emerald-300">&quot;#2564EB&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-text-color</span>=<span className="text-emerald-300">&quot;#374151&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-rating-color</span>=<span className="text-emerald-300">&quot;#FBBF24&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-rating-border-color</span>=<span className="text-emerald-300">&quot;#4E46E5&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-highlight-color</span>=<span className="text-emerald-300">&quot;#FFCD3640&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-show-photos</span>=<span className="text-emerald-300">&quot;true&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-use-gravatar</span>=<span className="text-emerald-300">&quot;true&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-fallback-avatar</span>=<span className="text-emerald-300">&quot;Placeholder&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-show-branding</span>=<span className="text-emerald-300">&quot;true&quot;</span>
-          <br />
-          {"  "}<span className="text-amber-300">data-max</span>=<span className="text-emerald-300">&quot;9&quot;</span>
-          <br />
-          {"  "}<span className="text-purple-300">defer</span>
-          <span className="text-pink-400">&gt;</span>
-          <br />
-          <span className="text-pink-400">&lt;/script&gt;</span>
-        </div>
+        <span className="font-mono text-[10px] font-semibold text-slate-400">
+          Embed Code Snippet
+        </span>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1 rounded-lg bg-[#2563EB] px-2.5 py-1 text-[10px] font-bold text-white transition hover:bg-blue-600 active:scale-95 cursor-pointer shadow-xs"
+        >
+          {copied ? <Check size={11} /> : <Copy size={11} />}
+          <span>{copied ? "Copied!" : "Copy Code"}</span>
+        </button>
       </div>
-    </div>
-  );
-}
 
-{/* High-Resolution Screenshot Frame Container */}
-function ScreenshotFrame({ step }: { step: typeof STEPS[0] }) {
-  const containerMaxWidth = 
-    step.stepNumber === "01" 
-      ? "max-w-[420px]" 
-      : "max-w-[560px]";
-
-  return (
-    <div className={`relative w-full ${containerMaxWidth} mx-auto flex justify-center`}>
-      {/* Decorative Outer Aura */}
-      <div className="pointer-events-none absolute -inset-4 rounded-[36px] bg-gradient-to-tr from-[#2563EB]/10 to-transparent blur-xl opacity-60" />
-
-      {/* Frame Container */}
-      <div className="relative w-full overflow-hidden rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] transition duration-300 hover:shadow-[0_28px_60px_rgba(0,0,0,0.12)]">
-        
-        {/* Browser Top Bar for Table */}
-        {step.frameType === "browser" ? (
-          <div className="border border-gray-200/90 bg-white rounded-[24px] overflow-hidden">
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 bg-gray-50/90 px-4 py-2.5 backdrop-blur-md">
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
-                <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
-                <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
-              </div>
-              <div className="w-44 truncate rounded-md border border-gray-200/70 bg-white px-3 py-0.5 text-center font-sans text-[10px] font-medium text-gray-400 select-all shadow-2xs">
-                app.blovi.space/manage
-              </div>
-              <span className="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Dashboard</span>
-            </div>
-
-            {/* Inset screenshot container prevents bottom border bleeding */}
-            <div className="relative w-full p-2 bg-[#faf9f6]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={step.imageSrc}
-                alt={step.imageAlt}
-                className="w-full h-auto object-contain rounded-b-[16px] rounded-t-md border border-gray-200/70 shadow-2xs block"
-              />
-            </div>
-          </div>
-        ) : (
-          /* Step 1 Collection Form: Clean single container, zero double borders */
-          <div className="relative w-full rounded-[24px] border border-gray-200/80 bg-white p-1.5 shadow-2xs">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={step.imageSrc}
-              alt={step.imageAlt}
-              className="w-full h-auto object-contain rounded-[20px] block"
-            />
-          </div>
-        )}
+      {/* Code Display */}
+      <div className="p-3.5 font-mono text-[10.5px] leading-relaxed text-blue-100 select-all overflow-x-auto">
+        <span className="text-slate-500">&lt;!-- Blovi Widget: WALL OF LOVE (BASE PRESET) --&gt;</span>
+        <br />
+        <span className="text-pink-400">&lt;div</span>{" "}
+        <span className="text-amber-300">id</span>=
+        <span className="text-emerald-300">&quot;proofkit-widget&quot;</span>{" "}
+        <span className="text-amber-300">data-widget-id</span>=
+        <span className="text-emerald-300">&quot;6cfa32bf-191c-4507-8ddd-542912b35993&quot;</span>
+        <span className="text-pink-400">&gt;&lt;/div&gt;</span>
+        <br />
+        <span className="text-pink-400">&lt;script</span>
+        <br />
+        {"  "}<span className="text-amber-300">src</span>=<span className="text-emerald-300">&quot;https://www.blovi.space/widget.js&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-user</span>=<span className="text-emerald-300">&quot;6cfa32bf-191c-4507-8ddd-542912b35993&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-type</span>=<span className="text-emerald-300">&quot;wall&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-preset</span>=<span className="text-emerald-300">&quot;base&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-theme</span>=<span className="text-emerald-300">&quot;light&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-accent</span>=<span className="text-emerald-300">&quot;#2564EB&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-text-color</span>=<span className="text-emerald-300">&quot;#374151&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-rating-color</span>=<span className="text-emerald-300">&quot;#FBBF24&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-rating-border-color</span>=<span className="text-emerald-300">&quot;#4E46E5&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-highlight-color</span>=<span className="text-emerald-300">&quot;#FFCD3640&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-show-photos</span>=<span className="text-emerald-300">&quot;true&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-use-gravatar</span>=<span className="text-emerald-300">&quot;true&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-fallback-avatar</span>=<span className="text-emerald-300">&quot;Placeholder&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-show-branding</span>=<span className="text-emerald-300">&quot;true&quot;</span>
+        <br />
+        {"  "}<span className="text-amber-300">data-max</span>=<span className="text-emerald-300">&quot;9&quot;</span>
+        <br />
+        {"  "}<span className="text-purple-300">defer</span>
+        <span className="text-pink-400">&gt;</span>
+        <br />
+        <span className="text-pink-400">&lt;/script&gt;</span>
       </div>
     </div>
   );
