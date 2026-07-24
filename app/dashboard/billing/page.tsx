@@ -14,20 +14,22 @@ import { FREE_WIDGET_TESTIMONIAL_LIMIT } from "@/lib/limits";
 
 const FREE_LIMITS = [
   `Up to ${FREE_WIDGET_TESTIMONIAL_LIMIT} testimonials total`,
-  "Wall of Love widget only",
-  "Standard styles only",
+  "1-Click Import System (Twitter, PH, LinkedIn, Google)",
+  "All widget layouts (Wall, Carousel, Marquee, Single Quote)",
+  "DM & Email Clipper",
   '"Powered by Blovi" badge active',
-  "1 website limit",
 ];
 
 const PRO_FEATURES = [
   "Unlimited testimonials",
-  "All widget layouts (Wall, Carousel, Marquee, Single Quote)",
+  "Remove 'Powered by Blovi' branding (100% White-Label)",
+  "All Premium Widget Layouts & Future Designs",
+  "CSV Bulk Importer",
   "Custom accent colors & corner radiuses",
-  "Remove the 'Powered by Blovi' attribution",
-  "CSV bulk import",
-  "Email notifications on new submissions",
-  "Unlimited websites",
+  "Custom domain integration (feedback.yourbrand.com)",
+  "Unlimited websites & client projects",
+  "Instant email notifications on new submissions",
+  "Lifetime ownership (Zero recurring subscription rent)",
 ];
 
 const BUSINESS_FEATURES = [

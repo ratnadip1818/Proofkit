@@ -1,11 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /** Free-tier limits — Pro ($49/yr) removes all of them. */
-// Free accounts can hold 3 testimonials TOTAL (collection + import are
-// capped server-side); the widget cap is kept as a second line of defense.
-export const FREE_TESTIMONIAL_LIMIT = 3;
+// Free accounts can hold 10 testimonials TOTAL; all widget layouts unlocked.
+export const FREE_TESTIMONIAL_LIMIT = 10;
 export const FREE_WIDGET_TESTIMONIAL_LIMIT = FREE_TESTIMONIAL_LIMIT;
-export const FREE_LOCKED_WIDGET_TYPES = ["carousel", "marquee", "single"] as const;
+export const FREE_LOCKED_WIDGET_TYPES = [] as const;
 
 export type PlanTier = "free" | "pro" | "business";
 

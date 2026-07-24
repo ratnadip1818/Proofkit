@@ -177,10 +177,7 @@ export default function WidgetBuilder({
   ];
 
   const layoutStylesList = [
-    { id: "wall", name: "Wall of Love", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout, active: true },
-    { id: "marquee", name: "Marquee Stream", desc: "Continuous auto-scrolling ticker bar ideal for headers & footers.", icon: Layers, active: false },
-    { id: "carousel", name: "Card Carousel", desc: "Interactive swipeable carousel slider for landing page sections.", icon: Sliders, active: false },
-    { id: "single", name: "Single Quote Badge", desc: "Minimalist high-converting quote card for checkout & CTA buttons.", icon: Quote, active: false },
+    { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout, active: true },
   ];
 
   return (
