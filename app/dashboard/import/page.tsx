@@ -16,22 +16,20 @@ export default async function ImportPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="w-full bg-canvas min-h-screen pb-16">
-      <div className="w-full px-5 md:px-10 py-10">
-        <div className="mb-10 text-center md:text-left">
-          <h1
-            className="text-3xl font-extrabold tracking-tight text-ink"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Import Testimonials
-          </h1>
-          <p className="mt-2 text-sm text-ink-secondary">
-            Import testimonials from Twitter/X, Product Hunt, or bulk import via CSV.
-          </p>
-        </div>
-
-        <ImportPanel />
+    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+      <div className="mb-8">
+        <h1
+          className="text-2xl font-bold tracking-tight text-[#1A1A1A]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Import Testimonials
+        </h1>
+        <p className="mt-1 text-sm text-[#787774]">
+          Import reviews from Twitter/X, Product Hunt, LinkedIn, or bulk import via CSV.
+        </p>
       </div>
+
+      <ImportPanel />
     </div>
   );
 }

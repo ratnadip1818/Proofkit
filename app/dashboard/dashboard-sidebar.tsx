@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronRight,
   User,
+  Download,
 } from "lucide-react";
 
 function SidebarInner({
@@ -75,6 +76,7 @@ function SidebarInner({
   const menuItems = [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { label: "Collect", href: "/dashboard/collect", icon: FileText },
+    { label: "Import Proof", href: "/dashboard/import", icon: Download },
     { label: "Manage Reviews", href: "/dashboard/manage", icon: MessageSquare, badge: pendingCount },
     { label: "Publish Widgets", href: "/dashboard/publish", icon: Layers },
   ];
