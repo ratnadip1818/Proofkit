@@ -105,9 +105,12 @@ export function ConversationLayout({
   const current = testimonials[currentIndex] || testimonials[0];
   const quoteText = current.display_body ?? current.body_original;
 
-  // Split quote into customer question / feedback dialogue if available
-  const customerQuestion = "How has Blovi impacted your workflow and team feedback collection?";
-  const founderResponse = "We built Blovi to make collecting and displaying social proof effortless. How has your experience been so far?";
+  // Dynamic dialogue sequence personalized to the author's name & role
+  const authorFirstName = current.author_name.trim().split(" ")[0] || current.author_name;
+  const authorRoleText = current.author_role ? ` for ${current.author_role}` : "";
+
+  const customerQuestion = "Hey team! We've been using your product recently and wanted to share some quick feedback.";
+  const founderResponse = `Hi ${authorFirstName}! Thanks for reaching out. We'd love to hear your thoughts${authorRoleText}. How has your experience been?`;
 
   return (
     <div
