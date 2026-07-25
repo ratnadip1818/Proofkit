@@ -194,8 +194,8 @@ export function OrbitLayout({
           top: 220px;
           left: 220px;
           transform: translate(-50%, -50%);
-          z-index: 100;
-          pointer-events: auto;
+          z-index: 10;
+          pointer-events: ${isLocked ? "auto" : "none"};
         }
 
         /* Default Earth Icon state with slow planet rotation */
@@ -207,6 +207,7 @@ export function OrbitLayout({
           justify-content: center;
           animation: earthSpinGlow 20s linear infinite;
           transition: transform 0.3s ease;
+          pointer-events: auto;
         }
 
         .orbit-center-logo:hover {
@@ -226,6 +227,7 @@ export function OrbitLayout({
           overflow-y: auto;
           animation: popoverScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           scrollbar-width: thin;
+          pointer-events: ${isLocked ? "auto" : "none"};
         }
 
         .orbit-center-review-card::-webkit-scrollbar {
@@ -253,6 +255,7 @@ export function OrbitLayout({
           font-size: 12px;
           line-height: 1;
           z-index: 2;
+          pointer-events: auto;
         }
 
         .orbit-popover-close:hover {
@@ -294,6 +297,7 @@ export function OrbitLayout({
           transition: opacity 0.25s ease;
           will-change: transform, opacity;
           z-index: 20;
+          border-radius: 9999px;
         }
 
         .orbit-node-face {
@@ -301,6 +305,7 @@ export function OrbitLayout({
           transform-style: preserve-3d;
           backface-visibility: hidden;
           position: relative;
+          pointer-events: none;
         }
 
         .orbit-ring-inner .orbit-node-face {
@@ -329,12 +334,18 @@ export function OrbitLayout({
           display: flex;
           align-items: center;
           justify-content: center;
+          pointer-events: none;
         }
 
         .orbit-avatar-btn img {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          pointer-events: none;
+        }
+
+        .orbit-node.is-active {
+          z-index: 30;
         }
 
         .orbit-node.is-active .orbit-avatar-btn {
