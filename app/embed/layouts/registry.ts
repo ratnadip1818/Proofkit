@@ -5,6 +5,7 @@ import { CarouselLayout, type CarouselLayoutProps } from "./CarouselLayout";
 import { MarqueeLayout, type MarqueeLayoutProps } from "./MarqueeLayout";
 import { SingleQuoteLayout, type SingleQuoteLayoutProps } from "./SingleQuoteLayout";
 import { SpotlightLayout, type SpotlightLayoutProps } from "./SpotlightLayout";
+import { ConversationLayout, type ConversationLayoutProps } from "./ConversationLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -73,6 +74,17 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsTagFiltering: false,
       supportsPagination: true,
       supportsAutoplay: false,
+      supportsMultipleItems: true,
+    },
+  },
+  conversation: {
+    id: "conversation",
+    name: "Interactive Conversation",
+    component: ConversationLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: true,
+      supportsAutoplay: true,
       supportsMultipleItems: true,
     },
   },

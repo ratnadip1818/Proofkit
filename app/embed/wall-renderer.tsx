@@ -12,6 +12,7 @@ import {
   MarqueeLayout,
   SingleQuoteLayout,
   SpotlightLayout,
+  ConversationLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -47,6 +48,7 @@ export const WallContent = WallLayout;
 export const CarouselContent = CarouselLayout;
 export const MarqueeContent = MarqueeLayout;
 export const SingleQuoteContent = SingleQuoteLayout;
+export const ConversationContent = ConversationLayout;
 
 export interface WallRendererProps {
   type?: WidgetType;
@@ -137,6 +139,20 @@ export default function WallRenderer({
   if (type === "spotlight") {
     return (
       <SpotlightLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+      />
+    );
+  }
+
+  if (type === "conversation") {
+    return (
+      <ConversationLayout
         testimonials={testimonials}
         theme={theme}
         showRatings={showRatings}

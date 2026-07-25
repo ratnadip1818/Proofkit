@@ -17,7 +17,8 @@ import {
   Quote,
   Sun,
   Moon,
-  Palette
+  Palette,
+  MessageSquare
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
 import type { WidgetType } from "@/app/embed/types/widget";
@@ -179,8 +180,9 @@ export default function WidgetBuilder({
   ];
 
   const layoutStylesList = [
-    { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout, active: true },
-    { id: "spotlight", name: "Spotlight Editorial", desc: "Editorial hero layout focusing on a single story with a supporting cast sidebar.", icon: Sparkles, active: false },
+    { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
+    { id: "spotlight", name: "Spotlight Editorial", desc: "Editorial hero layout focusing on a single story with a supporting cast sidebar.", icon: Sparkles },
+    { id: "conversation", name: "Interactive Conversation", desc: "Authentic chat dialogue layout with animated typing dots and replay sequence.", icon: MessageSquare },
   ];
 
   return (
