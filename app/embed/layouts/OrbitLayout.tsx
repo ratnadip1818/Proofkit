@@ -111,10 +111,6 @@ export function OrbitLayout({
   const selectedItem = activeTestimonial;
   const isAnyHoveredOrLocked = !!selectedItem || isLocked;
 
-  // Identify which ring contains the active node to elevate its z-index above center logo
-  const isInnerActive = innerRing.some((item) => item.id === selectedItem?.id);
-  const isOuterActive = outerRing.some((item) => item.id === selectedItem?.id);
-
   // Solid non-transparent card background so avatars behind do NOT bleed through
   const solidCardBg = theme === "dark" ? "#18181B" : "#FFFFFF";
 
@@ -125,7 +121,7 @@ export function OrbitLayout({
         fontFamily: FONT,
         background: colors.pageBg,
         color: colors.text,
-        padding: "24px 16px 12px 16px",
+        padding: "54px 24px 44px 24px",
         boxSizing: "border-box",
         width: "100%",
         maxWidth: "100%",
@@ -154,13 +150,13 @@ export function OrbitLayout({
         }
 
         @keyframes logoGlow {
-          0%, 100% { box-shadow: 0 0 20px ${colors.accent}25; }
-          50% { box-shadow: 0 0 35px ${colors.accent}45; }
+          0%, 100% { filter: drop-shadow(0 0 12px ${colors.accent}40); }
+          50% { filter: drop-shadow(0 0 24px ${colors.accent}70); }
         }
 
         @keyframes popoverScaleIn {
-          from { opacity: 0; transform: scale(0.92) translateY(4px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+          to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
         .orbit-wrapper {
@@ -175,7 +171,7 @@ export function OrbitLayout({
           position: relative;
           width: 440px;
           height: 440px;
-          margin: 0 auto;
+          margin: 12px auto 16px auto;
         }
 
         @media (max-width: 640px) {
@@ -183,27 +179,76 @@ export function OrbitLayout({
           .orbit-mobile-scroll { display: flex !important; }
         }
 
-        /* Center Earth Icon z-index: 10 */
-        .orbit-center-logo {
+        /* Center Container (Fixed at exact middle 220px, 220px) */
+        .orbit-center-core {
           position: absolute;
           top: 220px;
           left: 220px;
           transform: translate(-50%, -50%);
-          z-index: 10;
-          width: 60px;
-          height: 60px;
-          background: transparent !important;
-          border: none !important;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          filter: drop-shadow(0 0 16px ${colors.accent}50);
-          transition: transform 0.3s ease;
+          z-index: 100;
           pointer-events: auto;
         }
 
+        /* Default Earth Icon state */
+        .orbit-center-logo {
+          width: 60px;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: logoGlow 4s infinite ease-in-out;
+          transition: transform 0.3s ease;
+        }
+
         .orbit-center-logo:hover {
-          transform: translate(-50%, -50%) scale(1.15);
+          transform: scale(1.15);
+        }
+
+        /* CENTER REVIEW CARD (Renders inside center of orbit) */
+        .orbit-center-review-card {
+          width: 210px;
+          max-height: 190px;
+          background: ${solidCardBg} !important;
+          border: 1px solid ${colors.cardBorder};
+          border-radius: 16px;
+          padding: 14px;
+          box-sizing: border-box;
+          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+          overflow-y: auto;
+          animation: popoverScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          scrollbar-width: thin;
+        }
+
+        .orbit-center-review-card::-webkit-scrollbar {
+          width: 4px;
+        }
+        .orbit-center-review-card::-webkit-scrollbar-thumb {
+          background: ${colors.cardBorder};
+          border-radius: 4px;
+        }
+
+        .orbit-popover-close {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 22px;
+          height: 22px;
+          border-radius: 9999px;
+          background: ${colors.cardBorder}60;
+          color: ${colors.text};
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 12px;
+          line-height: 1;
+          z-index: 2;
+        }
+
+        .orbit-popover-close:hover {
+          background: ${colors.accent};
+          color: #FFF;
         }
 
         .orbit-ring {
@@ -218,11 +263,6 @@ export function OrbitLayout({
           transform-style: preserve-3d;
           backface-visibility: hidden;
           z-index: 1;
-        }
-
-        /* Active Ring sits ABOVE the center logo (z-index 100 > 10) */
-        .orbit-ring.is-active-ring {
-          z-index: 100 !important;
         }
 
         .orbit-ring-inner {
@@ -245,11 +285,6 @@ export function OrbitLayout({
           transition: opacity 0.25s ease;
           will-change: transform, opacity;
           z-index: 20;
-        }
-
-        /* Active node sits highest */
-        .orbit-node.is-active {
-          z-index: 99999 !important;
         }
 
         .orbit-node-face {
@@ -303,58 +338,6 @@ export function OrbitLayout({
           opacity: 0.3;
         }
 
-        /* FULL HORIZONTALLY EXPANDING REVIEW POPOVER CARD */
-        .orbit-popover-card {
-          position: absolute;
-          z-index: 99999 !important;
-          width: max-content;
-          min-width: 280px;
-          max-width: 380px;
-          background: ${solidCardBg} !important;
-          border: 1px solid ${colors.cardBorder};
-          border-radius: 16px;
-          padding: 16px;
-          box-sizing: border-box;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
-          pointer-events: auto;
-          animation: popoverScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .orbit-popover-card.pos-above {
-          bottom: calc(100% + 12px);
-          left: 50%;
-          transform: translateX(-50%);
-        }
-
-        .orbit-popover-card.pos-below {
-          top: calc(100% + 12px);
-          left: 50%;
-          transform: translateX(-50%);
-        }
-
-        .orbit-popover-close {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          width: 24px;
-          height: 24px;
-          border-radius: 9999px;
-          background: ${colors.cardBorder}60;
-          color: ${colors.text};
-          border: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 13px;
-          line-height: 1;
-        }
-
-        .orbit-popover-close:hover {
-          background: ${colors.accent};
-          color: #FFF;
-        }
-
         /* Mobile Scroll Layout */
         .orbit-mobile-scroll {
           display: none;
@@ -390,21 +373,111 @@ export function OrbitLayout({
       <div className={`orbit-wrapper ${isAnyHoveredOrLocked ? "orbit-paused" : ""}`}>
         {/* DESKTOP CANVAS (440px x 440px with Center at 220px, 220px) */}
         <div className="orbit-canvas">
-          {/* Gravitational Earth Circle Logo (z-index 10) */}
-          <div className="orbit-center-logo" title="Global Community">
-            {brandLogoUrl ? (
-              <img
-                src={brandLogoUrl}
-                alt="Community"
-                style={{ width: "44px", height: "44px", borderRadius: "9999px", objectFit: "cover" }}
-              />
+          {/* CENTER CORE: Shows Earth Icon by default, or active Review Card on hover/click */}
+          <div className="orbit-center-core">
+            {!selectedItem ? (
+              <div className="orbit-center-logo" title="Global Community">
+                {brandLogoUrl ? (
+                  <img
+                    src={brandLogoUrl}
+                    alt="Community"
+                    style={{ width: "44px", height: "44px", borderRadius: "9999px", objectFit: "cover" }}
+                  />
+                ) : (
+                  <span style={{ fontSize: "44px", lineHeight: 1, userSelect: "none" }}>🌍</span>
+                )}
+              </div>
             ) : (
-              <span style={{ fontSize: "44px", lineHeight: 1, userSelect: "none" }}>🌍</span>
+              <div className="orbit-center-review-card">
+                {isLocked && (
+                  <button
+                    type="button"
+                    className="orbit-popover-close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsLocked(false);
+                      setActiveTestimonial(null);
+                    }}
+                    aria-label="Close popover"
+                  >
+                    ✕
+                  </button>
+                )}
+
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <img
+                    src={
+                      selectedItem.avatar_url ||
+                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedItem.author_name)}`
+                    }
+                    alt={selectedItem.author_name}
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "9999px",
+                      border: `2px solid ${colors.accent}`,
+                      objectFit: "cover",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div style={{ overflow: "hidden" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          color: colors.text,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {selectedItem.author_name}
+                      </span>
+                      <VerifiedBadge id={selectedItem.id} />
+                    </div>
+                    {selectedItem.author_role && (
+                      <div
+                        style={{
+                          fontSize: "10px",
+                          color: colors.role,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {selectedItem.author_role}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {showRatings && (selectedItem.rating ?? 5) > 0 && (
+                  <div style={{ marginBottom: "6px" }}>
+                    <Stars rating={selectedItem.rating ?? 5} colors={colors} size={12} />
+                  </div>
+                )}
+
+                {/* COMPLETE REVIEW TEXT */}
+                <p
+                  style={{
+                    fontSize: "12px",
+                    lineHeight: 1.45,
+                    fontWeight: 500,
+                    color: colors.text,
+                    margin: 0,
+                    fontStyle: "normal",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {selectedItem.display_body ?? selectedItem.body_original}
+                </p>
+              </div>
             )}
           </div>
 
           {/* Inner Ring (Radius 110px, Clockwise) */}
-          <div className={`orbit-ring orbit-ring-inner ${isInnerActive ? "is-active-ring" : ""}`}>
+          <div className="orbit-ring orbit-ring-inner">
             {innerRing.map((item, idx) => {
               const count = innerRing.length;
               const angleDeg = (360 / count) * idx;
@@ -446,95 +519,6 @@ export function OrbitLayout({
                         alt={item.author_name}
                       />
                     </div>
-
-                    {/* HORIZONTALLY EXPANDING REVIEW POPOVER CARD */}
-                    {isSelected && (
-                      <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
-                        {isLocked && (
-                          <button
-                            type="button"
-                            className="orbit-popover-close"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsLocked(false);
-                              setActiveTestimonial(null);
-                            }}
-                            aria-label="Close popover"
-                          >
-                            ✕
-                          </button>
-                        )}
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                          <img
-                            src={
-                              item.avatar_url ||
-                              `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(item.author_name)}`
-                            }
-                            alt={item.author_name}
-                            style={{
-                              width: "36px",
-                              height: "36px",
-                              borderRadius: "9999px",
-                              border: `2px solid ${colors.accent}`,
-                              objectFit: "cover",
-                            }}
-                          />
-                          <div style={{ overflow: "hidden" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                              <span
-                                style={{
-                                  fontSize: "14px",
-                                  fontWeight: 700,
-                                  color: colors.text,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {item.author_name}
-                              </span>
-                              <VerifiedBadge id={item.id} />
-                            </div>
-                            {item.author_role && (
-                              <div
-                                style={{
-                                  fontSize: "11px",
-                                  color: colors.role,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {item.author_role}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {showRatings && (item.rating ?? 5) > 0 && (
-                          <div style={{ marginBottom: "8px" }}>
-                            <Stars rating={item.rating ?? 5} colors={colors} size={14} />
-                          </div>
-                        )}
-
-                        {/* FULL COMPLETE REVIEW TEXT */}
-                        <p
-                          style={{
-                            fontSize: "13px",
-                            lineHeight: 1.5,
-                            fontWeight: 500,
-                            color: colors.text,
-                            margin: 0,
-                            fontStyle: "normal",
-                            wordBreak: "break-word",
-                            whiteSpace: "normal",
-                          }}
-                        >
-                          {item.display_body ?? item.body_original}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -542,7 +526,7 @@ export function OrbitLayout({
           </div>
 
           {/* Outer Ring (Radius 185px, Counter-Clockwise) */}
-          <div className={`orbit-ring orbit-ring-outer ${isOuterActive ? "is-active-ring" : ""}`}>
+          <div className="orbit-ring orbit-ring-outer">
             {outerRing.map((item, idx) => {
               const count = outerRing.length;
               const angleDeg = (360 / count) * idx + 30; // 30 deg offset for visual stagger
@@ -584,95 +568,6 @@ export function OrbitLayout({
                         alt={item.author_name}
                       />
                     </div>
-
-                    {/* HORIZONTALLY EXPANDING REVIEW POPOVER CARD */}
-                    {isSelected && (
-                      <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
-                        {isLocked && (
-                          <button
-                            type="button"
-                            className="orbit-popover-close"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsLocked(false);
-                              setActiveTestimonial(null);
-                            }}
-                            aria-label="Close popover"
-                          >
-                            ✕
-                          </button>
-                        )}
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                          <img
-                            src={
-                              item.avatar_url ||
-                              `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(item.author_name)}`
-                            }
-                            alt={item.author_name}
-                            style={{
-                              width: "36px",
-                              height: "36px",
-                              borderRadius: "9999px",
-                              border: `2px solid ${colors.accent}`,
-                              objectFit: "cover",
-                            }}
-                          />
-                          <div style={{ overflow: "hidden" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                              <span
-                                style={{
-                                  fontSize: "14px",
-                                  fontWeight: 700,
-                                  color: colors.text,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {item.author_name}
-                              </span>
-                              <VerifiedBadge id={item.id} />
-                            </div>
-                            {item.author_role && (
-                              <div
-                                style={{
-                                  fontSize: "11px",
-                                  color: colors.role,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {item.author_role}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {showRatings && (item.rating ?? 5) > 0 && (
-                          <div style={{ marginBottom: "8px" }}>
-                            <Stars rating={item.rating ?? 5} colors={colors} size={14} />
-                          </div>
-                        )}
-
-                        {/* FULL COMPLETE REVIEW TEXT */}
-                        <p
-                          style={{
-                            fontSize: "13px",
-                            lineHeight: 1.5,
-                            fontWeight: 500,
-                            color: colors.text,
-                            margin: 0,
-                            fontStyle: "normal",
-                            wordBreak: "break-word",
-                            whiteSpace: "normal",
-                          }}
-                        >
-                          {item.display_body ?? item.body_original}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -689,16 +584,10 @@ export function OrbitLayout({
               alignItems: "center",
               gap: "8px",
               marginBottom: "12px",
-              padding: "6px 14px",
-              borderRadius: "9999px",
-              background: solidCardBg,
-              border: `1px solid ${colors.cardBorder}`,
+              padding: "4px 12px",
             }}
           >
-            <span style={{ fontSize: "16px" }}>🌍</span>
-            <span style={{ fontSize: "12px", fontWeight: 800, color: colors.text }}>
-              Community
-            </span>
+            <span style={{ fontSize: "20px" }}>🌍</span>
           </div>
 
           <div className="orbit-mobile-cards">
