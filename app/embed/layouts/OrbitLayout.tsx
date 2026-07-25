@@ -111,8 +111,15 @@ export function OrbitLayout({
   const selectedItem = activeTestimonial;
   const isAnyHoveredOrLocked = !!selectedItem || isLocked;
 
+  // Identify which ring contains the active node to elevate its z-index above center logo
+  const isInnerActive = innerRing.some((item) => item.id === selectedItem?.id);
+  const isOuterActive = outerRing.some((item) => item.id === selectedItem?.id);
+
   // Center logo text or icon
   const logoText = brandName || "Community";
+
+  // Solid non-transparent card background so avatars behind do NOT bleed through
+  const solidCardBg = theme === "dark" ? "#18181B" : "#FFFFFF";
 
   return (
     <div
@@ -155,7 +162,7 @@ export function OrbitLayout({
         }
 
         @keyframes popoverScaleIn {
-          from { opacity: 0; transform: scale(0.9) translateY(4px); }
+          from { opacity: 0; transform: scale(0.92) translateY(4px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
@@ -172,7 +179,6 @@ export function OrbitLayout({
           width: 440px;
           height: 440px;
           margin: 0 auto;
-          contain: layout style;
         }
 
         @media (max-width: 640px) {
@@ -180,6 +186,7 @@ export function OrbitLayout({
           .orbit-mobile-scroll { display: flex !important; }
         }
 
+        /* Center Logo z-index: 10 */
         .orbit-center-logo {
           position: absolute;
           top: 220px;
@@ -189,7 +196,7 @@ export function OrbitLayout({
           width: 76px;
           height: 76px;
           border-radius: 9999px;
-          background: ${colors.cardBg};
+          background: ${solidCardBg};
           border: 2px solid ${colors.accent}50;
           display: flex;
           flex-direction: column;
@@ -217,6 +224,12 @@ export function OrbitLayout({
           will-change: transform;
           transform-style: preserve-3d;
           backface-visibility: hidden;
+          z-index: 1;
+        }
+
+        /* Active Ring sits ABOVE the center logo (z-index 100 > 10) */
+        .orbit-ring.is-active-ring {
+          z-index: 100 !important;
         }
 
         .orbit-ring-inner {
@@ -241,8 +254,9 @@ export function OrbitLayout({
           z-index: 20;
         }
 
+        /* Active node sits highest */
         .orbit-node.is-active {
-          z-index: 50 !important;
+          z-index: 99999 !important;
         }
 
         .orbit-node-face {
@@ -270,8 +284,8 @@ export function OrbitLayout({
           width: 42px;
           height: 42px;
           border-radius: 9999px;
-          border: 2px solid ${colors.cardBg};
-          background: ${colors.cardBg};
+          border: 2px solid ${solidCardBg};
+          background: ${solidCardBg};
           box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
           overflow: hidden;
           transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
@@ -296,48 +310,49 @@ export function OrbitLayout({
           opacity: 0.3;
         }
 
-        /* ANCHORED REVIEW POPOVER CARD directly attached to the avatar */
+        /* FULL REVIEW POPOVER CARD (Solid BG, No Quotes, Elevated Above Logo) */
         .orbit-popover-card {
           position: absolute;
-          z-index: 100;
-          width: 250px;
-          background: ${colors.cardBg};
+          z-index: 99999 !important;
+          width: 280px;
+          max-width: 280px;
+          background: ${solidCardBg} !important;
           border: 1px solid ${colors.cardBorder};
           border-radius: 16px;
-          padding: 14px;
+          padding: 16px;
           box-sizing: border-box;
-          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
           pointer-events: auto;
           animation: popoverScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .orbit-popover-card.pos-above {
-          bottom: calc(100% + 10px);
+          bottom: calc(100% + 12px);
           left: 50%;
           transform: translateX(-50%);
         }
 
         .orbit-popover-card.pos-below {
-          top: calc(100% + 10px);
+          top: calc(100% + 12px);
           left: 50%;
           transform: translateX(-50%);
         }
 
         .orbit-popover-close {
           position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 22px;
-          height: 22px;
+          top: 10px;
+          right: 10px;
+          width: 24px;
+          height: 24px;
           border-radius: 9999px;
-          background: ${colors.cardBorder}50;
+          background: ${colors.cardBorder}60;
           color: ${colors.text};
           border: none;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 12px;
+          font-size: 13px;
           line-height: 1;
         }
 
@@ -367,7 +382,7 @@ export function OrbitLayout({
         .orbit-mobile-card {
           flex: 0 0 260px;
           scroll-snap-align: center;
-          background: ${colors.cardBg};
+          background: ${solidCardBg};
           border: 1px solid ${colors.cardBorder};
           border-radius: 16px;
           padding: 18px;
@@ -381,7 +396,7 @@ export function OrbitLayout({
       <div className={`orbit-wrapper ${isAnyHoveredOrLocked ? "orbit-paused" : ""}`}>
         {/* DESKTOP CANVAS (440px x 440px with Center at 220px, 220px) */}
         <div className="orbit-canvas">
-          {/* Gravitational Center Logo */}
+          {/* Gravitational Center Logo (z-index 10) */}
           <div className="orbit-center-logo">
             {brandLogoUrl ? (
               <img
@@ -409,7 +424,7 @@ export function OrbitLayout({
           </div>
 
           {/* Inner Ring (Radius 110px, Clockwise) */}
-          <div className="orbit-ring orbit-ring-inner">
+          <div className={`orbit-ring orbit-ring-inner ${isInnerActive ? "is-active-ring" : ""}`}>
             {innerRing.map((item, idx) => {
               const count = innerRing.length;
               const angleDeg = (360 / count) * idx;
@@ -452,7 +467,7 @@ export function OrbitLayout({
                       />
                     </div>
 
-                    {/* FLOATING REVIEW POPOVER CARD ATTACHED DIRECTLY TO AVATAR */}
+                    {/* FULL REVIEW POPOVER CARD (Solid Background, Above Center Logo, No Quotation Marks) */}
                     {isSelected && (
                       <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
                         {isLocked && (
@@ -470,7 +485,7 @@ export function OrbitLayout({
                           </button>
                         )}
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
                           <img
                             src={
                               item.avatar_url ||
@@ -478,10 +493,10 @@ export function OrbitLayout({
                             }
                             alt={item.author_name}
                             style={{
-                              width: "32px",
-                              height: "32px",
+                              width: "36px",
+                              height: "36px",
                               borderRadius: "9999px",
-                              border: `1.5px solid ${colors.accent}`,
+                              border: `2px solid ${colors.accent}`,
                               objectFit: "cover",
                             }}
                           />
@@ -489,7 +504,7 @@ export function OrbitLayout({
                             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                               <span
                                 style={{
-                                  fontSize: "13px",
+                                  fontSize: "14px",
                                   fontWeight: 700,
                                   color: colors.text,
                                   whiteSpace: "nowrap",
@@ -518,28 +533,26 @@ export function OrbitLayout({
                         </div>
 
                         {showRatings && (item.rating ?? 5) > 0 && (
-                          <div style={{ marginBottom: "6px" }}>
-                            <Stars rating={item.rating ?? 5} colors={colors} size={13} />
+                          <div style={{ marginBottom: "8px" }}>
+                            <Stars rating={item.rating ?? 5} colors={colors} size={14} />
                           </div>
                         )}
 
-                        <blockquote
+                        {/* FULL COMPLETE REVIEW TEXT WITH NO QUOTATION MARKS */}
+                        <p
                           style={{
-                            fontSize: "12px",
-                            lineHeight: 1.45,
+                            fontSize: "13px",
+                            lineHeight: 1.5,
                             fontWeight: 500,
                             color: colors.text,
                             margin: 0,
                             fontStyle: "normal",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
+                            wordBreak: "break-word",
+                            whiteSpace: "normal",
                           }}
                         >
-                          “{item.display_body ?? item.body_original}”
-                        </blockquote>
+                          {item.display_body ?? item.body_original}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -549,7 +562,7 @@ export function OrbitLayout({
           </div>
 
           {/* Outer Ring (Radius 185px, Counter-Clockwise) */}
-          <div className="orbit-ring orbit-ring-outer">
+          <div className={`orbit-ring orbit-ring-outer ${isOuterActive ? "is-active-ring" : ""}`}>
             {outerRing.map((item, idx) => {
               const count = outerRing.length;
               const angleDeg = (360 / count) * idx + 30; // 30 deg offset for visual stagger
@@ -592,7 +605,7 @@ export function OrbitLayout({
                       />
                     </div>
 
-                    {/* FLOATING REVIEW POPOVER CARD ATTACHED DIRECTLY TO AVATAR */}
+                    {/* FULL REVIEW POPOVER CARD (Solid Background, Above Center Logo, No Quotation Marks) */}
                     {isSelected && (
                       <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
                         {isLocked && (
@@ -610,7 +623,7 @@ export function OrbitLayout({
                           </button>
                         )}
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
                           <img
                             src={
                               item.avatar_url ||
@@ -618,10 +631,10 @@ export function OrbitLayout({
                             }
                             alt={item.author_name}
                             style={{
-                              width: "32px",
-                              height: "32px",
+                              width: "36px",
+                              height: "36px",
                               borderRadius: "9999px",
-                              border: `1.5px solid ${colors.accent}`,
+                              border: `2px solid ${colors.accent}`,
                               objectFit: "cover",
                             }}
                           />
@@ -629,7 +642,7 @@ export function OrbitLayout({
                             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                               <span
                                 style={{
-                                  fontSize: "13px",
+                                  fontSize: "14px",
                                   fontWeight: 700,
                                   color: colors.text,
                                   whiteSpace: "nowrap",
@@ -658,28 +671,26 @@ export function OrbitLayout({
                         </div>
 
                         {showRatings && (item.rating ?? 5) > 0 && (
-                          <div style={{ marginBottom: "6px" }}>
-                            <Stars rating={item.rating ?? 5} colors={colors} size={13} />
+                          <div style={{ marginBottom: "8px" }}>
+                            <Stars rating={item.rating ?? 5} colors={colors} size={14} />
                           </div>
                         )}
 
-                        <blockquote
+                        {/* FULL COMPLETE REVIEW TEXT WITH NO QUOTATION MARKS */}
+                        <p
                           style={{
-                            fontSize: "12px",
-                            lineHeight: 1.45,
+                            fontSize: "13px",
+                            lineHeight: 1.5,
                             fontWeight: 500,
                             color: colors.text,
                             margin: 0,
                             fontStyle: "normal",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
+                            wordBreak: "break-word",
+                            whiteSpace: "normal",
                           }}
                         >
-                          “{item.display_body ?? item.body_original}”
-                        </blockquote>
+                          {item.display_body ?? item.body_original}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -700,7 +711,7 @@ export function OrbitLayout({
               marginBottom: "12px",
               padding: "6px 14px",
               borderRadius: "9999px",
-              background: colors.cardBg,
+              background: solidCardBg,
               border: `1px solid ${colors.cardBorder}`,
             }}
           >
@@ -721,7 +732,7 @@ export function OrbitLayout({
                   )}
 
                   <p style={{ fontSize: "13px", lineHeight: 1.5, color: colors.text, margin: 0 }}>
-                    “{t.display_body ?? t.body_original}”
+                    {t.display_body ?? t.body_original}
                   </p>
                 </div>
 
