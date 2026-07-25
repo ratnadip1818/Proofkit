@@ -58,7 +58,7 @@ export function OrbitLayout({
     observer.observe(containerRef.current);
     sendWidgetHeight();
     return () => observer.disconnect();
-  }, [activeTestimonial, isLocked]);
+  }, []);
 
   // Keyboard Navigation: Escape to unlock
   useEffect(() => {
@@ -121,7 +121,7 @@ export function OrbitLayout({
         fontFamily: FONT,
         background: colors.pageBg,
         color: colors.text,
-        padding: "24px 16px",
+        padding: "24px 16px 12px 16px",
         boxSizing: "border-box",
         width: "100%",
         maxWidth: "100%",
@@ -167,11 +167,13 @@ export function OrbitLayout({
           width: 440px;
           height: 440px;
           margin: 0 auto;
+          contain: layout style;
         }
 
         @media (max-width: 640px) {
           .orbit-canvas { display: none; }
           .orbit-mobile-scroll { display: flex !important; }
+          .orbit-quote-slot { min-height: auto !important; height: auto !important; margin-top: 12px !important; }
         }
 
         .orbit-center-logo {
@@ -208,6 +210,9 @@ export function OrbitLayout({
           height: 440px;
           transform-origin: 220px 220px;
           pointer-events: none;
+          will-change: transform;
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
         }
 
         .orbit-ring-inner {
@@ -227,7 +232,14 @@ export function OrbitLayout({
           position: absolute;
           pointer-events: auto;
           cursor: pointer;
-          transition: opacity 0.3s ease;
+          transition: opacity 0.25s ease;
+          will-change: transform, opacity;
+        }
+
+        .orbit-node-face {
+          will-change: transform;
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
         }
 
         .orbit-ring-inner .orbit-node-face {
@@ -252,7 +264,7 @@ export function OrbitLayout({
           background: ${colors.cardBg};
           box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
           overflow: hidden;
-          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, border-color 0.3s ease;
+          transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -265,7 +277,7 @@ export function OrbitLayout({
         }
 
         .orbit-node.is-active .orbit-avatar-btn {
-          transform: scale(1.35);
+          transform: scale(1.35) translateZ(0);
           border-color: ${colors.accent};
           box-shadow: 0 8px 24px ${colors.accent}50;
         }
@@ -291,25 +303,61 @@ export function OrbitLayout({
           pointer-events: none;
         }
 
-        /* Quote Panel */
-        .orbit-quote-panel {
+        /* FIXED HEIGHT QUOTE SLOT PREVENTS BADGELINK FROM SHIFTING */
+        .orbit-quote-slot {
           width: 100%;
           max-width: 600px;
+          min-height: 155px;
           margin-top: 16px;
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+
+        .orbit-quote-panel {
+          width: 100%;
+          height: 100%;
           background: ${colors.cardBg};
           border: 1px solid ${colors.cardBorder};
           border-radius: 18px;
-          padding: 20px 24px;
+          padding: 18px 22px;
           box-sizing: border-box;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
           position: relative;
-          transition: opacity 0.3s ease, transform 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          animation: quoteFadeIn 0.25s ease forwards;
+        }
+
+        @keyframes quoteFadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .orbit-quote-placeholder {
+          width: 100%;
+          height: 100%;
+          min-height: 155px;
+          background: ${colors.cardBg}80;
+          border: 1px dashed ${colors.cardBorder};
+          border-radius: 18px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 20px;
+          box-sizing: border-box;
+          text-align: center;
         }
 
         .orbit-quote-close {
           position: absolute;
-          top: 14px;
-          right: 14px;
+          top: 12px;
+          right: 12px;
           width: 26px;
           height: 26px;
           border-radius: 9999px;
@@ -567,88 +615,93 @@ export function OrbitLayout({
           </div>
         </div>
 
-        {/* QUOTE PANEL BELOW ORBIT */}
-        {selectedItem ? (
-          <div className="orbit-quote-panel">
-            {isLocked && (
-              <button
-                type="button"
-                className="orbit-quote-close"
-                onClick={() => {
-                  setIsLocked(false);
-                  setActiveTestimonial(null);
-                }}
-                aria-label="Close quote panel"
-              >
-                ✕
-              </button>
-            )}
+        {/* RESERVED FIXED HEIGHT SLOT (ZERO LAYOUT SHIFT FOR BADGELINK) */}
+        <div className="orbit-quote-slot">
+          {selectedItem ? (
+            <div className="orbit-quote-panel">
+              {isLocked && (
+                <button
+                  type="button"
+                  className="orbit-quote-close"
+                  onClick={() => {
+                    setIsLocked(false);
+                    setActiveTestimonial(null);
+                  }}
+                  aria-label="Close quote panel"
+                >
+                  ✕
+                </button>
+              )}
 
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-              <img
-                src={
-                  selectedItem.avatar_url ||
-                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedItem.author_name)}`
-                }
-                alt={selectedItem.author_name}
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "9999px",
-                  border: `2px solid ${colors.accent}`,
-                  objectFit: "cover",
-                }}
-              />
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span style={{ fontSize: "15px", fontWeight: 700, color: colors.text }}>
-                    {selectedItem.author_name}
-                  </span>
-                  <VerifiedBadge id={selectedItem.id} />
-                </div>
-
-                {selectedItem.author_role && (
-                  <div style={{ fontSize: "12px", color: colors.role, marginTop: "2px" }}>
-                    {selectedItem.author_role}
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                <img
+                  src={
+                    selectedItem.avatar_url ||
+                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedItem.author_name)}`
+                  }
+                  alt={selectedItem.author_name}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "9999px",
+                    border: `2px solid ${colors.accent}`,
+                    objectFit: "cover",
+                  }}
+                />
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ fontSize: "14px", fontWeight: 700, color: colors.text }}>
+                      {selectedItem.author_name}
+                    </span>
+                    <VerifiedBadge id={selectedItem.id} />
                   </div>
-                )}
+
+                  {selectedItem.author_role && (
+                    <div style={{ fontSize: "11px", color: colors.role, marginTop: "1px" }}>
+                      {selectedItem.author_role}
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {showRatings && (selectedItem.rating ?? 5) > 0 && (
+                <div style={{ marginBottom: "8px" }}>
+                  <Stars rating={selectedItem.rating ?? 5} colors={colors} size={14} />
+                </div>
+              )}
+
+              <blockquote
+                style={{
+                  fontSize: "14px",
+                  lineHeight: 1.5,
+                  fontWeight: 500,
+                  color: colors.text,
+                  margin: 0,
+                  fontStyle: "normal",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                }}
+              >
+                “{selectedItem.display_body ?? selectedItem.body_original}”
+              </blockquote>
             </div>
+          ) : (
+            <div className="orbit-quote-placeholder">
+              <span style={{ fontSize: "18px" }}>🪐</span>
+              <span style={{ fontSize: "13px", fontWeight: 600, color: colors.text }}>
+                Hover or click on any customer avatar
+              </span>
+              <span style={{ fontSize: "11px", color: colors.role }}>
+                Discover how teams use our product to build trust
+              </span>
+            </div>
+          )}
+        </div>
 
-            {showRatings && (selectedItem.rating ?? 5) > 0 && (
-              <div style={{ marginBottom: "10px" }}>
-                <Stars rating={selectedItem.rating ?? 5} colors={colors} size={15} />
-              </div>
-            )}
-
-            <blockquote
-              style={{
-                fontSize: "15px",
-                lineHeight: 1.55,
-                fontWeight: 500,
-                color: colors.text,
-                margin: 0,
-                fontStyle: "normal",
-              }}
-            >
-              “{selectedItem.display_body ?? selectedItem.body_original}”
-            </blockquote>
-          </div>
-        ) : (
-          <div
-            style={{
-              marginTop: "16px",
-              fontSize: "13px",
-              fontWeight: 600,
-              color: colors.role,
-              textAlign: "center",
-            }}
-          >
-            Hover or click on any customer avatar to explore their story 🪐
-          </div>
-        )}
-
-        {/* Footer Brand Badge */}
+        {/* Footer Brand Badge - ALWAYS STATIONARY */}
         {showBadge && <BadgeLink colors={colors} />}
       </div>
     </div>
