@@ -57,7 +57,7 @@ export default function WidgetClientWrapper({
     const isDemo = searchParams.get("demo") === "1";
     const spType = searchParams.get("type");
     const requestedType: WidgetType =
-      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento"
+      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit"
         ? spType
         : "wall";
 
