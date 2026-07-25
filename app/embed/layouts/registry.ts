@@ -4,6 +4,7 @@ import { WallLayout, type WallLayoutProps } from "./WallLayout";
 import { CarouselLayout, type CarouselLayoutProps } from "./CarouselLayout";
 import { MarqueeLayout, type MarqueeLayoutProps } from "./MarqueeLayout";
 import { SingleQuoteLayout, type SingleQuoteLayoutProps } from "./SingleQuoteLayout";
+import { SpotlightLayout, type SpotlightLayoutProps } from "./SpotlightLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -62,6 +63,17 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsPagination: false,
       supportsAutoplay: false,
       supportsMultipleItems: false,
+    },
+  },
+  spotlight: {
+    id: "spotlight",
+    name: "Editorial Spotlight",
+    component: SpotlightLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: true,
+      supportsAutoplay: false,
+      supportsMultipleItems: true,
     },
   },
 };

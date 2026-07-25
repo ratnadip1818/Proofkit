@@ -20,6 +20,7 @@ import {
   Palette
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
+import type { WidgetType } from "@/app/embed/types/widget";
 
 export interface TestimonialItem {
   id?: string;
@@ -77,6 +78,7 @@ export default function WidgetBuilder({
   testimonials: TestimonialItem[];
 }) {
   // Widget Customization States mapped to persistable config
+  const [layout, setLayout] = useState<WidgetType>("wall");
   const [preset, setPreset] = useState("base");
   const [theme, setTheme] = useState("light");
   const [showPhotos, setShowPhotos] = useState(true);
@@ -139,17 +141,17 @@ export default function WidgetBuilder({
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
   
   const testimonialsKey = testimonials.map((t) => t.id).join("-") || "none";
-  // Live preview URL including all live color, photo, avatar fallback parameters, and cache-busting version key
-  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=wall&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&showBranding=${showBranding}&max=9&desktop=1&v=${testimonialsKey}`;
+  // Live preview URL including layout type, live color, photo, avatar fallback parameters, and cache-busting version key
+  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=${layout}&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&showBranding=${showBranding}&max=9&desktop=1&v=${testimonialsKey}`;
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
-    return `<!-- Blovi Widget: WALL OF LOVE (${preset.toUpperCase()} PRESET) -->
+    return `<!-- Blovi Widget: ${layout.toUpperCase()} (${preset.toUpperCase()} PRESET) -->
 <div id="proofkit-widget" data-widget-id="${widgetId}"></div>
 <script 
   src="${appUrl}/widget.js" 
   data-user="${widgetId}"
-  data-type="wall"
+  data-type="${layout}"
   data-preset="${preset}"
   data-theme="${theme}"
   data-accent="${primaryColor}"
@@ -178,6 +180,7 @@ export default function WidgetBuilder({
 
   const layoutStylesList = [
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout, active: true },
+    { id: "spotlight", name: "Spotlight Editorial", desc: "Editorial hero layout focusing on a single story with a supporting cast sidebar.", icon: Sparkles, active: false },
   ];
 
   return (
@@ -461,33 +464,33 @@ export default function WidgetBuilder({
             <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
               {layoutStylesList.map((item) => {
                 const Icon = item.icon;
+                const isSelected = layout === item.id;
                 return (
                   <div
                     key={item.id}
                     onClick={() => {
-                      if (item.active) {
-                        setLayoutDrawerOpen(false);
-                      }
+                      setLayout(item.id as WidgetType);
+                      setLayoutDrawerOpen(false);
                     }}
                     className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
-                      item.active
+                      isSelected
                         ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-600/30"
-                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/80 opacity-75"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/80"
                     }`}
                   >
-                    <div className={`p-2.5 rounded-lg shrink-0 ${item.active ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"}`}>
+                    <div className={`p-2.5 rounded-lg shrink-0 ${isSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"}`}>
                       <Icon size={20} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-bold text-sm text-gray-900">{item.name}</span>
-                        {item.active ? (
+                        {isSelected ? (
                           <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                             Active
                           </span>
                         ) : (
-                          <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                            Coming Soon
+                          <span className="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] px-2 py-0.5 rounded-full font-semibold hover:bg-blue-100 transition-colors">
+                            Select Layout
                           </span>
                         )}
                       </div>

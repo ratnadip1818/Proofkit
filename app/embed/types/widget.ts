@@ -3,7 +3,7 @@ import type { ThemeColors } from "../theme/types";
 import type { WidgetPresetId } from "../styles/types";
 
 /** Supported widget layout types */
-export type WidgetType = "wall" | "carousel" | "marquee" | "single";
+export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight";
 
 /** Border radius variants */
 export type WidgetRadius = "sharp" | "rounded" | "pill";
@@ -50,6 +50,9 @@ export type CarouselLayoutProps = WidgetLayoutProps;
 
 /** Props for the Marquee layout */
 export type MarqueeLayoutProps = WidgetLayoutProps;
+
+/** Props for the Spotlight layout */
+export type SpotlightLayoutProps = WidgetLayoutProps;
 
 /** Props for the Single Quote layout */
 export interface SingleQuoteLayoutProps extends WidgetLayoutProps {

@@ -55,7 +55,7 @@ export default function WidgetClientWrapper({
     const isDemo = searchParams.get("demo") === "1";
     const spType = searchParams.get("type");
     const requestedType: WidgetType =
-      spType === "carousel" || spType === "marquee" || spType === "single"
+      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight"
         ? spType
         : "wall";
 
@@ -113,6 +113,32 @@ export default function WidgetClientWrapper({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Parse URL search params on client mount to handle SSR/hydration sync
+    const searchParams = new URLSearchParams(window.location.search);
+    const spType = searchParams.get("type");
+    if (spType) {
+      const requestedType: WidgetType =
+        spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight"
+          ? spType
+          : "wall";
+      
+      const spPreset = searchParams.get("preset") as WidgetPresetId;
+      const preset: WidgetPresetId = spPreset && styleRegistry[spPreset] ? spPreset : "base";
+      const theme = searchParams.get("theme") === "dark" ? "dark" : "light";
+      const showRatings = searchParams.get("ratings") !== "false";
+      const accentHex = (searchParams.get("accent") ?? "").replace(/^#/, "");
+      const accent = /^[0-9a-fA-F]{6}$/.test(accentHex) ? `#${accentHex}` : undefined;
+
+      setConfig((prev) => ({
+        ...prev,
+        requestedType,
+        preset,
+        theme,
+        showRatings,
+        accent,
+      }));
+    }
+
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === "proofkit-config-update") {
         setConfig((prev) => ({
@@ -149,8 +175,8 @@ export default function WidgetClientWrapper({
     fallbackAvatar,
   } = config;
 
-  // Free tier: Wall of Love only, capped at the most recent approved testimonials
-  const type: WidgetType = isLifetime || isDemo ? requestedType : "wall";
+  // Use requested layout type (Spotlight, Wall, etc.)
+  const type: WidgetType = requestedType;
   const capped = !isDemo && !isLifetime && testimonials.length > FREE_WIDGET_TESTIMONIAL_LIMIT;
   const list = isDemo
     ? SAMPLE_TESTIMONIALS

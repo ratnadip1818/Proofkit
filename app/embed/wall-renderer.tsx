@@ -11,6 +11,7 @@ import {
   CarouselLayout,
   MarqueeLayout,
   SingleQuoteLayout,
+  SpotlightLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -47,48 +48,53 @@ export const CarouselContent = CarouselLayout;
 export const MarqueeContent = MarqueeLayout;
 export const SingleQuoteContent = SingleQuoteLayout;
 
-/**
- * Main Widget Renderer component.
- * Acts as an orchestrator resolving both Layout Engine and Style Preset Engine.
- */
-export default function WidgetRenderer({
-  type = "wall",
-  preset = "base",
-  testimonials = [],
-  testimonial = null,
-  layout = "grid",
-  singleLayout = "card",
-  theme = "light",
-  showRatings = true,
-  showBadge = true,
-  maxCount = null,
-  accent,
-  radius = "rounded",
-  showPhotos = true,
-  fallbackAvatar = "Placeholder",
-}: {
+export interface WallRendererProps {
   type?: WidgetType;
-  preset?: WidgetPresetId;
-  testimonials?: Testimonial[];
-  testimonial?: Testimonial | null;
   layout?: WallLayoutType;
   singleLayout?: "card" | "minimal";
+  testimonials?: Testimonial[];
+  testimonial?: Testimonial | null;
   theme?: WallTheme;
   showRatings?: boolean;
   showBadge?: boolean;
   maxCount?: number | null;
+  featuredIndex?: number;
   accent?: string;
   radius?: WidgetRadius;
+  preset?: WidgetPresetId;
   showPhotos?: boolean;
   fallbackAvatar?: string;
-}) {
-  const layoutDef = getLayoutDefinition(type);
+}
+
+/**
+ * Main Widget Renderer component.
+ * Acts as an orchestrator resolving both Layout Engine and Style Preset Engine.
+ */
+export default function WallRenderer({
+  type = "wall",
+  layout = "grid",
+  singleLayout = "card",
+  testimonials = SAMPLE_TESTIMONIALS,
+  testimonial = null,
+  theme = "light",
+  showRatings = true,
+  showBadge = true,
+  maxCount = null,
+  featuredIndex = 0,
+  accent,
+  radius = "rounded",
+  preset = "base",
+  showPhotos = true,
+  fallbackAvatar = "Placeholder",
+}: WallRendererProps) {
   const presetDef = getPresetDefinition(preset);
 
   if (type === "single") {
+    const activeTestimonial = testimonial ?? testimonials[featuredIndex] ?? testimonials[0] ?? null;
     return (
       <SingleQuoteLayout
-        testimonial={testimonial}
+        testimonial={activeTestimonial}
+        testimonials={testimonials}
         theme={theme}
         showRatings={showRatings}
         showBadge={showBadge}
@@ -96,7 +102,6 @@ export default function WidgetRenderer({
         radius={radius}
         layout={singleLayout}
         preset={presetDef.id}
-        testimonials={testimonials}
       />
     );
   }
@@ -118,6 +123,20 @@ export default function WidgetRenderer({
   if (type === "marquee") {
     return (
       <MarqueeLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+      />
+    );
+  }
+
+  if (type === "spotlight") {
+    return (
+      <SpotlightLayout
         testimonials={testimonials}
         theme={theme}
         showRatings={showRatings}
