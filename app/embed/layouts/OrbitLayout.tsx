@@ -115,9 +115,6 @@ export function OrbitLayout({
   const isInnerActive = innerRing.some((item) => item.id === selectedItem?.id);
   const isOuterActive = outerRing.some((item) => item.id === selectedItem?.id);
 
-  // Center logo text or icon
-  const logoText = brandName || "Community";
-
   // Solid non-transparent card background so avatars behind do NOT bleed through
   const solidCardBg = theme === "dark" ? "#18181B" : "#FFFFFF";
 
@@ -186,23 +183,21 @@ export function OrbitLayout({
           .orbit-mobile-scroll { display: flex !important; }
         }
 
-        /* Center Logo z-index: 10 */
+        /* Center Earth Circle z-index: 10 */
         .orbit-center-logo {
           position: absolute;
           top: 220px;
           left: 220px;
           transform: translate(-50%, -50%);
           z-index: 10;
-          width: 76px;
-          height: 76px;
+          width: 72px;
+          height: 72px;
           border-radius: 9999px;
           background: ${solidCardBg};
           border: 2px solid ${colors.accent}50;
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 2px;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
           animation: logoGlow 4s infinite ease-in-out;
           transition: transform 0.3s ease;
@@ -210,7 +205,7 @@ export function OrbitLayout({
         }
 
         .orbit-center-logo:hover {
-          transform: translate(-50%, -50%) scale(1.06);
+          transform: translate(-50%, -50%) scale(1.08);
         }
 
         .orbit-ring {
@@ -310,12 +305,13 @@ export function OrbitLayout({
           opacity: 0.3;
         }
 
-        /* FULL REVIEW POPOVER CARD (Solid BG, No Quotes, Elevated Above Logo) */
+        /* FULL HORIZONTALLY EXPANDING REVIEW POPOVER CARD */
         .orbit-popover-card {
           position: absolute;
           z-index: 99999 !important;
-          width: 280px;
-          max-width: 280px;
+          width: max-content;
+          min-width: 280px;
+          max-width: 380px;
           background: ${solidCardBg} !important;
           border: 1px solid ${colors.cardBorder};
           border-radius: 16px;
@@ -396,31 +392,17 @@ export function OrbitLayout({
       <div className={`orbit-wrapper ${isAnyHoveredOrLocked ? "orbit-paused" : ""}`}>
         {/* DESKTOP CANVAS (440px x 440px with Center at 220px, 220px) */}
         <div className="orbit-canvas">
-          {/* Gravitational Center Logo (z-index 10) */}
-          <div className="orbit-center-logo">
+          {/* Gravitational Earth Circle Logo (z-index 10) */}
+          <div className="orbit-center-logo" title="Global Community">
             {brandLogoUrl ? (
               <img
                 src={brandLogoUrl}
-                alt={logoText}
-                style={{ width: "36px", height: "36px", borderRadius: "9999px", objectFit: "cover" }}
+                alt="Community"
+                style={{ width: "44px", height: "44px", borderRadius: "9999px", objectFit: "cover" }}
               />
             ) : (
-              <span style={{ fontSize: "20px" }}>🪐</span>
+              <span style={{ fontSize: "36px", lineHeight: 1 }}>🌍</span>
             )}
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 800,
-                letterSpacing: "-0.01em",
-                color: colors.text,
-                maxWidth: "64px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {logoText}
-            </span>
           </div>
 
           {/* Inner Ring (Radius 110px, Clockwise) */}
@@ -467,7 +449,7 @@ export function OrbitLayout({
                       />
                     </div>
 
-                    {/* FULL REVIEW POPOVER CARD (Solid Background, Above Center Logo, No Quotation Marks) */}
+                    {/* HORIZONTALLY EXPANDING REVIEW POPOVER CARD */}
                     {isSelected && (
                       <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
                         {isLocked && (
@@ -538,7 +520,7 @@ export function OrbitLayout({
                           </div>
                         )}
 
-                        {/* FULL COMPLETE REVIEW TEXT WITH NO QUOTATION MARKS */}
+                        {/* FULL COMPLETE REVIEW TEXT */}
                         <p
                           style={{
                             fontSize: "13px",
@@ -605,7 +587,7 @@ export function OrbitLayout({
                       />
                     </div>
 
-                    {/* FULL REVIEW POPOVER CARD (Solid Background, Above Center Logo, No Quotation Marks) */}
+                    {/* HORIZONTALLY EXPANDING REVIEW POPOVER CARD */}
                     {isSelected && (
                       <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
                         {isLocked && (
@@ -676,7 +658,7 @@ export function OrbitLayout({
                           </div>
                         )}
 
-                        {/* FULL COMPLETE REVIEW TEXT WITH NO QUOTATION MARKS */}
+                        {/* FULL COMPLETE REVIEW TEXT */}
                         <p
                           style={{
                             fontSize: "13px",
@@ -702,7 +684,7 @@ export function OrbitLayout({
 
         {/* MOBILE LAYOUT (Collapsed Orbit to Horizontal Scroll Container) */}
         <div className="orbit-mobile-scroll">
-          {/* Centered Anchor Logo */}
+          {/* Centered Earth Circle */}
           <div
             style={{
               display: "flex",
@@ -715,9 +697,9 @@ export function OrbitLayout({
               border: `1px solid ${colors.cardBorder}`,
             }}
           >
-            <span>🪐</span>
+            <span style={{ fontSize: "16px" }}>🌍</span>
             <span style={{ fontSize: "12px", fontWeight: 800, color: colors.text }}>
-              {logoText}
+              Community
             </span>
           </div>
 
