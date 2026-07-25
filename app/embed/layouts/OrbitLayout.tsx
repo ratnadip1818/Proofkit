@@ -154,6 +154,11 @@ export function OrbitLayout({
           50% { box-shadow: 0 0 35px ${colors.accent}45; }
         }
 
+        @keyframes popoverScaleIn {
+          from { opacity: 0; transform: scale(0.9) translateY(4px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         .orbit-wrapper {
           max-width: 800px;
           margin: 0 auto;
@@ -173,7 +178,6 @@ export function OrbitLayout({
         @media (max-width: 640px) {
           .orbit-canvas { display: none; }
           .orbit-mobile-scroll { display: flex !important; }
-          .orbit-quote-slot { min-height: auto !important; height: auto !important; margin-top: 12px !important; }
         }
 
         .orbit-center-logo {
@@ -234,12 +238,18 @@ export function OrbitLayout({
           cursor: pointer;
           transition: opacity 0.25s ease;
           will-change: transform, opacity;
+          z-index: 20;
+        }
+
+        .orbit-node.is-active {
+          z-index: 50 !important;
         }
 
         .orbit-node-face {
           will-change: transform;
           transform-style: preserve-3d;
           backface-visibility: hidden;
+          position: relative;
         }
 
         .orbit-ring-inner .orbit-node-face {
@@ -286,94 +296,52 @@ export function OrbitLayout({
           opacity: 0.3;
         }
 
-        .orbit-name-tag {
+        /* ANCHORED REVIEW POPOVER CARD directly attached to the avatar */
+        .orbit-popover-card {
           position: absolute;
+          z-index: 100;
+          width: 250px;
+          background: ${colors.cardBg};
+          border: 1px solid ${colors.cardBorder};
+          border-radius: 16px;
+          padding: 14px;
+          box-sizing: border-box;
+          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+          pointer-events: auto;
+          animation: popoverScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .orbit-popover-card.pos-above {
+          bottom: calc(100% + 10px);
           left: 50%;
-          bottom: -24px;
           transform: translateX(-50%);
-          white-space: nowrap;
-          background: ${colors.cardBg};
-          color: ${colors.text};
-          border: 1px solid ${colors.cardBorder};
-          padding: 2px 8px;
-          border-radius: 9999px;
-          font-size: 11px;
-          font-weight: 700;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          pointer-events: none;
         }
 
-        /* FIXED HEIGHT QUOTE SLOT PREVENTS BADGELINK FROM SHIFTING */
-        .orbit-quote-slot {
-          width: 100%;
-          max-width: 600px;
-          min-height: 155px;
-          margin-top: 16px;
-          box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
+        .orbit-popover-card.pos-below {
+          top: calc(100% + 10px);
+          left: 50%;
+          transform: translateX(-50%);
         }
 
-        .orbit-quote-panel {
-          width: 100%;
-          height: 100%;
-          background: ${colors.cardBg};
-          border: 1px solid ${colors.cardBorder};
-          border-radius: 18px;
-          padding: 18px 22px;
-          box-sizing: border-box;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          animation: quoteFadeIn 0.25s ease forwards;
-        }
-
-        @keyframes quoteFadeIn {
-          from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .orbit-quote-placeholder {
-          width: 100%;
-          height: 100%;
-          min-height: 155px;
-          background: ${colors.cardBg}80;
-          border: 1px dashed ${colors.cardBorder};
-          border-radius: 18px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          padding: 20px;
-          box-sizing: border-box;
-          text-align: center;
-        }
-
-        .orbit-quote-close {
+        .orbit-popover-close {
           position: absolute;
-          top: 12px;
-          right: 12px;
-          width: 26px;
-          height: 26px;
+          top: 8px;
+          right: 8px;
+          width: 22px;
+          height: 22px;
           border-radius: 9999px;
-          background: ${colors.cardBorder}40;
+          background: ${colors.cardBorder}50;
           color: ${colors.text};
           border: none;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 14px;
+          font-size: 12px;
           line-height: 1;
-          transition: background 0.2s ease;
         }
 
-        .orbit-quote-close:hover {
+        .orbit-popover-close:hover {
           background: ${colors.accent};
           color: #FFF;
         }
@@ -483,8 +451,96 @@ export function OrbitLayout({
                         alt={item.author_name}
                       />
                     </div>
+
+                    {/* FLOATING REVIEW POPOVER CARD ATTACHED DIRECTLY TO AVATAR */}
                     {isSelected && (
-                      <div className="orbit-name-tag">{item.author_name}</div>
+                      <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
+                        {isLocked && (
+                          <button
+                            type="button"
+                            className="orbit-popover-close"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsLocked(false);
+                              setActiveTestimonial(null);
+                            }}
+                            aria-label="Close popover"
+                          >
+                            ✕
+                          </button>
+                        )}
+
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                          <img
+                            src={
+                              item.avatar_url ||
+                              `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(item.author_name)}`
+                            }
+                            alt={item.author_name}
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "9999px",
+                              border: `1.5px solid ${colors.accent}`,
+                              objectFit: "cover",
+                            }}
+                          />
+                          <div style={{ overflow: "hidden" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                              <span
+                                style={{
+                                  fontSize: "13px",
+                                  fontWeight: 700,
+                                  color: colors.text,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {item.author_name}
+                              </span>
+                              <VerifiedBadge id={item.id} />
+                            </div>
+                            {item.author_role && (
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  color: colors.role,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {item.author_role}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {showRatings && (item.rating ?? 5) > 0 && (
+                          <div style={{ marginBottom: "6px" }}>
+                            <Stars rating={item.rating ?? 5} colors={colors} size={13} />
+                          </div>
+                        )}
+
+                        <blockquote
+                          style={{
+                            fontSize: "12px",
+                            lineHeight: 1.45,
+                            fontWeight: 500,
+                            color: colors.text,
+                            margin: 0,
+                            fontStyle: "normal",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          “{item.display_body ?? item.body_original}”
+                        </blockquote>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -535,8 +591,96 @@ export function OrbitLayout({
                         alt={item.author_name}
                       />
                     </div>
+
+                    {/* FLOATING REVIEW POPOVER CARD ATTACHED DIRECTLY TO AVATAR */}
                     {isSelected && (
-                      <div className="orbit-name-tag">{item.author_name}</div>
+                      <div className={`orbit-popover-card ${y < 220 ? "pos-below" : "pos-above"}`}>
+                        {isLocked && (
+                          <button
+                            type="button"
+                            className="orbit-popover-close"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsLocked(false);
+                              setActiveTestimonial(null);
+                            }}
+                            aria-label="Close popover"
+                          >
+                            ✕
+                          </button>
+                        )}
+
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                          <img
+                            src={
+                              item.avatar_url ||
+                              `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(item.author_name)}`
+                            }
+                            alt={item.author_name}
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "9999px",
+                              border: `1.5px solid ${colors.accent}`,
+                              objectFit: "cover",
+                            }}
+                          />
+                          <div style={{ overflow: "hidden" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                              <span
+                                style={{
+                                  fontSize: "13px",
+                                  fontWeight: 700,
+                                  color: colors.text,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {item.author_name}
+                              </span>
+                              <VerifiedBadge id={item.id} />
+                            </div>
+                            {item.author_role && (
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  color: colors.role,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {item.author_role}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {showRatings && (item.rating ?? 5) > 0 && (
+                          <div style={{ marginBottom: "6px" }}>
+                            <Stars rating={item.rating ?? 5} colors={colors} size={13} />
+                          </div>
+                        )}
+
+                        <blockquote
+                          style={{
+                            fontSize: "12px",
+                            lineHeight: 1.45,
+                            fontWeight: 500,
+                            color: colors.text,
+                            margin: 0,
+                            fontStyle: "normal",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          “{item.display_body ?? item.body_original}”
+                        </blockquote>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -615,93 +759,7 @@ export function OrbitLayout({
           </div>
         </div>
 
-        {/* RESERVED FIXED HEIGHT SLOT (ZERO LAYOUT SHIFT FOR BADGELINK) */}
-        <div className="orbit-quote-slot">
-          {selectedItem ? (
-            <div className="orbit-quote-panel">
-              {isLocked && (
-                <button
-                  type="button"
-                  className="orbit-quote-close"
-                  onClick={() => {
-                    setIsLocked(false);
-                    setActiveTestimonial(null);
-                  }}
-                  aria-label="Close quote panel"
-                >
-                  ✕
-                </button>
-              )}
-
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                <img
-                  src={
-                    selectedItem.avatar_url ||
-                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedItem.author_name)}`
-                  }
-                  alt={selectedItem.author_name}
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "9999px",
-                    border: `2px solid ${colors.accent}`,
-                    objectFit: "cover",
-                  }}
-                />
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ fontSize: "14px", fontWeight: 700, color: colors.text }}>
-                      {selectedItem.author_name}
-                    </span>
-                    <VerifiedBadge id={selectedItem.id} />
-                  </div>
-
-                  {selectedItem.author_role && (
-                    <div style={{ fontSize: "11px", color: colors.role, marginTop: "1px" }}>
-                      {selectedItem.author_role}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {showRatings && (selectedItem.rating ?? 5) > 0 && (
-                <div style={{ marginBottom: "8px" }}>
-                  <Stars rating={selectedItem.rating ?? 5} colors={colors} size={14} />
-                </div>
-              )}
-
-              <blockquote
-                style={{
-                  fontSize: "14px",
-                  lineHeight: 1.5,
-                  fontWeight: 500,
-                  color: colors.text,
-                  margin: 0,
-                  fontStyle: "normal",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                “{selectedItem.display_body ?? selectedItem.body_original}”
-              </blockquote>
-            </div>
-          ) : (
-            <div className="orbit-quote-placeholder">
-              <span style={{ fontSize: "18px" }}>🪐</span>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: colors.text }}>
-                Hover or click on any customer avatar
-              </span>
-              <span style={{ fontSize: "11px", color: colors.role }}>
-                Discover how teams use our product to build trust
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Footer Brand Badge - ALWAYS STATIONARY */}
+        {/* Footer Brand Badge */}
         {showBadge && <BadgeLink colors={colors} />}
       </div>
     </div>
