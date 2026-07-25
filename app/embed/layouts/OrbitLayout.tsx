@@ -17,6 +17,8 @@ export interface OrbitLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  brandName?: string;
+  brandLogoUrl?: string;
 }
 
 export function OrbitLayout({
@@ -27,13 +29,14 @@ export function OrbitLayout({
   accent,
   radius = "rounded",
   preset = "base",
+  brandName,
+  brandLogoUrl,
 }: OrbitLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
 
   const [activeTestimonial, setActiveTestimonial] = useState<Testimonial | null>(null);
   const [isLocked, setIsLocked] = useState(false);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +66,6 @@ export function OrbitLayout({
       if (e.key === "Escape") {
         setActiveTestimonial(null);
         setIsLocked(false);
-        setHoveredId(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -74,7 +76,6 @@ export function OrbitLayout({
     (t: Testimonial) => {
       if (!isLocked) {
         setActiveTestimonial(t);
-        setHoveredId(t.id);
       }
     },
     [isLocked]
@@ -83,7 +84,6 @@ export function OrbitLayout({
   const handleAvatarLeave = useCallback(() => {
     if (!isLocked) {
       setActiveTestimonial(null);
-      setHoveredId(null);
     }
   }, [isLocked]);
 
@@ -92,11 +92,9 @@ export function OrbitLayout({
       if (isLocked && activeTestimonial?.id === t.id) {
         setIsLocked(false);
         setActiveTestimonial(null);
-        setHoveredId(null);
       } else {
         setIsLocked(true);
         setActiveTestimonial(t);
-        setHoveredId(t.id);
       }
     },
     [isLocked, activeTestimonial]
@@ -110,9 +108,11 @@ export function OrbitLayout({
     );
   }
 
-  // Displayed selected item (active or first as fallback)
   const selectedItem = activeTestimonial;
   const isAnyHoveredOrLocked = !!selectedItem || isLocked;
+
+  // Center logo text or icon
+  const logoText = brandName || "Community";
 
   return (
     <div
@@ -121,7 +121,7 @@ export function OrbitLayout({
         fontFamily: FONT,
         background: colors.pageBg,
         color: colors.text,
-        padding: "32px 16px",
+        padding: "24px 16px",
         boxSizing: "border-box",
         width: "100%",
         maxWidth: "100%",
@@ -130,13 +130,13 @@ export function OrbitLayout({
     >
       <style>{`
         @keyframes orbitSpinCW {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         @keyframes orbitSpinCCW {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(-360deg); }
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-360deg); }
         }
 
         @keyframes counterSpinCW {
@@ -150,12 +150,12 @@ export function OrbitLayout({
         }
 
         @keyframes logoGlow {
-          0%, 100% { box-shadow: 0 0 20px ${colors.accent}20; }
+          0%, 100% { box-shadow: 0 0 20px ${colors.accent}25; }
           50% { box-shadow: 0 0 35px ${colors.accent}45; }
         }
 
         .orbit-wrapper {
-          max-width: 900px;
+          max-width: 800px;
           margin: 0 auto;
           display: flex;
           flex-direction: column;
@@ -164,12 +164,9 @@ export function OrbitLayout({
 
         .orbit-canvas {
           position: relative;
-          width: 520px;
-          height: 520px;
+          width: 440px;
+          height: 440px;
           margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: center;
         }
 
         @media (max-width: 640px) {
@@ -179,12 +176,15 @@ export function OrbitLayout({
 
         .orbit-center-logo {
           position: absolute;
+          top: 220px;
+          left: 220px;
+          transform: translate(-50%, -50%);
           z-index: 10;
-          width: 88px;
-          height: 88px;
+          width: 76px;
+          height: 76px;
           border-radius: 9999px;
           background: ${colors.cardBg};
-          border: 2px solid ${colors.accent}40;
+          border: 2px solid ${colors.accent}50;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -193,30 +193,28 @@ export function OrbitLayout({
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
           animation: logoGlow 4s infinite ease-in-out;
           transition: transform 0.3s ease;
+          pointer-events: auto;
         }
 
         .orbit-center-logo:hover {
-          transform: scale(1.05);
+          transform: translate(-50%, -50%) scale(1.06);
         }
 
         .orbit-ring {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          border-radius: 9999px;
-          transform-origin: center center;
+          top: 0;
+          left: 0;
+          width: 440px;
+          height: 440px;
+          transform-origin: 220px 220px;
           pointer-events: none;
         }
 
         .orbit-ring-inner {
-          width: 260px;
-          height: 260px;
           animation: orbitSpinCW 25s linear infinite;
         }
 
         .orbit-ring-outer {
-          width: 440px;
-          height: 440px;
           animation: orbitSpinCCW 40s linear infinite;
         }
 
@@ -229,16 +227,17 @@ export function OrbitLayout({
           position: absolute;
           pointer-events: auto;
           cursor: pointer;
-          transform-origin: center center;
           transition: opacity 0.3s ease;
         }
 
         .orbit-ring-inner .orbit-node-face {
           animation: counterSpinCW 25s linear infinite;
+          transform-origin: center center;
         }
 
         .orbit-ring-outer .orbit-node-face {
           animation: counterSpinCCW 40s linear infinite;
+          transform-origin: center center;
         }
 
         .orbit-paused .orbit-node-face {
@@ -266,59 +265,53 @@ export function OrbitLayout({
         }
 
         .orbit-node.is-active .orbit-avatar-btn {
-          transform: scale(1.4);
+          transform: scale(1.35);
           border-color: ${colors.accent};
           box-shadow: 0 8px 24px ${colors.accent}50;
         }
 
         .orbit-node.is-dimmed {
-          opacity: 0.35;
+          opacity: 0.3;
         }
 
         .orbit-name-tag {
           position: absolute;
           left: 50%;
-          bottom: -26px;
+          bottom: -24px;
           transform: translateX(-50%);
           white-space: nowrap;
           background: ${colors.cardBg};
           color: ${colors.text};
           border: 1px solid ${colors.cardBorder};
-          padding: 3px 10px;
+          padding: 2px 8px;
           border-radius: 9999px;
           font-size: 11px;
           font-weight: 700;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           pointer-events: none;
-          animation: fadeInTag 0.2s ease forwards;
-        }
-
-        @keyframes fadeInTag {
-          from { opacity: 0; transform: translate(-50%, 4px); }
-          to { opacity: 1; transform: translate(-50%, 0); }
         }
 
         /* Quote Panel */
         .orbit-quote-panel {
           width: 100%;
-          max-width: 680px;
-          margin-top: 24px;
+          max-width: 600px;
+          margin-top: 16px;
           background: ${colors.cardBg};
           border: 1px solid ${colors.cardBorder};
-          border-radius: 20px;
-          padding: 24px 28px;
+          border-radius: 18px;
+          padding: 20px 24px;
           box-sizing: border-box;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
           position: relative;
           transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .orbit-quote-close {
           position: absolute;
-          top: 16px;
-          right: 16px;
-          width: 28px;
-          height: 28px;
+          top: 14px;
+          right: 14px;
+          width: 26px;
+          height: 26px;
           border-radius: 9999px;
           background: ${colors.cardBorder}40;
           color: ${colors.text};
@@ -327,7 +320,7 @@ export function OrbitLayout({
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 14px;
           line-height: 1;
           transition: background 0.2s ease;
         }
@@ -347,21 +340,21 @@ export function OrbitLayout({
 
         .orbit-mobile-cards {
           display: flex;
-          gap: 16px;
+          gap: 14px;
           overflow-x: auto;
           width: 100%;
-          padding: 12px 4px 20px 4px;
+          padding: 12px 4px 16px 4px;
           scroll-snap-type: x mandatory;
           -webkit-overflow-scrolling: touch;
         }
 
         .orbit-mobile-card {
-          flex: 0 0 280px;
+          flex: 0 0 260px;
           scroll-snap-align: center;
           background: ${colors.cardBg};
           border: 1px solid ${colors.cardBorder};
-          border-radius: 18px;
-          padding: 20px;
+          border-radius: 16px;
+          padding: 18px;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
@@ -370,25 +363,46 @@ export function OrbitLayout({
       `}</style>
 
       <div className={`orbit-wrapper ${isAnyHoveredOrLocked ? "orbit-paused" : ""}`}>
-        {/* DESKTOP CANVAS */}
+        {/* DESKTOP CANVAS (440px x 440px with Center at 220px, 220px) */}
         <div className="orbit-canvas">
           {/* Gravitational Center Logo */}
           <div className="orbit-center-logo">
-            <span style={{ fontSize: "18px" }}>🪐</span>
-            <span style={{ fontSize: "11px", fontWeight: 800, letterSpacing: "-0.01em", color: colors.text }}>
-              Blovi
+            {brandLogoUrl ? (
+              <img
+                src={brandLogoUrl}
+                alt={logoText}
+                style={{ width: "36px", height: "36px", borderRadius: "9999px", objectFit: "cover" }}
+              />
+            ) : (
+              <span style={{ fontSize: "20px" }}>🪐</span>
+            )}
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: 800,
+                letterSpacing: "-0.01em",
+                color: colors.text,
+                maxWidth: "64px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {logoText}
             </span>
           </div>
 
-          {/* Inner Ring (5-6 Avatars, Clockwise) */}
+          {/* Inner Ring (Radius 110px, Clockwise) */}
           <div className="orbit-ring orbit-ring-inner">
             {innerRing.map((item, idx) => {
               const count = innerRing.length;
               const angleDeg = (360 / count) * idx;
-              const radiusPx = 130; // 260px diameter
+              const radiusPx = 110;
               const angleRad = (angleDeg * Math.PI) / 180;
-              const x = Math.cos(angleRad) * radiusPx + 130 - 21; // center offset
-              const y = Math.sin(angleRad) * radiusPx + 130 - 21;
+
+              // Exact Center (220, 220) - 21px (half avatar size)
+              const x = 220 + Math.cos(angleRad) * radiusPx - 21;
+              const y = 220 + Math.sin(angleRad) * radiusPx - 21;
 
               const isSelected = selectedItem?.id === item.id;
               const isDimmed = isAnyHoveredOrLocked && !isSelected;
@@ -430,15 +444,17 @@ export function OrbitLayout({
             })}
           </div>
 
-          {/* Outer Ring (Remaining Avatars, Counter-Clockwise) */}
+          {/* Outer Ring (Radius 185px, Counter-Clockwise) */}
           <div className="orbit-ring orbit-ring-outer">
             {outerRing.map((item, idx) => {
               const count = outerRing.length;
               const angleDeg = (360 / count) * idx + 30; // 30 deg offset for visual stagger
-              const radiusPx = 220; // 440px diameter
+              const radiusPx = 185;
               const angleRad = (angleDeg * Math.PI) / 180;
-              const x = Math.cos(angleRad) * radiusPx + 220 - 21;
-              const y = Math.sin(angleRad) * radiusPx + 220 - 21;
+
+              // Exact Center (220, 220) - 21px (half avatar size)
+              const x = 220 + Math.cos(angleRad) * radiusPx - 21;
+              const y = 220 + Math.sin(angleRad) * radiusPx - 21;
 
               const isSelected = selectedItem?.id === item.id;
               const isDimmed = isAnyHoveredOrLocked && !isSelected;
@@ -489,7 +505,7 @@ export function OrbitLayout({
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              marginBottom: "16px",
+              marginBottom: "12px",
               padding: "6px 14px",
               borderRadius: "9999px",
               background: colors.cardBg,
@@ -498,7 +514,7 @@ export function OrbitLayout({
           >
             <span>🪐</span>
             <span style={{ fontSize: "12px", fontWeight: 800, color: colors.text }}>
-              Blovi Community
+              {logoText}
             </span>
           </div>
 
@@ -507,7 +523,7 @@ export function OrbitLayout({
               <div key={t.id || idx} className="orbit-mobile-card">
                 <div>
                   {showRatings && (t.rating ?? 5) > 0 && (
-                    <div style={{ marginBottom: "10px" }}>
+                    <div style={{ marginBottom: "8px" }}>
                       <Stars rating={t.rating ?? 5} colors={colors} size={14} />
                     </div>
                   )}
@@ -522,8 +538,8 @@ export function OrbitLayout({
                     display: "flex",
                     alignItems: "center",
                     gap: "10px",
-                    marginTop: "16px",
-                    paddingTop: "12px",
+                    marginTop: "14px",
+                    paddingTop: "10px",
                     borderTop: `1px solid ${colors.cardBorder}`,
                   }}
                 >
@@ -561,7 +577,6 @@ export function OrbitLayout({
                 onClick={() => {
                   setIsLocked(false);
                   setActiveTestimonial(null);
-                  setHoveredId(null);
                 }}
                 aria-label="Close quote panel"
               >
@@ -569,7 +584,7 @@ export function OrbitLayout({
               </button>
             )}
 
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
               <img
                 src={
                   selectedItem.avatar_url ||
@@ -577,8 +592,8 @@ export function OrbitLayout({
                 }
                 alt={selectedItem.author_name}
                 style={{
-                  width: "48px",
-                  height: "48px",
+                  width: "44px",
+                  height: "44px",
                   borderRadius: "9999px",
                   border: `2px solid ${colors.accent}`,
                   objectFit: "cover",
@@ -593,7 +608,7 @@ export function OrbitLayout({
                 </div>
 
                 {selectedItem.author_role && (
-                  <div style={{ fontSize: "13px", color: colors.role, marginTop: "2px" }}>
+                  <div style={{ fontSize: "12px", color: colors.role, marginTop: "2px" }}>
                     {selectedItem.author_role}
                   </div>
                 )}
@@ -601,15 +616,15 @@ export function OrbitLayout({
             </div>
 
             {showRatings && (selectedItem.rating ?? 5) > 0 && (
-              <div style={{ marginBottom: "12px" }}>
-                <Stars rating={selectedItem.rating ?? 5} colors={colors} size={16} />
+              <div style={{ marginBottom: "10px" }}>
+                <Stars rating={selectedItem.rating ?? 5} colors={colors} size={15} />
               </div>
             )}
 
             <blockquote
               style={{
-                fontSize: "16px",
-                lineHeight: 1.6,
+                fontSize: "15px",
+                lineHeight: 1.55,
                 fontWeight: 500,
                 color: colors.text,
                 margin: 0,
@@ -622,7 +637,7 @@ export function OrbitLayout({
         ) : (
           <div
             style={{
-              marginTop: "24px",
+              marginTop: "16px",
               fontSize: "13px",
               fontWeight: 600,
               color: colors.role,
