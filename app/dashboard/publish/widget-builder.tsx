@@ -146,8 +146,8 @@ export default function WidgetBuilder({
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
   
   const testimonialsKey = testimonials.map((t) => t.id).join("-") || "none";
-  // Live preview URL including layout type, live color, photo, avatar fallback parameters, and cache-busting version key
-  const rawPreviewUrl = `/embed/${userId || "demo-widget"}?type=${layout}&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&chatCustomerPrompt=${encodeURIComponent(chatCustomerPrompt)}&chatFounderReply=${encodeURIComponent(chatFounderReply)}&showBranding=${showBranding}&max=9&desktop=1&v=${testimonialsKey}`;
+  // Live preview URL pointing to uncached dynamic preview endpoint
+  const rawPreviewUrl = `/embed/preview?user=${userId || "demo-widget"}&type=${layout}&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&chatCustomerPrompt=${encodeURIComponent(chatCustomerPrompt)}&chatFounderReply=${encodeURIComponent(chatFounderReply)}&showBranding=${showBranding}&max=9&desktop=1&v=${testimonialsKey}`;
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
