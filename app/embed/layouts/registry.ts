@@ -7,6 +7,7 @@ import { SingleQuoteLayout, type SingleQuoteLayoutProps } from "./SingleQuoteLay
 import { SpotlightLayout, type SpotlightLayoutProps } from "./SpotlightLayout";
 import { ConversationLayout, type ConversationLayoutProps } from "./ConversationLayout";
 import { BentoLayout } from "./BentoLayout";
+import { OrbitLayout } from "./OrbitLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -97,6 +98,17 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsTagFiltering: true,
       supportsPagination: false,
       supportsAutoplay: false,
+      supportsMultipleItems: true,
+    },
+  },
+  orbit: {
+    id: "orbit",
+    name: "Orbit Social Cosmos",
+    component: OrbitLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: true,
       supportsMultipleItems: true,
     },
   },

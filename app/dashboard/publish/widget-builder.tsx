@@ -20,6 +20,7 @@ import {
   Palette,
   MessageSquare,
   LayoutGrid,
+  Globe,
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
 import type { WidgetType } from "@/app/embed/types/widget";
@@ -188,6 +189,7 @@ export default function WidgetBuilder({
     { id: "spotlight", name: "Spotlight Editorial", desc: "Editorial hero layout focusing on a single story with a supporting cast sidebar.", icon: Sparkles },
     { id: "conversation", name: "Interactive Conversation", desc: "Authentic chat dialogue layout with animated typing dots and replay sequence.", icon: MessageSquare },
     { id: "bento", name: "Bento Social Grid", desc: "Apple / Linear style Bento box grid with hero highlights, aggregate stats, and review tiles.", icon: LayoutGrid },
+    { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
   ];
 
   return (
