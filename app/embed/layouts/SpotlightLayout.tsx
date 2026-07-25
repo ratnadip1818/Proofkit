@@ -38,14 +38,17 @@ export function SpotlightLayout({
   const [isLoaded, setIsLoaded] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
-  // Measure and send widget height on change
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // ResizeObserver for dynamic, overflow-free iframe height reporting
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const timer = setTimeout(() => {
-        sendWidgetHeight();
-      }, 350);
-      return () => clearTimeout(timer);
-    }
+    if (typeof window === "undefined" || !containerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      sendWidgetHeight();
+    });
+    observer.observe(containerRef.current);
+    sendWidgetHeight();
+    return () => observer.disconnect();
   }, [currentIndex, testimonials.length]);
 
   // Initial entrance animation flag
@@ -103,7 +106,7 @@ export function SpotlightLayout({
 
   if (testimonials.length === 0) {
     return (
-      <div style={{ fontFamily: FONT, padding: "24px", background: colors.pageBg }}>
+      <div style={{ fontFamily: FONT, padding: "24px", background: colors.pageBg, width: "100%", boxSizing: "border-box" }}>
         <EmptyState colors={colors} />
       </div>
     );
@@ -114,13 +117,16 @@ export function SpotlightLayout({
 
   return (
     <div
+      ref={containerRef}
       style={{
         fontFamily: FONT,
         background: colors.pageBg,
         color: colors.text,
-        padding: "32px 24px",
+        padding: "24px 16px",
         boxSizing: "border-box",
         width: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
       }}
       onTouchStart={(e) => {
         touchStartX.current = e.touches[0]?.clientX ?? null;
@@ -139,28 +145,36 @@ export function SpotlightLayout({
       <style>{`
         .spotlight-container {
           display: flex;
-          gap: 48px;
-          max-width: 1100px;
+          gap: 32px;
+          max-width: 100%;
+          width: 100%;
           margin: 0 auto;
           align-items: flex-start;
+          box-sizing: border-box;
         }
 
         .spotlight-main {
-          flex: 1 1 70%;
+          flex: 1 1 68%;
           min-width: 0;
+          max-width: 100%;
+          box-sizing: border-box;
         }
 
         .spotlight-sidebar {
           flex: 0 0 28%;
-          max-width: 300px;
+          max-width: 280px;
+          min-width: 0;
+          box-sizing: border-box;
         }
 
         .spotlight-photo-frame {
-          width: 360px;
-          height: 360px;
+          width: min(360px, 100%);
+          max-width: 100%;
+          aspect-ratio: 1 / 1;
+          height: auto;
           overflow: hidden;
           background: ${colors.cardBorder};
-          margin-bottom: 28px;
+          margin-bottom: 24px;
           position: relative;
         }
 
@@ -176,12 +190,14 @@ export function SpotlightLayout({
         }
 
         .spotlight-quote {
-          font-size: 32px;
-          line-height: 1.5;
+          font-size: clamp(20px, 3.8vw, 32px);
+          line-height: 1.45;
           font-weight: 400;
           color: ${colors.text};
           margin: 0 0 24px 0;
           letter-spacing: -0.015em;
+          word-break: break-word;
+          overflow-wrap: break-word;
           transition: opacity 0.2s ease, filter 0.2s ease;
         }
 
