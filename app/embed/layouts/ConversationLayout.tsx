@@ -17,6 +17,8 @@ export interface ConversationLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  chatCustomerPrompt?: string;
+  chatFounderReply?: string;
 }
 
 export function ConversationLayout({
@@ -27,6 +29,8 @@ export function ConversationLayout({
   accent,
   radius = "rounded",
   preset = "base",
+  chatCustomerPrompt,
+  chatFounderReply,
 }: ConversationLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
@@ -105,12 +109,17 @@ export function ConversationLayout({
   const current = testimonials[currentIndex] || testimonials[0];
   const quoteText = current.display_body ?? current.body_original;
 
-  // Dynamic dialogue sequence personalized to the author's name & role
+  // Dynamic dialogue sequence personalized to the author's name & role with custom override support
   const authorFirstName = current.author_name.trim().split(" ")[0] || current.author_name;
   const authorRoleText = current.author_role ? ` for ${current.author_role}` : "";
 
-  const customerQuestion = "Hey team! We've been using your product recently and wanted to share some quick feedback.";
-  const founderResponse = `Hi ${authorFirstName}! Thanks for reaching out. We'd love to hear your thoughts${authorRoleText}. How has your experience been?`;
+  const defaultCustomerQuestion = "Hey team! We've been using your product recently and wanted to share some quick feedback.";
+  const defaultFounderResponse = `Hi ${authorFirstName}! Thanks for reaching out. We'd love to hear your thoughts${authorRoleText}. How has your experience been?`;
+
+  const customerQuestion = chatCustomerPrompt && chatCustomerPrompt.trim().length > 0 ? chatCustomerPrompt : defaultCustomerQuestion;
+  const founderResponse = chatFounderReply && chatFounderReply.trim().length > 0
+    ? chatFounderReply.replace(/\{name\}/gi, authorFirstName)
+    : defaultFounderResponse;
 
   return (
     <div

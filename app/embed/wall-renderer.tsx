@@ -66,6 +66,8 @@ export interface WallRendererProps {
   preset?: WidgetPresetId;
   showPhotos?: boolean;
   fallbackAvatar?: string;
+  chatCustomerPrompt?: string;
+  chatFounderReply?: string;
 }
 
 /**
@@ -88,6 +90,8 @@ export default function WallRenderer({
   preset = "base",
   showPhotos = true,
   fallbackAvatar = "Placeholder",
+  chatCustomerPrompt,
+  chatFounderReply,
 }: WallRendererProps) {
   const presetDef = getPresetDefinition(preset);
 
@@ -160,6 +164,8 @@ export default function WallRenderer({
         accent={accent}
         radius={radius}
         preset={presetDef.id}
+        chatCustomerPrompt={chatCustomerPrompt}
+        chatFounderReply={chatFounderReply}
       />
     );
   }

@@ -37,6 +37,8 @@ export interface WidgetLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  chatCustomerPrompt?: string;
+  chatFounderReply?: string;
 }
 
 /** Props for the Wall of Love grid layout */
@@ -53,6 +55,9 @@ export type MarqueeLayoutProps = WidgetLayoutProps;
 
 /** Props for the Spotlight layout */
 export type SpotlightLayoutProps = WidgetLayoutProps;
+
+/** Props for the Conversation layout */
+export type ConversationLayoutProps = WidgetLayoutProps;
 
 /** Props for the Single Quote layout */
 export interface SingleQuoteLayoutProps extends WidgetLayoutProps {
@@ -73,4 +78,8 @@ export interface WidgetConfig {
   singleLayout: SingleQuoteLayout;
   showBadge: boolean;
   preset?: WidgetPresetId;
+  showPhotos?: boolean;
+  fallbackAvatar?: string;
+  chatCustomerPrompt?: string;
+  chatFounderReply?: string;
 }

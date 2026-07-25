@@ -22,6 +22,8 @@ interface WidgetConfig {
   showBadge: boolean;
   showPhotos: boolean;
   fallbackAvatar: string;
+  chatCustomerPrompt?: string;
+  chatFounderReply?: string;
 }
 
 export default function WidgetClientWrapper({
@@ -84,6 +86,9 @@ export default function WidgetClientWrapper({
     const showPhotos = searchParams.get("showPhotos") !== "false";
     const fallbackAvatar = searchParams.get("fallbackAvatar") || "Placeholder";
 
+    const chatCustomerPrompt = searchParams.get("chatCustomerPrompt") || undefined;
+    const chatFounderReply = searchParams.get("chatFounderReply") || undefined;
+
     return {
       isDemo,
       requestedType,
@@ -98,6 +103,8 @@ export default function WidgetClientWrapper({
       showBadge,
       showPhotos,
       fallbackAvatar,
+      chatCustomerPrompt,
+      chatFounderReply,
     };
   });
 
@@ -128,6 +135,8 @@ export default function WidgetClientWrapper({
       const showRatings = searchParams.get("ratings") !== "false";
       const accentHex = (searchParams.get("accent") ?? "").replace(/^#/, "");
       const accent = /^[0-9a-fA-F]{6}$/.test(accentHex) ? `#${accentHex}` : undefined;
+      const chatCustomerPrompt = searchParams.get("chatCustomerPrompt") || undefined;
+      const chatFounderReply = searchParams.get("chatFounderReply") || undefined;
 
       setConfig((prev) => ({
         ...prev,
@@ -136,6 +145,8 @@ export default function WidgetClientWrapper({
         theme,
         showRatings,
         accent,
+        chatCustomerPrompt,
+        chatFounderReply,
       }));
     }
 
@@ -173,6 +184,8 @@ export default function WidgetClientWrapper({
     showBadge,
     showPhotos,
     fallbackAvatar,
+    chatCustomerPrompt,
+    chatFounderReply,
   } = config;
 
   // Use requested layout type (Spotlight, Wall, etc.)
@@ -203,6 +216,8 @@ export default function WidgetClientWrapper({
         radius={radius}
         showPhotos={showPhotos}
         fallbackAvatar={fallbackAvatar}
+        chatCustomerPrompt={chatCustomerPrompt}
+        chatFounderReply={chatFounderReply}
       />
 
       {capped && (
