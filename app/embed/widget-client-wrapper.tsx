@@ -29,65 +29,61 @@ interface WidgetConfig {
 export default function WidgetClientWrapper({
   testimonials,
   isLifetime,
+  searchParams: rawSearchParams,
 }: {
   testimonials: Testimonial[];
   isLifetime: boolean;
+  searchParams?: Record<string, string | string[] | undefined>;
 }) {
+  // Helper to extract param value from passed searchParams or window.location
+  const getParam = (key: string): string | undefined => {
+    if (rawSearchParams && rawSearchParams[key] !== undefined) {
+      const val = rawSearchParams[key];
+      return Array.isArray(val) ? val[0] : val;
+    }
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get(key) || undefined;
+    }
+    return undefined;
+  };
+
   // Client-side config states initialized to sensible defaults
   const [config, setConfig] = useState<WidgetConfig>(() => {
-    const defaultState: WidgetConfig = {
-      isDemo: false,
-      requestedType: "wall" as WidgetType,
-      preset: "base" as WidgetPresetId,
-      theme: "light" as "light" | "dark",
-      showRatings: true,
-      maxCount: null as number | null,
-      featuredIndex: 0,
-      accent: undefined as string | undefined,
-      radius: "rounded" as WidgetRadius,
-      singleLayout: "card" as "card" | "minimal",
-      showBadge: !isLifetime,
-      showPhotos: true,
-      fallbackAvatar: "Placeholder",
-    };
-
-    if (typeof window === "undefined") return defaultState;
-
-    const searchParams = new URLSearchParams(window.location.search);
-    const isDemo = searchParams.get("demo") === "1";
-    const spType = searchParams.get("type");
+    const isDemo = getParam("demo") === "1";
+    const spType = getParam("type");
     const requestedType: WidgetType =
       spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit"
         ? spType
         : "wall";
 
-    const spPreset = searchParams.get("preset") as WidgetPresetId;
+    const spPreset = getParam("preset") as WidgetPresetId;
     const preset: WidgetPresetId = spPreset && styleRegistry[spPreset] ? spPreset : "base";
 
-    const theme = searchParams.get("theme") === "dark" ? "dark" : "light";
-    const showRatings = searchParams.get("ratings") !== "false";
+    const theme = getParam("theme") === "dark" ? "dark" : "light";
+    const showRatings = getParam("ratings") !== "false";
 
-    const spMax = searchParams.get("max");
+    const spMax = getParam("max");
     const maxCount =
       spMax === "3" || spMax === "6" || spMax === "9" ? Number(spMax) : null;
 
-    const spFeatured = searchParams.get("featured");
+    const spFeatured = getParam("featured");
     const featuredIndex = spFeatured ? Math.max(0, parseInt(spFeatured, 10) || 0) : 0;
 
-    const accentHex = (searchParams.get("accent") ?? "").replace(/^#/, "");
+    const accentHex = (getParam("accent") ?? "").replace(/^#/, "");
     const accent = /^[0-9a-fA-F]{6}$/.test(accentHex) ? `#${accentHex}` : undefined;
 
-    const spRadius = searchParams.get("radius");
+    const spRadius = getParam("radius");
     const radius: WidgetRadius =
       spRadius === "sharp" || spRadius === "pill" ? spRadius : "rounded";
 
-    const singleLayout = searchParams.get("layout") === "minimal" ? "minimal" : "card";
-    const showBadge = !isLifetime || searchParams.get("badge") !== "false";
-    const showPhotos = searchParams.get("showPhotos") !== "false";
-    const fallbackAvatar = searchParams.get("fallbackAvatar") || "Placeholder";
+    const singleLayout = getParam("layout") === "minimal" ? "minimal" : "card";
+    const showBadge = !isLifetime || getParam("badge") !== "false";
+    const showPhotos = getParam("showPhotos") !== "false";
+    const fallbackAvatar = getParam("fallbackAvatar") || "Placeholder";
 
-    const chatCustomerPrompt = searchParams.get("chatCustomerPrompt") || undefined;
-    const chatFounderReply = searchParams.get("chatFounderReply") || undefined;
+    const chatCustomerPrompt = getParam("chatCustomerPrompt") || undefined;
+    const chatFounderReply = getParam("chatFounderReply") || undefined;
 
     return {
       isDemo,

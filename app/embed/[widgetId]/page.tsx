@@ -20,10 +20,13 @@ export async function generateStaticParams() {
 
 export default async function EmbedPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ widgetId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { widgetId } = await params;
+  const sParams = await searchParams;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blovi.space";
 
@@ -144,7 +147,7 @@ export default async function EmbedPage({
       `}</style>
 
       <Suspense fallback={null}>
-        <WidgetClientWrapper testimonials={approved} isLifetime={isLifetime} />
+        <WidgetClientWrapper testimonials={approved} isLifetime={isLifetime} searchParams={sParams} />
       </Suspense>
     </div>
   );
