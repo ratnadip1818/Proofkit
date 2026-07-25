@@ -149,9 +149,18 @@ export function OrbitLayout({
           to { transform: rotate(360deg); }
         }
 
-        @keyframes logoGlow {
-          0%, 100% { filter: drop-shadow(0 0 12px ${colors.accent}40); }
-          50% { filter: drop-shadow(0 0 24px ${colors.accent}70); }
+        @keyframes earthSpinGlow {
+          0% {
+            transform: rotate(0deg);
+            filter: drop-shadow(0 0 12px ${colors.accent}40);
+          }
+          50% {
+            filter: drop-shadow(0 0 24px ${colors.accent}75);
+          }
+          100% {
+            transform: rotate(360deg);
+            filter: drop-shadow(0 0 12px ${colors.accent}40);
+          }
         }
 
         @keyframes popoverScaleIn {
@@ -189,19 +198,19 @@ export function OrbitLayout({
           pointer-events: auto;
         }
 
-        /* Default Earth Icon state */
+        /* Default Earth Icon state with slow planet rotation */
         .orbit-center-logo {
           width: 60px;
           height: 60px;
           display: flex;
           align-items: center;
           justify-content: center;
-          animation: logoGlow 4s infinite ease-in-out;
+          animation: earthSpinGlow 20s linear infinite;
           transition: transform 0.3s ease;
         }
 
         .orbit-center-logo:hover {
-          transform: scale(1.15);
+          transform: scale(1.2);
         }
 
         /* CENTER REVIEW CARD (Renders inside center of orbit) */
