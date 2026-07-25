@@ -3,7 +3,7 @@ import type { ThemeColors } from "../theme/types";
 import type { WidgetPresetId } from "../styles/types";
 
 /** Supported widget layout types */
-export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation";
+export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento";
 
 /** Border radius variants */
 export type WidgetRadius = "sharp" | "rounded" | "pill";

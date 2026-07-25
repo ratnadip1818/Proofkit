@@ -6,6 +6,7 @@ import { MarqueeLayout, type MarqueeLayoutProps } from "./MarqueeLayout";
 import { SingleQuoteLayout, type SingleQuoteLayoutProps } from "./SingleQuoteLayout";
 import { SpotlightLayout, type SpotlightLayoutProps } from "./SpotlightLayout";
 import { ConversationLayout, type ConversationLayoutProps } from "./ConversationLayout";
+import { BentoLayout } from "./BentoLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -85,6 +86,17 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsTagFiltering: false,
       supportsPagination: true,
       supportsAutoplay: true,
+      supportsMultipleItems: true,
+    },
+  },
+  bento: {
+    id: "bento",
+    name: "Bento Social Grid",
+    component: BentoLayout,
+    capabilities: {
+      supportsTagFiltering: true,
+      supportsPagination: false,
+      supportsAutoplay: false,
       supportsMultipleItems: true,
     },
   },

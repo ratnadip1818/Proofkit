@@ -13,6 +13,7 @@ import {
   SingleQuoteLayout,
   SpotlightLayout,
   ConversationLayout,
+  BentoLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -166,6 +167,20 @@ export default function WallRenderer({
         preset={presetDef.id}
         chatCustomerPrompt={chatCustomerPrompt}
         chatFounderReply={chatFounderReply}
+      />
+    );
+  }
+
+  if (type === "bento") {
+    return (
+      <BentoLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
       />
     );
   }

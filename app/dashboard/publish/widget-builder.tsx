@@ -18,7 +18,8 @@ import {
   Sun,
   Moon,
   Palette,
-  MessageSquare
+  MessageSquare,
+  LayoutGrid,
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
 import type { WidgetType } from "@/app/embed/types/widget";
@@ -186,6 +187,7 @@ export default function WidgetBuilder({
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
     { id: "spotlight", name: "Spotlight Editorial", desc: "Editorial hero layout focusing on a single story with a supporting cast sidebar.", icon: Sparkles },
     { id: "conversation", name: "Interactive Conversation", desc: "Authentic chat dialogue layout with animated typing dots and replay sequence.", icon: MessageSquare },
+    { id: "bento", name: "Bento Social Grid", desc: "Apple / Linear style Bento box grid with hero highlights, aggregate stats, and review tiles.", icon: LayoutGrid },
   ];
 
   return (
@@ -237,7 +239,9 @@ export default function WidgetBuilder({
                 >
                   <div className="flex items-center gap-2.5">
                     <Layout size={16} className="text-blue-600" />
-                    <span className="font-semibold text-gray-900">Wall of Love</span>
+                    <span className="font-semibold text-gray-900">
+                      {layoutStylesList.find((l) => l.id === layout)?.name || "Wall of Love Grid"}
+                    </span>
                     <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-blue-100">
                       Active
                     </span>
