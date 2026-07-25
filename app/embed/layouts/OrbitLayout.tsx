@@ -183,29 +183,27 @@ export function OrbitLayout({
           .orbit-mobile-scroll { display: flex !important; }
         }
 
-        /* Center Earth Circle z-index: 10 */
+        /* Center Earth Icon z-index: 10 */
         .orbit-center-logo {
           position: absolute;
           top: 220px;
           left: 220px;
           transform: translate(-50%, -50%);
           z-index: 10;
-          width: 72px;
-          height: 72px;
-          border-radius: 9999px;
-          background: ${solidCardBg};
-          border: 2px solid ${colors.accent}50;
+          width: 60px;
+          height: 60px;
+          background: transparent !important;
+          border: none !important;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-          animation: logoGlow 4s infinite ease-in-out;
+          filter: drop-shadow(0 0 16px ${colors.accent}50);
           transition: transform 0.3s ease;
           pointer-events: auto;
         }
 
         .orbit-center-logo:hover {
-          transform: translate(-50%, -50%) scale(1.08);
+          transform: translate(-50%, -50%) scale(1.15);
         }
 
         .orbit-ring {
@@ -401,7 +399,7 @@ export function OrbitLayout({
                 style={{ width: "44px", height: "44px", borderRadius: "9999px", objectFit: "cover" }}
               />
             ) : (
-              <span style={{ fontSize: "36px", lineHeight: 1 }}>🌍</span>
+              <span style={{ fontSize: "44px", lineHeight: 1, userSelect: "none" }}>🌍</span>
             )}
           </div>
 
