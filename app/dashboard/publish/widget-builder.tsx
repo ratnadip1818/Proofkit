@@ -18,8 +18,6 @@ import {
   Sun,
   Moon,
   Palette,
-  MessageSquare,
-  LayoutGrid,
   Globe,
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
@@ -186,9 +184,6 @@ export default function WidgetBuilder({
 
   const layoutStylesList = [
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
-    { id: "spotlight", name: "Spotlight Editorial", desc: "Editorial hero layout focusing on a single story with a supporting cast sidebar.", icon: Sparkles },
-    { id: "conversation", name: "Interactive Conversation", desc: "Authentic chat dialogue layout with animated typing dots and replay sequence.", icon: MessageSquare },
-    { id: "bento", name: "Bento Social Grid", desc: "Apple / Linear style Bento box grid with hero highlights, aggregate stats, and review tiles.", icon: LayoutGrid },
     { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
   ];
 
@@ -372,46 +367,7 @@ export default function WidgetBuilder({
                 </div>
               </section>
 
-              {/* 5. Conversation Dialogue Customization (when Conversation layout selected) */}
-              {layout === "conversation" && (
-                <>
-                  <section className="space-y-3.5 bg-blue-50/60 border border-blue-100 rounded-xl p-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-blue-900 uppercase tracking-wider">
-                      <MessageSquare size={14} className="text-blue-600" />
-                      Chat Dialogue Custom Prompts
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
-                        Message 1: Customer Question (Intro)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Default: Hey team! We've been using your product..."
-                        value={chatCustomerPrompt}
-                        onChange={(e) => setChatCustomerPrompt(e.target.value)}
-                        className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
-                        Message 2: Founder Reply (Use {"{name}"} for customer name)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Default: Hi {name}! Thanks for reaching out..."
-                        value={chatFounderReply}
-                        onChange={(e) => setChatFounderReply(e.target.value)}
-                        className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs"
-                      />
-                    </div>
-                  </section>
-                  <hr className="border-gray-100" />
-                </>
-              )}
-
-              {/* 6. Show Customer Photos & Fallback Avatar */}
+              {/* 5. Show Customer Photos & Fallback Avatar */}
               <section>
                 <div className="flex items-center justify-between mb-5">
                   <span className="font-medium text-sm text-gray-900">Show Customer Photos</span>
