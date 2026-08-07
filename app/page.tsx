@@ -5,6 +5,7 @@ import LandingHero from "@/components/landing/LandingHero";
 import WhyBloviSection from "@/components/landing/WhyBloviSection";
 import TrustManifestoSection from "@/components/landing/TrustManifestoSection";
 import HowItWorksStacked from "@/components/landing/HowItWorksStacked";
+import WallOfLove from "@/components/landing/WallOfLove";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -28,6 +29,7 @@ export default async function LandingPage({
           <WhyBloviSection />
           <TrustManifestoSection />
           <HowItWorksStacked />
+          <WallOfLove />
           <FinalCTASection />
           <LandingFooter />
         </main>

@@ -2,25 +2,42 @@
 
 import { useEffect, useRef } from "react";
 
-const WIDGET_URL =
-  "https://www.blovi.space/embed/6e037975-54db-4705-b239-28ef18f95eb8?type=wall&layout=grid&max=all&theme=light&ratings=true&radius=pill&badge=false";
-
 export default function WallOfLove() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
+    containerRef.current.innerHTML = "";
+
+    // Target container
+    const widgetTarget = document.createElement("div");
+    widgetTarget.id = "proofkit-widget";
+    widgetTarget.setAttribute("data-widget-id", "6e037975-54db-4705-b239-28ef18f95eb8");
+    containerRef.current.appendChild(widgetTarget);
+
+    // Script tag
     const script = document.createElement("script");
     script.src = "https://www.blovi.space/widget.js";
+    script.async = true;
     script.setAttribute("data-user", "6e037975-54db-4705-b239-28ef18f95eb8");
-    script.setAttribute("data-type", "marquee");
+    script.setAttribute("data-type", "orbit");
+    script.setAttribute("data-preset", "base");
     script.setAttribute("data-theme", "light");
-    script.setAttribute("data-ratings", "true");
-    script.setAttribute("data-badge", "true");
+    script.setAttribute("data-accent", "#2564EB");
+    script.setAttribute("data-text-color", "#374151");
+    script.setAttribute("data-rating-color", "#FBBF24");
+    script.setAttribute("data-rating-border-color", "#4E46E5");
+    script.setAttribute("data-highlight-color", "#FFCD3640");
+    script.setAttribute("data-show-photos", "true");
+    script.setAttribute("data-use-gravatar", "true");
+    script.setAttribute("data-fallback-avatar", "Placeholder");
+    script.setAttribute("data-chat-customer-prompt", "");
+    script.setAttribute("data-chat-founder-reply", "");
+    script.setAttribute("data-show-branding", "true");
+
     containerRef.current.appendChild(script);
 
     return () => {
-      // Cleanup on unmount
       if (containerRef.current) {
         containerRef.current.innerHTML = "";
       }
@@ -40,7 +57,7 @@ export default function WallOfLove() {
         if (containerRef.current) {
           containerRef.current.style.pointerEvents = "auto";
         }
-      }, 200); // Restore pointer events 200ms after user stops scrolling
+      }, 200);
     };
 
     window.addEventListener("scroll", disablePointerEvents, { passive: true });
@@ -87,3 +104,4 @@ export default function WallOfLove() {
     </section>
   );
 }
+

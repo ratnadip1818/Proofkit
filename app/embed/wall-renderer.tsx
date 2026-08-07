@@ -15,6 +15,7 @@ import {
   ConversationLayout,
   BentoLayout,
   OrbitLayout,
+  LivingFeedLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -189,6 +190,20 @@ export default function WallRenderer({
   if (type === "orbit") {
     return (
       <OrbitLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+      />
+    );
+  }
+
+  if (type === "living_feed") {
+    return (
+      <LivingFeedLayout
         testimonials={testimonials}
         theme={theme}
         showRatings={showRatings}

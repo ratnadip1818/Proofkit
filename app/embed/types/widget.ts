@@ -3,7 +3,7 @@ import type { ThemeColors } from "../theme/types";
 import type { WidgetPresetId } from "../styles/types";
 
 /** Supported widget layout types */
-export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento" | "orbit";
+export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento" | "orbit" | "living_feed";
 
 /** Border radius variants */
 export type WidgetRadius = "sharp" | "rounded" | "pill";
@@ -39,6 +39,13 @@ export interface WidgetLayoutProps {
   preset?: WidgetPresetId;
   chatCustomerPrompt?: string;
   chatFounderReply?: string;
+}
+
+/** Props for the Living Feed layout */
+export interface LivingFeedLayoutProps extends WidgetLayoutProps {
+  headerTitle?: string;
+  pageSize?: number;
+  enableLiveSim?: boolean;
 }
 
 /** Props for the Wall of Love grid layout */

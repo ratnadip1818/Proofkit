@@ -185,6 +185,7 @@ export default function WidgetBuilder({
   const layoutStylesList = [
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
     { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
+    { id: "living_feed", name: "Living Feed Timeline", desc: "Vertical activity stream with real-time timestamps, verification badges, and interaction stats.", icon: Layers },
   ];
 
   return (
