@@ -159,6 +159,7 @@ export default function WidgetClientWrapper({
 
     // Notify parent window that the preview widget wrapper is mounted and ready to receive updates
     window.parent.postMessage({ type: "proofkit-preview-ready" }, "*");
+    window.parent.postMessage({ type: "proofkit-ready" }, "*");
 
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -258,6 +259,10 @@ export default function WidgetClientWrapper({
               const height = el ? el.offsetHeight : document.body.scrollHeight;
               window.parent.postMessage(
                 { type: "proofkit-resize", height: height },
+                "*"
+              );
+              window.parent.postMessage(
+                { type: "proofkit-ready" },
                 "*"
               );
             }

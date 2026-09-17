@@ -6,10 +6,10 @@
       return s[s.length - 1];
     })();
 
-  // Look for target container element if present
+  // Look for target container element if present (supports both modern blovi and legacy proofkit IDs)
   var targetContainer =
-    document.getElementById("proofkit-widget") ||
-    document.getElementById("blovi-widget");
+    document.getElementById("blovi-widget") ||
+    document.getElementById("proofkit-widget");
 
   // Helper to get attribute from script tag or container element
   function getAttr(key) {
@@ -25,6 +25,23 @@
 
   var userId = getAttr("user") || getAttr("widget-id");
   if (!userId) return;
+
+  // Baseline height estimation to eliminate layout shift before iframe renders
+  function getEstimatedHeight(type) {
+    switch (type) {
+      case "ribbon": return 140;
+      case "single": return 200;
+      case "marquee": return 160;
+      case "carousel": return 320;
+      case "stack": return 380;
+      case "conversation": return 420;
+      case "spotlight": return 460;
+      case "orbit": return 540;
+      case "bento": return 520;
+      case "wall":
+      default: return 520;
+    }
+  }
 
   // Derive base URL from the script src so the widget works on any domain
   var baseUrl = currentScript.src.replace(/\/widget\.js(\?.*)?$/, "");
@@ -68,11 +85,65 @@
     params.push("type=" + encodeURIComponent(getAttr("layout")));
   }
 
+  var widgetType = getAttr("type") || getAttr("layout") || "wall";
+  var estHeight = getEstimatedHeight(widgetType);
+  var resolvedTheme = resolveTheme(getAttr("theme") || "light");
+
   var container = targetContainer || document.createElement("div");
-  container.style.cssText = "width:100%;min-height:0;position:relative;";
   if (!targetContainer) {
+    container.id = "blovi-widget";
+    container.style.cssText = "width:100%;min-height:" + estHeight + "px;contain:layout style paint;position:relative;";
     currentScript.parentNode.insertBefore(container, currentScript.nextSibling);
+  } else {
+    // Preserve existing container styles while enforcing zero-CLS properties
+    if (!container.style.minHeight || container.style.minHeight === "0px") {
+      container.style.minHeight = estHeight + "px";
+    }
+    if (!container.style.contain) {
+      container.style.contain = "layout style paint";
+    }
+    if (!container.style.position || container.style.position === "static") {
+      container.style.position = "relative";
+    }
   }
+
+  // Inject lightweight skeleton shimmer styles once
+  if (!document.getElementById("blovi-skeleton-style")) {
+    var styleEl = document.createElement("style");
+    styleEl.id = "blovi-skeleton-style";
+    styleEl.textContent =
+      "@keyframes blovi-shimmer{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}" +
+      ".blovi-sk-wrap{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:12px;padding:20px;box-sizing:border-box;overflow:hidden;pointer-events:none;z-index:1;transition:opacity 0.3s ease-out;}" +
+      ".blovi-sk-card{width:100%;height:100px;border-radius:12px;position:relative;overflow:hidden;}";
+    document.head.appendChild(styleEl);
+  }
+
+  // Create subtle shimmer skeleton placeholder
+  function createSkeleton(isDark, cardCount) {
+    var wrap = document.createElement("div");
+    wrap.className = "blovi-sk-wrap";
+    wrap.setAttribute("aria-hidden", "true");
+    var bg = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.035)";
+    var border = isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.05)";
+    var shimmerGrad = isDark
+      ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)"
+      : "linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent)";
+
+    var count = Math.min(Math.max(1, cardCount || 2), 3);
+    for (var i = 0; i < count; i++) {
+      var card = document.createElement("div");
+      card.className = "blovi-sk-card";
+      card.style.cssText = "background:" + bg + ";border:" + border + ";";
+      var shim = document.createElement("div");
+      shim.style.cssText = "position:absolute;top:0;left:0;right:0;bottom:0;background:" + shimmerGrad + ";animation:blovi-shimmer 1.6s infinite;";
+      card.appendChild(shim);
+      wrap.appendChild(card);
+    }
+    return wrap;
+  }
+
+  var skeleton = createSkeleton(resolvedTheme === "dark", widgetType === "single" || widgetType === "ribbon" ? 1 : 2);
+  container.appendChild(skeleton);
 
   function mount() {
     var iframe = document.createElement("iframe");
@@ -81,9 +152,31 @@
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("allowtransparency", "true");
     iframe.setAttribute("frameborder", "0");
-    iframe.setAttribute("loading", "eager");
-    iframe.style.cssText = "width:100%;border:none;display:block;overflow:hidden;opacity:1;";
-    iframe.height = "550";
+    iframe.setAttribute("loading", "lazy");
+    iframe.style.cssText =
+      "width:100% !important;border:none !important;display:block !important;overflow:hidden !important;" +
+      "opacity:0;transition:opacity 0.3s ease-out, height 0.25s cubic-bezier(0.16, 1, 0.3, 1);" +
+      "position:relative;z-index:2;margin:0 !important;padding:0 !important;";
+    iframe.height = estHeight.toString();
+
+    var revealed = false;
+    function revealWidget() {
+      if (revealed) return;
+      revealed = true;
+      iframe.style.opacity = "1";
+      if (skeleton) {
+        skeleton.style.opacity = "0";
+        setTimeout(function () {
+          if (skeleton && skeleton.parentNode) {
+            skeleton.parentNode.removeChild(skeleton);
+            skeleton = null;
+          }
+        }, 350);
+      }
+    }
+
+    // Safety fallback: ensure iframe reveals after 3.5s in case of edge network or postMessage delay
+    setTimeout(revealWidget, 3500);
 
     function injectJsonLdSchema(testimonials) {
       if (!testimonials || !testimonials.length) return;
@@ -168,11 +261,20 @@
       if (!event.data || event.source !== iframe.contentWindow) return;
 
       if (
+        event.data.type === "proofkit-ready" ||
+        event.data.type === "proofkit-preview-ready"
+      ) {
+        revealWidget();
+      }
+
+      if (
         event.data.type === "proofkit-resize" &&
         typeof event.data.height === "number" &&
         event.data.height > 0
       ) {
+        revealWidget();
         iframe.style.height = event.data.height + 16 + "px";
+        container.style.minHeight = "0px";
       }
 
       if (
@@ -212,6 +314,26 @@
     container.appendChild(iframe);
   }
 
-  // Instant execution: Mount iframe immediately when script executes
-  mount();
+  // Lazy-mount with IntersectionObserver (250px viewport buffer)
+  var mounted = false;
+  function triggerMount() {
+    if (mounted) return;
+    mounted = true;
+    mount();
+  }
+
+  if ("IntersectionObserver" in window) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        if (entries[0] && entries[0].isIntersecting) {
+          observer.disconnect();
+          triggerMount();
+        }
+      },
+      { rootMargin: "250px 0px" }
+    );
+    observer.observe(container);
+  } else {
+    triggerMount();
+  }
 })();

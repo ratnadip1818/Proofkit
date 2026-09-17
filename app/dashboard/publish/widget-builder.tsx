@@ -147,10 +147,39 @@ export default function WidgetBuilder({
   // Live preview URL pointing to uncached dynamic preview endpoint
   const rawPreviewUrl = `/embed/preview?user=${userId || "demo-widget"}&type=${layout}&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(primaryColor)}&textColor=${encodeURIComponent(textColor)}&ratingColor=${encodeURIComponent(ratingColor)}&ratingBorderColor=${encodeURIComponent(ratingBorderColor)}&highlightColor=${encodeURIComponent(highlightColor)}&showPhotos=${showPhotos}&useGravatar=${useGravatar}&fallbackAvatar=${encodeURIComponent(fallbackAvatar)}&chatCustomerPrompt=${encodeURIComponent(chatCustomerPrompt)}&chatFounderReply=${encodeURIComponent(chatFounderReply)}&showBranding=${showBranding}&max=9&desktop=1&v=${testimonialsKey}`;
 
+  const getEstimatedHeight = (layoutType: string, count: number): number => {
+    switch (layoutType) {
+      case "ribbon":
+        return 140;
+      case "single":
+        return 200;
+      case "carousel":
+        return 320;
+      case "stack":
+        return 380;
+      case "conversation":
+        return 420;
+      case "spotlight":
+        return 460;
+      case "orbit":
+        return 540;
+      case "bento":
+        return count > 4 ? 640 : 480;
+      case "marquee":
+        return 160;
+      case "wall":
+      default:
+        if (count <= 3) return 360;
+        if (count <= 6) return 580;
+        return 740;
+    }
+  };
+
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
+    const estimatedHeight = getEstimatedHeight(layout, testimonials.length);
     return `<!-- Blovi Widget: ${layout.toUpperCase()} (${preset.toUpperCase()} PRESET) -->
-<div id="proofkit-widget" data-widget-id="${widgetId}"></div>
+<div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; min-height: ${estimatedHeight}px; contain: layout style paint; position: relative;"></div>
 <script 
   src="${appUrl}/widget.js" 
   data-user="${widgetId}"
