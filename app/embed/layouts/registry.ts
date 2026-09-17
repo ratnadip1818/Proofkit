@@ -8,7 +8,6 @@ import { SpotlightLayout, type SpotlightLayoutProps } from "./SpotlightLayout";
 import { ConversationLayout, type ConversationLayoutProps } from "./ConversationLayout";
 import { BentoLayout } from "./BentoLayout";
 import { OrbitLayout } from "./OrbitLayout";
-import { LivingFeedLayout } from "./LivingFeedLayout";
 import { RibbonLayout } from "./RibbonLayout";
 import { StackLayout } from "./StackLayout";
 
@@ -112,17 +111,6 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsTagFiltering: false,
       supportsPagination: false,
       supportsAutoplay: true,
-      supportsMultipleItems: true,
-    },
-  },
-  living_feed: {
-    id: "living_feed",
-    name: "Living Feed Timeline",
-    component: LivingFeedLayout,
-    capabilities: {
-      supportsTagFiltering: false,
-      supportsPagination: true,
-      supportsAutoplay: false,
       supportsMultipleItems: true,
     },
   },
