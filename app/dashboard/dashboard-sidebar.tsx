@@ -81,8 +81,7 @@ function SidebarInner({
     .toUpperCase();
   const userRole = planTier === "pro" ? "PRO MEMBER" : "FOUNDER";
 
-  const isReviewsActive =
-    pathname.startsWith("/dashboard/manage") || pathname === "/dashboard/import";
+  const isReviewsActive = pathname.startsWith("/dashboard/manage");
   const isSettingsActive =
     pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/billing");
 
@@ -94,7 +93,6 @@ function SidebarInner({
       badge: pendingCount > 0 ? pendingCount : undefined,
     },
     { label: "Approved", href: "/dashboard/manage?status=approved" },
-    { label: "Import Sources", href: "/dashboard/import" },
   ];
 
   const settingsSubItems = [
@@ -227,6 +225,36 @@ function SidebarInner({
             {isCollapsed && hoveredMenu === "collect" && (
               <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
                 Collect
+              </div>
+            )}
+          </div>
+
+          {/* Independent Import Proof Link */}
+          <div
+            className="relative"
+            onMouseEnter={() => isCollapsed && handleMouseEnter("import")}
+            onMouseLeave={() => isCollapsed && handleMouseLeave()}
+          >
+            <Link
+              href="/dashboard/import"
+              onClick={onItemClick}
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs transition-colors ${
+                pathname.startsWith("/dashboard/import")
+                  ? "bg-gray-100 text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
+              } ${isCollapsed ? "justify-center px-0" : ""}`}
+            >
+              <Download
+                size={18}
+                strokeWidth={1.75}
+                className={`shrink-0 ${pathname.startsWith("/dashboard/import") ? "text-gray-900" : "text-gray-500"}`}
+              />
+              {!isCollapsed && <span>Import Proof</span>}
+            </Link>
+
+            {isCollapsed && hoveredMenu === "import" && (
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                Import Proof
               </div>
             )}
           </div>
