@@ -16,6 +16,8 @@ import {
   BentoLayout,
   OrbitLayout,
   LivingFeedLayout,
+  RibbonLayout,
+  StackLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -204,6 +206,34 @@ export default function WallRenderer({
   if (type === "living_feed") {
     return (
       <LivingFeedLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+      />
+    );
+  }
+
+  if (type === "ribbon") {
+    return (
+      <RibbonLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+      />
+    );
+  }
+
+  if (type === "stack") {
+    return (
+      <StackLayout
         testimonials={testimonials}
         theme={theme}
         showRatings={showRatings}

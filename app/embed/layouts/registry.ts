@@ -9,6 +9,8 @@ import { ConversationLayout, type ConversationLayoutProps } from "./Conversation
 import { BentoLayout } from "./BentoLayout";
 import { OrbitLayout } from "./OrbitLayout";
 import { LivingFeedLayout } from "./LivingFeedLayout";
+import { RibbonLayout } from "./RibbonLayout";
+import { StackLayout } from "./StackLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -121,6 +123,28 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsTagFiltering: false,
       supportsPagination: true,
       supportsAutoplay: false,
+      supportsMultipleItems: true,
+    },
+  },
+  ribbon: {
+    id: "ribbon",
+    name: "Ribbon Ticker",
+    component: RibbonLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: true,
+      supportsMultipleItems: true,
+    },
+  },
+  stack: {
+    id: "stack",
+    name: "Card Stack",
+    component: StackLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: true,
       supportsMultipleItems: true,
     },
   },

@@ -186,6 +186,8 @@ export default function WidgetBuilder({
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
     { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
     { id: "living_feed", name: "Living Feed Timeline", desc: "Vertical activity stream with real-time timestamps, verification badges, and interaction stats.", icon: Layers },
+    { id: "ribbon", name: "Ribbon Ticker", desc: "Dual-row horizontal marquee with compact pill cards scrolling in opposite directions.", icon: Layout },
+    { id: "stack", name: "Card Stack", desc: "Tinder-style stacked cards that auto-cycle with swipe-away animations and dot navigation.", icon: Layers },
   ];
 
   return (
