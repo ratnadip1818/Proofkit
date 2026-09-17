@@ -1,267 +1,518 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import Logo from "@/components/Logo";
 import {
   LayoutDashboard,
-  Settings,
-  Menu,
-  X,
-  LogOut,
-  Sparkles,
-  Plus,
+  FileText,
   MessageSquare,
   Layers,
-  FileText,
-  Star,
-  ChevronDown,
+  Settings,
+  HelpCircle,
+  LogOut,
+  ChevronLeft,
   ChevronRight,
-  User,
+  ChevronDown,
+  CreditCard,
+  Menu,
+  X,
+  Star,
   Download,
 } from "lucide-react";
+
+export interface DashboardSidebarProps {
+  email: string | null;
+  fullName: string | null;
+  avatarUrl?: string | null;
+  planTier: string;
+}
 
 function SidebarInner({
   email,
   fullName,
+  avatarUrl,
   planTier,
+  isCollapsed = false,
+  onToggleCollapse,
   onItemClick,
   onSignOut,
 }: {
   email: string | null;
   fullName: string | null;
+  avatarUrl?: string | null;
   planTier: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
   onItemClick: () => void;
   onSignOut: () => void;
 }) {
   const pathname = usePathname();
-  const [recentReviews, setRecentReviews] = useState<any[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
-  const [isRecentActivityOpen, setIsRecentActivityOpen] = useState(true);
 
-  // Fetch recent reviews and pending count client-side
+  // Accordion states
+  const [reviewsOpen, setReviewsOpen] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Collapsed mode hover state
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Fetch pending review count
   useEffect(() => {
     const supabase = createClient();
-    async function loadRecent() {
-      const [{ data }, { count }] = await Promise.all([
-        supabase
-          .from("testimonials")
-          .select("id, author_name, status, avatar_url, rating, created_at")
-          .order("created_at", { ascending: false })
-          .limit(3),
-        supabase
-          .from("testimonials")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
-      ]);
-      if (data) {
-        setRecentReviews(data);
-      }
-      if (count !== null) {
-        setPendingCount(count);
-      }
+    async function loadPending() {
+      const { count } = await supabase
+        .from("testimonials")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending");
+      if (count !== null) setPendingCount(count);
     }
-    loadRecent();
+    loadPending();
   }, []);
 
   const displayName = fullName || email?.split("@")[0] || "User";
+  const userInitials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const userRole = planTier === "pro" ? "PRO MEMBER" : "FOUNDER";
 
-  const formatTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
+  const isReviewsActive =
+    pathname.startsWith("/dashboard/manage") || pathname === "/dashboard/import";
+  const isSettingsActive =
+    pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/billing");
 
-  const menuItems = [
-    { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Collect", href: "/dashboard/collect", icon: FileText },
-    { label: "Import Proof", href: "/dashboard/import", icon: Download },
-    { label: "Manage Reviews", href: "/dashboard/manage", icon: MessageSquare, badge: pendingCount },
-    { label: "Publish Widgets", href: "/dashboard/publish", icon: Layers },
+  const reviewSubItems = [
+    { label: "All Reviews", href: "/dashboard/manage" },
+    {
+      label: "Pending",
+      href: "/dashboard/manage?status=pending",
+      badge: pendingCount > 0 ? pendingCount : undefined,
+    },
+    { label: "Approved", href: "/dashboard/manage?status=approved" },
+    { label: "Import Sources", href: "/dashboard/import" },
   ];
 
+  const settingsSubItems = [
+    { label: "Workspace Settings", href: "/dashboard/settings" },
+    { label: "Billing & Plans", href: "/dashboard/billing" },
+  ];
+
+  const handleMouseEnter = (key: string) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredMenu(key);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredMenu(null);
+    }, 120);
+  };
+
   return (
-    <div className="flex h-full flex-col bg-[#EFECE8] font-sans text-[#1A1A1A] select-none border-r border-[#E3E0DB]">
-      {/* Brand Header */}
-      <div className="p-4 flex items-center justify-between border-b border-[#E3E0DB] shrink-0">
-        <Link href="/dashboard" onClick={onItemClick} className="flex items-center space-x-2.5 group">
-          <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center text-white shrink-0 shadow-2xs">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 32 32"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
-                fill="white"
-              />
-              <path
-                d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <div>
-            <span className="font-semibold text-[15px] tracking-tight text-[#1A1A1A] block leading-tight">Blovi</span>
-            <span className="text-[9px] text-[#787774] font-semibold tracking-[0.08em] uppercase block">Social Proof</span>
-          </div>
-        </Link>
-      </div>
+    <div className="flex h-full flex-col bg-white font-sans text-[#1A1A1A] select-none relative">
+      {/* Floating Toggle Pill on Desktop Border Edge */}
+      {onToggleCollapse && (
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="hidden md:flex absolute -right-3 top-7 z-50 w-6 h-6 rounded-full bg-white border border-gray-200 shadow-xs items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all cursor-pointer"
+        >
+          {isCollapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
+      )}
 
-      {/* Primary Navigation */}
-      <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
-        {/* Navigation Section */}
-        <div className="space-y-1">
-          <div className="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#787774]">
-            Dashboard
-          </div>
-          {menuItems.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onItemClick}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[6px] text-sm transition-colors ${
-                  isActive
-                    ? "bg-[#E3E0DB] text-[#1A1A1A] font-semibold"
-                    : "text-[#787774] hover:bg-[#E8E5E0] hover:text-[#1A1A1A] font-normal"
-                }`}
-              >
-                <div className="flex items-center space-x-2.5">
-                  <Icon size={16} strokeWidth={1.5} className={`shrink-0 ${isActive ? "text-[#1A1A1A]" : "text-[#787774]"}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="px-1.5 py-0.5 bg-[#2563EB]/10 text-[#2563EB] rounded text-[10px] font-bold">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Account Settings */}
-        <div className="space-y-1">
-          <div className="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#787774]">
-            Account
-          </div>
-          <Link
-            href="/dashboard/settings"
-            onClick={onItemClick}
-            className={`w-full flex items-center space-x-2.5 px-2.5 py-1.5 rounded-[6px] text-sm transition-colors ${
-              pathname === "/dashboard/settings"
-                ? "bg-[#E3E0DB] text-[#1A1A1A] font-semibold"
-                : "text-[#787774] hover:bg-[#E8E5E0] hover:text-[#1A1A1A] font-normal"
-            }`}
-          >
-            <Settings size={16} strokeWidth={1.5} className={`shrink-0 ${pathname === "/dashboard/settings" ? "text-[#1A1A1A]" : "text-[#787774]"}`} />
-            <span>Workspace Settings</span>
-          </Link>
-        </div>
-
-        {/* Recent Submissions Tree */}
-        <div className="space-y-1 pt-3 border-t border-[#E3E0DB]">
-          <button
-            onClick={() => setIsRecentActivityOpen(!isRecentActivityOpen)}
-            className="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#787774] hover:text-[#1A1A1A] text-left cursor-pointer"
-          >
-            <div className="flex items-center space-x-1">
-              {isRecentActivityOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-              <span>Recent Submissions</span>
-            </div>
-            <Link
-              href="/dashboard/import"
-              onClick={(e) => {
-                e.stopPropagation();
-                onItemClick();
-              }}
-              className="p-0.5 hover:bg-[#E8E5E0] rounded transition-colors text-[#787774] hover:text-[#1A1A1A]"
-            >
-              <Plus size={14} />
-            </Link>
-          </button>
-
-          {isRecentActivityOpen && (
-            <div className="pl-3 pr-1 py-1 space-y-1">
-              {recentReviews.length === 0 ? (
-                <p className="text-xs text-[#787774] italic px-2 py-1">No submissions yet</p>
-              ) : (
-                recentReviews.map((review) => {
-                  const isApproved = review.status === "approved";
-                  return (
-                    <Link
-                      key={review.id}
-                      href="/dashboard/manage"
-                      onClick={onItemClick}
-                      className="flex items-center justify-between px-2 py-1 rounded-[6px] text-xs text-[#787774] hover:bg-[#E8E5E0] hover:text-[#1A1A1A] transition-colors"
-                    >
-                      <div className="flex items-center space-x-1.5 min-w-0">
-                        {isApproved ? (
-                          <Star size={12} className="text-[#F59E0B] fill-[#F59E0B] shrink-0" />
-                        ) : (
-                          <div className="w-3 h-3 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-[8px] font-bold flex items-center justify-center shrink-0">
-                            P
-                          </div>
-                        )}
-                        <span className="truncate">{review.author_name || "Anonymous"}</span>
-                      </div>
-                      <span className="text-[10px] text-[#787774] shrink-0 font-mono">
-                        {formatTime(review.created_at)}
-                      </span>
-                    </Link>
-                  );
-                })
-              )}
+      {/* Header: Client Avatar + Name + Subtitle (Replaces old Blovi logo) */}
+      <div
+        className={`flex items-center px-4 py-5 border-b border-gray-100 shrink-0 transition-all ${
+          isCollapsed ? "justify-center" : "gap-3"
+        }`}
+      >
+        <div className="relative shrink-0">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-pink-100"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-[#FDF2F4] ring-2 ring-pink-100 flex items-center justify-center text-[#BE185D] font-bold text-xs tracking-tight">
+              {userInitials}
             </div>
           )}
         </div>
+
+        {!isCollapsed && (
+          <div className="min-w-0 flex-1">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block leading-tight truncate">
+              {userRole}
+            </span>
+            <h2 className="text-sm font-bold text-gray-900 truncate leading-tight mt-0.5">
+              {displayName}
+            </h2>
+          </div>
+        )}
       </div>
 
-      {/* Footer Profile & Actions */}
-      <div className="p-3 border-t border-[#E3E0DB] bg-[#EFECE8] space-y-2.5 shrink-0">
-        {planTier === "free" && (
-          <Link
-            href="/dashboard/billing"
-            onClick={onItemClick}
-            className="block rounded-[6px] border border-amber-200 bg-amber-50/70 p-2.5 transition-all hover:bg-amber-100/70"
+      {/* Primary Navigation */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-6">
+        {/* SECTION: MAIN */}
+        <div className="space-y-1">
+          <div
+            className={`text-[10px] font-semibold tracking-wider uppercase text-gray-400 px-2 pb-1.5 ${
+              isCollapsed ? "text-center text-[8px]" : ""
+            }`}
           >
-            <div className="flex items-center space-x-1.5 text-[10px] font-bold text-amber-800 uppercase tracking-wider">
-              <Sparkles size={12} className="text-amber-600" />
-              <span>Free Plan Active</span>
-            </div>
-            <p className="mt-0.5 text-[10px] text-amber-700 font-medium">
-              Upgrade for unlimited widgets &amp; pages →
-            </p>
-          </Link>
-        )}
-
-        <div className="flex items-center justify-between p-2 bg-[#FFFFFF] rounded-[6px] border border-[#E3E0DB]">
-          <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-[6px] bg-[#E3E0DB] flex items-center justify-center text-[#1A1A1A] font-bold text-xs shrink-0">
-              {displayName ? displayName[0].toUpperCase() : "U"}
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="font-semibold text-xs text-[#1A1A1A] block truncate leading-tight">
-                {displayName}
-              </span>
-              <span className="text-[10px] text-[#787774] block">
-                • {planTier === "pro" ? "PRO MEMBER" : "FREE TIER"}
-              </span>
-            </div>
+            MAIN
           </div>
-          <button
-            onClick={onSignOut}
-            title="Sign Out"
-            className="p-1 hover:bg-[#E8E5E0] rounded transition-colors text-[#787774] hover:text-[#DC2626] cursor-pointer"
+
+          {/* Dashboard Link */}
+          <div
+            className="relative"
+            onMouseEnter={() => isCollapsed && handleMouseEnter("dashboard")}
+            onMouseLeave={() => isCollapsed && handleMouseLeave()}
           >
-            <LogOut size={16} strokeWidth={1.5} />
+            <Link
+              href="/dashboard"
+              onClick={onItemClick}
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs transition-colors ${
+                pathname === "/dashboard"
+                  ? "bg-gray-100 text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
+              } ${isCollapsed ? "justify-center px-0" : ""}`}
+            >
+              <LayoutDashboard
+                size={18}
+                strokeWidth={1.75}
+                className={`shrink-0 ${pathname === "/dashboard" ? "text-gray-900" : "text-gray-500"}`}
+              />
+              {!isCollapsed && <span>Dashboard</span>}
+            </Link>
+
+            {isCollapsed && hoveredMenu === "dashboard" && (
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                Dashboard
+              </div>
+            )}
+          </div>
+
+          {/* Collect Form Link */}
+          <div
+            className="relative"
+            onMouseEnter={() => isCollapsed && handleMouseEnter("collect")}
+            onMouseLeave={() => isCollapsed && handleMouseLeave()}
+          >
+            <Link
+              href="/dashboard/collect"
+              onClick={onItemClick}
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs transition-colors ${
+                pathname.startsWith("/dashboard/collect")
+                  ? "bg-gray-100 text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
+              } ${isCollapsed ? "justify-center px-0" : ""}`}
+            >
+              <FileText
+                size={18}
+                strokeWidth={1.75}
+                className={`shrink-0 ${pathname.startsWith("/dashboard/collect") ? "text-gray-900" : "text-gray-500"}`}
+              />
+              {!isCollapsed && <span>Collect</span>}
+            </Link>
+
+            {isCollapsed && hoveredMenu === "collect" && (
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                Collect
+              </div>
+            )}
+          </div>
+
+          {/* Reviews Accordion with Tree Connector Lines (Matches Income item in reference) */}
+          <div
+            className="relative"
+            onMouseEnter={() => isCollapsed && handleMouseEnter("reviews")}
+            onMouseLeave={() => isCollapsed && handleMouseLeave()}
+          >
+            <button
+              type="button"
+              onClick={() => !isCollapsed && setReviewsOpen(!reviewsOpen)}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
+                isReviewsActive
+                  ? "text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
+              } ${isCollapsed ? "justify-center px-0" : ""}`}
+            >
+              <div className="flex items-center gap-3">
+                <MessageSquare
+                  size={18}
+                  strokeWidth={1.75}
+                  className={`shrink-0 ${isReviewsActive ? "text-gray-900" : "text-gray-500"}`}
+                />
+                {!isCollapsed && <span>Reviews</span>}
+              </div>
+
+              {!isCollapsed && (
+                <div className="flex items-center gap-1.5">
+                  {pendingCount > 0 && (
+                    <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
+                      {pendingCount}
+                    </span>
+                  )}
+                  <ChevronDown
+                    size={14}
+                    className={`text-gray-400 transition-transform duration-200 ${
+                      reviewsOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </div>
+              )}
+            </button>
+
+            {/* Tree Branch Submenu (Expanded Mode) */}
+            {!isCollapsed && reviewsOpen && (
+              <div className="relative ml-4 pl-5 border-l border-gray-200 space-y-1 my-1">
+                {reviewSubItems.map((sub) => {
+                  const isSubActive =
+                    pathname === sub.href ||
+                    (sub.href.includes("?") && pathname + (typeof window !== "undefined" ? window.location.search : "") === sub.href);
+
+                  return (
+                    <Link
+                      key={sub.label}
+                      href={sub.href}
+                      onClick={onItemClick}
+                      className={`relative flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                        isSubActive
+                          ? "bg-gray-100 text-gray-900 font-semibold"
+                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      {/* Tree Branch Tick */}
+                      <span className="absolute -left-5 top-1/2 w-3.5 h-[1px] bg-gray-200 -translate-y-1/2" />
+                      <span>{sub.label}</span>
+                      {sub.badge !== undefined && (
+                        <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
+                          {sub.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Flyout Submenu Popover (Collapsed Mode) */}
+            {isCollapsed && hoveredMenu === "reviews" && (
+              <div
+                className="absolute left-full ml-3 top-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 min-w-[150px] space-y-1 animate-fade-in"
+                onMouseEnter={() => handleMouseEnter("reviews")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="text-[10px] font-semibold text-gray-400 px-2.5 py-1 uppercase tracking-wider border-b border-gray-100">
+                  Reviews
+                </div>
+                {reviewSubItems.map((sub) => (
+                  <Link
+                    key={sub.label}
+                    href={sub.href}
+                    onClick={() => {
+                      setHoveredMenu(null);
+                      onItemClick();
+                    }}
+                    className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    <span>{sub.label}</span>
+                    {sub.badge !== undefined && (
+                      <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
+                        {sub.badge}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Publish Widgets Link */}
+          <div
+            className="relative"
+            onMouseEnter={() => isCollapsed && handleMouseEnter("publish")}
+            onMouseLeave={() => isCollapsed && handleMouseLeave()}
+          >
+            <Link
+              href="/dashboard/publish"
+              onClick={onItemClick}
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs transition-colors ${
+                pathname.startsWith("/dashboard/publish")
+                  ? "bg-gray-100 text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
+              } ${isCollapsed ? "justify-center px-0" : ""}`}
+            >
+              <Layers
+                size={18}
+                strokeWidth={1.75}
+                className={`shrink-0 ${pathname.startsWith("/dashboard/publish") ? "text-gray-900" : "text-gray-500"}`}
+              />
+              {!isCollapsed && <span>Publish Widgets</span>}
+            </Link>
+
+            {isCollapsed && hoveredMenu === "publish" && (
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                Publish Widgets
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* SECTION: SETTINGS */}
+        <div className="space-y-1 pt-2">
+          <div
+            className={`text-[10px] font-semibold tracking-wider uppercase text-gray-400 px-2 pb-1.5 ${
+              isCollapsed ? "text-center text-[8px]" : ""
+            }`}
+          >
+            SETTINGS
+          </div>
+
+          {/* Settings Accordion */}
+          <div
+            className="relative"
+            onMouseEnter={() => isCollapsed && handleMouseEnter("settings")}
+            onMouseLeave={() => isCollapsed && handleMouseLeave()}
+          >
+            <button
+              type="button"
+              onClick={() => !isCollapsed && setSettingsOpen(!settingsOpen)}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
+                isSettingsActive
+                  ? "text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
+              } ${isCollapsed ? "justify-center px-0" : ""}`}
+            >
+              <div className="flex items-center gap-3">
+                <Settings
+                  size={18}
+                  strokeWidth={1.75}
+                  className={`shrink-0 ${isSettingsActive ? "text-gray-900" : "text-gray-500"}`}
+                />
+                {!isCollapsed && <span>Settings</span>}
+              </div>
+
+              {!isCollapsed && (
+                <ChevronDown
+                  size={14}
+                  className={`text-gray-400 transition-transform duration-200 ${
+                    settingsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              )}
+            </button>
+
+            {/* Tree Branch Submenu (Expanded Mode) */}
+            {!isCollapsed && settingsOpen && (
+              <div className="relative ml-4 pl-5 border-l border-gray-200 space-y-1 my-1">
+                {settingsSubItems.map((sub) => {
+                  const isSubActive = pathname === sub.href;
+                  return (
+                    <Link
+                      key={sub.label}
+                      href={sub.href}
+                      onClick={onItemClick}
+                      className={`relative flex items-center px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                        isSubActive
+                          ? "bg-gray-100 text-gray-900 font-semibold"
+                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span className="absolute -left-5 top-1/2 w-3.5 h-[1px] bg-gray-200 -translate-y-1/2" />
+                      <span>{sub.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Flyout Submenu Popover (Collapsed Mode) */}
+            {isCollapsed && hoveredMenu === "settings" && (
+              <div
+                className="absolute left-full ml-3 top-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 min-w-[160px] space-y-1 animate-fade-in"
+                onMouseEnter={() => handleMouseEnter("settings")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="text-[10px] font-semibold text-gray-400 px-2.5 py-1 uppercase tracking-wider border-b border-gray-100">
+                  Settings
+                </div>
+                {settingsSubItems.map((sub) => (
+                  <Link
+                    key={sub.label}
+                    href={sub.href}
+                    onClick={() => {
+                      setHoveredMenu(null);
+                      onItemClick();
+                    }}
+                    className="block px-2.5 py-1.5 rounded-lg text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Pinned Bottom Actions: Help & Logout Account */}
+      <div className="p-3 border-t border-gray-100 space-y-1 shrink-0">
+        {/* Help Link */}
+        <div
+          className="relative"
+          onMouseEnter={() => isCollapsed && handleMouseEnter("help")}
+          onMouseLeave={() => isCollapsed && handleMouseLeave()}
+        >
+          <Link
+            href="/dashboard/guide"
+            onClick={onItemClick}
+            className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ${
+              isCollapsed ? "justify-center px-0" : ""
+            }`}
+          >
+            <HelpCircle size={18} strokeWidth={1.75} className="shrink-0 text-gray-500" />
+            {!isCollapsed && <span>Help</span>}
+          </Link>
+
+          {isCollapsed && hoveredMenu === "help" && (
+            <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+              Help
+            </div>
+          )}
+        </div>
+
+        {/* Red Logout Account Button (Matches reference screenshot) */}
+        <div
+          className="relative"
+          onMouseEnter={() => isCollapsed && handleMouseEnter("logout")}
+          onMouseLeave={() => isCollapsed && handleMouseLeave()}
+        >
+          <button
+            type="button"
+            onClick={onSignOut}
+            className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs text-red-500 hover:text-red-600 hover:bg-red-50/60 transition-colors cursor-pointer ${
+              isCollapsed ? "justify-center px-0" : ""
+            }`}
+          >
+            <LogOut size={18} strokeWidth={1.75} className="shrink-0 text-red-500" />
+            {!isCollapsed && <span className="font-medium">Logout Account</span>}
           </button>
+
+          {isCollapsed && hoveredMenu === "logout" && (
+            <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+              Logout Account
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -271,14 +522,39 @@ function SidebarInner({
 export default function DashboardSidebar({
   email,
   fullName,
+  avatarUrl,
   planTier,
-}: {
-  email: string | null;
-  fullName: string | null;
-  planTier: string;
-}) {
+}: DashboardSidebarProps) {
   const router = useRouter();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Sync collapsed state with localStorage and CSS variable on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("blovi_sidebar_collapsed");
+      if (stored !== null) {
+        const val = stored === "true";
+        setIsCollapsed(val);
+        document.documentElement.style.setProperty("--sidebar-width", val ? "74px" : "240px");
+      } else {
+        document.documentElement.style.setProperty("--sidebar-width", "240px");
+      }
+    } catch (e) {
+      document.documentElement.style.setProperty("--sidebar-width", "240px");
+    }
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("blovi_sidebar_collapsed", String(next));
+      } catch (e) {}
+      document.documentElement.style.setProperty("--sidebar-width", next ? "74px" : "240px");
+      return next;
+    });
+  };
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -287,46 +563,55 @@ export default function DashboardSidebar({
     router.refresh();
   }
 
+  const displayName = fullName || email?.split("@")[0] || "User";
+  const userInitials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <>
-      {/* Desktop fixed sidebar (220px width) */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 z-30 w-[220px] flex-col border-r border-[#E3E0DB] bg-[#EFECE8]">
+      {/* Desktop fixed sidebar (240px expanded / 74px collapsed) */}
+      <aside
+        className={`hidden md:flex fixed left-0 top-0 bottom-0 z-30 flex-col border-r border-gray-200/80 bg-white shadow-2xs transition-all duration-300 ease-in-out ${
+          isCollapsed ? "w-[74px]" : "w-[240px]"
+        }`}
+      >
         <SidebarInner
           email={email}
           fullName={fullName}
+          avatarUrl={avatarUrl}
           planTier={planTier}
+          isCollapsed={isCollapsed}
+          onToggleCollapse={toggleCollapse}
           onItemClick={() => {}}
           onSignOut={handleSignOut}
         />
       </aside>
 
-      {/* Mobile top bar */}
-      <header className="md:hidden fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-[#E3E0DB] bg-[#EFECE8] px-4">
-        <Link href="/dashboard" className="flex items-center space-x-2">
-          <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center text-white shrink-0 shadow-2xs">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 32 32"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
-                fill="white"
-              />
-              <path
-                d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z"
-                fill="white"
-              />
-            </svg>
-          </div>
-          <span className="font-semibold text-sm text-[#1A1A1A]">Blovi</span>
-        </Link>
+      {/* Mobile top bar with client avatar and name */}
+      <header className="md:hidden fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-pink-100 shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-[#FDF2F4] ring-2 ring-pink-100 flex items-center justify-center text-[#BE185D] font-bold text-xs shrink-0">
+              {userInitials}
+            </div>
+          )}
+          <span className="font-bold text-sm text-gray-900 truncate">{displayName}</span>
+        </div>
         <button
+          type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation"
-          className="rounded-md p-1.5 text-[#787774] hover:bg-[#E8E5E0] cursor-pointer"
+          className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
         >
           <Menu size={20} />
         </button>
@@ -343,45 +628,46 @@ export default function DashboardSidebar({
 
       {/* Mobile drawer */}
       <aside
-        className={`md:hidden fixed left-0 top-0 bottom-0 z-50 flex w-[240px] flex-col border-r border-[#E3E0DB] bg-[#EFECE8] shadow-xl transition-transform duration-300 ${
+        className={`md:hidden fixed left-0 top-0 bottom-0 z-50 flex w-[260px] flex-col border-r border-gray-200 bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#E3E0DB] px-4">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-[6px] bg-[#2563EB] flex items-center justify-center text-white shrink-0 shadow-2xs">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 32 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9 16H11.5V24H9C8.45 24 8 23.55 8 23V17C8 16.45 8.45 16 9 16Z"
-                  fill="white"
-                />
-                <path
-                  d="M13.5 16L16 8.5C16.3 7.7 17 7.5 17.5 7.5C18.6 7.5 19.5 8.4 19.5 9.5V14H23C24.1 14 24.9 14.9 24.8 16L24 23C23.9 23.9 23.1 24.5 22.2 24.5H14.5C13.95 24.5 13.5 24.05 13.5 23.5V16Z"
-                  fill="white"
-                />
-              </svg>
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-pink-100 shrink-0"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#FDF2F4] ring-2 ring-pink-100 flex items-center justify-center text-[#BE185D] font-bold text-xs shrink-0">
+                {userInitials}
+              </div>
+            )}
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">
+                {planTier === "pro" ? "PRO MEMBER" : "FOUNDER"}
+              </span>
+              <span className="font-bold text-sm text-gray-900 block truncate">{displayName}</span>
             </div>
-            <span className="font-semibold text-sm text-[#1A1A1A]">Blovi</span>
-          </Link>
+          </div>
           <button
+            type="button"
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation"
-            className="rounded-md p-1.5 text-[#787774] hover:bg-[#E8E5E0] cursor-pointer"
+            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 cursor-pointer"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
         <div className="flex-1 overflow-hidden">
           <SidebarInner
             email={email}
             fullName={fullName}
+            avatarUrl={avatarUrl}
             planTier={planTier}
+            isCollapsed={false}
             onItemClick={() => setMobileOpen(false)}
             onSignOut={handleSignOut}
           />

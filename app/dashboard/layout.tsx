@@ -45,15 +45,21 @@ export default async function DashboardLayout({
   // dashboard route funnels back through the onboarding flow.
   if (!profile?.full_name) redirect("/onboarding");
 
+  const avatarUrl =
+    (user?.user_metadata?.avatar_url as string | undefined) ??
+    (user?.user_metadata?.picture as string | undefined) ??
+    null;
+
   return (
     <div className="min-h-screen bg-[#F7F6F3] text-[#1A1A1A]">
       <DashboardSidebar
         email={user?.email ?? null}
         fullName={profile?.full_name ?? null}
+        avatarUrl={avatarUrl}
         planTier={profile?.is_lifetime === true ? "pro" : (profile?.plan_tier ?? "free")}
       />
-      {/* Offset: sidebar width 220px on md+, top bar height on mobile */}
-      <main className="md:pl-[220px] pt-14 md:pt-0 min-h-screen bg-[#F7F6F3]">
+      {/* Offset: sidebar width 240px expanded / 74px collapsed, top bar height on mobile */}
+      <main className="md:pl-[var(--sidebar-width,240px)] transition-[padding-left] duration-300 ease-in-out pt-14 md:pt-0 min-h-screen bg-[#F7F6F3]">
         {children}
       </main>
     </div>
