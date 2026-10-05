@@ -15,9 +15,6 @@ import {
   Sliders,
   Layers,
   Quote,
-  Sun,
-  Moon,
-  Palette,
   Globe,
 } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
@@ -80,11 +77,13 @@ export default function WidgetBuilder({
 }) {
   // Widget Customization States mapped to persistable config
   const [layout, setLayout] = useState<WidgetType>("wall");
-  const [preset, setPreset] = useState("base");
-  const [theme, setTheme] = useState("light");
-  const [showPhotos, setShowPhotos] = useState(true);
-  const [useGravatar, setUseGravatar] = useState(true);
-  const [fallbackAvatar, setFallbackAvatar] = useState("Placeholder");
+  // Fixed standard defaults for simplified design panel
+  const preset = "base";
+  const theme = "light";
+  const showPhotos = true;
+  const useGravatar = true;
+  const fallbackAvatar = "Placeholder";
+
   const [showBranding, setShowBranding] = useState(true);
   const [textColor, setTextColor] = useState("#374151");
   const [primaryColor, setPrimaryColor] = useState("#2564EB");
@@ -97,7 +96,6 @@ export default function WidgetBuilder({
   // UI Drawer & Tab States
   const [tab, setTab] = useState<"design" | "embed">("design");
   const [layoutDrawerOpen, setLayoutDrawerOpen] = useState(false);
-  const [variationDrawerOpen, setVariationDrawerOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -120,16 +118,11 @@ export default function WidgetBuilder({
     }, 800);
     return () => clearTimeout(timer);
   }, [
-    preset,
-    theme,
     primaryColor,
     textColor,
     ratingColor,
     ratingBorderColor,
     highlightColor,
-    showPhotos,
-    useGravatar,
-    fallbackAvatar,
     showBranding,
   ]);
 
@@ -207,10 +200,6 @@ export default function WidgetBuilder({
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const variationsList = [
-    { id: "base", name: "Base", desc: "Clean modern card with soft borders and balanced spacing." },
-  ];
-
   const layoutStylesList = [
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
     { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
@@ -280,90 +269,7 @@ export default function WidgetBuilder({
 
               <hr className="border-gray-100" />
 
-              {/* 2. Variations with Drawer Trigger */}
-              <section>
-                <div className="font-medium text-sm text-gray-900 mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Palette size={16} className="text-gray-400" />
-                    <span>Variations</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setVariationDrawerOpen(true)}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
-                  >
-                    View All
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setVariationDrawerOpen(true)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 hover:border-gray-300 hover:bg-gray-50 shadow-xs cursor-pointer transition-all"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Sparkles size={16} className="text-amber-500" />
-                    <span className="font-semibold text-gray-900 capitalize">{preset}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400 font-normal">Change</span>
-                    <ChevronRight size={16} className="text-gray-400" />
-                  </div>
-                </button>
-
-                {/* Quick Selection Pills */}
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {variationsList.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setPreset(p.id)}
-                      className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
-                        preset === p.id
-                          ? "border-blue-600 bg-blue-50/50 text-blue-700 font-semibold shadow-xs"
-                          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 font-medium"
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              <hr className="border-gray-100" />
-
-              {/* 3. Theme (Light & Dark) */}
-              <section>
-                <div className="font-medium text-sm text-gray-900 mb-3">Theme</div>
-                <div className="flex bg-gray-100/80 p-1 rounded-xl border border-gray-200/50">
-                  <button
-                    type="button"
-                    onClick={() => setTheme("light")}
-                    className={`flex-1 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      theme === "light"
-                        ? "bg-white shadow-xs text-gray-900 border border-gray-200/50 font-semibold"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    <Sun size={14} className={theme === "light" ? "text-amber-500" : "text-gray-400"} />
-                    Light
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTheme("dark")}
-                    className={`flex-1 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      theme === "dark"
-                        ? "bg-white shadow-xs text-gray-900 border border-gray-200/50 font-semibold"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    <Moon size={14} className={theme === "dark" ? "text-indigo-600" : "text-gray-400"} />
-                    Dark
-                  </button>
-                </div>
-              </section>
-
-              {/* 4. Colors */}
+              {/* 2. Colors */}
               <section>
                 <div className="font-medium text-sm text-gray-900 mb-3">Colors</div>
                 <div className="space-y-2.5">
@@ -398,37 +304,9 @@ export default function WidgetBuilder({
                 </div>
               </section>
 
-              {/* 5. Show Customer Photos & Fallback Avatar */}
-              <section>
-                <div className="flex items-center justify-between mb-5">
-                  <span className="font-medium text-sm text-gray-900">Show Customer Photos</span>
-                  <Switch checked={showPhotos} onChange={setShowPhotos} />
-                </div>
-                {showPhotos && (
-                  <div className="ml-2 pl-5 border-l-2 border-gray-100 space-y-5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">Use Gravatar if available</span>
-                      <Switch size="sm" checked={useGravatar} onChange={setUseGravatar} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-600 mb-2">Fallback Avatar</div>
-                      <select
-                        value={fallbackAvatar}
-                        onChange={(e) => setFallbackAvatar(e.target.value)}
-                        className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer"
-                      >
-                        <option>Placeholder</option>
-                        <option>Initials</option>
-                        <option>None</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-              </section>
-
               <hr className="border-gray-100" />
 
-              {/* 6. Branding */}
+              {/* 3. Branding */}
               <section>
                 <div className="flex items-center justify-between pb-6">
                   <span className="font-medium text-sm text-gray-900">Show Blovi Powered By</span>
@@ -543,79 +421,6 @@ export default function WidgetBuilder({
                 className="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
               >
                 Close Drawer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 2. VARIATIONS DRAWER MODAL */}
-      {variationDrawerOpen && (
-        <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 flex flex-col space-y-5 animate-scale-in">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center space-x-2.5">
-                <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
-                  <Sparkles size={20} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-gray-900">Preset Variations</h3>
-                  <p className="text-xs text-gray-500">Choose a curated visual style theme for your widget cards</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setVariationDrawerOpen(false)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-              {variationsList.map((item) => {
-                const isSelected = preset === item.id;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      setPreset(item.id);
-                      setVariationDrawerOpen(false);
-                    }}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
-                      isSelected
-                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-600/30"
-                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-bold text-sm text-gray-900 capitalize">{item.name}</span>
-                        {isSelected && (
-                          <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                            Selected
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-                    </div>
-                    {isSelected && (
-                      <div className="p-1 rounded-full bg-blue-600 text-white shrink-0 mt-0.5">
-                        <Check size={14} />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setVariationDrawerOpen(false)}
-                className="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
-              >
-                Done
               </button>
             </div>
           </div>
