@@ -1,10 +1,10 @@
+import { useState } from "react";
 import type { Testimonial } from "../constants";
 import type { ThemeColors } from "../theme/types";
 import { FONT, SHADOWS } from "../theme/tokens";
 import { WallLayout } from "../types/widget";
 import { Stars } from "./Stars";
 import { Avatar } from "./Avatar";
-import { VerifiedBadge } from "./VerifiedBadge";
 
 export function TestimonialCard({
   t,
@@ -17,6 +17,7 @@ export function TestimonialCard({
   surface,
   showPhotos = true,
   fallbackAvatar = "Placeholder",
+  onExpandChange,
 }: {
   t: Testimonial;
   showRatings: boolean;
@@ -29,13 +30,20 @@ export function TestimonialCard({
   surface?: string;
   showPhotos?: boolean;
   fallbackAvatar?: string;
+  onExpandChange?: (expanded: boolean) => void;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const rawText = t.display_body ?? t.body_original ?? "";
   const text = rawText.replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
-  const isFeatured = Boolean((t as any).featured);
-  const threshold = 180;
-  const shouldClamp = text.length > threshold;
+  const isLong = text.length > 170 || text.includes("\n");
   const isLightSurface = colors.cardBg === "#ffffff" || colors.cardBg === "#fffdfa" || !colors.cardBg;
+
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = !isExpanded;
+    setIsExpanded(next);
+    onExpandChange?.(next);
+  };
 
   const cardStyle: React.CSSProperties = {
     position: "relative",
@@ -45,13 +53,13 @@ export function TestimonialCard({
     padding: "24px",
     display: "flex",
     flexDirection: "column",
-    height: "100%",
+    height: isExpanded ? "auto" : "100%",
     overflow: "hidden",
     boxShadow: isLightSurface
       ? "0 1px 3px 0 rgba(0,0,0,0.04), 0 4px 12px 0 rgba(0,0,0,0.02)"
       : SHADOWS.cardDark,
     boxSizing: "border-box",
-    animationDelay: `${index * 0.05}s`,
+    transition: "box-shadow 0.25s ease, border-color 0.25s ease",
   };
 
   return (
@@ -62,23 +70,53 @@ export function TestimonialCard({
         </div>
       )}
       
-      <p
-        style={{
-          margin: "0 0 20px 0",
-          fontSize: "14.5px",
-          fontWeight: 400,
-          lineHeight: "1.6",
-          color: colors.text,
-          flexGrow: 1,
-          display: "-webkit-box",
-          WebkitLineClamp: 4,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}
-      >
-        {text}
-      </p>
+      <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", marginBottom: "18px" }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "14.5px",
+            fontWeight: 400,
+            lineHeight: "1.6",
+            color: colors.text,
+            whiteSpace: isExpanded ? "pre-line" : "normal",
+            display: isExpanded ? "block" : "-webkit-box",
+            WebkitLineClamp: isExpanded ? undefined : 4,
+            WebkitBoxOrient: "vertical",
+            overflow: isExpanded ? "visible" : "hidden",
+            textOverflow: isExpanded ? "clip" : "ellipsis",
+          }}
+        >
+          {text}
+        </p>
+
+        {isLong && (
+          <button
+            type="button"
+            onClick={handleToggleExpand}
+            style={{
+              alignSelf: "flex-start",
+              background: "none",
+              border: "none",
+              padding: "6px 0 0 0",
+              margin: 0,
+              fontSize: "12.5px",
+              fontWeight: 600,
+              color: colors.accent || "#2563EB",
+              cursor: "pointer",
+              fontFamily: FONT,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "3px",
+              opacity: 0.9,
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.9")}
+          >
+            {isExpanded ? "Show less ↑" : "Read more ↓"}
+          </button>
+        )}
+      </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "auto" }}>
         <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
@@ -89,14 +127,10 @@ export function TestimonialCard({
               fontSize: "13px",
               fontWeight: 600,
               color: colors.name,
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
               lineHeight: "1.3",
             }}
           >
             {t.author_name}
-            <VerifiedBadge id={t.id} />
           </div>
           {t.author_role && (
             <div style={{ margin: "2px 0 0", fontSize: "12px", color: colors.role, lineHeight: "1.3" }}>
