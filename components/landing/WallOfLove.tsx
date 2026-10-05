@@ -12,15 +12,15 @@ export default function WallOfLove() {
     // Target container with zero-CLS inline styles
     const widgetTarget = document.createElement("div");
     widgetTarget.id = "blovi-widget";
-    widgetTarget.setAttribute("data-widget-id", "a9814d91-819c-486d-8fe7-e65ce0034d94");
-    widgetTarget.style.cssText = "width: 100%; min-height: 360px; contain: layout style paint; position: relative;";
+    widgetTarget.setAttribute("data-widget-id", "6e037975-54db-4705-b239-28ef18f95eb8");
+    widgetTarget.style.cssText = "width: 100%; min-height: 740px; contain: layout style paint; position: relative;";
     containerRef.current.appendChild(widgetTarget);
 
     // Script tag
     const script = document.createElement("script");
     script.src = "https://www.blovi.space/widget.js";
     script.async = true;
-    script.setAttribute("data-user", "a9814d91-819c-486d-8fe7-e65ce0034d94");
+    script.setAttribute("data-user", "6e037975-54db-4705-b239-28ef18f95eb8");
     script.setAttribute("data-type", "wall");
     script.setAttribute("data-preset", "base");
     script.setAttribute("data-theme", "light");
