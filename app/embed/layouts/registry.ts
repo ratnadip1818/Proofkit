@@ -8,7 +8,6 @@ import { SpotlightLayout, type SpotlightLayoutProps } from "./SpotlightLayout";
 import { ConversationLayout, type ConversationLayoutProps } from "./ConversationLayout";
 import { BentoLayout } from "./BentoLayout";
 import { OrbitLayout } from "./OrbitLayout";
-import { RibbonLayout } from "./RibbonLayout";
 import { StackLayout } from "./StackLayout";
 
 export interface LayoutCapabilities {
@@ -107,17 +106,6 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
     id: "orbit",
     name: "Orbit Social Cosmos",
     component: OrbitLayout,
-    capabilities: {
-      supportsTagFiltering: false,
-      supportsPagination: false,
-      supportsAutoplay: true,
-      supportsMultipleItems: true,
-    },
-  },
-  ribbon: {
-    id: "ribbon",
-    name: "Ribbon Ticker",
-    component: RibbonLayout,
     capabilities: {
       supportsTagFiltering: false,
       supportsPagination: false,

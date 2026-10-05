@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { SAMPLE_TESTIMONIALS, type Testimonial } from "../constants";
+import { useEffect, useState, useRef } from "react";
+import { type Testimonial } from "../constants";
 import { FONT, RADIUS_PX, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme, WallLayout as WallLayoutType } from "../types/widget";
 import type { WidgetPresetId } from "../styles/types";
@@ -47,7 +47,8 @@ export function WallLayout({
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [hasExpandedCard, setHasExpandedCard] = useState(false);
+  const [numColumns, setNumColumns] = useState<number>(3);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
@@ -61,6 +62,31 @@ export function WallLayout({
     ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
     : list;
 
+  // Dynamically calculate column count based on available container width
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateColumns = (width: number) => {
+      if (width < 640) {
+        setNumColumns(1);
+      } else {
+        setNumColumns(3);
+      }
+    };
+
+    updateColumns(containerRef.current.clientWidth);
+
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateColumns(entry.contentRect.width);
+      }
+    });
+
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  // Post message to parent container whenever layout or filter dimensions adjust
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
@@ -68,98 +94,39 @@ export function WallLayout({
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [selectedTag, filteredList.length]);
+  }, [selectedTag, filteredList.length, numColumns]);
 
-  // Offset streams for each column so every review is represented across devices
-  const col1Items = [...filteredList];
-  const col2Items = filteredList.length > 1
-    ? [...filteredList.slice(Math.ceil(filteredList.length / 3)), ...filteredList.slice(0, Math.ceil(filteredList.length / 3))]
-    : [...filteredList];
-  const col3Items = filteredList.length > 2
-    ? [...filteredList.slice(Math.ceil((filteredList.length * 2) / 3)), ...filteredList.slice(0, Math.ceil((filteredList.length * 2) / 3))]
-    : [...filteredList];
-
-  const prepareLoop = (arr: Testimonial[]) => {
-    if (arr.length === 0) return [];
-    let res = [...arr];
-    while (res.length < 5) {
-      res = [...res, ...arr];
-    }
-    return [...res, ...res]; // Duplicate for seamless 50% translateY loop
-  };
-
-  const track1 = prepareLoop(col1Items);
-  const track2 = prepareLoop(col2Items);
-  const track3 = prepareLoop(col3Items);
+  // Round-robin distribution across responsive flex columns (Pinterest-style)
+  const columns = Array.from({ length: numColumns }, () => [] as Testimonial[]);
+  filteredList.forEach((t, i) => {
+    columns[i % numColumns].push(t);
+  });
 
   return (
     <div style={{ fontFamily: FONT, padding: "20px 16px 28px", background: colors.pageBg, color: colors.text }}>
       <style>{`
-        @keyframes blovi-v-marquee {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          100% {
-            transform: translate3d(0, -50%, 0);
-          }
-        }
-        .blovi-marquee-stage {
-          position: relative;
-          height: 560px;
-          overflow: hidden;
-          max-width: 1200px;
-          margin: 0 auto;
-          width: 100%;
-        }
-        .blovi-marquee-cols {
-          display: grid;
-          grid-template-columns: repeat(1, minmax(0, 1fr));
+        .blovi-masonry-grid {
           gap: 20px;
-          height: 100%;
-          align-items: start;
         }
-        @media (min-width: 640px) {
-          .blovi-marquee-cols {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-        @media (min-width: 1024px) {
-          .blovi-marquee-cols {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
-        .blovi-marquee-track {
-          display: flex;
-          flex-direction: column;
+        .blovi-masonry-col {
           gap: 20px;
-          will-change: transform;
-        }
-        .blovi-track-1 {
-          animation: blovi-v-marquee 32s linear infinite;
-        }
-        .blovi-track-2 {
-          animation: blovi-v-marquee 38s linear infinite;
-        }
-        .blovi-track-3 {
-          animation: blovi-v-marquee 35s linear infinite;
-        }
-        .blovi-marquee-track:hover,
-        .blovi-marquee-frozen .blovi-marquee-track {
-          animation-play-state: paused !important;
         }
         @media (max-width: 639px) {
-          .blovi-col-2, .blovi-col-3 {
-            display: none !important;
+          .blovi-masonry-grid,
+          .blovi-masonry-col {
+            gap: 16px !important;
+          }
+          .blovi-wall-card {
+            padding: 20px 18px !important;
           }
         }
         @media (min-width: 640px) and (max-width: 1023px) {
-          .blovi-col-3 {
-            display: none !important;
+          .blovi-masonry-grid,
+          .blovi-masonry-col {
+            gap: 14px !important;
           }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .blovi-marquee-track {
-            animation: none !important;
+          .blovi-wall-card {
+            padding: 18px 16px !important;
           }
         }
       `}</style>
@@ -172,7 +139,7 @@ export function WallLayout({
             flexWrap: "wrap",
             gap: "8px",
             justifyContent: "center",
-            marginBottom: "20px",
+            marginBottom: "24px",
           }}
         >
           <button
@@ -223,97 +190,58 @@ export function WallLayout({
       {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
       ) : (
-        <div className={`blovi-marquee-stage ${hasExpandedCard ? "blovi-marquee-frozen" : ""}`}>
-          {/* Top Gradient Fade */}
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            width: "100%",
+          }}
+        >
+          {/* Responsive 3-Column Round-Robin Masonry */}
           <div
+            ref={containerRef}
+            className="blovi-masonry-grid"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "55px",
-              background: `linear-gradient(to bottom, ${colors.pageBg || "#FAF8F5"} 0%, rgba(250, 248, 245, 0) 100%)`,
-              pointerEvents: "none",
-              zIndex: 10,
+              display: "flex",
+              gap: "20px",
+              alignItems: "flex-start",
+              width: "100%",
+              boxSizing: "border-box",
             }}
-          />
-
-          {/* 3 Columns Marquee Grid */}
-          <div className="blovi-marquee-cols">
-            {/* Column 1 */}
-            <div className="blovi-col-1" style={{ overflow: "hidden" }}>
-              <div className="blovi-marquee-track blovi-track-1">
-                {track1.map((t, idx) => (
+          >
+            {columns.map((colItems, colIdx) => (
+              <div
+                key={`masonry-col-${colIdx}`}
+                className={`blovi-masonry-col blovi-col-${colIdx + 1}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                  flex: 1,
+                  minWidth: 0,
+                }}
+              >
+                {colItems.map((t, itemIdx) => (
                   <TestimonialCard
-                    key={`c1-${t.id}-${idx}`}
+                    key={`t-${t.id}-${itemIdx}`}
                     t={t}
                     showRatings={showRatings}
                     colors={colors}
                     radius={radiusPx}
                     layout={layout}
-                    index={idx}
+                    index={itemIdx}
                     showPhotos={showPhotos}
                     fallbackAvatar={fallbackAvatar}
-                    onExpandChange={(expanded) => setHasExpandedCard(expanded)}
+                    onExpandChange={() => {
+                      if (typeof window !== "undefined") {
+                        setTimeout(() => sendWidgetHeight(), 100);
+                      }
+                    }}
                   />
                 ))}
               </div>
-            </div>
-
-            {/* Column 2 */}
-            <div className="blovi-col-2" style={{ overflow: "hidden" }}>
-              <div className="blovi-marquee-track blovi-track-2">
-                {track2.map((t, idx) => (
-                  <TestimonialCard
-                    key={`c2-${t.id}-${idx}`}
-                    t={t}
-                    showRatings={showRatings}
-                    colors={colors}
-                    radius={radiusPx}
-                    layout={layout}
-                    index={idx}
-                    showPhotos={showPhotos}
-                    fallbackAvatar={fallbackAvatar}
-                    onExpandChange={(expanded) => setHasExpandedCard(expanded)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Column 3 */}
-            <div className="blovi-col-3" style={{ overflow: "hidden" }}>
-              <div className="blovi-marquee-track blovi-track-3">
-                {track3.map((t, idx) => (
-                  <TestimonialCard
-                    key={`c3-${t.id}-${idx}`}
-                    t={t}
-                    showRatings={showRatings}
-                    colors={colors}
-                    radius={radiusPx}
-                    layout={layout}
-                    index={idx}
-                    showPhotos={showPhotos}
-                    fallbackAvatar={fallbackAvatar}
-                    onExpandChange={(expanded) => setHasExpandedCard(expanded)}
-                  />
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
-
-          {/* Bottom Gradient Fade */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "85px",
-              background: `linear-gradient(to top, ${colors.pageBg || "#FAF8F5"} 0%, rgba(250, 248, 245, 0) 100%)`,
-              pointerEvents: "none",
-              zIndex: 10,
-            }}
-          />
         </div>
       )}
 

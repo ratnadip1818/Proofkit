@@ -29,7 +29,6 @@
   // Baseline height estimation to eliminate layout shift before iframe renders
   function getEstimatedHeight(type) {
     switch (type) {
-      case "ribbon": return 140;
       case "single": return 200;
       case "marquee": return 160;
       case "carousel": return 320;
@@ -142,7 +141,7 @@
     return wrap;
   }
 
-  var skeleton = createSkeleton(resolvedTheme === "dark", widgetType === "single" || widgetType === "ribbon" ? 1 : 2);
+  var skeleton = createSkeleton(resolvedTheme === "dark", widgetType === "single" ? 1 : 2);
   container.appendChild(skeleton);
 
   function mount() {

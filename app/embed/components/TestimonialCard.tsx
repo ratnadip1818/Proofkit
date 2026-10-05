@@ -16,7 +16,7 @@ export function TestimonialCard({
   onReadMore,
   surface,
   showPhotos = true,
-  fallbackAvatar = "Placeholder",
+  fallbackAvatar = "Initials",
   onExpandChange,
 }: {
   t: Testimonial;
@@ -53,7 +53,7 @@ export function TestimonialCard({
     padding: "24px",
     display: "flex",
     flexDirection: "column",
-    height: isExpanded ? "auto" : "100%",
+    height: "auto",
     overflow: "hidden",
     boxShadow: isLightSurface
       ? "0 1px 3px 0 rgba(0,0,0,0.04), 0 4px 12px 0 rgba(0,0,0,0.02)"

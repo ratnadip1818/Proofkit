@@ -6,6 +6,5 @@ export * from "./SpotlightLayout";
 export * from "./ConversationLayout";
 export * from "./BentoLayout";
 export * from "./OrbitLayout";
-export * from "./RibbonLayout";
 export * from "./StackLayout";
 export * from "./registry";

@@ -16,7 +16,7 @@ export function Avatar({
   size = 40,
   source,
   showPhotos = true,
-  fallbackAvatar = "Placeholder",
+  fallbackAvatar = "Initials",
 }: {
   name: string;
   avatarUrl?: string | null;
@@ -57,22 +57,23 @@ export function Avatar({
 
     if (fallbackAvatar === "None") return null;
 
-    if (fallbackAvatar === "Initials") {
+    if (fallbackAvatar === "Initials" || fallbackAvatar === "Placeholder") {
+      const isDark = colors.cardBg === "#1F1F28" || colors.cardBg === "#141419" || colors.cardBg === "#121212" || colors.pageBg === "#0E0E12";
       return (
         <div
           style={{
             width: size,
             height: size,
             borderRadius: "50%",
-            background: "#F3F4F6",
-            color: "#374151",
+            background: isDark ? "rgba(255, 255, 255, 0.08)" : "#F3F4F6",
+            color: isDark ? "#E5E7EB" : "#374151",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
             fontWeight: 700,
             fontSize: `${Math.round(size * 0.4)}px`,
-            border: "1px solid #E5E7EB",
+            border: isDark ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid #E5E7EB",
             overflow: "hidden",
             userSelect: "none",
           }}

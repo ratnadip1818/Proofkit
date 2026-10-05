@@ -15,7 +15,6 @@ import {
   ConversationLayout,
   BentoLayout,
   OrbitLayout,
-  RibbonLayout,
   StackLayout,
   getLayoutDefinition,
   layoutRegistry,
@@ -191,20 +190,6 @@ export default function WallRenderer({
   if (type === "orbit") {
     return (
       <OrbitLayout
-        testimonials={testimonials}
-        theme={theme}
-        showRatings={showRatings}
-        showBadge={showBadge}
-        accent={accent}
-        radius={radius}
-        preset={presetDef.id}
-      />
-    );
-  }
-
-  if (type === "ribbon") {
-    return (
-      <RibbonLayout
         testimonials={testimonials}
         theme={theme}
         showRatings={showRatings}

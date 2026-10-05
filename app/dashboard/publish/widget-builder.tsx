@@ -142,8 +142,6 @@ export default function WidgetBuilder({
 
   const getEstimatedHeight = (layoutType: string, count: number): number => {
     switch (layoutType) {
-      case "ribbon":
-        return 140;
       case "single":
         return 200;
       case "carousel":
@@ -202,7 +200,6 @@ export default function WidgetBuilder({
   const layoutStylesList = [
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
     { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
-    { id: "ribbon", name: "Ribbon Ticker", desc: "Dual-row horizontal marquee with compact pill cards scrolling in opposite directions.", icon: Layout },
     { id: "stack", name: "Card Stack", desc: "Tinder-style stacked cards that auto-cycle with swipe-away animations and dot navigation.", icon: Layers },
   ];
 
