@@ -34,7 +34,7 @@ export default function WallOfLove() {
     script.setAttribute("data-fallback-avatar", "Initials");
     script.setAttribute("data-chat-customer-prompt", "");
     script.setAttribute("data-chat-founder-reply", "");
-    script.setAttribute("data-show-branding", "true");
+    script.setAttribute("data-show-branding", "false");
 
     containerRef.current.appendChild(script);
 
