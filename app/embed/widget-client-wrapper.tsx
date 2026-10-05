@@ -80,7 +80,7 @@ export default function WidgetClientWrapper({
     const singleLayout = getParam("layout") === "minimal" ? "minimal" : "card";
     const showBadge = !isLifetime || getParam("badge") !== "false";
     const showPhotos = getParam("showPhotos") !== "false";
-    const fallbackAvatar = getParam("fallbackAvatar") || "Placeholder";
+    const fallbackAvatar = getParam("fallbackAvatar") || "Initials";
 
     const chatCustomerPrompt = getParam("chatCustomerPrompt") || undefined;
     const chatFounderReply = getParam("chatFounderReply") || undefined;

@@ -1,6 +1,27 @@
 import type { ThemeColors } from "../theme/types";
 import { BRAND_COLORS } from "../theme/brand";
 
+const AVATAR_PALETTES = [
+  { bg: "#EEF2FF", text: "#4F46E5", border: "#C7D2FE" }, // Indigo
+  { bg: "#ECFDF5", text: "#059669", border: "#A7F3D0" }, // Emerald
+  { bg: "#EFF6FF", text: "#2563EB", border: "#BFDBFE" }, // Blue
+  { bg: "#F5F3FF", text: "#7C3AED", border: "#DDD6FE" }, // Violet
+  { bg: "#FFFBEB", text: "#D97706", border: "#FDE68A" }, // Amber
+  { bg: "#FFF1F2", text: "#E11D48", border: "#FECDD3" }, // Rose
+  { bg: "#ECFEFF", text: "#0891B2", border: "#A5F3FC" }, // Cyan
+  { bg: "#F0FDF4", text: "#16A34A", border: "#BBF7D0" }, // Green
+];
+
+function getAvatarPalette(name: string) {
+  let hash = 0;
+  for (let i = 0; i < (name || "").length; i++) {
+    hash = (hash << 5) - hash + name.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % AVATAR_PALETTES.length;
+  return AVATAR_PALETTES[index];
+}
+
 function getInitials(name: string) {
   const parts = (name || "Anonymous").trim().split(/\s+/);
   if (parts.length >= 2) {
@@ -58,21 +79,22 @@ export function Avatar({
     if (fallbackAvatar === "None") return null;
 
     if (fallbackAvatar === "Initials") {
+      const palette = getAvatarPalette(name);
       return (
         <div
           style={{
             width: size,
             height: size,
             borderRadius: "50%",
-            background: colors.avatarBg || colors.accent || "#2563EB",
-            color: colors.avatarText || "#ffffff",
+            background: palette.bg,
+            color: palette.text,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
             fontWeight: 700,
             fontSize: `${Math.round(size * 0.4)}px`,
-            border: `1px solid ${colors.cardBorder}`,
+            border: `1px solid ${palette.border}`,
             overflow: "hidden",
             userSelect: "none",
           }}

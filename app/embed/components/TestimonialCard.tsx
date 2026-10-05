@@ -35,90 +35,50 @@ export function TestimonialCard({
   const isFeatured = Boolean((t as any).featured);
   const threshold = 180;
   const shouldClamp = text.length > threshold;
-  const isLightSurface = colors.cardBg === "#ffffff" || colors.cardBg === "#fffdfa";
+  const isLightSurface = colors.cardBg === "#ffffff" || colors.cardBg === "#fffdfa" || !colors.cardBg;
 
   const cardStyle: React.CSSProperties = {
     position: "relative",
-    background: (t as any).tint ?? surface ?? colors.cardBg,
-    border: isLightSurface ? "1px solid rgba(0,0,0,0.04)" : `1px solid ${colors.cardBorder}`,
-    borderRadius: `${Math.max(radius, 10)}px`,
-    padding: "26px",
+    background: isLightSurface ? "#ffffff" : colors.cardBg,
+    border: isLightSurface ? "1px solid #E5E7EB" : `1px solid ${colors.cardBorder}`,
+    borderRadius: `${Math.max(radius, 12)}px`,
+    padding: "24px",
     display: "flex",
     flexDirection: "column",
-    breakInside: "avoid",
-    marginBottom: "1.25rem",
+    height: "100%",
     overflow: "hidden",
-    boxShadow: isLightSurface ? "0 2px 12px rgba(0,0,0,0.03)" : SHADOWS.cardDark,
+    boxShadow: isLightSurface
+      ? "0 1px 3px 0 rgba(0,0,0,0.04), 0 4px 12px 0 rgba(0,0,0,0.02)"
+      : SHADOWS.cardDark,
     boxSizing: "border-box",
     animationDelay: `${index * 0.05}s`,
   };
 
   return (
-    <div className="blovi-card blovi-masonry-item" style={cardStyle}>
+    <div className="blovi-card blovi-wall-card" style={cardStyle}>
       {showRatings && t.rating !== null && (
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "14px" }}>
           <Stars rating={t.rating} colors={colors} />
         </div>
       )}
       
-      {shouldClamp ? (
-        <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0, marginBottom: "24px" }}>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "15px",
-              fontWeight: 400,
-              lineHeight: "1.6",
-              color: colors.text,
-              display: "-webkit-box",
-              WebkitLineClamp: 4,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {text}
-          </p>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onReadMore?.(t);
-            }}
-            style={{
-              alignSelf: "flex-start",
-              background: "none",
-              border: "none",
-              padding: "6px 0 0 0",
-              margin: 0,
-              fontSize: "13px",
-              fontWeight: 600,
-              color: colors.accent,
-              cursor: "pointer",
-              fontFamily: FONT,
-              textDecoration: "none",
-              transition: "opacity 0.2s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-          >
-            Read more
-          </button>
-        </div>
-      ) : (
-        <p
-          style={{
-            margin: "0 0 24px 0",
-            fontSize: "15px",
-            fontWeight: 400,
-            lineHeight: "1.6",
-            color: colors.text,
-            flexGrow: 1,
-          }}
-        >
-          {text}
-        </p>
-      )}
+      <p
+        style={{
+          margin: "0 0 20px 0",
+          fontSize: "14.5px",
+          fontWeight: 400,
+          lineHeight: "1.6",
+          color: colors.text,
+          flexGrow: 1,
+          display: "-webkit-box",
+          WebkitLineClamp: 4,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {text}
+      </p>
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "auto" }}>
         <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
@@ -126,7 +86,7 @@ export function TestimonialCard({
           <div
             style={{
               margin: 0,
-              fontSize: "12.5px",
+              fontSize: "13px",
               fontWeight: 600,
               color: colors.name,
               display: "flex",
@@ -139,7 +99,7 @@ export function TestimonialCard({
             <VerifiedBadge id={t.id} />
           </div>
           {t.author_role && (
-            <div style={{ margin: "1px 0 0", fontSize: "11.5px", color: colors.role, lineHeight: "1.3" }}>
+            <div style={{ margin: "2px 0 0", fontSize: "12px", color: colors.role, lineHeight: "1.3" }}>
               {t.author_role}
             </div>
           )}

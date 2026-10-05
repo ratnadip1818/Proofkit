@@ -93,7 +93,7 @@ export default function WallRenderer({
   radius = "rounded",
   preset = "base",
   showPhotos = true,
-  fallbackAvatar = "Placeholder",
+  fallbackAvatar = "Initials",
   chatCustomerPrompt,
   chatFounderReply,
 }: WallRendererProps) {

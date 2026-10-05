@@ -82,7 +82,7 @@ export default function WidgetBuilder({
   const theme = "light";
   const showPhotos = true;
   const useGravatar = true;
-  const fallbackAvatar = "Placeholder";
+  const fallbackAvatar = "Initials";
 
   const [showBranding, setShowBranding] = useState(true);
   const [textColor, setTextColor] = useState("#374151");
@@ -163,8 +163,7 @@ export default function WidgetBuilder({
       case "wall":
       default:
         if (count <= 3) return 360;
-        if (count <= 6) return 580;
-        return 740;
+        return 580;
     }
   };
 

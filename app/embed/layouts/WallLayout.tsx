@@ -43,20 +43,20 @@ export function WallLayout({
   heading = "Loved by the best teams",
   subheading = "Software companies and agencies rely on Blovi to turn happy customers into their best growth engine.",
   showPhotos = true,
-  fallbackAvatar = "Placeholder",
+  fallbackAvatar = "Initials",
 }: WallLayoutProps) {
   const isDesktopPreview = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("desktop") === "1";
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(isDesktopPreview ? 9 : 6);
+  const [pageSize, setPageSize] = useState(6);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
-  // Synchronize and update pageSize dynamically based on responsive layout rules
+  // Synchronize and update pageSize dynamically based on responsive layout rules (capped at 6 for desktop 3x2 grid)
   useEffect(() => {
     if (isDesktopPreview) {
-      setPageSize(9);
+      setPageSize(6);
       return;
     }
 
@@ -65,9 +65,9 @@ export function WallLayout({
       if (w < 640) {
         setPageSize(3);
       } else if (w < 1024) {
-        setPageSize(6);
+        setPageSize(4);
       } else {
-        setPageSize(9);
+        setPageSize(6);
       }
     };
 
@@ -104,9 +104,6 @@ export function WallLayout({
   const startIndex = pageIndex * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
   const renderedList = filteredList.slice(startIndex, endIndex);
-  const gallerySurfaces = theme === "light"
-    ? ["#fffefd", "#f8fcfa", "#f9fbff", "#fffdf8", "#fbfaff", "#f9fcfc"]
-    : [];
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -120,28 +117,24 @@ export function WallLayout({
   return (
     <div style={{ fontFamily: FONT, padding: "32px 16px", background: colors.pageBg, color: colors.text }}>
       <style>{`
-        .blovi-masonry {
-          column-count: ${isDesktopPreview ? 3 : 1};
-          column-gap: 20px;
+        .blovi-wall-grid {
+          display: grid;
+          grid-template-columns: repeat(1, minmax(0, 1fr));
+          gap: 20px;
           max-width: 1200px;
           margin: 0 auto;
+          width: 100%;
+          box-sizing: border-box;
         }
-        ${
-          isDesktopPreview
-            ? `.blovi-masonry { column-count: 3 !important; }`
-            : `@media (min-width: 520px) {
-                .blovi-masonry {
-                  column-count: 2;
-                }
-              }
-              @media (min-width: 768px) {
-                .blovi-masonry {
-                  column-count: 3;
-                }
-              }`
+        @media (min-width: 640px) {
+          .blovi-wall-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
         }
-        .blovi-masonry-item {
-          break-inside: avoid;
+        @media (min-width: 1024px) {
+          .blovi-wall-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
         }
       `}</style>
 
@@ -204,10 +197,10 @@ export function WallLayout({
       {filteredList.length === 0 ? (
         <EmptyState colors={colors} />
       ) : (
-        <div style={{ width: "100%", padding: "8px 0" }}>
-          <div className="blovi-masonry">
+        <div style={{ position: "relative", width: "100%", padding: "4px 0 20px" }}>
+          <div className="blovi-wall-grid">
             {renderedList.map((t, idx) => (
-              <div key={t.id} className="blovi-masonry-item">
+              <div key={t.id} style={{ display: "flex", flexDirection: "column", height: "100%" }}>
                 <TestimonialCard
                   t={t}
                   showRatings={showRatings}
@@ -216,55 +209,25 @@ export function WallLayout({
                   layout={layout}
                   index={idx}
                   onReadMore={setActiveModalTestimonial}
-                  surface={gallerySurfaces.length ? gallerySurfaces[idx % gallerySurfaces.length] : undefined}
                   showPhotos={showPhotos}
                   fallbackAvatar={fallbackAvatar}
                 />
               </div>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* Show More / Show Less Button */}
-      {totalItems > pageSize && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "32px", marginBottom: "16px" }}>
-          <button
-            type="button"
-            onClick={() => {
-              const hasMore = endIndex < totalItems;
-              if (hasMore) {
-                setPageIndex((prev) => prev + 1);
-              } else {
-                setPageIndex(0);
-              }
-            }}
+          {/* Subtle Bottom Gradient Fade (no show more button) */}
+          <div
             style={{
-              fontFamily: FONT,
-              fontSize: "13.5px",
-              fontWeight: 600,
-              padding: "10px 24px",
-              borderRadius: `${RADIUS_PX.full}px`,
-              cursor: "pointer",
-              border: `1px solid ${colors.cardBorder}`,
-              background: colors.cardBg,
-              color: colors.text,
-              boxShadow: SHADOWS.button,
-              transition: TRANSITIONS.normal,
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "75px",
+              background: `linear-gradient(to bottom, rgba(250, 248, 245, 0) 0%, ${colors.pageBg || "#FAF8F5"} 100%)`,
+              pointerEvents: "none",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = colors.accent;
-              e.currentTarget.style.color = colors.accent;
-              e.currentTarget.style.transform = "scale(1.03)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = colors.cardBorder;
-              e.currentTarget.style.color = colors.text;
-              e.currentTarget.style.transform = "scale(1)";
-            }}
-          >
-            {endIndex < totalItems ? "Show more" : "Show less"}
-          </button>
+          />
         </div>
       )}
 

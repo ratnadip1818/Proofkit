@@ -13,7 +13,7 @@ export default function WallOfLove() {
     const widgetTarget = document.createElement("div");
     widgetTarget.id = "blovi-widget";
     widgetTarget.setAttribute("data-widget-id", "6e037975-54db-4705-b239-28ef18f95eb8");
-    widgetTarget.style.cssText = "width: 100%; min-height: 740px; contain: layout style paint; position: relative;";
+    widgetTarget.style.cssText = "width: 100%; min-height: 580px; contain: layout style paint; position: relative;";
     containerRef.current.appendChild(widgetTarget);
 
     // Script tag
@@ -31,7 +31,7 @@ export default function WallOfLove() {
     script.setAttribute("data-highlight-color", "#FFCD3640");
     script.setAttribute("data-show-photos", "true");
     script.setAttribute("data-use-gravatar", "true");
-    script.setAttribute("data-fallback-avatar", "Placeholder");
+    script.setAttribute("data-fallback-avatar", "Initials");
     script.setAttribute("data-chat-customer-prompt", "");
     script.setAttribute("data-chat-founder-reply", "");
     script.setAttribute("data-show-branding", "true");
