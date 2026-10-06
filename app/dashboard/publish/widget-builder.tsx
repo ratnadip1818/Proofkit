@@ -1,19 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Code,
-  Zap,
-  ChevronRight,
-  Layout,
-  Check,
-  Copy,
-  X,
-  Sliders,
-  Layers,
-  Quote,
-  Globe,
-} from "lucide-react";
+import { Code, Check, Copy, SlidersHorizontal } from "lucide-react";
 import { saveWidgetConfig } from "../actions";
 import type { WidgetType } from "@/app/embed/types/widget";
 
@@ -43,18 +31,18 @@ function Switch({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex items-center shrink-0 rounded-full transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ${
-        checked ? "bg-blue-600" : "bg-gray-200"
-      } ${isSm ? "h-4 w-8" : "h-6 w-11"}`}
+      className={`relative inline-flex items-center shrink-0 rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/25 ${
+        checked ? "bg-blue-600" : "bg-zinc-200"
+      } ${isSm ? "h-4 w-7" : "h-5 w-9"}`}
     >
       <span
-        className={`inline-block bg-white rounded-full transition-transform shadow-sm ${
-          isSm ? "h-3 w-3" : "h-5 w-5"
+        className={`inline-block rounded-full bg-white shadow-xs transition-transform duration-200 ease-in-out ${
+          isSm ? "h-3 w-3" : "h-4 w-4"
         }`}
         style={{
           transform: checked
-            ? `translateX(${isSm ? "14px" : "22px"})`
-            : "translateX(2px)",
+            ? `translateX(${isSm ? "12px" : "16px"})`
+            : "translateX(0px)",
         }}
       />
     </button>
@@ -92,8 +80,8 @@ export default function WidgetBuilder({
 
   // UI Drawer & Tab States
   const [tab, setTab] = useState<"design" | "embed">("design");
-  const [layoutDrawerOpen, setLayoutDrawerOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [stackEmbedMode, setStackEmbedMode] = useState<"floating" | "inline">("floating");
 
   // Auto-sync configuration changes to database in the background
   useEffect(() => {
@@ -123,10 +111,10 @@ export default function WidgetBuilder({
   ]);
 
   const colorFields = [
-    { label: "Text Color", value: textColor, onChange: setTextColor },
-    { label: "Primary Color", value: primaryColor, onChange: setPrimaryColor },
-    { label: "Rating Color", value: ratingColor, onChange: setRatingColor },
-    { label: "Rating Border Color", value: ratingBorderColor, onChange: setRatingBorderColor },
+    { label: "Primary Accent", value: primaryColor, onChange: setPrimaryColor },
+    { label: "Body Text", value: textColor, onChange: setTextColor },
+    { label: "Star Rating", value: ratingColor, onChange: setRatingColor },
+    { label: "Rating Border", value: ratingBorderColor, onChange: setRatingBorderColor },
     { label: "Highlight Color", value: highlightColor, onChange: setHighlightColor },
   ];
 
@@ -166,7 +154,29 @@ export default function WidgetBuilder({
     const estimatedHeight = getEstimatedHeight(layout, testimonials.length);
 
     if (layout === "stack") {
-      return `<!-- Option 1: Floating Corner Spotlight (Pinned to bottom-left like uicolors.app) -->
+      if (stackEmbedMode === "inline") {
+        return `<!-- Blovi Spotlight: Inline Card -->
+<div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; max-width: 460px; min-height: 190px;"></div>
+<script 
+  src="${appUrl}/widget.js" 
+  data-user="${widgetId}"
+  data-type="stack"
+  data-preset="${preset}"
+  data-theme="${theme}"
+  data-accent="${primaryColor}"
+  data-text-color="${textColor}"
+  data-rating-color="${ratingColor}"
+  data-rating-border-color="${ratingBorderColor}"
+  data-highlight-color="${highlightColor}"
+  data-show-photos="${showPhotos}"
+  data-use-gravatar="${useGravatar}"
+  data-fallback-avatar="${fallbackAvatar}"
+  data-show-branding="${showBranding}"
+  async
+></script>`;
+      }
+
+      return `<!-- Blovi Spotlight: Floating Corner Widget (Pinned to bottom-left) -->
 <div style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; max-width: 400px; width: 100%;">
   <div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; min-height: 190px;"></div>
   <script 
@@ -186,27 +196,7 @@ export default function WidgetBuilder({
     data-show-branding="${showBranding}"
     async
   ></script>
-</div>
-
-<!-- Option 2: Inline Card (inside any section on your page) -->
-<div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; max-width: 460px; min-height: 190px;"></div>
-<script 
-  src="${appUrl}/widget.js" 
-  data-user="${widgetId}"
-  data-type="stack"
-  data-preset="${preset}"
-  data-theme="${theme}"
-  data-accent="${primaryColor}"
-  data-text-color="${textColor}"
-  data-rating-color="${ratingColor}"
-  data-rating-border-color="${ratingBorderColor}"
-  data-highlight-color="${highlightColor}"
-  data-show-photos="${showPhotos}"
-  data-use-gravatar="${useGravatar}"
-  data-fallback-avatar="${fallbackAvatar}"
-  data-show-branding="${showBranding}"
-  async
-></script>`;
+</div>`;
     }
 
     return `<!-- Blovi Widget: ${layout.toUpperCase()} (${preset.toUpperCase()} PRESET) -->
@@ -238,136 +228,234 @@ export default function WidgetBuilder({
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const layoutStylesList = [
-    { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
-    { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
-    { id: "stack", name: "Card Spotlight", desc: "Sleek floating testimonial spotlight modeled after modern SaaS cards. Calm 10s auto-cycle with gentle float transitions.", icon: Layers },
+  const layoutOptions: { id: WidgetType; label: string }[] = [
+    { id: "wall", label: "Wall of Love" },
+    { id: "stack", label: "Spotlight" },
+    { id: "orbit", label: "Orbit" },
   ];
 
   return (
     <div className="flex min-h-screen bg-[#F5F4F1] font-sans text-gray-900 overflow-hidden relative">
       {/* LEFT PANEL */}
-      <div className="w-[360px] bg-white border-r border-gray-200 flex flex-col h-screen shrink-0 shadow-sm z-10">
-        <div className="px-6 pt-6 shrink-0">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-1">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setTab("design")}
-                className={`text-xs font-semibold cursor-pointer pb-3 -mb-[13px] transition-all border-b-2 ${
-                  tab === "design"
-                    ? "text-blue-600 border-blue-600"
-                    : "text-gray-500 border-transparent hover:text-gray-800"
-                }`}
-              >
-                1. Widget Design
-              </button>
-              <Code size={14} className="text-gray-300" />
-              <button
-                type="button"
-                onClick={() => setTab("embed")}
-                className={`text-xs font-medium cursor-pointer pb-3 -mb-[13px] transition-all border-b-2 ${
-                  tab === "embed"
-                    ? "text-blue-600 border-blue-600"
-                    : "text-gray-500 border-transparent hover:text-gray-800"
-                }`}
-              >
-                2. Get Code Snippet
-              </button>
-            </div>
+      <div className="w-[360px] bg-white border-r border-zinc-200/70 flex flex-col h-screen shrink-0 z-10">
+        <div className="p-3.5 border-b border-zinc-200/60 bg-white shrink-0">
+          <div className="p-1 bg-zinc-100/80 rounded-xl grid grid-cols-2 gap-1 border border-zinc-200/60">
+            <button
+              type="button"
+              onClick={() => setTab("design")}
+              className={`flex items-center justify-center gap-2 py-1.5 px-3 text-xs rounded-lg transition-all cursor-pointer font-medium ${
+                tab === "design"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              <SlidersHorizontal size={13} className={tab === "design" ? "text-blue-600" : "text-zinc-400"} />
+              <span>Customize</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("embed")}
+              className={`flex items-center justify-center gap-2 py-1.5 px-3 text-xs rounded-lg transition-all cursor-pointer font-medium ${
+                tab === "embed"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              <Code size={13} className={tab === "embed" ? "text-blue-600" : "text-zinc-400"} />
+              <span>Embed Code</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {tab === "design" ? (
             <>
-              {/* 1. Widget Layout Style with Drawer Trigger */}
-              <section>
-                <div className="font-medium text-sm text-gray-900 mb-3 flex items-center justify-between">
-                  <span>Widget Layout Style</span>
+              {/* 1. Widget Layout - Minimalist Segmented Pill */}
+              <section className="space-y-2">
+                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                  Layout style
+                </label>
+                <div className="p-1 bg-zinc-100/80 rounded-xl grid grid-cols-3 gap-1 border border-zinc-200/60">
+                  {layoutOptions.map((opt) => {
+                    const isSelected = layout === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setLayout(opt.id)}
+                        className={`py-1.5 px-2 text-xs rounded-lg transition-all text-center cursor-pointer font-medium truncate ${
+                          isSelected
+                            ? "bg-white text-zinc-900 shadow-xs"
+                            : "text-zinc-500 hover:text-zinc-900"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setLayoutDrawerOpen(true)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-800 hover:border-gray-300 hover:bg-gray-50 shadow-xs cursor-pointer transition-all"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Layout size={16} className="text-blue-600" />
-                    <span className="font-semibold text-gray-900">
-                      {layoutStylesList.find((l) => l.id === layout)?.name || "Wall of Love Grid"}
-                    </span>
-                    <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-blue-100">
-                      Active
-                    </span>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-400" />
-                </button>
               </section>
 
-              <hr className="border-gray-100" />
-
               {/* 2. Colors */}
-              <section>
-                <div className="font-medium text-sm text-gray-900 mb-3">Colors</div>
-                <div className="space-y-2.5">
+              <section className="space-y-2">
+                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                  Palette &amp; accents
+                </label>
+                <div className="bg-white border border-zinc-200/80 rounded-xl divide-y divide-zinc-100 shadow-2xs overflow-hidden">
                   {colorFields.map(({ label, value, onChange }) => {
-                    const swatchColor = value.length === 9 ? value.slice(0, 7) : value;
+                    const swatchColor =
+                      /^#[0-9A-Fa-f]{6}$/.test(value)
+                        ? value
+                        : /^#[0-9A-Fa-f]{8}$/.test(value)
+                        ? value.slice(0, 7)
+                        : "#000000";
+
                     return (
-                      <div key={label}>
-                        <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-                          {label}
-                        </div>
-                        <label className="flex items-center gap-2.5 border border-gray-200 rounded-lg px-3 py-2.5 bg-white hover:border-gray-300 transition-colors cursor-pointer">
-                          <div
-                            className="w-5 h-5 rounded-full border border-gray-200 shrink-0 shadow-inner"
-                            style={{ backgroundColor: swatchColor }}
-                          />
+                      <div
+                        key={label}
+                        className="flex items-center justify-between py-2.5 px-3.5 hover:bg-zinc-50/60 transition-colors"
+                      >
+                        <span className="text-xs font-medium text-zinc-700">{label}</span>
+                        <div className="flex items-center gap-2 px-2 py-1 bg-zinc-50 hover:bg-zinc-100/80 focus-within:bg-white focus-within:ring-1 focus-within:ring-zinc-400 border border-zinc-200/70 rounded-lg transition-all shadow-2xs">
+                          <label className="relative w-4 h-4 rounded-full ring-1 ring-black/10 shrink-0 cursor-pointer overflow-hidden block">
+                            <span
+                              className="absolute inset-0 rounded-full"
+                              style={{ backgroundColor: swatchColor }}
+                            />
+                            <input
+                              type="color"
+                              value={swatchColor}
+                              onChange={(e) => {
+                                const newColor =
+                                  value.length === 9 && value.startsWith("#")
+                                    ? e.target.value + value.slice(7)
+                                    : e.target.value;
+                                onChange(newColor);
+                              }}
+                              className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                            />
+                          </label>
                           <input
                             type="text"
                             value={value}
                             onChange={(e) => onChange(e.target.value)}
-                            className="flex-1 text-sm font-mono text-gray-700 bg-transparent focus:outline-none"
+                            className="w-18 text-[11px] font-mono text-zinc-800 font-medium bg-transparent focus:outline-none uppercase"
+                            spellCheck={false}
                           />
-                          <input
-                            type="color"
-                            value={swatchColor}
-                            onChange={(e) => onChange(e.target.value)}
-                            className="w-0 h-0 opacity-0 absolute"
-                          />
-                        </label>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               </section>
 
-              <hr className="border-gray-100" />
-
               {/* 3. Branding */}
-              <section>
-                <div className="flex items-center justify-between pb-6">
-                  <span className="font-medium text-sm text-gray-900">Show Blovi Powered By</span>
+              <section className="space-y-2">
+                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                  Branding
+                </label>
+                <div className="bg-white border border-zinc-200/80 rounded-xl p-3.5 flex items-center justify-between shadow-2xs">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-medium text-zinc-900">Blovi badge</div>
+                    <div className="text-[11px] text-zinc-500">Show &ldquo;Powered by Blovi&rdquo; badge</div>
+                  </div>
                   <Switch checked={showBranding} onChange={setShowBranding} />
                 </div>
               </section>
             </>
           ) : (
             /* GET CODE SNIPPET TAB */
-            <div className="space-y-4">
-              <div className="font-medium text-sm text-gray-900 mb-2">Embed Code Snippet</div>
-              <div className="relative">
-                <pre className="bg-[#1E293B] text-gray-100 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-gray-800">
-                  {getEmbedCode()}
-                </pre>
+            <div className="space-y-5">
+              {/* If Spotlight: show placement toggle */}
+              {layout === "stack" && (
+                <section className="space-y-2">
+                  <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                    Spotlight placement
+                  </label>
+                  <div className="p-1 bg-zinc-100/80 rounded-xl grid grid-cols-2 gap-1 border border-zinc-200/60">
+                    <button
+                      type="button"
+                      onClick={() => setStackEmbedMode("floating")}
+                      className={`py-1.5 px-3 text-xs rounded-lg transition-all text-center cursor-pointer font-medium ${
+                        stackEmbedMode === "floating"
+                          ? "bg-white text-zinc-900 shadow-xs"
+                          : "text-zinc-500 hover:text-zinc-900"
+                      }`}
+                    >
+                      Floating corner
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStackEmbedMode("inline")}
+                      className={`py-1.5 px-3 text-xs rounded-lg transition-all text-center cursor-pointer font-medium ${
+                        stackEmbedMode === "inline"
+                          ? "bg-white text-zinc-900 shadow-xs"
+                          : "text-zinc-500 hover:text-zinc-900"
+                      }`}
+                    >
+                      Inline card
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {/* Primary 1-Click Copy Action */}
+              <div className="space-y-2">
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1 shadow-xs cursor-pointer transition-all"
+                  className={`w-full py-2.5 px-4 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 shadow-xs active:scale-[0.99] ${
+                    copiedCode
+                      ? "bg-emerald-600 text-white shadow-emerald-900/10"
+                      : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/15"
+                  }`}
                 >
-                  {copiedCode ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedCode ? "Copied" : "Copy Code"}</span>
+                  {copiedCode ? (
+                    <>
+                      <Check size={14} className="stroke-[2.5]" />
+                      <span>Copied to clipboard</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      <span>Copy embed code</span>
+                    </>
+                  )}
                 </button>
               </div>
+
+              {/* Minimal Clear Instructions */}
+              <div className="p-3.5 bg-blue-50/50 border border-blue-100/70 rounded-xl">
+                <p className="text-xs text-zinc-600 leading-relaxed">
+                  Paste before the closing{" "}
+                  <code className="text-[11px] font-mono bg-white px-1.5 py-0.5 rounded border border-blue-200/80 text-blue-600 font-semibold shadow-2xs">
+                    &lt;/body&gt;
+                  </code>{" "}
+                  tag on HTML, Framer, Webflow, or WordPress.
+                </p>
+              </div>
+
+              {/* Code Card */}
+              <section className="space-y-2">
+                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                  Code snippet
+                </label>
+                <div className="relative rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950 shadow-xs">
+                  <div className="flex items-center justify-between px-3.5 py-2 border-b border-zinc-800/60 bg-zinc-900/50">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-zinc-700/60" />
+                      <div className="w-2 h-2 rounded-full bg-zinc-700/60" />
+                      <div className="w-2 h-2 rounded-full bg-zinc-700/60" />
+                    </div>
+                    <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+                      script
+                    </span>
+                  </div>
+                  <pre className="p-3.5 text-[11px] font-mono text-zinc-300 overflow-x-auto leading-relaxed max-h-56 scrollbar-thin select-all">
+                    {getEmbedCode()}
+                  </pre>
+                </div>
+              </section>
             </div>
           )}
         </div>
@@ -431,83 +519,6 @@ export default function WidgetBuilder({
         </div>
       </div>
 
-      {/* 1. LAYOUT STYLE DRAWER MODAL */}
-      {layoutDrawerOpen && (
-        <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 flex flex-col space-y-5 animate-scale-in">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center space-x-2.5">
-                <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-                  <Layout size={20} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-gray-900">Widget Layout Style</h3>
-                  <p className="text-xs text-gray-500">Select how customer reviews are rendered on your site</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLayoutDrawerOpen(false)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-              {layoutStylesList.map((item) => {
-                const Icon = item.icon;
-                const isSelected = layout === item.id;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      setLayout(item.id as WidgetType);
-                      setLayoutDrawerOpen(false);
-                    }}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
-                      isSelected
-                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-600/30"
-                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/80"
-                    }`}
-                  >
-                    <div className={`p-2.5 rounded-lg shrink-0 ${isSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"}`}>
-                      <Icon size={20} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-sm text-gray-900">{item.name}</span>
-                        {isSelected ? (
-                          <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] px-2 py-0.5 rounded-full font-semibold hover:bg-blue-100 transition-colors">
-                            Select Layout
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setLayoutDrawerOpen(false)}
-                className="px-5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
-              >
-                Close Drawer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* LAYOUT DRAWER MODAL END */}
     </div>
   );
 }
