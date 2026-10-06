@@ -4,14 +4,11 @@ import React, { useState, useEffect } from "react";
 import {
   Code,
   Zap,
-  ExternalLink,
-  Maximize2,
   ChevronRight,
   Layout,
   Check,
   Copy,
   X,
-  Sparkles,
   Sliders,
   Layers,
   Quote,
@@ -97,7 +94,6 @@ export default function WidgetBuilder({
   const [tab, setTab] = useState<"design" | "embed">("design");
   const [layoutDrawerOpen, setLayoutDrawerOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Auto-sync configuration changes to database in the background
   useEffect(() => {
@@ -147,7 +143,7 @@ export default function WidgetBuilder({
       case "carousel":
         return 320;
       case "stack":
-        return 380;
+        return 190;
       case "conversation":
         return 420;
       case "spotlight":
@@ -168,6 +164,51 @@ export default function WidgetBuilder({
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
     const estimatedHeight = getEstimatedHeight(layout, testimonials.length);
+
+    if (layout === "stack") {
+      return `<!-- Option 1: Floating Corner Spotlight (Pinned to bottom-left like uicolors.app) -->
+<div style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; max-width: 400px; width: 100%;">
+  <div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; min-height: 190px;"></div>
+  <script 
+    src="${appUrl}/widget.js" 
+    data-user="${widgetId}"
+    data-type="stack"
+    data-preset="${preset}"
+    data-theme="${theme}"
+    data-accent="${primaryColor}"
+    data-text-color="${textColor}"
+    data-rating-color="${ratingColor}"
+    data-rating-border-color="${ratingBorderColor}"
+    data-highlight-color="${highlightColor}"
+    data-show-photos="${showPhotos}"
+    data-use-gravatar="${useGravatar}"
+    data-fallback-avatar="${fallbackAvatar}"
+    data-show-branding="${showBranding}"
+    async
+  ></script>
+</div>
+
+<!-- Option 2: Inline Card (inside any section on your page) -->
+<div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; max-width: 460px; min-height: 190px;"></div>
+<script 
+  src="${appUrl}/widget.js" 
+  data-user="${widgetId}"
+  data-type="stack"
+  data-preset="${preset}"
+  data-theme="${theme}"
+  data-accent="${primaryColor}"
+  data-text-color="${textColor}"
+  data-rating-color="${ratingColor}"
+  data-rating-border-color="${ratingBorderColor}"
+  data-highlight-color="${highlightColor}"
+  data-show-photos="${showPhotos}"
+  data-use-gravatar="${useGravatar}"
+  data-fallback-avatar="${fallbackAvatar}"
+  data-show-branding="${showBranding}"
+  async
+></script>`;
+    }
+
     return `<!-- Blovi Widget: ${layout.toUpperCase()} (${preset.toUpperCase()} PRESET) -->
 <div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; min-height: ${estimatedHeight}px; contain: layout style paint; position: relative;"></div>
 <script 
@@ -200,7 +241,7 @@ export default function WidgetBuilder({
   const layoutStylesList = [
     { id: "wall", name: "Wall of Love Grid", desc: "Multi-column masonry grid showcasing all your top customer reviews.", icon: Layout },
     { id: "orbit", name: "Orbit Social Cosmos", desc: "Perpetual dual-ring counter-rotating community orbit around your gravitational brand logo.", icon: Globe },
-    { id: "stack", name: "Card Stack", desc: "Tinder-style stacked cards that auto-cycle with swipe-away animations and dot navigation.", icon: Layers },
+    { id: "stack", name: "Card Spotlight", desc: "Sleek floating testimonial spotlight modeled after modern SaaS cards. Calm 10s auto-cycle with gentle float transitions.", icon: Layers },
   ];
 
   return (
@@ -333,16 +374,59 @@ export default function WidgetBuilder({
       </div>
 
       {/* RIGHT PANEL */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#FAF9F6]">
 
         {/* Right Panel Main View: Live Iframe Preview */}
         <div className="flex-1 w-full h-full p-4 md:p-6 overflow-hidden flex flex-col">
-          <div className="w-full flex-1 bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-            <iframe
-              src={rawPreviewUrl}
-              className="w-full h-full border-none"
-              title="Live Render Output"
-            />
+          <div className="w-full flex-1 bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden flex flex-col relative">
+            {/* Top Browser Chrome Bar */}
+            <div className="h-10 bg-[#FAF9F6] border-b border-gray-200/80 px-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center space-x-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
+              </div>
+              <div className="bg-white border border-gray-200/80 rounded-md px-3 py-0.5 text-[11px] text-gray-500 font-mono flex items-center gap-1.5 shadow-2xs">
+                <span className="text-gray-400">https://</span>your-website.com
+              </div>
+              <div className="w-12" />
+            </div>
+
+            {/* Preview Stage Area */}
+            {layout === "stack" ? (
+              <div className="flex-1 relative w-full h-full overflow-hidden flex flex-col justify-between p-6 md:p-8 bg-[#FBFBFA]">
+                {/* Simulated Website Content in Background */}
+                <div className="max-w-md space-y-4 pt-4 select-none pointer-events-none opacity-40">
+                  <div className="h-2.5 w-24 bg-blue-600/30 rounded-full" />
+                  <div className="h-7 w-72 bg-gray-900/20 rounded-lg" />
+                  <div className="h-3.5 w-80 bg-gray-400/25 rounded-md" />
+                  <div className="flex gap-2.5 pt-2">
+                    <div className="h-8 w-24 bg-blue-600/30 rounded-lg" />
+                    <div className="h-8 w-24 bg-gray-200 rounded-lg" />
+                  </div>
+                </div>
+
+                {/* The Floating Card Spotlight Pinned to Bottom-Left (Just like on the live site) */}
+                <div className="w-[400px] max-w-full">
+                  <iframe
+                    key={`preview-stack-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: "170px" }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 w-full h-full overflow-hidden bg-white">
+                <iframe
+                  key={`preview-full-${rawPreviewUrl}`}
+                  src={rawPreviewUrl}
+                  className="w-full h-full border-none"
+                  title="Live Render Output"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -423,45 +507,7 @@ export default function WidgetBuilder({
         </div>
       )}
 
-      {/* FULLSCREEN PREVIEW MODAL */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-sm flex flex-col animate-fade-in">
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-xs">
-            <div className="flex items-center space-x-3">
-              <Sparkles className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-bold text-sm text-gray-900 leading-tight">Full Screen Widget Preview</h3>
-                <p className="text-xs text-gray-500">Live render output — WALL ({preset.toUpperCase()} PRESET)</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <a
-                href={rawPreviewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center space-x-1.5 transition-all"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Open Tab</span>
-              </a>
-              <button
-                type="button"
-                onClick={() => setIsFullscreen(false)}
-                className="p-2 text-gray-500 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-all cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 w-full bg-[#FAF9F6] p-6 overflow-hidden">
-            <iframe
-              src={rawPreviewUrl}
-              className="w-full h-full border-none rounded-2xl shadow-xl bg-white"
-              title="Fullscreen Widget Preview"
-            />
-          </div>
-        </div>
-      )}
+      {/* LAYOUT DRAWER MODAL END */}
     </div>
   );
 }

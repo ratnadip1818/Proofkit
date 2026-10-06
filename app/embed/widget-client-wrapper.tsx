@@ -217,7 +217,7 @@ export default function WidgetClientWrapper({
         chatFounderReply={chatFounderReply}
       />
 
-      {capped && (
+      {capped && type !== "stack" && type !== "single" && (
         <div style={{ textAlign: "center", paddingBottom: "12px" }}>
           <a
             href="https://www.blovi.space/pricing"

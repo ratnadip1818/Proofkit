@@ -6,10 +6,12 @@
       return s[s.length - 1];
     })();
 
-  // Look for target container element if present (supports both modern blovi and legacy proofkit IDs)
+  // Look for target container element if present (check adjacent sibling first to support multiple widgets per page)
+  var prevEl = currentScript.previousElementSibling;
   var targetContainer =
-    document.getElementById("blovi-widget") ||
-    document.getElementById("proofkit-widget");
+    (prevEl && (prevEl.id === "blovi-widget" || prevEl.id === "proofkit-widget" || prevEl.getAttribute("data-widget-id")))
+      ? prevEl
+      : (document.getElementById("blovi-widget") || document.getElementById("proofkit-widget"));
 
   // Helper to get attribute from script tag or container element
   function getAttr(key) {
@@ -32,7 +34,7 @@
       case "single": return 200;
       case "marquee": return 160;
       case "carousel": return 320;
-      case "stack": return 380;
+      case "stack": return 190;
       case "conversation": return 420;
       case "spotlight": return 460;
       case "orbit": return 540;

@@ -6,7 +6,7 @@ import { FONT, SHADOWS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme } from "../types/widget";
 import type { WidgetPresetId } from "../styles/types";
 import { getPresetDefinition } from "../styles/registry";
-import { EmptyState, BadgeLink, Stars } from "../components";
+import { EmptyState, Stars, Avatar } from "../components";
 import { sendWidgetHeight } from "../utils";
 
 export interface StackLayoutProps {
@@ -17,10 +17,12 @@ export interface StackLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  showPhotos?: boolean;
+  fallbackAvatar?: string;
 }
 
-const AUTOPLAY_MS = 4500;
-const PEEK_CARDS = 3; // how many stacked cards visible behind the front
+// 10 seconds serene reading window modeled after uicolors.app
+const AUTOPLAY_MS = 10000;
 
 export function StackLayout({
   testimonials,
@@ -30,249 +32,213 @@ export function StackLayout({
   accent,
   radius = "rounded",
   preset = "base",
+  showPhotos = true,
+  fallbackAvatar = "Initials",
 }: StackLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
 
-  const [topIndex, setTopIndex] = useState(0);
-  const [exiting, setExiting] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Send widget height updates on change
   useEffect(() => {
     if (typeof window === "undefined" || !containerRef.current) return;
     const observer = new ResizeObserver(sendWidgetHeight);
     observer.observe(containerRef.current);
     sendWidgetHeight();
     return () => observer.disconnect();
-  }, [topIndex, testimonials.length]);
+  }, [currentIndex, testimonials.length]);
 
-  const advance = useCallback(() => {
-    if (testimonials.length <= 1 || exiting) return;
-    setExiting(true);
+  // Smooth floating transition to next testimonial
+  const next = useCallback(() => {
+    if (testimonials.length <= 1 || isTransitioning) return;
+    setIsTransitioning(true);
+
+    // Phase 1: Sink & fade out (220ms)
     setTimeout(() => {
-      setTopIndex((prev) => (prev + 1) % testimonials.length);
-      setExiting(false);
-    }, 320);
-  }, [testimonials.length, exiting]);
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      setAnimKey((k) => k + 1);
+      setIsTransitioning(false);
+    }, 220);
+  }, [testimonials.length, isTransitioning]);
 
-  // Autoplay
+  // Autoplay management (10s duration, pauses when hovered or transitioning)
   useEffect(() => {
-    if (testimonials.length <= 1) return;
-    timerRef.current = setTimeout(advance, AUTOPLAY_MS);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [topIndex, advance, testimonials.length]);
+    if (testimonials.length <= 1 || isHovered || isTransitioning) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
+    }
+
+    timerRef.current = setTimeout(next, AUTOPLAY_MS);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [currentIndex, isHovered, isTransitioning, next, testimonials.length]);
 
   if (testimonials.length === 0) {
     return (
-      <div style={{ fontFamily: FONT, padding: "24px", background: colors.pageBg }}>
+      <div style={{ fontFamily: FONT, padding: "20px", background: colors.pageBg }}>
         <EmptyState colors={colors} />
       </div>
     );
   }
 
-  const t = testimonials[topIndex];
-  const quote = t.display_body ?? t.body_original ?? "";
-  const initials = ((t.author_name ?? "A").trim().split(/\s+/).map((w: string) => w[0]).join("").slice(0, 2)).toUpperCase();
-
-  const isDark = colors.cardBg !== "#ffffff";
+  const t = testimonials[currentIndex];
+  const rawText = t.display_body ?? t.body_original ?? "";
+  const quote = rawText.replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
+  const isDark = colors.cardBg !== "#ffffff" && colors.cardBg !== "#fffdfa";
 
   return (
     <div
       ref={containerRef}
-      style={{ fontFamily: FONT, background: colors.pageBg, padding: "32px 24px 28px", boxSizing: "border-box" }}
+      style={{
+        fontFamily: FONT,
+        background: "transparent",
+        padding: "4px 4px 12px",
+        boxSizing: "border-box",
+        width: "100%",
+        maxWidth: 480,
+        margin: "0 auto",
+        overflow: "hidden",
+      }}
     >
       <style>{`
-        @keyframes proofkit-stack-exit {
-          0%   { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
-          60%  { transform: translateY(-22px) scale(1.04) rotate(-2deg); opacity: 0.6; }
-          100% { transform: translateY(-60px) scale(0.95) rotate(-4deg); opacity: 0; }
-        }
-        .proofkit-stack-exit {
-          animation: proofkit-stack-exit 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes proofkit-stack-enter {
-          from { transform: translateY(10px) scale(0.97); opacity: 0; }
-          to   { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .proofkit-stack-enter {
-          animation: proofkit-stack-enter 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .proofkit-stack-exit, .proofkit-stack-enter { animation: none; }
+        @keyframes bloviSpotlightFloatIn {
+          0% {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
 
-      {/* Stack container */}
-      <div style={{ position: "relative", width: "100%", maxWidth: 520, margin: "0 auto" }}>
-
-        {/* Peek cards behind */}
-        {Array.from({ length: Math.min(PEEK_CARDS, testimonials.length - 1) }).map((_, i) => {
-          const peekIdx = (topIndex + i + 1) % testimonials.length;
-          const depth = i + 1;
-          return (
-            <div
-              key={`peek-${peekIdx}`}
-              style={{
-                position: "absolute",
-                top: depth * 8,
-                left: depth * 6,
-                right: depth * 6,
-                height: "100%",
-                background: colors.cardBg,
-                border: `1px solid ${colors.cardBorder}`,
-                borderRadius: radiusPx,
-                boxShadow: isDark ? SHADOWS.cardDark : SHADOWS.cardLight,
-                opacity: 1 - depth * 0.18,
-                zIndex: PEEK_CARDS - depth,
-                transform: `scale(${1 - depth * 0.025})`,
-                pointerEvents: "none",
-              }}
-            />
-          );
-        })}
-
-        {/* Top card */}
+      {/* Single Pristine Floating Card (Zero Fake Layers, Zero Clutter) */}
+      <div
+        key={`spotlight-${animKey}`}
+        onClick={next}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        title={testimonials.length > 1 ? "Click to view next review" : undefined}
+        style={{
+          background: isDark ? colors.cardBg : "#ffffff",
+          border: `1px solid ${colors.cardBorder || (isDark ? "rgba(255,255,255,0.08)" : "#E5E7EB")}`,
+          borderRadius: `${Math.max(radiusPx, 14)}px`,
+          padding: "16px 18px",
+          boxShadow: isDark
+            ? SHADOWS.cardDark
+            : "0 4px 16px -2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02)",
+          boxSizing: "border-box",
+          cursor: testimonials.length > 1 ? "pointer" : "default",
+          userSelect: "none",
+          transition: isTransitioning
+            ? "opacity 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1)"
+            : "border-color 0.2s ease, box-shadow 0.2s ease",
+          opacity: isTransitioning ? 0 : 1,
+          transform: isTransitioning ? "translateY(4px)" : "translateY(0)",
+          animation: !isTransitioning ? "bloviSpotlightFloatIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards" : "none",
+        }}
+      >
+        {/* Header Row: Avatar + Author + Stars */}
         <div
-          className={exiting ? "proofkit-stack-exit" : "proofkit-stack-enter"}
           style={{
-            position: "relative",
-            zIndex: PEEK_CARDS + 1,
-            background: colors.cardBg,
-            border: `1.5px solid ${colors.cardBorder}`,
-            borderRadius: radiusPx,
-            padding: "28px 28px 24px",
-            boxShadow: isDark ? SHADOWS.cardHoverDark : SHADOWS.cardHoverLight,
-            cursor: "pointer",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "12px",
           }}
-          onClick={advance}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") advance(); }}
-          aria-label="Next testimonial"
         >
-          {/* Quote mark */}
-          <div
-            style={{
-              fontSize: 56,
-              lineHeight: 1,
-              color: colors.accent,
-              opacity: 0.15,
-              fontFamily: "Georgia, serif",
-              marginBottom: -8,
-              marginTop: -8,
-              userSelect: "none",
-            }}
-          >
-            &ldquo;
-          </div>
+          {/* Avatar on left */}
+          <Avatar
+            name={t.author_name}
+            avatarUrl={t.avatar_url}
+            colors={colors}
+            size={34}
+            source={t.source}
+            showPhotos={showPhotos}
+            fallbackAvatar={fallbackAvatar}
+          />
 
-          {showRatings && t.rating && (
-            <div style={{ marginBottom: 12 }}>
-              <Stars rating={t.rating} colors={colors} size={16} marginBottom={0} />
-            </div>
-          )}
-
-          <p
-            style={{
-              fontSize: 15,
-              lineHeight: 1.65,
-              color: colors.text,
-              margin: "0 0 20px",
-              fontStyle: "italic",
-            }}
-          >
-            {quote}
-          </p>
-
-          {/* Author row */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {t.avatar_url ? (
-              <img
-                src={t.avatar_url}
-                alt={t.author_name}
-                width={44}
-                height={44}
-                loading="lazy"
-                style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: `2px solid ${colors.accent}20` }}
-              />
-            ) : (
+          {/* Right column: Author name + Stars + Role */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "8px",
+              }}
+            >
               <div
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: colors.avatarBg,
-                  color: colors.avatarText,
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  border: `2px solid ${colors.accent}20`,
-                  flexShrink: 0,
+                  gap: "6px",
+                  minWidth: 0,
+                  overflow: "hidden",
                 }}
               >
-                {initials}
+                <span
+                  style={{
+                    fontSize: "13.5px",
+                    fontWeight: 600,
+                    color: colors.name,
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                    lineHeight: "1.3",
+                  }}
+                >
+                  {t.author_name}
+                </span>
+
+                {t.author_role && (
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      color: colors.role,
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      lineHeight: "1.3",
+                      opacity: 0.85,
+                    }}
+                  >
+                    • {t.author_role}
+                  </span>
+                )}
               </div>
-            )}
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: colors.name }}>{t.author_name}</div>
-              {t.author_role && (
-                <div style={{ fontSize: 12, color: colors.role, marginTop: 2 }}>{t.author_role}</div>
+
+              {/* Verified Star Ratings */}
+              {showRatings && t.rating && (
+                <div style={{ flexShrink: 0 }}>
+                  <Stars rating={t.rating} colors={colors} size={13} marginBottom={0} />
+                </div>
               )}
             </div>
 
-            {/* Tap hint */}
-            <div
+            {/* Testimonial Quote Text */}
+            <p
               style={{
-                marginLeft: "auto",
-                fontSize: 11,
-                color: colors.role,
-                opacity: 0.7,
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
+                fontSize: "13px",
+                lineHeight: "1.55",
+                color: colors.text,
+                margin: "8px 0 0",
+                fontWeight: 400,
               }}
             >
-              <span>{topIndex + 1}/{testimonials.length}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </div>
+              {quote}
+            </p>
           </div>
         </div>
       </div>
-
-      {/* Dot indicators */}
-      {testimonials.length > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 20 }}>
-          {testimonials.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => { setExiting(false); setTopIndex(i); }}
-              aria-label={`Go to testimonial ${i + 1}`}
-              style={{
-                width: i === topIndex ? 20 : 7,
-                height: 7,
-                borderRadius: 4,
-                background: i === topIndex ? colors.accent : colors.dotInactive,
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                transition: "width 0.3s ease, background 0.3s ease",
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {showBadge && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
-          <BadgeLink colors={colors} />
-        </div>
-      )}
     </div>
   );
 }

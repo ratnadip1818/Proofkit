@@ -11,7 +11,14 @@ export default function EmbedLayout({
           background: transparent !important;
           margin: 0 !important;
           padding: 0 !important;
-          overflow-x: hidden;
+          overflow: hidden !important;
+          scrollbar-width: none !important;
+          -ms-overflow-style: none !important;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
         }
         * { box-sizing: border-box; }
       `}</style>

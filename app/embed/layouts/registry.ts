@@ -115,7 +115,7 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
   },
   stack: {
     id: "stack",
-    name: "Card Stack",
+    name: "Card Spotlight",
     component: StackLayout,
     capabilities: {
       supportsTagFiltering: false,

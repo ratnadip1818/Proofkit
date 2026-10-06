@@ -211,6 +211,8 @@ export default function WallRenderer({
         accent={accent}
         radius={radius}
         preset={presetDef.id}
+        showPhotos={showPhotos}
+        fallbackAvatar={fallbackAvatar}
       />
     );
   }

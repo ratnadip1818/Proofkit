@@ -8,6 +8,7 @@ import HowItWorksStacked from "@/components/landing/HowItWorksStacked";
 import WallOfLove from "@/components/landing/WallOfLove";
 import FinalCTASection from "@/components/landing/FinalCTASection";
 import LandingFooter from "@/components/landing/LandingFooter";
+import FloatingSpotlight from "@/components/landing/FloatingSpotlight";
 
 export default async function LandingPage({
   searchParams,
@@ -33,6 +34,7 @@ export default async function LandingPage({
           <FinalCTASection />
           <LandingFooter />
         </main>
+        <FloatingSpotlight />
       </div>
     </SmoothScroll>
   );
