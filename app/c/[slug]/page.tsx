@@ -11,6 +11,7 @@ interface FormRow {
   prompt: string;
   thank_you_message: string;
   theme_color: string;
+  collect_photo?: boolean;
   collect_rating: boolean;
   require_consent: boolean;
   custom_css?: string | null;
@@ -29,7 +30,7 @@ export default async function CollectionPage({
   const { data: formData, error: formError } = await supabase
     .from("forms")
     .select(
-      "id, user_id, headline, prompt, thank_you_message, theme_color, collect_rating, require_consent, custom_css, custom_font"
+      "id, user_id, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent, custom_css, custom_font"
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -38,7 +39,7 @@ export default async function CollectionPage({
     const { data: fallbackData } = await supabase
       .from("forms")
       .select(
-        "id, user_id, headline, prompt, thank_you_message, theme_color, collect_rating, require_consent"
+        "id, user_id, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent"
       )
       .eq("slug", slug)
       .single();
@@ -91,7 +92,7 @@ export default async function CollectionPage({
   if (!isPaid && (count ?? 0) >= FREE_TESTIMONIAL_LIMIT) {
     return (
       <div 
-        className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-5 md:px-10 py-12"
+        className="min-h-screen bg-gray-50 flex items-center justify-center px-5 md:px-10 py-12"
         style={{ fontFamily: `'${customFont}', sans-serif` }}
       >
         <link
@@ -101,21 +102,21 @@ export default async function CollectionPage({
         {customCss && (
           <style dangerouslySetInnerHTML={{ __html: customCss }} />
         )}
-        <div className="w-full max-w-lg rounded-2xl border border-[#ECE7E0] bg-white p-8 text-center shadow-sm">
+        <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-xs">
           <h1
-            className="text-2xl font-bold text-[#1A1A1A]"
+            className="text-2xl font-bold text-gray-900"
             style={{ fontFamily: "inherit" }}
           >
             This form isn&apos;t accepting new testimonials right now
           </h1>
-          <p className="mt-3 text-sm text-[#6B6B6B]">
+          <p className="mt-3 text-sm text-gray-500">
             Thanks for wanting to share — please check back later.
           </p>
-          <p className="mt-6 text-xs text-[#6B6B6B]">
+          <p className="mt-6 text-xs text-gray-500">
             Are you the owner?{" "}
             <a
               href="/"
-              className="font-semibold text-[#2563EB] hover:underline"
+              className="font-semibold text-brand-600 hover:text-brand-700 hover:underline"
             >
               Upgrade for unlimited testimonials
             </a>
@@ -127,7 +128,7 @@ export default async function CollectionPage({
 
   return (
     <div 
-      className="min-h-screen bg-[#FAF8F5] flex items-center justify-center px-4 md:px-8 py-12"
+      className="min-h-screen bg-gray-50 flex items-center justify-center px-4 md:px-8 py-12"
       style={{ fontFamily: `'${customFont}', sans-serif` }}
     >
       <link

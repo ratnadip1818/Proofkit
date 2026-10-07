@@ -11,12 +11,19 @@ import {
   Camera,
   Copy,
   Share2,
-  SlidersHorizontal,
+  Layers,
+  Paintbrush,
   Star,
-  RefreshCw,
   AlertCircle,
+  Upload,
+  Trash2,
+  ShieldCheck,
+  ArrowLeft,
+  User,
+  Briefcase,
+  Loader2,
 } from "lucide-react";
-import { updateForm } from "../actions";
+import { updateForm, uploadFormLogo } from "../actions";
 
 interface FormRow {
   id: string;
@@ -33,94 +40,85 @@ interface FormRow {
   custom_css?: string | null;
 }
 
+interface FormMetadata {
+  logo_url?: string | null;
+  rating_title?: string;
+  rating_subtitle?: string;
+  rating_cta?: string;
+  review_placeholder?: string;
+  review_cta?: string;
+  thank_you_title?: string;
+}
+
 interface CollectWorkspaceClientProps {
   user: { id: string; email?: string | null };
   form: FormRow;
   appUrl: string;
 }
 
-const ACCENT_COLORS = [
-  "#2563EB",
-  "#10B981",
-  "#6366F1",
-  "#EC4899",
-  "#EF4444",
-  "#1F2937",
+const LABELS = ["", "Poor", "Fair", "Good", "Very good", "Excellent"];
+
+const ACCENT_PRESETS = [
+  { name: "Brand Blue", hex: "#2563EB" },
+  { name: "Verified Indigo", hex: "#4F46E5" },
+  { name: "Emerald", hex: "#10B981" },
+  { name: "Star Amber", hex: "#F59E0B" },
+  { name: "Rose Red", hex: "#EF4444" },
+  { name: "Dark Neutral", hex: "#111827" },
 ];
 
-const FONTS = [
-  { id: "Inter", label: "Inter (Clean Sans)", family: "var(--font-sans), sans-serif" },
-  { id: "Space Grotesk", label: "Space Grotesk (Tech)", family: "var(--font-space-grotesk), 'Space Grotesk', sans-serif" },
-  { id: "Instrument Serif", label: "Instrument Serif (Editorial)", family: "var(--font-serif-accent), 'Instrument Serif', Georgia, serif" },
-  { id: "JetBrains Mono", label: "JetBrains Mono (Developer)", family: "var(--font-mono), 'JetBrains Mono', monospace" },
-  { id: "Jakarta", label: "Plus Jakarta (Modern Display)", family: "var(--font-display), 'Plus Jakarta Sans', sans-serif" },
-];
+function parseFormMetadata(customCss?: string | null): FormMetadata {
+  if (!customCss) return {};
+  try {
+    const match = customCss.match(/\/\* __BLOVI_CONFIG__=([\s\S]*?) \*\//);
+    if (match && match[1]) {
+      return JSON.parse(match[1]);
+    }
+  } catch {
+    // Ignore malformed JSON
+  }
+  return {};
+}
 
-/**
- * Normalizes user-input hex colors into strict 7-character #RRGGBB strings
- * with fallback to Blovi brand blue (#2563EB).
- */
+function serializeFormMetadata(meta: FormMetadata, rawCss?: string | null): string {
+  const cleanCss = (rawCss || "").replace(/\/\* __BLOVI_CONFIG__=[\s\S]*? \*\//g, "").trim();
+  const json = JSON.stringify(meta);
+  return `/* __BLOVI_CONFIG__=${json} */\n${cleanCss}`.trim();
+}
+
 function normalizeHexColor(input: string): string {
   if (!input) return "#2563EB";
   let val = input.trim();
   if (!val.startsWith("#")) {
     val = `#${val}`;
   }
-  // Expand 3-digit hex #RGB -> #RRGGBB
   if (/^#[0-9A-Fa-f]{3}$/.test(val)) {
     val = `#${val[1]}${val[1]}${val[2]}${val[2]}${val[3]}${val[3]}`;
   }
-  // Valid 6-digit hex
   if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
     return val.toUpperCase();
   }
-  // 8-digit hex with alpha
   if (/^#[0-9A-Fa-f]{8}$/.test(val)) {
     return val.slice(0, 7).toUpperCase();
   }
   return "#2563EB";
 }
 
-/**
- * Determines whether a given input string matches a valid 6-hex or 3-hex color code.
- */
 function isValidHexColor(input: string): boolean {
   if (!input) return false;
   const val = input.trim().startsWith("#") ? input.trim() : `#${input.trim()}`;
   return /^#[0-9A-Fa-f]{6}$/.test(val) || /^#[0-9A-Fa-f]{3}$/.test(val);
 }
 
-/**
- * Calculates high-contrast text color (dark navy or white) for dynamic button backgrounds.
- */
 function getContrastTextColor(hexColor: string): string {
   const normalized = normalizeHexColor(hexColor);
   const r = parseInt(normalized.slice(1, 3), 16);
   const g = parseInt(normalized.slice(3, 5), 16);
   const b = parseInt(normalized.slice(5, 7), 16);
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 155 ? "#0f172a" : "#ffffff";
+  return yiq >= 155 ? "#111827" : "#FFFFFF";
 }
 
-/**
- * Ensures text or icon elements rendered directly on light/white backgrounds
- * maintain adequate contrast (WCAG AA). Falls back to accessible deep blue if too light.
- */
-function getAccessibleTextColor(hexColor: string): string {
-  const normalized = normalizeHexColor(hexColor);
-  const r = parseInt(normalized.slice(1, 3), 16);
-  const g = parseInt(normalized.slice(3, 5), 16);
-  const b = parseInt(normalized.slice(5, 7), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  if (yiq >= 155) {
-    return "#1D4ED8";
-  }
-  return normalized;
-}
-
-/**
- * Robust clipboard copy helper with legacy execCommand fallback.
- */
 async function copyToClipboard(text: string): Promise<boolean> {
   try {
     if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
@@ -128,7 +126,7 @@ async function copyToClipboard(text: string): Promise<boolean> {
       return true;
     }
   } catch {
-    // Fall back to document.execCommand
+    // Fall back
   }
   try {
     if (typeof document !== "undefined") {
@@ -172,8 +170,8 @@ function Switch({
         e.stopPropagation();
         onChange(!checked);
       }}
-      className={`relative inline-flex items-center shrink-0 rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/25 ${
-        checked ? "bg-blue-600" : "bg-zinc-200"
+      className={`relative inline-flex items-center shrink-0 rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 ${
+        checked ? "bg-brand-600" : "bg-gray-200"
       } ${isSm ? "h-4 w-7" : "h-5 w-9"}`}
     >
       <span
@@ -190,20 +188,134 @@ function Switch({
   );
 }
 
+{/* Blovi Compact Manual Save Button */}
+function BookmarkSaveButton({
+  onSave,
+  savingStatus,
+}: {
+  onSave: () => void;
+  savingStatus: "idle" | "saving" | "saved" | "error";
+}) {
+  return (
+    <div className="flex justify-end pt-3">
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={savingStatus === "saving"}
+        data-status={savingStatus}
+        className="bookmarkBtn shrink-0 cursor-pointer"
+        title="Save changes (Ctrl+S / Cmd+S)"
+      >
+        <span className="IconContainer">
+          {savingStatus === "saving" ? (
+            <Loader2 size={12} className="text-white animate-spin" />
+          ) : savingStatus === "saved" ? (
+            <Check size={12} className="text-white stroke-[3]" />
+          ) : (
+            <svg viewBox="0 0 384 512" height="0.8em" className="icon fill-white">
+              <path d="M0 48V487.7C0 501.1 10.9 512 24.3 512c5 0 9.9-1.5 14-4.4L192 400 345.7 507.6c4.1 2.9 9 4.4 14 4.4c13.4 0 24.3-10.9 24.3-24.3V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48z" />
+            </svg>
+          )}
+        </span>
+        <p className="text">
+          {savingStatus === "saving"
+            ? "Saving"
+            : savingStatus === "saved"
+            ? "Saved"
+            : "Save"}
+        </p>
+      </button>
+    </div>
+  );
+}
+
+{/* From Uiverse.io by kheshore - Next Step Preview Button */}
+function NextStepButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="btn-conteiner">
+      <button
+        type="button"
+        onClick={onClick}
+        className="btn-content select-none"
+        title={label}
+      >
+        <span>{label}</span>
+        <div className="icon-arrow">
+          <svg width="16" height="10" viewBox="0 0 28 14" fill="none">
+            <path
+              id="arrow-icon-one"
+              d="M2 1.5l5.5 5.5-5.5 5.5h2.5l5.5-5.5-5.5-5.5H2z"
+            />
+            <path
+              id="arrow-icon-two"
+              d="M10 1.5l5.5 5.5-5.5 5.5h2.5l5.5-5.5-5.5-5.5H10z"
+            />
+            <path
+              id="arrow-icon-three"
+              d="M18 1.5l5.5 5.5-5.5 5.5h2.5l5.5-5.5-5.5-5.5H18z"
+            />
+          </svg>
+        </div>
+      </button>
+    </div>
+  );
+}
+
 export default function CollectWorkspaceClient({
   form,
   appUrl,
 }: CollectWorkspaceClientProps) {
-  // Configuration States
+  // Parse initial metadata safely stored in custom_css
+  const initialMeta = useRef(parseFormMetadata(form.custom_css));
+
+  // Tab State: "pages" | "design" | "share"
+  const [tab, setTab] = useState<"pages" | "design" | "share">("pages");
+
+  // Sub-page switcher in Pages tab: "rating" | "review" | "thankyou"
+  const [activePage, setActivePage] = useState<"rating" | "review" | "thankyou">("rating");
+
+  // Page 1: Rating Page Copy
+  const [ratingTitle, setRatingTitle] = useState(
+    initialMeta.current.rating_title || "Do you enjoy using Blovi?"
+  );
+  const [ratingSubtitle, setRatingSubtitle] = useState(
+    initialMeta.current.rating_subtitle || "On a scale of 1 to 5, how would you rate us?"
+  );
+  const [ratingCta, setRatingCta] = useState(
+    initialMeta.current.rating_cta || "Continue"
+  );
+
+  // Page 2: Review Page Copy (Introduce yourself + review body)
   const [headline, setHeadline] = useState(
-    form.headline || "Share your experience with us"
+    form.headline || "Introduce yourself and share why you love our product 💜"
   );
   const [prompt, setPrompt] = useState(
-    form.prompt || "Would you recommend our product? What's your honest feedback?"
+    form.prompt || "In a few sentences, share what you love about using our product."
+  );
+  const [reviewPlaceholder, setReviewPlaceholder] = useState(
+    initialMeta.current.review_placeholder || "Write your testimonial..."
+  );
+  const [reviewCta, setReviewCta] = useState(
+    initialMeta.current.review_cta || "Continue"
+  );
+
+  // Page 3: Thank You Page Copy
+  const [thankYouTitle, setThankYouTitle] = useState(
+    initialMeta.current.thank_you_title || "Thank you!"
   );
   const [thankYouMessage, setThankYouMessage] = useState(
-    form.thank_you_message || "Thank you for your feedback! It means the world to our team."
+    form.thank_you_message ||
+      "Thank you so much for leaving a testimonial! Testimonials help me grow my business. They're the best way of helping me out if you read and enjoy my work."
   );
+
+  // Design States
+  const [logoUrl, setLogoUrl] = useState<string | null>(initialMeta.current.logo_url || null);
   const [themeColor, setThemeColor] = useState(form.theme_color || "#2563EB");
   const [lastValidColor, setLastValidColor] = useState(
     normalizeHexColor(form.theme_color || "#2563EB")
@@ -212,11 +324,14 @@ export default function CollectWorkspaceClient({
   const [collectRating, setCollectRating] = useState(form.collect_rating ?? true);
   const [requireConsent, setRequireConsent] = useState(form.require_consent ?? true);
 
+  // UI Status
   const [savingStatus, setSavingStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [tab, setTab] = useState<"design" | "share">("design");
   const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop");
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
-  // Local interactive preview states
+  // Live interactive preview test states
   const [testRating, setTestRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [testContent, setTestContent] = useState("");
@@ -224,150 +339,130 @@ export default function CollectWorkspaceClient({
   const [testRole, setTestRole] = useState("");
   const [testConsent, setTestConsent] = useState(true);
   const [testPhotoUrl, setTestPhotoUrl] = useState<string | null>(null);
-  const [testSubmitted, setTestSubmitted] = useState(false);
 
-  // Share states
-  const [copiedLink, setCopiedLink] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const savedTimerRef = useRef<NodeJS.Timeout | null>(null);
   const copyLinkTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const testPhotoUrlRef = useRef<string | null>(null);
-  testPhotoUrlRef.current = testPhotoUrl;
-
   const isMountedRef = useRef(true);
-  const syncSeqRef = useRef(0);
+
+  // Auto-sync debouncing refs
   const lastSavedPayloadRef = useRef({
-    headline: form.headline || "Share your experience with us",
-    prompt: form.prompt || "Would you recommend our product? What's your honest feedback?",
-    thank_you_message: form.thank_you_message || "Thank you for your feedback! It means the world to our team.",
-    theme_color: normalizeHexColor(form.theme_color || "#2563EB"),
-    collect_photo: form.collect_photo ?? true,
-    collect_rating: form.collect_rating ?? true,
-    require_consent: form.require_consent ?? true,
+    headline,
+    prompt,
+    thankYouMessage,
+    themeColor: normalizeHexColor(themeColor),
+    collectPhoto,
+    collectRating,
+    requireConsent,
+    logoUrl,
+    ratingTitle,
+    ratingSubtitle,
+    ratingCta,
+    reviewPlaceholder,
+    reviewCta,
+    thankYouTitle,
   });
 
-  // Cleanup object URL and pending timers on unmount to prevent memory leaks
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
-      if (testPhotoUrlRef.current) {
-        URL.revokeObjectURL(testPhotoUrlRef.current);
-      }
-      if (savedTimerRef.current) {
-        clearTimeout(savedTimerRef.current);
-      }
-      if (copyLinkTimerRef.current) {
-        clearTimeout(copyLinkTimerRef.current);
-      }
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      if (copyLinkTimerRef.current) clearTimeout(copyLinkTimerRef.current);
     };
   }, []);
 
-  // Normalized safe theme color for 0ms reliable CSS styling without mid-typing flickering
+  // Compute live share link
+  const safeSlug = form.slug || "reviews";
+  const shareUrl = form.custom_domain
+    ? `https://${form.custom_domain}`
+    : `${appUrl.replace(/\/$/, "")}/c/${safeSlug}`;
+
   const safeThemeColor = isValidHexColor(themeColor)
     ? normalizeHexColor(themeColor)
     : lastValidColor;
-  const contrastTextColor = getContrastTextColor(safeThemeColor);
-  const accessibleAccentColor = getAccessibleTextColor(safeThemeColor);
+  const contrastBtnText = getContrastTextColor(safeThemeColor);
 
-  // Sanitize share URL against trailing slashes or domain prefixes
-  const cleanAppUrl = (appUrl || "https://www.blovi.space").replace(/\/+$/, "");
-  const cleanCustomDomain = form.custom_domain
-    ? form.custom_domain.replace(/^(https?:\/\/)?/, "").replace(/\/+$/, "").trim()
-    : null;
-  const safeSlug = (form?.slug || "form").trim();
-  const shareUrl = cleanCustomDomain
-    ? `https://${cleanCustomDomain}`
-    : `${cleanAppUrl}/c/${encodeURIComponent(safeSlug)}`;
-
-  // Background Auto-Sync effect (skips initial mount and avoids redundant mutations)
-  useEffect(() => {
-    const currentPayload = {
-      headline,
-      prompt,
-      thank_you_message: thankYouMessage,
-      theme_color: normalizeHexColor(themeColor),
-      collect_photo: collectPhoto,
-      collect_rating: collectRating,
-      require_consent: requireConsent,
-    };
-
-    const hasChanged =
-      currentPayload.headline !== lastSavedPayloadRef.current.headline ||
-      currentPayload.prompt !== lastSavedPayloadRef.current.prompt ||
-      currentPayload.thank_you_message !== lastSavedPayloadRef.current.thank_you_message ||
-      currentPayload.theme_color !== lastSavedPayloadRef.current.theme_color ||
-      currentPayload.collect_photo !== lastSavedPayloadRef.current.collect_photo ||
-      currentPayload.collect_rating !== lastSavedPayloadRef.current.collect_rating ||
-      currentPayload.require_consent !== lastSavedPayloadRef.current.require_consent;
-
-    if (!hasChanged) {
-      return;
-    }
-
-    setSavingStatus("saving");
-    const currentSeq = ++syncSeqRef.current;
-
-    const timer = setTimeout(async () => {
-      try {
-        const res = await updateForm(form.id, {
-          headline,
-          prompt,
-          thank_you_message: thankYouMessage,
-          theme_color: normalizeHexColor(themeColor),
-          collect_photo: collectPhoto,
-          collect_rating: collectRating,
-          require_consent: requireConsent,
-          // Preserve custom_font / custom_css if provided in props without hardcoding "canvas"
-          ...(form.custom_font !== undefined ? { custom_font: form.custom_font } : {}),
-          ...(form.custom_css !== undefined ? { custom_css: form.custom_css } : {}),
-        });
-
-        if (currentSeq !== syncSeqRef.current || !isMountedRef.current) {
-          return;
-        }
-
-        if (res?.error) {
-          console.error("Failed auto-syncing form:", res.error);
-          setSavingStatus("error");
-          if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-          savedTimerRef.current = setTimeout(() => {
-            if (isMountedRef.current) setSavingStatus("idle");
-          }, 3500);
-        } else {
-          lastSavedPayloadRef.current = currentPayload;
-          setSavingStatus("saved");
-          if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-          savedTimerRef.current = setTimeout(() => {
-            if (isMountedRef.current) setSavingStatus("idle");
-          }, 2500);
-        }
-      } catch (err) {
-        console.error("Failed auto-syncing form:", err);
-        if (currentSeq === syncSeqRef.current && isMountedRef.current) {
-          setSavingStatus("error");
-          if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-          savedTimerRef.current = setTimeout(() => {
-            if (isMountedRef.current) setSavingStatus("idle");
-          }, 3500);
-        }
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [
+  // Compute current form payload & check for unsaved edits
+  const currentPayload = {
     headline,
     prompt,
     thankYouMessage,
-    themeColor,
+    themeColor: safeThemeColor,
     collectPhoto,
     collectRating,
     requireConsent,
-    form.id,
-    form.custom_font,
-    form.custom_css,
-  ]);
+    logoUrl,
+    ratingTitle,
+    ratingSubtitle,
+    ratingCta,
+    reviewPlaceholder,
+    reviewCta,
+    thankYouTitle,
+  };
+
+  const hasUnsavedChanges =
+    JSON.stringify(currentPayload) !==
+    JSON.stringify(lastSavedPayloadRef.current);
+
+  // Manual save handler triggered by BookmarkSaveButton or Ctrl+S
+  const handleSave = async () => {
+    if (savingStatus === "saving") return;
+    setSavingStatus("saving");
+
+    try {
+      const serializedCss = serializeFormMetadata(
+        {
+          logo_url: logoUrl,
+          rating_title: ratingTitle,
+          rating_subtitle: ratingSubtitle,
+          rating_cta: ratingCta,
+          review_placeholder: reviewPlaceholder,
+          review_cta: reviewCta,
+          thank_you_title: thankYouTitle,
+        },
+        form.custom_css
+      );
+
+      const res = await updateForm(form.id, {
+        headline,
+        prompt,
+        thank_you_message: thankYouMessage,
+        theme_color: safeThemeColor,
+        collect_photo: collectPhoto,
+        collect_rating: collectRating,
+        require_consent: requireConsent,
+        custom_css: serializedCss,
+      });
+
+      if (!isMountedRef.current) return;
+
+      if (res?.error) {
+        setSavingStatus("error");
+      } else {
+        lastSavedPayloadRef.current = currentPayload;
+        setSavingStatus("saved");
+        if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+        savedTimerRef.current = setTimeout(() => {
+          if (isMountedRef.current) setSavingStatus("idle");
+        }, 3000);
+      }
+    } catch {
+      if (isMountedRef.current) setSavingStatus("error");
+    }
+  };
+
+  // Keyboard shortcut Ctrl+S / Cmd+S to save manually
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   const handleCopyLink = async () => {
     const success = await copyToClipboard(shareUrl);
@@ -380,204 +475,431 @@ export default function CollectWorkspaceClient({
     }
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (testPhotoUrl) {
-        URL.revokeObjectURL(testPhotoUrl);
+    if (!file) return;
+
+    setLogoError(null);
+    setUploadingLogo(true);
+
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      const res = await uploadFormLogo(data);
+
+      if (res.error) {
+        setLogoError(res.error);
+      } else if (res.url) {
+        setLogoUrl(res.url);
       }
-      const url = URL.createObjectURL(file);
-      setTestPhotoUrl(url);
+    } catch {
+      setLogoError("Failed to upload logo. Please try again.");
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) {
+        logoInputRef.current.value = "";
+      }
     }
   };
 
-  const handleRemovePhoto = () => {
-    if (testPhotoUrl) {
-      URL.revokeObjectURL(testPhotoUrl);
-    }
-    setTestPhotoUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleRemoveLogo = () => {
+    setLogoUrl(null);
+    setLogoError(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
     }
   };
 
-  const handleResetTest = () => {
-    if (testPhotoUrl) {
-      URL.revokeObjectURL(testPhotoUrl);
-    }
-    setTestSubmitted(false);
-    setTestRating(5);
-    setHoveredRating(0);
-    setTestContent("");
-    setTestName("");
-    setTestRole("");
-    setTestConsent(true);
-    setTestPhotoUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+  // Glider calculation: 0 = Pages, 1 = Design, 2 = Share
+  const activeTabIndex = tab === "pages" ? 0 : tab === "design" ? 1 : 2;
 
-  const matchedFont = FONTS.find(
-    (f) => f.id.toLowerCase() === (form.custom_font || "").toLowerCase()
-  );
-  const activeFontFamily = matchedFont
-    ? matchedFont.family
-    : form.custom_font
-    ? `'${form.custom_font}', sans-serif`
-    : "var(--font-sans), sans-serif";
+  // Sub-page switcher index: 0 = rating, 1 = review, 2 = thankyou
+  const activePageIndex = activePage === "rating" ? 0 : activePage === "review" ? 1 : 2;
+
+  // Tactile Soft Input classes (inspired by Uiverse ercnersoy)
+  const inputClass =
+    "w-full text-xs rounded-xl px-3.5 py-2.5 text-gray-900 placeholder:text-gray-400 bg-gray-50/80 border border-gray-200/90 shadow-2xs transition-all duration-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/40 focus:outline-none focus:shadow-inner font-normal";
+  const textareaClass =
+    "w-full text-xs rounded-xl px-3.5 py-2.5 text-gray-900 placeholder:text-gray-400 bg-gray-50/80 border border-gray-200/90 shadow-2xs transition-all duration-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/40 focus:outline-none focus:shadow-inner font-normal resize-none leading-relaxed";
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden bg-[#F5F4F1] font-sans text-gray-900 overflow-x-hidden relative">
-      {/* LEFT PANEL: CONFIGURATION */}
-      <div className="w-full lg:w-[360px] bg-white border-b lg:border-b-0 lg:border-r border-zinc-200/70 flex flex-col h-auto lg:h-full shrink-0 z-10">
-        {/* Navigation Header */}
-        <div className="p-3.5 border-b border-zinc-200/60 bg-white shrink-0">
-          <div className="flex items-center justify-between pb-2.5">
-            <div className="text-xs font-semibold text-zinc-900 tracking-tight">
-              Collect Form
-            </div>
-            <div className="text-[10px] font-medium min-h-[16px]">
-              {savingStatus === "saving" && (
-                <span className="text-blue-600 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                  Saving...
-                </span>
-              )}
-              {savingStatus === "saved" && (
-                <span className="text-emerald-600 flex items-center gap-1 transition-opacity duration-200">
-                  <Check size={11} className="stroke-[3]" />
-                  Saved
-                </span>
-              )}
-              {savingStatus === "error" && (
-                <span className="text-red-600 flex items-center gap-1 transition-opacity duration-200">
-                  <AlertCircle size={11} className="stroke-[2.5]" />
-                  Failed to save
-                </span>
-              )}
-            </div>
-          </div>
+    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden bg-gray-50 font-sans text-gray-900 overflow-x-hidden relative">
+      {/* ============================================================ */}
+      {/* LEFT PANEL: BUILDER SIDEBAR (360px)                          */}
+      {/* ============================================================ */}
+      <div className="w-full lg:w-[360px] bg-white border-b lg:border-b-0 lg:border-r border-gray-200/80 flex flex-col h-auto lg:h-full shrink-0 z-10 shadow-xs">
+        {/* Sidebar Header & Glider Pill Navigation */}
+        <div className="p-4 border-b border-gray-200/70 bg-white shrink-0">
+          {/* Glider Segmented Pill (Pages | Design | Share) */}
+          <div className="relative p-1 bg-gray-100/90 rounded-full border border-gray-200/80 shadow-2xs grid grid-cols-3">
+            {/* Sliding Glider indicator */}
+            <div
+              className="absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] rounded-full bg-white shadow-xs border border-gray-200/60 transition-transform duration-250 ease-out z-0 pointer-events-none"
+              style={{
+                transform: `translateX(${activeTabIndex * 100}%)`,
+              }}
+            />
 
-          {/* Segmented Pill Navigation */}
-          <div className="p-1 bg-zinc-100/80 rounded-xl grid grid-cols-2 gap-1 border border-zinc-200/60">
+            <button
+              type="button"
+              onClick={() => setTab("pages")}
+              className={`relative z-10 flex items-center justify-center gap-2 py-2 px-3 text-sm font-semibold rounded-full transition-colors cursor-pointer select-none ${
+                tab === "pages"
+                  ? "text-brand-600"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <Layers
+                size={16}
+                className={tab === "pages" ? "text-brand-600" : "text-gray-400"}
+              />
+              <span>Pages</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setTab("design")}
-              className={`flex items-center justify-center gap-2 py-1.5 px-3 text-xs rounded-lg transition-all cursor-pointer font-medium ${
+              className={`relative z-10 flex items-center justify-center gap-2 py-2 px-3 text-sm font-semibold rounded-full transition-colors cursor-pointer select-none ${
                 tab === "design"
-                  ? "bg-white text-zinc-900 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900"
+                  ? "text-brand-600"
+                  : "text-gray-500 hover:text-gray-900"
               }`}
             >
-              <SlidersHorizontal
-                size={13}
-                className={tab === "design" ? "text-blue-600" : "text-zinc-400"}
+              <Paintbrush
+                size={16}
+                className={tab === "design" ? "text-brand-600" : "text-gray-400"}
               />
-              <span>Form Design</span>
+              <span>Design</span>
             </button>
+
             <button
               type="button"
               onClick={() => setTab("share")}
-              className={`flex items-center justify-center gap-2 py-1.5 px-3 text-xs rounded-lg transition-all cursor-pointer font-medium ${
+              className={`relative z-10 flex items-center justify-center gap-2 py-2 px-3 text-sm font-semibold rounded-full transition-colors cursor-pointer select-none ${
                 tab === "share"
-                  ? "bg-white text-zinc-900 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900"
+                  ? "text-brand-600"
+                  : "text-gray-500 hover:text-gray-900"
               }`}
             >
               <Share2
-                size={13}
-                className={tab === "share" ? "text-blue-600" : "text-zinc-400"}
+                size={16}
+                className={tab === "share" ? "text-brand-600" : "text-gray-400"}
               />
-              <span>Share &amp; Invites</span>
+              <span>Share</span>
             </button>
           </div>
         </div>
 
-        {/* Tab Content Body */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-6">
-          {tab === "design" ? (
-            <>
-              {/* 1. Form Copy Inputs */}
-              <section className="space-y-2">
-                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
-                  Form Copy
-                </label>
-                <div className="bg-white border border-zinc-200/80 rounded-xl p-3.5 space-y-3.5 shadow-2xs">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-zinc-700 block">
-                      Headline
-                    </label>
-                    <input
-                      type="text"
-                      value={headline}
-                      onChange={(e) => setHeadline(e.target.value)}
-                      className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 text-zinc-900 placeholder:text-zinc-400 bg-zinc-50/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all shadow-2xs font-normal"
-                      placeholder="e.g. Share your experience with us"
-                    />
+        {/* Tab Body */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-5">
+          {/* ======================================================== */}
+          {/* TAB 1: PAGES (TEXT EDITING ONLY)                          */}
+          {/* ======================================================== */}
+          {tab === "pages" && (
+            <div className="space-y-4">
+              {/* Active Editing Page Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-brand-600 animate-pulse" />
+                  <span className="text-xs font-bold text-gray-900 tracking-tight">
+                    {activePage === "rating" && "Rating"}
+                    {activePage === "review" && "Review"}
+                    {activePage === "thankyou" && "Thank You"}
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                  {activePage === "rating" && "Step 1 of 3"}
+                  {activePage === "review" && "Step 2 of 3"}
+                  {activePage === "thankyou" && "Step 3 of 3"}
+                </span>
+              </div>
+
+              {/* Sub-page 1: Rating Page Copy */}
+              {activePage === "rating" && (
+                <div className="space-y-4">
+                  <div className="space-y-3.5 bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Page title
+                      </label>
+                      <input
+                        type="text"
+                        value={ratingTitle}
+                        onChange={(e) => setRatingTitle(e.target.value)}
+                        className={inputClass}
+                        placeholder="e.g. Do you enjoy using Blovi?"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Subtitle
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={ratingSubtitle}
+                        onChange={(e) => setRatingSubtitle(e.target.value)}
+                        className={textareaClass}
+                        placeholder="e.g. On a scale of 1 to 5, how would you rate us?"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Call to action
+                      </label>
+                      <input
+                        type="text"
+                        value={ratingCta}
+                        onChange={(e) => setRatingCta(e.target.value)}
+                        className={inputClass}
+                        placeholder="e.g. Continue"
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-zinc-700 block">
-                      Prompt Description
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 text-zinc-900 placeholder:text-zinc-400 bg-zinc-50/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all resize-none leading-relaxed shadow-2xs font-normal"
-                      placeholder="e.g. Would you recommend our product? What's your honest feedback?"
-                    />
+                  {/* Manual Save Button */}
+                  <BookmarkSaveButton
+                    onSave={handleSave}
+                    savingStatus={savingStatus}
+                  />
+                </div>
+              )}
+
+              {/* Sub-page 2: Review Page Copy (Introduce yourself + Testimonial) */}
+              {activePage === "review" && (
+                <div className="space-y-4">
+                  <div className="space-y-3.5 bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Page title
+                      </label>
+                      <input
+                        type="text"
+                        value={headline}
+                        onChange={(e) => setHeadline(e.target.value)}
+                        className={inputClass}
+                        placeholder="e.g. Introduce yourself and share why you love our product 💜"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Subtitle
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        className={textareaClass}
+                        placeholder="e.g. In a few sentences, share what you love about using our product."
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Testimonial placeholder
+                      </label>
+                      <input
+                        type="text"
+                        value={reviewPlaceholder}
+                        onChange={(e) => setReviewPlaceholder(e.target.value)}
+                        className={inputClass}
+                        placeholder="e.g. Write your testimonial..."
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Call to action
+                      </label>
+                      <input
+                        type="text"
+                        value={reviewCta}
+                        onChange={(e) => setReviewCta(e.target.value)}
+                        className={inputClass}
+                        placeholder="e.g. Continue"
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-zinc-700 block">
-                      Thank You Message
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={thankYouMessage}
-                      onChange={(e) => setThankYouMessage(e.target.value)}
-                      className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 text-zinc-900 placeholder:text-zinc-400 bg-zinc-50/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all resize-none leading-relaxed shadow-2xs font-normal"
-                      placeholder="e.g. Thank you for your feedback! It means the world to our team."
-                    />
+                  {/* Manual Save Button */}
+                  <BookmarkSaveButton
+                    onSave={handleSave}
+                    savingStatus={savingStatus}
+                  />
+                </div>
+              )}
+
+              {/* Sub-page 3: Thank You Page Copy */}
+              {activePage === "thankyou" && (
+                <div className="space-y-4">
+                  <div className="space-y-3.5 bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Heading
+                      </label>
+                      <input
+                        type="text"
+                        value={thankYouTitle}
+                        onChange={(e) => setThankYouTitle(e.target.value)}
+                        className={inputClass}
+                        placeholder="e.g. Thank you!"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 block">
+                        Thank you message
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={thankYouMessage}
+                        onChange={(e) => setThankYouMessage(e.target.value)}
+                        className={textareaClass}
+                        placeholder="e.g. Thank you so much for leaving a testimonial! Testimonials help me grow my business..."
+                      />
+                    </div>
                   </div>
+
+                  {/* Manual Save Button */}
+                  <BookmarkSaveButton
+                    onSave={handleSave}
+                    savingStatus={savingStatus}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* TAB 2: DESIGN (BRANDING, COLOR, AND FIELD CONTROLS)      */}
+          {/* ======================================================== */}
+          {tab === "design" && (
+            <div className="space-y-5">
+              {/* 1. Brand Logo */}
+              <section className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-gray-900 block">
+                    Brand Logo
+                  </label>
+                  <span className="text-[10px] text-gray-400 uppercase font-medium tracking-wider">
+                    Form Header
+                  </span>
+                </div>
+
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
+                  {logoUrl ? (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200/80">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white rounded-lg border border-gray-200 flex items-center justify-center p-1.5 shadow-2xs shrink-0 overflow-hidden">
+                          <img
+                            src={logoUrl}
+                            alt="Brand Logo"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs font-semibold text-gray-900">
+                            Active Logo
+                          </div>
+                          <div className="text-[11px] text-gray-500">
+                            Displayed on form header
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => logoInputRef.current?.click()}
+                          className="px-2.5 py-1 text-[11px] font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          Change
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleRemoveLogo}
+                          className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
+                          title="Remove logo"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => logoInputRef.current?.click()}
+                      className="border-2 border-dashed border-gray-200 hover:border-brand-600 bg-gray-50/60 hover:bg-brand-50/20 rounded-xl p-5 text-center cursor-pointer transition-colors group"
+                    >
+                      <div className="w-9 h-9 mx-auto rounded-full bg-white border border-gray-200 group-hover:border-brand-200 flex items-center justify-center text-gray-400 group-hover:text-brand-600 transition-colors shadow-2xs mb-2">
+                        <Upload size={14} />
+                      </div>
+                      <div className="text-xs font-semibold text-gray-800 group-hover:text-brand-600 transition-colors">
+                        Upload brand logo
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">
+                        PNG, JPG, SVG up to 2MB
+                      </div>
+                    </div>
+                  )}
+
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                  />
+
+                  {uploadingLogo && (
+                    <div className="text-[11px] text-brand-600 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-pulse" />
+                      Uploading logo...
+                    </div>
+                  )}
+                  {logoError && (
+                    <div className="text-[11px] text-red-600 flex items-center gap-1">
+                      <AlertCircle size={11} />
+                      {logoError}
+                    </div>
+                  )}
                 </div>
               </section>
 
-              {/* 2. Unified Brand Accent Palette */}
-              <section className="space-y-2">
+              {/* 2. Primary Color */}
+              <section className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
-                    Brand Accent Palette
+                  <label className="text-xs font-bold text-gray-900 block">
+                    Primary Color
                   </label>
-                  <span className="text-[11px] font-mono font-medium text-zinc-500 uppercase">
+                  <span className="text-[11px] font-mono font-semibold text-gray-500 uppercase">
                     {safeThemeColor}
                   </span>
                 </div>
-                <div className="bg-white border border-zinc-200/80 rounded-xl p-3.5 space-y-3.5 shadow-2xs">
+
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs space-y-3.5">
                   {/* Preset Swatches */}
                   <div className="flex items-center justify-between gap-1.5">
-                    {ACCENT_COLORS.map((color) => {
+                    {ACCENT_PRESETS.map((p) => {
                       const isSelected =
-                        safeThemeColor.toLowerCase() === color.toLowerCase();
+                        safeThemeColor.toLowerCase() === p.hex.toLowerCase();
                       return (
                         <button
-                          key={color}
+                          key={p.hex}
                           type="button"
                           onClick={() => {
-                            setThemeColor(color);
-                            setLastValidColor(color);
+                            setThemeColor(p.hex);
+                            setLastValidColor(p.hex);
                           }}
-                          aria-label={`Select accent color ${color}`}
-                          aria-pressed={isSelected}
-                          className={`w-7 h-7 rounded-full transition-all cursor-pointer flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                          aria-label={`Select color ${p.name}`}
+                          className={`w-7 h-7 rounded-full transition-all cursor-pointer flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 ${
                             isSelected
-                              ? "ring-2 ring-blue-600 ring-offset-2 scale-105 shadow-xs"
-                              : "hover:scale-105 border border-zinc-200/80"
+                              ? "ring-2 ring-brand-600 ring-offset-2 scale-105 shadow-xs"
+                              : "hover:scale-105 border border-gray-200"
                           }`}
-                          style={{ backgroundColor: color }}
-                          title={color}
+                          style={{ backgroundColor: p.hex }}
+                          title={p.name}
                         >
                           {isSelected && (
                             <Check size={12} className="text-white drop-shadow-xs" />
@@ -587,18 +909,16 @@ export default function CollectWorkspaceClient({
                     })}
                   </div>
 
-                  {/* Custom Hex Code Input */}
-                  <div className="flex items-center justify-between pt-2.5 border-t border-zinc-100">
-                    <span className="text-xs font-medium text-zinc-600">
-                      Custom hex color
+                  {/* Custom Hex Code Picker */}
+                  <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
+                    <span className="text-xs font-medium text-gray-600">
+                      Custom color
                     </span>
-                    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-zinc-50 hover:bg-zinc-100/80 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 border border-zinc-200/70 rounded-lg transition-all shadow-2xs">
+                    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-gray-50 border border-gray-200/80 rounded-xl transition-all focus-within:bg-white focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-500/40 shadow-2xs">
                       <label className="relative w-4 h-4 rounded-full ring-1 ring-black/10 shrink-0 cursor-pointer overflow-hidden block">
                         <span
                           className="absolute inset-0 rounded-full"
-                          style={{
-                            backgroundColor: safeThemeColor,
-                          }}
+                          style={{ backgroundColor: safeThemeColor }}
                         />
                         <input
                           type="color"
@@ -617,9 +937,7 @@ export default function CollectWorkspaceClient({
                         value={themeColor}
                         onChange={(e) => {
                           let val = e.target.value.trim();
-                          if (val && !val.startsWith("#")) {
-                            val = `#${val}`;
-                          }
+                          if (val && !val.startsWith("#")) val = `#${val}`;
                           val = val.replace(/[^#0-9A-Fa-f]/g, "");
                           if (val.length > 7) val = val.slice(0, 7);
                           setThemeColor(val);
@@ -634,7 +952,7 @@ export default function CollectWorkspaceClient({
                         }}
                         maxLength={7}
                         placeholder="#2563EB"
-                        className="w-20 text-[11px] font-mono text-zinc-800 font-semibold bg-transparent focus:outline-none uppercase"
+                        className="w-18 text-[11px] font-mono text-gray-800 font-semibold bg-transparent focus:outline-none uppercase"
                         spellCheck={false}
                       />
                     </div>
@@ -643,21 +961,21 @@ export default function CollectWorkspaceClient({
               </section>
 
               {/* 3. Field Controls */}
-              <section className="space-y-2">
-                <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+              <section className="space-y-2.5">
+                <label className="text-xs font-bold text-gray-900 block">
                   Field Controls
                 </label>
-                <div className="bg-white border border-zinc-200/80 rounded-xl divide-y divide-zinc-100 shadow-2xs overflow-hidden">
+                <div className="bg-white border border-gray-200/90 rounded-2xl divide-y divide-gray-100 shadow-2xs overflow-hidden">
                   <div
                     onClick={() => setCollectRating(!collectRating)}
-                    className="p-3.5 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer select-none"
+                    className="p-3.5 flex items-center justify-between hover:bg-gray-50/70 transition-colors cursor-pointer select-none"
                   >
                     <div className="space-y-0.5">
-                      <div className="text-xs font-medium text-zinc-900">
+                      <div className="text-xs font-semibold text-gray-900">
                         Star Rating
                       </div>
-                      <div className="text-[11px] text-zinc-500">
-                        Collect 1 to 5 star rating score
+                      <div className="text-[11px] text-gray-500">
+                        Collect 1 to 5 star rating
                       </div>
                     </div>
                     <Switch
@@ -669,14 +987,14 @@ export default function CollectWorkspaceClient({
 
                   <div
                     onClick={() => setCollectPhoto(!collectPhoto)}
-                    className="p-3.5 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer select-none"
+                    className="p-3.5 flex items-center justify-between hover:bg-gray-50/70 transition-colors cursor-pointer select-none"
                   >
                     <div className="space-y-0.5">
-                      <div className="text-xs font-medium text-zinc-900">
+                      <div className="text-xs font-semibold text-gray-900">
                         Customer Photo
                       </div>
-                      <div className="text-[11px] text-zinc-500">
-                        Allow customer avatar upload
+                      <div className="text-[11px] text-gray-500">
+                        Allow customer avatar upload in introduction
                       </div>
                     </div>
                     <Switch
@@ -688,55 +1006,68 @@ export default function CollectWorkspaceClient({
 
                   <div
                     onClick={() => setRequireConsent(!requireConsent)}
-                    className="p-3.5 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer select-none"
+                    className="p-3.5 flex items-center justify-between hover:bg-gray-50/70 transition-colors cursor-pointer select-none"
                   >
                     <div className="space-y-0.5">
-                      <div className="text-xs font-medium text-zinc-900">
+                      <div className="text-xs font-semibold text-gray-900">
                         Consent Checkbox
                       </div>
-                      <div className="text-[11px] text-zinc-500">
-                        Require marketing permission consent
+                      <div className="text-[11px] text-gray-500">
+                        Require permission checkbox
                       </div>
                     </div>
                     <Switch
                       checked={requireConsent}
                       onChange={setRequireConsent}
-                      aria-label="Toggle Consent Checkbox requirement"
+                      aria-label="Toggle Consent requirement"
                     />
                   </div>
                 </div>
               </section>
-            </>
-          ) : (
-            /* TAB 2: SHARE & INVITES */
-            <div className="space-y-5">
-              {/* 1. Direct Share Link */}
-              <section className="space-y-2">
+
+              {/* Manual Save Button for Design Settings */}
+              <div className="pt-1">
+                <BookmarkSaveButton
+                  onSave={handleSave}
+                  savingStatus={savingStatus}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* TAB 3: SHARE (PURE DIRECT URL SIMPLICITY)                 */}
+          {/* ======================================================== */}
+          {tab === "share" && (
+            <div className="space-y-4">
+              <section className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                  <label className="text-xs font-bold text-gray-900 block">
                     Direct Share Link
                   </label>
                   <a
                     href={shareUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1 hover:underline cursor-pointer"
+                    className="text-xs text-brand-600 hover:text-brand-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
                   >
                     <span>Open live form</span>
                     <ExternalLink size={12} />
                   </a>
                 </div>
-                <div className="bg-white border border-zinc-200/80 rounded-xl p-3.5 space-y-3 shadow-2xs">
-                  <div className="bg-zinc-50 border border-zinc-200/70 rounded-lg px-3 py-2 text-xs font-mono text-zinc-700 break-all select-all">
+
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-4 space-y-3.5 shadow-2xs">
+                  <div className="bg-gray-50/90 border border-gray-200 rounded-xl px-3.5 py-3 text-xs font-mono text-gray-700 break-all select-all">
                     {shareUrl}
                   </div>
+
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className={`w-full py-2.5 px-3.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99] ${
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99] ${
                       copiedLink
-                        ? "bg-emerald-600 text-white shadow-emerald-900/10"
-                        : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/10"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white"
                     }`}
                   >
                     {copiedLink ? (
@@ -758,46 +1089,44 @@ export default function CollectWorkspaceClient({
         </div>
       </div>
 
-      {/* RIGHT PANEL: LIVE INTERACTIVE PREVIEW */}
-      <div className="flex-1 flex flex-col min-h-[640px] lg:min-h-0 lg:h-full overflow-hidden bg-[#FAF9F6]">
+      {/* ============================================================ */}
+      {/* RIGHT PANEL: LIVE INTERACTIVE CANVAS PREVIEW                */}
+      {/* ============================================================ */}
+      <div className="flex-1 flex flex-col min-h-[640px] lg:min-h-0 lg:h-full overflow-hidden bg-gray-50">
         <div className="flex-1 w-full h-full p-4 md:p-6 overflow-hidden flex flex-col">
-          {/* macOS Window Chrome Container */}
-          <div className="w-full flex-1 bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden flex flex-col relative">
-            {/* Top macOS Browser Chrome Bar */}
-            <div className="h-10 bg-[#FAF9F6] border-b border-gray-200/80 px-4 flex items-center justify-between shrink-0 relative">
-              {/* macOS Window Control Dots */}
+          {/* macOS Browser Chrome Window */}
+          <div className="w-full flex-1 bg-white rounded-2xl border border-gray-200/90 shadow-xs overflow-hidden flex flex-col relative">
+            {/* macOS Chrome Header */}
+            <div className="h-10 bg-gray-50/80 border-b border-gray-200/80 px-4 flex items-center justify-between shrink-0 relative">
+              {/* Traffic light control dots */}
               <div className="flex items-center space-x-1.5 z-10 shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-red-600/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600/80" />
               </div>
 
-              {/* Centered URL Pill */}
-              <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 bg-white border border-gray-200/80 rounded-md px-3 py-0.5 text-[11px] text-gray-500 font-mono items-center gap-1.5 shadow-2xs max-w-[200px] xl:max-w-xs min-w-0 pointer-events-none">
+              {/* Centered URL pill */}
+              <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 bg-white border border-gray-200/80 rounded-full px-3 py-0.5 text-[11px] text-gray-500 font-mono items-center gap-1.5 shadow-2xs max-w-[220px] truncate pointer-events-none">
                 <Lock size={10} className="text-gray-400 shrink-0" />
                 <span className="text-gray-400 shrink-0">https://</span>
-                <span className="truncate min-w-0">your-website.com/c/{safeSlug}</span>
+                <span className="truncate">your-brand.com/c/{safeSlug}</span>
               </div>
 
-              {/* Viewport Mode Segmented Switcher on Right of Browser Header */}
+              {/* Viewport switch: Desktop vs Mobile */}
               <div className="flex items-center gap-1 z-10 ml-auto md:ml-0 shrink-0">
-                <div className="p-0.5 bg-zinc-100/90 rounded-lg flex items-center border border-zinc-200/60 shadow-2xs">
+                <div className="p-0.5 bg-gray-100 rounded-lg flex items-center border border-gray-200/70 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setDeviceMode("desktop")}
                     className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
                       deviceMode === "desktop"
-                        ? "bg-white text-zinc-900 shadow-2xs"
-                        : "text-zinc-500 hover:text-zinc-800"
+                        ? "bg-white text-gray-900 shadow-2xs font-semibold"
+                        : "text-gray-500 hover:text-gray-800"
                     }`}
                   >
                     <Monitor
                       size={12}
-                      className={
-                        deviceMode === "desktop"
-                          ? "text-blue-600"
-                          : "text-zinc-400"
-                      }
+                      className={deviceMode === "desktop" ? "text-brand-600" : "text-gray-400"}
                     />
                     <span>Desktop</span>
                   </button>
@@ -806,17 +1135,13 @@ export default function CollectWorkspaceClient({
                     onClick={() => setDeviceMode("mobile")}
                     className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
                       deviceMode === "mobile"
-                        ? "bg-white text-zinc-900 shadow-2xs"
-                        : "text-zinc-500 hover:text-zinc-800"
+                        ? "bg-white text-gray-900 shadow-2xs font-semibold"
+                        : "text-gray-500 hover:text-gray-800"
                     }`}
                   >
                     <Smartphone
                       size={12}
-                      className={
-                        deviceMode === "mobile"
-                          ? "text-blue-600"
-                          : "text-zinc-400"
-                      }
+                      className={deviceMode === "mobile" ? "text-brand-600" : "text-gray-400"}
                     />
                     <span>Mobile</span>
                   </button>
@@ -824,214 +1149,344 @@ export default function CollectWorkspaceClient({
               </div>
             </div>
 
-            {/* In-Canvas Live Interactive Preview */}
-            <div className="flex-1 w-full min-h-0 p-4 md:p-8 overflow-y-auto flex justify-center bg-[#FAF9F6]">
-              <div
-                className={`my-auto shrink-0 transition-all duration-300 bg-white rounded-2xl shadow-sm border border-zinc-200/80 ${
-                  deviceMode === "mobile"
-                    ? "w-full max-w-[360px] p-5 md:p-6"
-                    : "w-full max-w-[520px] p-6 md:p-8"
-                }`}
-                style={{ fontFamily: activeFontFamily }}
-              >
-                {testSubmitted ? (
-                  <div className="py-8 text-center space-y-4 animate-modal-in transition-all duration-300">
-                    <div
-                      className="mx-auto w-14 h-14 rounded-full flex items-center justify-center shadow-2xs transition-colors"
-                      style={{
-                        backgroundColor: `${safeThemeColor}18`,
-                        color: accessibleAccentColor,
-                      }}
-                    >
-                      <CheckCircle className="w-8 h-8" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <h3 className="text-xl font-bold text-zinc-900 tracking-tight">
-                        Thank you!
-                      </h3>
-                      <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto">
-                        {thankYouMessage}
-                      </p>
-                    </div>
+            {/* In-Canvas Form Card Area */}
+            <div className="flex-1 w-full min-h-0 p-3 md:p-6 overflow-y-auto flex items-center justify-center bg-gray-50">
+              <div className="flex flex-col items-center gap-3.5 my-auto w-full">
+                <div
+                  className={`shrink-0 transition-all duration-300 bg-white rounded-2xl border border-gray-200 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.04)] ${
+                    deviceMode === "mobile"
+                      ? "w-full max-w-[290px] p-4"
+                      : "w-full max-w-[350px] p-5"
+                  }`}
+                >
+                  {/* 3-Step Progress Indicator Bar (Clickable in preview to quickly switch steps) */}
+                  <div
+                    className="flex gap-1 mb-5"
+                    role="tablist"
+                    aria-label="Step progress indicator"
+                  >
                     <button
                       type="button"
-                      onClick={handleResetTest}
-                      className="mt-3 text-xs font-semibold hover:underline cursor-pointer inline-flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md px-2 py-1"
-                      style={{ color: accessibleAccentColor }}
-                    >
-                      <RefreshCw size={12} />
-                      <span>Test Form Again</span>
-                    </button>
+                      onClick={() => setActivePage("rating")}
+                      title="Rating (Step 1)"
+                      className={`flex-1 h-[3.5px] rounded-full transition-all duration-200 cursor-pointer ${
+                        activePageIndex >= 0 ? "bg-brand-600" : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={activePageIndex >= 0 ? { backgroundColor: safeThemeColor } : undefined}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setActivePage("review")}
+                      title="Review (Step 2)"
+                      className={`flex-1 h-[3.5px] rounded-full transition-all duration-200 cursor-pointer ${
+                        activePageIndex >= 1 ? "bg-brand-600" : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={activePageIndex >= 1 ? { backgroundColor: safeThemeColor } : undefined}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setActivePage("thankyou")}
+                      title="Thank You (Step 3)"
+                      className={`flex-1 h-[3.5px] rounded-full transition-all duration-200 cursor-pointer ${
+                        activePageIndex >= 2 ? "bg-brand-600" : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={activePageIndex >= 2 ? { backgroundColor: safeThemeColor } : undefined}
+                    />
                   </div>
-                ) : (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setTestSubmitted(true);
-                    }}
-                    className="space-y-5"
-                  >
-                    <div className="text-center space-y-1.5">
-                      <h2
-                        className={`font-semibold text-zinc-900 tracking-tight leading-snug ${
-                          deviceMode === "mobile"
-                            ? "text-base md:text-lg"
-                            : "text-lg md:text-xl"
-                        }`}
-                      >
-                        {headline}
-                      </h2>
-                      {prompt && (
-                        <p className="text-xs text-zinc-500 max-w-sm mx-auto leading-relaxed">
-                          {prompt}
-                        </p>
-                      )}
-                    </div>
 
+                {/* Optional Brand Logo */}
+                {logoUrl && (
+                  <div className="mb-4 flex items-center">
+                    <img
+                      src={logoUrl}
+                      alt="Company Logo"
+                      className="max-h-8 max-w-[120px] object-contain"
+                    />
+                  </div>
+                )}
+
+                {/* ======================================================== */}
+                {/* VIEW 1: RATING PAGE (STEP 1)                             */}
+                {/* ======================================================== */}
+                {activePage === "rating" && (
+                  <section className="animate-step-in">
+                    <h1 className="text-xl font-semibold text-gray-900 tracking-tight leading-snug mb-1.5">
+                      {ratingTitle}
+                    </h1>
+                    <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                      {ratingSubtitle}
+                    </p>
+
+                    {/* Stars */}
                     {collectRating && (
-                      <div className="flex justify-center pt-1">
-                        <div
-                          className="flex gap-1.5"
-                          onMouseLeave={() => setHoveredRating(0)}
-                        >
-                          {[1, 2, 3, 4, 5].map((star) => (
+                      <div
+                        className="flex gap-0.5 -mx-0.5 mb-1.5"
+                        role="group"
+                        aria-label="Rating"
+                        onMouseLeave={() => setHoveredRating(0)}
+                      >
+                        {[1, 2, 3, 4, 5].map((n) => {
+                          const isLit = (hoveredRating || testRating) >= n;
+                          return (
                             <button
-                              key={star}
+                              key={n}
                               type="button"
-                              onClick={() => setTestRating(star)}
-                              onMouseEnter={() => setHoveredRating(star)}
-                              onFocus={() => setHoveredRating(star)}
-                              onBlur={() => setHoveredRating(0)}
-                              className="p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-full transition-transform hover:scale-110 cursor-pointer"
-                              aria-label={`Rate ${star} stars`}
+                              onClick={() => setTestRating(n)}
+                              onMouseEnter={() => setHoveredRating(n)}
+                              onFocus={() => setHoveredRating(n)}
+                              className="w-8 h-8 p-0.5 rounded-lg border-0 bg-transparent cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 transition-transform hover:scale-105"
+                              aria-label={`${n} out of 5`}
                             >
-                              <Star
-                                className={`w-7 h-7 transition-colors ${
-                                  star <= (hoveredRating || testRating)
-                                    ? "fill-amber-400 text-amber-400"
-                                    : "text-zinc-200"
-                                }`}
-                              />
+                              <svg viewBox="0 0 24 24" className="w-full h-full" aria-hidden="true">
+                                <path
+                                  d="M12 3l2.7 5.7 6.3.8-4.6 4.3 1.2 6.2L12 17l-5.6 3 1.2-6.2L3 9.5l6.3-.8z"
+                                  className={
+                                    isLit
+                                      ? "fill-star-400 stroke-star-400"
+                                      : "fill-none stroke-gray-300 stroke-[1.5]"
+                                  }
+                                  style={{ transition: "fill .15s, stroke .15s" }}
+                                />
+                              </svg>
                             </button>
-                          ))}
-                        </div>
+                          );
+                        })}
                       </div>
                     )}
 
-                    <div className="space-y-3">
+                    {/* Live Rating Label */}
+                    <p className="h-4 text-xs text-gray-500 mb-4 font-normal">
+                      {LABELS[hoveredRating || testRating] || ""}
+                    </p>
+
+                    {/* Continue Button */}
+                    <button
+                      type="button"
+                      disabled={collectRating && !testRating}
+                      onClick={() => setActivePage("review")}
+                      style={{
+                        backgroundColor: safeThemeColor,
+                        color: contrastBtnText,
+                      }}
+                      className="w-full h-9 rounded-xl font-semibold text-xs transition-all shadow-xs flex items-center justify-center cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.99]"
+                    >
+                      {ratingCta}
+                    </button>
+                  </section>
+                )}
+
+                {/* ======================================================== */}
+                {/* VIEW 2: REVIEW PAGE (STEP 2)                             */}
+                {/* ======================================================== */}
+                {activePage === "review" && (
+                  <section className="animate-step-in">
+                    <h1 className="text-xl font-semibold text-gray-900 tracking-tight leading-snug mb-1.5">
+                      {headline}
+                    </h1>
+                    <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                      {prompt}
+                    </p>
+
+                    {/* Testimonial field */}
+                    <div className="mb-3.5">
+                      <label className="block text-xs font-medium text-gray-900 mb-1">
+                        Your review
+                      </label>
                       <textarea
-                        required
                         rows={3}
                         value={testContent}
                         onChange={(e) => setTestContent(e.target.value)}
-                        placeholder="What did you love? How has it helped you?"
-                        className="w-full resize-none rounded-xl border border-zinc-200 bg-zinc-50/50 p-3 text-xs text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all leading-relaxed shadow-2xs font-normal"
+                        placeholder={reviewPlaceholder}
+                        className="w-full min-h-[96px] rounded-xl border border-gray-200 bg-transparent p-2.5 text-xs text-gray-900 placeholder:text-gray-400 placeholder:opacity-70 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 transition-all leading-relaxed resize-y"
                       />
+                    </div>
 
-                      <div
-                        className={`grid gap-2.5 ${
-                          deviceMode === "mobile"
-                            ? "grid-cols-1"
-                            : "grid-cols-2"
-                        }`}
-                      >
+                    {/* Photo upload */}
+                    {collectPhoto && (
+                      <div className="flex items-center gap-2.5 mb-3">
+                        <div
+                          className="w-8 h-8 rounded-full border border-dashed border-gray-300 flex items-center justify-center overflow-hidden shrink-0 text-gray-400 text-xs font-medium bg-cover bg-center"
+                          style={testPhotoUrl ? { backgroundImage: `url('${testPhotoUrl}')` } : undefined}
+                        >
+                          {testPhotoUrl ? "" : "+"}
+                        </div>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-brand-600 hover:text-brand-700 cursor-pointer"
+                        >
+                          Add photo <span className="text-gray-400 font-normal">(optional)</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* 2-Column Row for Name and Role */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3.5">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-900 mb-1">
+                          Full name
+                        </label>
                         <input
-                          required
+                          type="text"
                           value={testName}
                           onChange={(e) => setTestName(e.target.value)}
-                          placeholder="Full name"
-                          className="h-9 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-xs text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all shadow-2xs font-normal"
+                          placeholder="e.g. Jane Doe"
+                          className="w-full rounded-xl border border-gray-200 bg-transparent px-2.5 py-2 text-xs text-gray-900 placeholder:text-gray-400 placeholder:opacity-70 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 transition-all"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-900 mb-1">
+                          Role / company <span className="text-gray-400 font-normal">(optional)</span>
+                        </label>
                         <input
+                          type="text"
                           value={testRole}
                           onChange={(e) => setTestRole(e.target.value)}
-                          placeholder="Role / Company (optional)"
-                          className="h-9 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-xs text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all shadow-2xs font-normal"
+                          placeholder="e.g. Founder at Acme"
+                          className="w-full rounded-xl border border-gray-200 bg-transparent px-2.5 py-2 text-xs text-gray-900 placeholder:text-gray-400 placeholder:opacity-70 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 transition-all"
                         />
                       </div>
                     </div>
 
-                    {collectPhoto && (
-                      <div className="flex items-center gap-3 pt-0.5">
-                        <label className="relative w-11 h-11 shrink-0 rounded-full border border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 flex items-center justify-center cursor-pointer overflow-hidden transition-colors group">
-                          {testPhotoUrl ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                              src={testPhotoUrl}
-                              alt="Preview avatar"
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Camera className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
-                          )}
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoChange}
-                            aria-label="Upload customer photo"
-                            className="opacity-0 absolute inset-0 cursor-pointer"
-                          />
-                        </label>
-                        <div className="space-y-0.5">
-                          <span className="text-xs text-zinc-700 font-medium block">
-                            {testPhotoUrl ? "Photo attached" : "Add a photo"}{" "}
-                            <span className="text-zinc-400 font-normal">
-                              (optional)
-                            </span>
-                          </span>
-                          {testPhotoUrl ? (
-                            <button
-                              type="button"
-                              onClick={handleRemovePhoto}
-                              className="text-[11px] text-red-500 hover:underline cursor-pointer"
-                            >
-                              Remove photo
-                            </button>
-                          ) : (
-                            <span className="text-[11px] text-zinc-400">
-                              Click circle to choose image
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
+                    {/* Consent checkbox */}
                     {requireConsent && (
-                      <label className="flex items-start gap-2.5 text-[11px] text-zinc-600 cursor-pointer pt-0.5">
+                      <label className="flex items-center gap-2 text-xs text-gray-500 mb-4 cursor-pointer select-none">
                         <input
                           type="checkbox"
-                          required
                           checked={testConsent}
                           onChange={(e) => setTestConsent(e.target.checked)}
-                          className="mt-0.5 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/30 cursor-pointer"
+                          className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500/40 cursor-pointer"
                         />
-                        <span className="leading-tight select-none">
-                          I give permission to use this testimonial on your website and marketing materials.
-                        </span>
+                        <span>I allow this review to be shown publicly.</span>
                       </label>
                     )}
 
-                    <div className="pt-1 space-y-2.5 text-center">
+                    {/* Submit Button */}
+                    <button
+                      type="button"
+                      onClick={() => setActivePage("thankyou")}
+                      style={{
+                        backgroundColor: safeThemeColor,
+                        color: contrastBtnText,
+                      }}
+                      className="w-full h-9 rounded-xl font-semibold text-xs transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 active:scale-[0.99]"
+                    >
+                      {reviewCta || "Submit review"}
+                    </button>
+
+                    {/* Back link */}
+                    <div className="mt-2 text-center">
                       <button
-                        type="submit"
-                        style={{
-                          backgroundColor: safeThemeColor,
-                          color: contrastTextColor,
-                        }}
-                        className="w-full h-10 rounded-xl text-xs font-semibold shadow-xs hover:brightness-95 active:scale-[0.99] transition-all cursor-pointer border border-black/5"
+                        type="button"
+                        onClick={() => setActivePage("rating")}
+                        className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
                       >
-                        Submit testimonial
+                        Back
                       </button>
-                      <div className="flex items-center justify-center gap-1.5 text-[10px] text-zinc-400">
-                        <Lock className="w-3 h-3 text-zinc-400" />
-                        <span>Encrypted · GDPR ready · Never shared</span>
-                      </div>
                     </div>
-                  </form>
+                  </section>
+                )}
+
+                {/* ======================================================== */}
+                {/* VIEW 3: THANK YOU PAGE (STEP 3)                          */}
+                {/* ======================================================== */}
+                {activePage === "thankyou" && (
+                  <section className="animate-step-in pt-2 pb-1 text-left">
+                    {/* Animated SVG Checkmark Tick */}
+                    <svg
+                      className="w-10 h-10 mb-4 block"
+                      viewBox="0 0 48 48"
+                      aria-hidden="true"
+                      style={{ color: safeThemeColor }}
+                    >
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="22"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="tick-circle"
+                      />
+                      <path
+                        d="M15 25l6 6 12-13"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="tick-path"
+                      />
+                    </svg>
+
+                    <h1 className="text-xl font-semibold text-gray-900 tracking-tight leading-snug mb-1.5">
+                      {thankYouTitle || "Thank you"}
+                    </h1>
+                    <p className="text-xs text-gray-500 m-0 leading-relaxed">
+                      {thankYouMessage || "Your review has been submitted."}
+                    </p>
+                  </section>
                 )}
               </div>
+
+              {/* Builder Preview Step Navigator */}
+              <div
+                className={`flex items-center justify-between w-full px-1 shrink-0 ${
+                  deviceMode === "mobile" ? "max-w-[290px]" : "max-w-[350px]"
+                }`}
+              >
+                {/* Left: Back button or empty spacer */}
+                <div className="flex items-center min-w-[65px]">
+                  {activePage !== "rating" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActivePage(activePage === "thankyou" ? "review" : "rating")
+                      }
+                      className="h-[26px] px-2.5 rounded-full text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 shadow-2xs transition-all inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <ArrowLeft size={11} />
+                      <span>Back</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Center: Step counter */}
+                <div className="text-[11px] font-semibold text-gray-500 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-pulse" />
+                  <span>
+                    {activePage === "rating" && "Step 1 of 3"}
+                    {activePage === "review" && "Step 2 of 3"}
+                    {activePage === "thankyou" && "Step 3 of 3"}
+                  </span>
+                </div>
+
+                {/* Right: Next button or Restart */}
+                <div className="flex items-center justify-end min-w-[65px]">
+                  {activePage === "rating" && (
+                    <NextStepButton
+                      label="Next"
+                      onClick={() => setActivePage("review")}
+                    />
+                  )}
+                  {activePage === "review" && (
+                    <NextStepButton
+                      label="Next"
+                      onClick={() => setActivePage("thankyou")}
+                    />
+                  )}
+                  {activePage === "thankyou" && (
+                    <button
+                      type="button"
+                      onClick={() => setActivePage("rating")}
+                      className="h-[26px] px-2.5 rounded-full text-[11px] font-semibold text-brand-600 bg-white border border-brand-200 hover:bg-brand-50 shadow-2xs transition-all inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>↺ Restart</span>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

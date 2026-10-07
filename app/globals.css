@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
 
 :root {
   --font-display: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
@@ -49,6 +50,43 @@ body {
   --color-warning: #D97706;
   --color-danger: #DC2626;
   --color-star: #F59E0B;
+
+  /* Blovi Color System Tokens */
+  --color-brand-50: var(--color-blue-50);
+  --color-brand-100: var(--color-blue-100);
+  --color-brand-200: var(--color-blue-200);
+  --color-brand-300: var(--color-blue-300);
+  --color-brand-400: var(--color-blue-400);
+  --color-brand-500: var(--color-blue-500);
+  --color-brand-600: var(--color-blue-600);
+  --color-brand-700: var(--color-blue-700);
+  --color-brand-800: var(--color-blue-800);
+  --color-brand-900: var(--color-blue-900);
+  --color-brand-950: var(--color-blue-950);
+
+  --color-verified-50: var(--color-indigo-50);
+  --color-verified-100: var(--color-indigo-100);
+  --color-verified-200: var(--color-indigo-200);
+  --color-verified-300: var(--color-indigo-300);
+  --color-verified-400: var(--color-indigo-400);
+  --color-verified-500: var(--color-indigo-500);
+  --color-verified-600: var(--color-indigo-600);
+  --color-verified-700: var(--color-indigo-700);
+  --color-verified-800: var(--color-indigo-800);
+  --color-verified-900: var(--color-indigo-900);
+  --color-verified-950: var(--color-indigo-950);
+
+  --color-star-50: var(--color-amber-50);
+  --color-star-100: var(--color-amber-100);
+  --color-star-200: var(--color-amber-200);
+  --color-star-300: var(--color-amber-300);
+  --color-star-400: var(--color-amber-400);
+  --color-star-500: var(--color-amber-500);
+  --color-star-600: var(--color-amber-600);
+  --color-star-700: var(--color-amber-700);
+  --color-star-800: var(--color-amber-800);
+  --color-star-900: var(--color-amber-900);
+  --color-star-950: var(--color-amber-950);
 
   /* Fonts */
   --font-sans: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -289,5 +327,236 @@ html.lenis body {
   }
 }
 
+/* 3-Step Collection Form animations */
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-step-in {
+  animation: step-in 0.25s ease both;
+}
 
+@keyframes tick-circle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes tick-path {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.tick-circle {
+  stroke-dasharray: 140;
+  stroke-dashoffset: 140;
+  animation: tick-circle 0.5s ease forwards;
+}
+.tick-path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: tick-path 0.3s 0.4s ease forwards;
+}
 
+/* Blovi Manual Save Button (Inspired by Uiverse vinodjangid07) */
+.bookmarkBtn {
+  width: 82px;
+  height: 32px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+  position: relative;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.bookmarkBtn .IconContainer {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn[data-status="saved"] .IconContainer {
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+.bookmarkBtn[data-status="error"] .IconContainer {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+}
+
+.bookmarkBtn .icon {
+  border-radius: 1px;
+}
+
+.bookmarkBtn .text {
+  height: 100%;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1;
+  transition-duration: 0.3s;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  margin: 0;
+}
+
+.bookmarkBtn:hover .IconContainer {
+  width: 74px;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn:hover .text {
+  transform: translate(8px);
+  width: 0;
+  font-size: 0;
+  opacity: 0;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn:active {
+  transform: scale(0.95);
+  transition-duration: 0.2s;
+}
+
+/* From Uiverse.io by kheshore - Next Preview Button */
+.btn-conteiner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  --color-text: #ffffff;
+  --color-background: #0f172a;
+  --color-outline: rgba(37, 99, 235, 0.4);
+  --color-shadow: rgba(0, 0, 0, 0.2);
+}
+
+.btn-content {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 26px;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition: 0.3s;
+  border-radius: 100px;
+  box-shadow: 0 0 0.2em 0 var(--color-background);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  outline: none;
+}
+
+.btn-content:hover,
+.btn-content:focus {
+  transition: 0.3s;
+  -webkit-animation: btn-content 1s;
+  animation: btn-content 1s;
+  outline: 0.1em solid transparent;
+  outline-offset: 0.2em;
+  box-shadow: 0 0 0.3em 0 var(--color-background);
+  background: #1e293b;
+}
+
+.btn-content .icon-arrow {
+  transition: 0.3s;
+  margin-right: 0px;
+  transform: scale(0.6);
+}
+
+.btn-content:hover .icon-arrow {
+  transition: 0.3s;
+  margin-right: 5px;
+}
+
+.icon-arrow {
+  width: 16px;
+  height: 10px;
+  margin-left: 4px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* SVG */
+#arrow-icon-one {
+  transition: 0.4s;
+  transform: translateX(-60%);
+  fill: #93c5fd;
+}
+
+#arrow-icon-two {
+  transition: 0.5s;
+  transform: translateX(-30%);
+  fill: #60a5fa;
+}
+
+#arrow-icon-three {
+  fill: #3b82f6;
+}
+
+.btn-content:hover #arrow-icon-three {
+  animation: color_anim 1s infinite 0.2s;
+}
+
+.btn-content:hover #arrow-icon-one {
+  transform: translateX(0%);
+  animation: color_anim 1s infinite 0.6s;
+}
+
+.btn-content:hover #arrow-icon-two {
+  transform: translateX(0%);
+  animation: color_anim 1s infinite 0.4s;
+}
+
+/* SVG animations */
+@keyframes color_anim {
+  0% {
+    fill: white;
+  }
+
+  50% {
+    fill: var(--color-background);
+  }
+
+  100% {
+    fill: #3b82f6;
+  }
+}
+
+/* Button animations */
+@-webkit-keyframes btn-content {
+  0% {
+    outline: 0.2em solid rgba(37, 99, 235, 0.4);
+    outline-offset: 0;
+  }
+}
+
+@keyframes btn-content {
+  0% {
+    outline: 0.2em solid rgba(37, 99, 235, 0.4);
+    outline-offset: 0;
+  }
+}

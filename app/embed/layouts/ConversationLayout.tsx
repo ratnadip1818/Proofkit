@@ -247,7 +247,7 @@ export function ConversationLayout({
         }
 
         .chat-bubble-highlight {
-          background: ${theme === "dark" ? "rgba(255,255,255,0.08)" : "#F9FAFB"};
+          background: ${colors.highlight || (theme === "dark" ? "rgba(255,255,255,0.08)" : "#F9FAFB")};
           border: 1px solid ${colors.cardBorder};
           color: ${colors.text};
           border-radius: 18px;

@@ -20,4 +20,6 @@ export interface ThemeColors {
   dotInactive: string;
   arrowBg: string;
   arrowText: string;
+  ratingBorder?: string;
+  highlight?: string;
 }

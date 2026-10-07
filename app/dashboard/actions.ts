@@ -641,4 +641,44 @@ export async function checkCustomDomainStatus(domain: string): Promise<{
   }
 }
 
+export async function uploadFormLogo(
+  formData: FormData
+): Promise<{ url: string | null; error: string | null }> {
+  const { user } = await getAuthenticatedClient();
+  const file = formData.get("file");
+  if (!(file instanceof File) || !file) {
+    return { url: null, error: "Please select an image file." };
+  }
+  const allowed = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
+  if (!allowed.includes(file.type)) {
+    return { url: null, error: "Logo must be a PNG, JPEG, WEBP, or SVG image." };
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    return { url: null, error: "Logo must be under 2MB." };
+  }
+
+  const admin = createAdminClient();
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
+  const path = `${user.id}/logo-${Date.now()}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { error: uploadError } = await admin.storage
+    .from("avatars")
+    .upload(path, buffer, {
+      contentType: file.type,
+      cacheControl: "31536000",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    return { url: null, error: "Upload failed: " + uploadError.message };
+  }
+
+  const {
+    data: { publicUrl },
+  } = admin.storage.from("avatars").getPublicUrl(path);
+
+  return { url: publicUrl, error: null };
+}
+
 

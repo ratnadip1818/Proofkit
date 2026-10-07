@@ -50,41 +50,45 @@ export const THEME: Record<WidgetTheme, ThemeColors> = {
   light: {
     pageBg: "transparent",
     cardBg: "#ffffff",
-    cardBorder: "#e4e4e7",
-    text: "#3f3f46",
-    name: "#18181b",
-    role: "#71717a",
-    emptyText: "#71717a",
+    cardBorder: "#e5e7eb",
+    text: "#374151",
+    name: "#111827",
+    role: "#6b7280",
+    emptyText: "#6b7280",
     badgeBg: "#ffffff",
-    badgeBorder: "#e4e4e7",
-    badgeText: "#71717a",
-    starOn: "#f59e0b",
-    starOff: "#e4e4e7",
+    badgeBorder: "#e5e7eb",
+    badgeText: "#6b7280",
+    starOn: "#FBBF24",
+    starOff: "#e5e7eb",
     avatarBg: "#EFF6FF",
     avatarText: "#2563EB",
     accent: "#2563EB",
-    dotInactive: "#e4e4e7",
+    ratingBorder: "#4F46E5",
+    highlight: "rgba(251, 191, 36, 0.25)",
+    dotInactive: "#e5e7eb",
     arrowBg: "#ffffff",
-    arrowText: "#3f3f46",
+    arrowText: "#374151",
   },
   dark: {
     pageBg: "transparent",
-    cardBg: "#1F1F28",
-    cardBorder: "#2A2A35",
-    text: "#ffffff",
+    cardBg: "#111827",
+    cardBorder: "#1f2937",
+    text: "#d1d5db",
     name: "#ffffff",
-    role: "#a1a1aa",
-    emptyText: "#a1a1aa",
-    badgeBg: "#1F1F28",
-    badgeBorder: "#2A2A35",
-    badgeText: "#a1a1aa",
-    starOn: "#f59e0b",
-    starOff: "#2A2A35",
-    avatarBg: "#2A2A35",
+    role: "#9ca3af",
+    emptyText: "#9ca3af",
+    badgeBg: "#111827",
+    badgeBorder: "#1f2937",
+    badgeText: "#9ca3af",
+    starOn: "#FBBF24",
+    starOff: "#374151",
+    avatarBg: "#1f2937",
     avatarText: "#ffffff",
-    accent: "#2563EB",
-    dotInactive: "#2A2A35",
-    arrowBg: "#1F1F28",
+    accent: "#3b82f6",
+    ratingBorder: "#4F46E5",
+    highlight: "rgba(251, 191, 36, 0.25)",
+    dotInactive: "#374151",
+    arrowBg: "#111827",
     arrowText: "#ffffff",
   },
 };
@@ -103,7 +107,7 @@ export function buildStyle(
   // 1. Merge Base Theme + Declarative Preset Overrides
   let colors: ThemeColors = presetOverrides?.colors
     ? { ...base, ...presetOverrides.colors }
-    : base;
+    : { ...base };
 
   // 2. Apply Brand Accent
   if (accent) {
@@ -123,11 +127,20 @@ export function buildStyle(
     const params = new URLSearchParams(window.location.search);
     const textColor = params.get("textColor");
     const ratingColor = params.get("ratingColor");
-    if (textColor && textColor.startsWith("#")) {
+    const ratingBorderColor = params.get("ratingBorderColor");
+    const highlightColor = params.get("highlightColor");
+
+    if (textColor) {
       colors = { ...colors, text: textColor, name: textColor };
     }
-    if (ratingColor && ratingColor.startsWith("#")) {
+    if (ratingColor) {
       colors = { ...colors, starOn: ratingColor };
+    }
+    if (ratingBorderColor) {
+      colors = { ...colors, ratingBorder: ratingBorderColor };
+    }
+    if (highlightColor) {
+      colors = { ...colors, highlight: highlightColor };
     }
   }
 

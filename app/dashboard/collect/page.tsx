@@ -22,7 +22,7 @@ export default async function CollectPage() {
   const { data: form, error } = await supabase
     .from("forms")
     .select(
-      "id, slug, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent, custom_domain"
+      "id, slug, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent, custom_domain, custom_css"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
@@ -52,6 +52,7 @@ export default async function CollectPage() {
         collect_rating: form.collect_rating ?? true,
         require_consent: form.require_consent ?? true,
         custom_domain: form.custom_domain || null,
+        custom_css: (form as any).custom_css || null,
       }}
       appUrl={APP_URL}
     />

@@ -45,7 +45,7 @@ export function Stars({
             <StarIcon
               size={size}
               fill={isLit ? colors.starOn : "transparent"}
-              color={isLit ? colors.starOn : colors.starOff}
+              color={isLit ? (colors.ratingBorder || colors.starOn) : colors.starOff}
             />
           </div>
         );
