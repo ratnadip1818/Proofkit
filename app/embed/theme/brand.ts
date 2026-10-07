@@ -5,6 +5,8 @@
 export const BRAND_COLORS = {
   twitter: "#000000",
   productHunt: "#DA552F",
+  google: "#4285F4",
+  linkedin: "#0A66C2",
   verified: "#2E9E6B",
   modalOverlay: "rgba(0, 0, 0, 0.45)",
 } as const;

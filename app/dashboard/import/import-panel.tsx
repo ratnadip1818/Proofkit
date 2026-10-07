@@ -116,6 +116,9 @@ export default function ImportPanel() {
     avatar_url: string | null;
     rating: number;
     platform: string;
+    source: string;
+    requires_paste?: boolean;
+    business_name?: string;
   } | null>(null);
 
   // Manual Clipper State
@@ -150,7 +153,7 @@ export default function ImportPanel() {
       setDetectedPlatform("producthunt");
     } else if (trimmed.includes("linkedin.com")) {
       setDetectedPlatform("linkedin");
-    } else if (trimmed.includes("google.com") || trimmed.includes("g.page")) {
+    } else if (trimmed.includes("google.com") || trimmed.includes("g.page") || trimmed.includes("maps.app.goo.gl")) {
       setDetectedPlatform("google");
     } else {
       setDetectedPlatform("general");
@@ -177,11 +180,22 @@ export default function ImportPanel() {
       setParsedData({
         author_name: data.author_name || "Verified Reviewer",
         author_role: data.author_role || "Public Review",
-        body: data.body || "Great product!",
+        body: data.body || "",
         avatar_url: data.avatar_url || null,
         rating: data.rating || 5,
-        platform: data.platform || "Web Import"
+        platform: data.platform || "Web Import",
+        source: data.source || "manual",
+        requires_paste: data.requires_paste,
+        business_name: data.business_name,
       });
+
+      if (data.requires_paste && !data.body) {
+        setImportSuccess(
+          data.business_name
+            ? `Google listing detected: "${data.business_name}". Paste review text below to save.`
+            : "Google Reviews listing detected. Paste review text below to save."
+        );
+      }
     } catch (err: any) {
       setImportError(err.message || "Could not parse review URL. Try manual clip.");
     } finally {
@@ -192,6 +206,10 @@ export default function ImportPanel() {
   // Save Universal Testimonial
   async function handleSaveParsed() {
     if (!parsedData) return;
+    if (!parsedData.body.trim()) {
+      setImportError("Review text cannot be empty. Please paste or enter the review text.");
+      return;
+    }
     setLoadingImport(true);
     setImportError(null);
 
@@ -202,7 +220,7 @@ export default function ImportPanel() {
         body: parsedData.body,
         avatar_url: parsedData.avatar_url,
         rating: parsedData.rating,
-        source: "manual",
+        source: parsedData.source || "manual",
       });
 
       if (res.error) throw new Error(res.error);
@@ -526,12 +544,25 @@ export default function ImportPanel() {
                     <span className="text-[10px] font-medium text-[#787774]">Click text to edit details</span>
                   </div>
 
+                  {parsedData.requires_paste && !parsedData.body && (
+                    <div className="flex items-center gap-2 rounded-xl bg-blue-50/70 border border-blue-200/60 p-3 text-xs text-[#1D4ED8]">
+                      <Sparkles size={14} className="text-[#2563EB] shrink-0" />
+                      <span>
+                        Paste your customer&apos;s review text below to save with verified Google branding.
+                      </span>
+                    </div>
+                  )}
+
                   <textarea
                     rows={7}
                     value={parsedData.body}
                     onChange={(e) => setParsedData({ ...parsedData, body: e.target.value })}
                     className="w-full text-xs text-[#1A1A1A] leading-relaxed italic bg-[#FAF8F5] border border-[#ECE7E0] rounded-xl p-3.5 focus:border-[#2563EB] focus:outline-none resize-y min-h-[140px]"
-                    placeholder="Full review text..."
+                    placeholder={
+                      parsedData.requires_paste
+                        ? "Paste customer's review quote here..."
+                        : "Full review text..."
+                    }
                   />
                 </div>
 
