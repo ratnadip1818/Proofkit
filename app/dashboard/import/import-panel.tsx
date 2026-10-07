@@ -192,8 +192,8 @@ export default function ImportPanel() {
       if (data.requires_paste && !data.body) {
         setImportSuccess(
           data.business_name
-            ? `Google listing detected: "${data.business_name}". Paste review text below to save.`
-            : "Google Reviews listing detected. Paste review text below to save."
+            ? `${data.platform} listing detected: "${data.business_name}". Paste review text below to save.`
+            : `${data.platform} detected. Paste review text below to save.`
         );
       }
     } catch (err: any) {

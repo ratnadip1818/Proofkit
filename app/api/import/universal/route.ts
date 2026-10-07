@@ -158,10 +158,33 @@ export async function GET(request: Request) {
       });
 
       if (!phRes.ok) {
-        return NextResponse.json(
-          { error: `Product Hunt returned status ${phRes.status}. Please verify the URL.` },
-          { status: phRes.status }
-        );
+        // If Cloudflare blocks datacenter IP (403), gracefully extract product/user from URL
+        let productName = "";
+        const postMatch = trimmedUrl.match(/producthunt\.com\/posts\/([^/?#]+)/i);
+        const prodMatch = trimmedUrl.match(/producthunt\.com\/products\/([^/?#]+)/i);
+        const userMatch = trimmedUrl.match(/producthunt\.com\/@([^/?#]+)/i);
+
+        if (postMatch) productName = postMatch[1].replace(/[-_]/g, " ");
+        else if (prodMatch) productName = prodMatch[1].replace(/[-_]/g, " ");
+        else if (userMatch) productName = `@${userMatch[1]}`;
+
+        const formattedName = productName
+          ? productName.charAt(0).toUpperCase() + productName.slice(1)
+          : "";
+
+        return NextResponse.json({
+          author_name: userMatch ? `@${userMatch[1]}` : "Product Hunt Reviewer",
+          author_role: formattedName
+            ? `Review for ${formattedName} on Product Hunt`
+            : "Product Hunt Community",
+          body: "",
+          avatar_url: null,
+          rating: 5,
+          platform: "Product Hunt",
+          source: "producthunt",
+          business_name: formattedName || "Product Hunt",
+          requires_paste: true,
+        });
       }
 
       const html = await phRes.text();
