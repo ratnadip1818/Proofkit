@@ -84,39 +84,65 @@ export default async function CollectionPage({
     ownerProfile = profileData;
   }
 
+function parseFormMetadata(customCss?: string | null): {
+  heading_font?: string;
+  body_font?: string;
+} {
+  if (!customCss) return {};
+  try {
+    const match = customCss.match(/\/\* __BLOVI_CONFIG__=([\s\S]*?) \*\//);
+    if (match && match[1]) {
+      return JSON.parse(match[1]);
+    }
+  } catch {}
+  return {};
+}
+
   const isPaid = ownerProfile?.is_lifetime === true || ownerProfile?.plan_tier === "pro" || ownerProfile?.plan_tier === "business";
 
-  const customFont = form.custom_font || "Inter";
+  const meta = parseFormMetadata(form.custom_css);
+  const headingFont = meta.heading_font || form.custom_font || "Instrument Serif";
+  const bodyFont = meta.body_font || form.custom_font || "DM Sans";
   const customCss = form.custom_css;
+  const brandColor = form.theme_color || "#6556A8";
 
   if (!isPaid && (count ?? 0) >= FREE_TESTIMONIAL_LIMIT) {
     return (
       <div 
-        className="min-h-screen bg-gray-50 flex items-center justify-center px-5 md:px-10 py-12"
-        style={{ fontFamily: `'${customFont}', sans-serif` }}
+        className="min-h-screen flex items-center justify-center px-5 md:px-10 py-12"
+        style={{
+          fontFamily: `'${bodyFont}', sans-serif`,
+          background: `radial-gradient(ellipse at 50% 9%, color-mix(in srgb, ${brandColor} 13%, transparent), transparent 40%), #faf9f6`,
+          color: "#292723",
+        }}
       >
         <link
           rel="stylesheet"
-          href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(customFont)}:wght@400;500;600;700;800;900&display=swap`}
+          href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(
+            headingFont
+          )}:ital,wght@0,400..800;1,400..800&family=${encodeURIComponent(
+            bodyFont
+          )}:ital,wght@0,400..700;1,400..700&display=swap`}
         />
         {customCss && (
           <style dangerouslySetInnerHTML={{ __html: customCss }} />
         )}
-        <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-xs">
+        <div className="w-full max-w-lg rounded-2xl border border-[#e9e5df] bg-[#fffdfc] p-8 text-center shadow-xs">
           <h1
-            className="text-2xl font-bold text-gray-900"
-            style={{ fontFamily: "inherit" }}
+            className="text-2xl font-bold text-[#292723]"
+            style={{ fontFamily: `'${headingFont}', sans-serif` }}
           >
             This form isn&apos;t accepting new testimonials right now
           </h1>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-[#77716b]">
             Thanks for wanting to share — please check back later.
           </p>
-          <p className="mt-6 text-xs text-gray-500">
+          <p className="mt-6 text-xs text-[#77716b]">
             Are you the owner?{" "}
             <a
               href="/"
-              className="font-semibold text-brand-600 hover:text-brand-700 hover:underline"
+              className="font-semibold hover:underline"
+              style={{ color: brandColor }}
             >
               Upgrade for unlimited testimonials
             </a>
@@ -128,12 +154,25 @@ export default async function CollectionPage({
 
   return (
     <div 
-      className="min-h-screen bg-gray-50 flex items-center justify-center px-4 md:px-8 py-12"
-      style={{ fontFamily: `'${customFont}', sans-serif` }}
+      className="min-h-screen flex items-center justify-center px-4 md:px-8 py-12"
+      style={{
+        fontFamily: `'${bodyFont}', sans-serif`,
+        background: `radial-gradient(ellipse at 50% 9%, color-mix(in srgb, ${brandColor} 13%, transparent), transparent 40%), #faf9f6`,
+        color: "#292723",
+      }}
     >
       <link
         rel="stylesheet"
-        href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(customFont)}:wght@400;500;600;700;800;900&display=swap`}
+        href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(
+          headingFont
+        ).replace(/%20/g, "+")}&family=${encodeURIComponent(
+          bodyFont
+        ).replace(/%20/g, "+")}&display=swap`}
+      />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `h1, h2, h3, .blovi-h1 { font-family: '${headingFont}', Georgia, serif !important; }`,
+        }}
       />
       {customCss && (
         <style dangerouslySetInnerHTML={{ __html: customCss }} />

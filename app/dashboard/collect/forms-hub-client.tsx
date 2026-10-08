@@ -52,6 +52,30 @@ export interface TestimonialItem {
   created_at: string;
 }
 
+export interface FormMetadata {
+  logo_url?: string | null;
+  welcome_title?: string;
+  welcome_subtitle?: string;
+  welcome_sender_name?: string;
+  welcome_sender_note?: string;
+  welcome_cta?: string;
+  heading_font?: string;
+  body_font?: string;
+}
+
+function parseFormMetadata(customCss?: string | null): FormMetadata {
+  if (!customCss) return {};
+  try {
+    const match = customCss.match(/\/\* __BLOVI_CONFIG__=([\s\S]*?) \*\//);
+    if (match && match[1]) {
+      return JSON.parse(match[1]);
+    }
+  } catch {
+    // Ignore malformed JSON
+  }
+  return {};
+}
+
 interface FormsHubClientProps {
   user: { id: string; email?: string | null };
   forms: FormItem[];
@@ -322,6 +346,7 @@ export default function FormsHubClient({
               const themeColor = form.theme_color || "#2563EB";
               const isDuplicating = duplicatingId === form.id;
               const isDeleting = deletingId === form.id;
+              const meta = parseFormMetadata(form.custom_css);
 
               return (
                 <div
@@ -331,56 +356,81 @@ export default function FormsHubClient({
                   }`}
                 >
                   {/* ============================================================ */}
-                  {/* LEFT: Mini Live Form Preview Snapshot (Full Square)          */}
+                  {/* LEFT: Mini Live Form Preview Snapshot (Full-Screen in Square)*/}
                   {/* ============================================================ */}
                   <Link
                     href={`/dashboard/collect/${form.id}`}
                     title="Click to customize form"
-                    className="w-full md:w-52 md:h-52 aspect-square bg-[#FAF9F7] border-b md:border-b-0 md:border-r border-gray-100 p-3.5 flex items-center justify-center shrink-0 group cursor-pointer hover:bg-[#F5F4F0] transition-colors relative select-none"
+                    className="w-full md:w-56 md:h-56 aspect-square border-b md:border-b-0 md:border-r border-gray-100 flex flex-col justify-between p-4 sm:p-4.5 shrink-0 group cursor-pointer transition-all relative select-none overflow-hidden"
+                    style={{
+                      background: `radial-gradient(ellipse at 50% 0%, color-mix(in srgb, ${themeColor} 16%, transparent), transparent 75%), #FAF9F6`,
+                    }}
                   >
-                    {/* Authentic ProofKit Form Card Preview */}
-                    <div className="w-full h-full bg-white rounded-xl border border-gray-200/90 shadow-2xs p-3.5 flex flex-col justify-between transition-transform duration-200 group-hover:scale-[1.02]">
-                      {/* 1. Top 3-Step Progress Indicator Bar */}
-                      <div className="flex gap-1 shrink-0" role="img" aria-label="Step 1 of 3">
-                        <div
-                          className="flex-1 h-[2.5px] rounded-full transition-colors"
-                          style={{ backgroundColor: themeColor }}
-                        />
-                        <div className="flex-1 h-[2.5px] rounded-full bg-gray-200" />
-                        <div className="flex-1 h-[2.5px] rounded-full bg-gray-200" />
-                      </div>
+                    {/* Top Blovi Progress Line */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-[2.5px] transition-colors"
+                      style={{ backgroundColor: themeColor }}
+                    />
 
-                      {/* 2. Middle Content: Headline, Subtitle, Stars, Label */}
-                      <div className="space-y-1 my-auto text-left py-1">
-                        <div className="font-semibold text-[10.5px] text-gray-900 tracking-tight leading-snug line-clamp-2">
-                          {form.headline || "How was your experience?"}
+                    {/* Main Center Content with generous breathing room */}
+                    <div className="my-auto flex flex-col items-center justify-center text-center w-full py-2">
+                      {/* Brand Logo - ONLY if user uploaded one, NEVER default app icon */}
+                      {meta.logo_url ? (
+                        <div className="flex items-center justify-center max-h-6 max-w-[95px] mb-3">
+                          <img
+                            src={meta.logo_url}
+                            alt="Logo"
+                            className="max-h-6 max-w-[95px] object-contain"
+                          />
                         </div>
-                        <div className="text-[8px] text-gray-400 line-clamp-1 leading-tight">
-                          Your honest rating takes 2 seconds
-                        </div>
+                      ) : null}
 
-                        {/* 5 Rating Stars */}
-                        <div className="flex items-center gap-0.5 pt-1">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star
-                              key={s}
-                              size={11}
-                              className="fill-amber-400 stroke-amber-400"
-                            />
-                          ))}
-                        </div>
-
-                        <div className="text-[7.5px] text-gray-400 font-medium pt-0.5">
-                          Excellent
+                      {/* Our Team / Spokesperson greeting row */}
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <span className="w-5.5 h-5.5 rounded-full flex items-center justify-center text-[8px] font-bold text-[#735846] bg-gradient-to-br from-[#f0dfce] to-[#ddc2a5] border border-white shrink-0 shadow-2xs">
+                          {(meta.welcome_sender_name || "OT").slice(0, 2).toUpperCase()}
+                        </span>
+                        <div className="text-left leading-tight">
+                          <div className="text-[9.5px] font-bold text-[#292723] truncate max-w-[110px]">
+                            {meta.welcome_sender_name || "Our Team"}
+                          </div>
+                          <div className="text-[7.5px] text-[#77716b] truncate max-w-[110px] mt-0.5">
+                            {meta.welcome_sender_note || "Hey, we'd love to hear..."}
+                          </div>
                         </div>
                       </div>
 
-                      {/* 3. Bottom Action: Next → Button (Full Width, Styled) */}
+                      {/* Welcome Heading (Actual Page 1 typography with open breathing room) */}
                       <div
-                        className="w-full py-1 rounded-md text-[9px] font-semibold text-white shadow-2xs text-center shrink-0 transition-opacity"
-                        style={{ backgroundColor: themeColor }}
+                        className="text-[13.5px] font-normal text-[#292723] tracking-tight leading-[1.28] line-clamp-2 px-1 mb-2"
+                        style={{
+                          fontFamily: meta.heading_font
+                            ? `'${meta.heading_font}', Georgia, serif`
+                            : "var(--font-serif), Instrument Serif, Georgia, serif",
+                        }}
                       >
-                        Next →
+                        {meta.welcome_title || "A little note from you means a lot to us."}
+                      </div>
+
+                      {/* Welcome Subtitle with relaxed line-height */}
+                      <div className="text-[8px] text-[#77716b] leading-[1.45] line-clamp-2 px-1 max-w-[180px]">
+                        {meta.welcome_subtitle || "Your experience can help someone else find the right fit."}
+                      </div>
+                    </div>
+
+                    {/* Bottom Action: CTA Button + Hint */}
+                    <div className="pt-2 shrink-0 w-full">
+                      <div
+                        className="w-full py-1.5 rounded-xl text-[9.5px] font-semibold text-white shadow-2xs text-center transition-transform group-hover:scale-[1.01]"
+                        style={{
+                          background: `linear-gradient(135deg, color-mix(in srgb, ${themeColor} 88%, #a99de6), ${themeColor})`,
+                        }}
+                      >
+                        {meta.welcome_cta || "Share feedback →"}
+                      </div>
+                      <div className="text-[7px] text-[#77716b] text-center mt-1.5 flex items-center justify-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-[#b7aea5]" />
+                        <span>Takes about 30 seconds</span>
                       </div>
                     </div>
                   </Link>
