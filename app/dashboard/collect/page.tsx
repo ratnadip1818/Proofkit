@@ -44,9 +44,13 @@ export default async function CollectPage() {
       form={{
         id: form.id,
         slug: form.slug,
-        headline: form.headline ?? "Leave a review",
-        prompt: form.prompt ?? "Tell us what you think about our product.",
-        thank_you_message: form.thank_you_message ?? "Thank you for your feedback!",
+        headline: form.headline ?? "Tell us what stood out",
+        prompt:
+          form.prompt ??
+          "A sentence or two is plenty. Your words help others decide, and they genuinely make our day.",
+        thank_you_message:
+          form.thank_you_message ??
+          "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us.",
         theme_color: form.theme_color ?? "#2563EB",
         collect_photo: !!form.collect_photo,
         collect_rating: form.collect_rating ?? true,

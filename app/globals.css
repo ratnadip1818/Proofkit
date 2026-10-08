@@ -365,9 +365,9 @@ html.lenis body {
 
 /* Blovi Manual Save Button (Inspired by Uiverse vinodjangid07) */
 .bookmarkBtn {
-  width: 82px;
-  height: 32px;
-  border-radius: 32px;
+  width: 66px;
+  height: 25px;
+  border-radius: 25px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background-color: #0F172A;
   display: flex;
@@ -382,8 +382,8 @@ html.lenis body {
 }
 
 .bookmarkBtn .IconContainer {
-  width: 24px;
-  height: 24px;
+  width: 19px;
+  height: 19px;
   background: linear-gradient(135deg, #3B82F6, #1D4ED8);
   border-radius: 50px;
   display: flex;
@@ -408,26 +408,26 @@ html.lenis body {
 
 .bookmarkBtn .text {
   height: 100%;
-  width: 46px;
+  width: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   z-index: 1;
   transition-duration: 0.3s;
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: -0.2px;
   margin: 0;
 }
 
 .bookmarkBtn:hover .IconContainer {
-  width: 74px;
+  width: 58px;
   transition-duration: 0.3s;
 }
 
 .bookmarkBtn:hover .text {
-  transform: translate(8px);
+  transform: translate(6px);
   width: 0;
   font-size: 0;
   opacity: 0;

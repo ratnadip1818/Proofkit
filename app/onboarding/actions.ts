@@ -63,9 +63,15 @@ export async function getOrCreateForm(): Promise<{
   const suffix = Math.random().toString(36).slice(2, 6);
   const slug = `${prefix}-${suffix}`;
 
-  const { error } = await supabase
-    .from("forms")
-    .insert({ user_id: user.id, slug });
+  const { error } = await supabase.from("forms").insert({
+    user_id: user.id,
+    slug,
+    headline: "Tell us what stood out",
+    prompt:
+      "A sentence or two is plenty. Your words help others decide, and they genuinely make our day.",
+    thank_you_message:
+      "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us.",
+  });
 
   if (error) return { slug: null, error: error.message };
   return { slug, error: null };

@@ -247,10 +247,10 @@ export default function CollectionForm({ form }: { form: FormRow }) {
       {step === 1 && (
         <section className="step animate-step-in">
           <h1 className="text-2xl font-semibold text-gray-900 tracking-tight leading-snug mb-2">
-            {meta.rating_title || "How would you rate your experience with Blovi?"}
+            {meta.rating_title || "How was your experience with {business_name}?"}
           </h1>
           <p className="sub text-sm text-gray-500 mb-6 leading-relaxed">
-            {meta.rating_subtitle || "Select a rating from 1 to 5."}
+            {meta.rating_subtitle || "Your honest rating takes 2 seconds and means a lot to us."}
           </p>
 
           {/* Stars */}
@@ -305,7 +305,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
             style={{ backgroundColor: brandColor, color: contrastBtnText }}
             className="btn w-full h-12 rounded-xl font-semibold text-sm transition-all shadow-xs flex items-center justify-center cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.99]"
           >
-            {meta.rating_cta || "Continue"}
+            {meta.rating_cta || "Next →"}
           </button>
         </section>
       )}
@@ -329,12 +329,13 @@ export default function CollectionForm({ form }: { form: FormRow }) {
 
           <h1 className="text-2xl font-semibold text-gray-900 tracking-tight leading-snug mb-2">
             {isPositive
-              ? form.headline || "Share your feedback"
+              ? form.headline || "Tell us what stood out"
               : "How can we improve?"}
           </h1>
           <p className="sub text-sm text-gray-500 mb-6 leading-relaxed">
             {isPositive
-              ? form.prompt || "A few sentences about your experience help others decide."
+              ? form.prompt ||
+                "A sentence or two is plenty. Your words help others decide, and they genuinely make our day."
               : "Your response goes directly to our team and is not published."}
           </p>
 
@@ -353,7 +354,8 @@ export default function CollectionForm({ form }: { form: FormRow }) {
               }}
               placeholder={
                 isPositive
-                  ? meta.review_placeholder || "Write your review…"
+                  ? meta.review_placeholder ||
+                    "What did you love? What problem did we help you solve? What would you tell a friend?"
                   : "Write your feedback…"
               }
               className={`w-full min-h-[128px] rounded-xl border bg-transparent p-3 text-sm text-gray-900 placeholder:text-gray-400 placeholder:opacity-70 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 transition-all leading-relaxed resize-y ${
@@ -468,7 +470,7 @@ export default function CollectionForm({ form }: { form: FormRow }) {
                 <span>Submitting</span>
               </>
             ) : (
-              isPositive ? (meta.review_cta || "Submit review") : "Send feedback"
+              isPositive ? (meta.review_cta || "Share my review") : "Send feedback"
             )}
           </button>
 
@@ -523,11 +525,11 @@ export default function CollectionForm({ form }: { form: FormRow }) {
           </svg>
 
           <h1 className="text-2xl font-semibold text-gray-900 tracking-tight leading-snug mb-2">
-            {meta.thank_you_title || "Thank you"}
+            {meta.thank_you_title || "You just made our day! 🎉"}
           </h1>
           <p className="sub text-sm text-gray-500 m-0 leading-relaxed">
             {form.thank_you_message ||
-              `Your ${isPositive ? "review" : "feedback"} has been submitted.`}
+              "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us."}
           </p>
         </section>
       )}

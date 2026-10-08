@@ -22,8 +22,15 @@ import {
   User,
   Briefcase,
   Loader2,
+  RotateCcw,
+  Globe,
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
-import { updateForm, uploadFormLogo } from "../actions";
+import { updateForm, uploadFormLogo, checkCustomDomainStatus } from "../actions";
 
 interface FormRow {
   id: string;
@@ -197,7 +204,7 @@ function BookmarkSaveButton({
   savingStatus: "idle" | "saving" | "saved" | "error";
 }) {
   return (
-    <div className="flex justify-end pt-3">
+    <div className="flex justify-end pt-2">
       <button
         type="button"
         onClick={onSave}
@@ -208,11 +215,11 @@ function BookmarkSaveButton({
       >
         <span className="IconContainer">
           {savingStatus === "saving" ? (
-            <Loader2 size={12} className="text-white animate-spin" />
+            <Loader2 size={10} className="text-white animate-spin" />
           ) : savingStatus === "saved" ? (
-            <Check size={12} className="text-white stroke-[3]" />
+            <Check size={10} className="text-white stroke-[3]" />
           ) : (
-            <svg viewBox="0 0 384 512" height="0.8em" className="icon fill-white">
+            <svg viewBox="0 0 384 512" height="0.65em" className="icon fill-white">
               <path d="M0 48V487.7C0 501.1 10.9 512 24.3 512c5 0 9.9-1.5 14-4.4L192 400 345.7 507.6c4.1 2.9 9 4.4 14 4.4c13.4 0 24.3-10.9 24.3-24.3V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48z" />
             </svg>
           )}
@@ -267,6 +274,326 @@ function NextStepButton({
   );
 }
 
+const CNAME_TARGET = "cname.vercel-dns.com";
+const APEX_A_RECORD = "76.76.21.21";
+const POLL_MS = 30000;
+
+// ---------- custom domain helpers ----------
+const cleanDomain = (v: string) =>
+  v.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/\s/g, "");
+
+const DOMAIN_RE = /^(?!-)([a-z0-9-]{1,63}\.)+[a-z]{2,}$/;
+const isApex = (d: string) => d.split(".").length === 2;
+const hostLabel = (d: string) => d.split(".").slice(0, -2).join(".") || "@";
+
+function DnsCopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-label="Copy DNS target"
+      className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
+      title="Copy"
+    >
+      {copied ? <Check size={11} className="text-emerald-600 stroke-[3]" /> : <Copy size={11} />}
+    </button>
+  );
+}
+
+const PILLS = {
+  pending: { text: "Waiting for DNS", cls: "bg-amber-50 text-amber-800 ring-amber-200", Icon: Clock, spin: false },
+  issuing: { text: "Issuing SSL", cls: "bg-blue-50 text-blue-800 ring-blue-200", Icon: Loader2, spin: true },
+  active: { text: "Active", cls: "bg-emerald-50 text-emerald-800 ring-emerald-200", Icon: CheckCircle2, spin: false },
+  failed: { text: "DNS Error", cls: "bg-red-50 text-red-800 ring-red-200", Icon: XCircle, spin: false },
+};
+
+function StatusPill({ status }: { status: "pending" | "issuing" | "active" | "failed" }) {
+  const item = PILLS[status] || PILLS.pending;
+  const { text, cls, Icon, spin } = item;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${cls}`}>
+      <Icon size={10} className={spin ? "animate-spin" : ""} />
+      <span>{text}</span>
+    </span>
+  );
+}
+
+function CustomDomainPanel({
+  formId,
+  initialDomain,
+  onDomainChange,
+}: {
+  formId: string;
+  initialDomain: string | null;
+  onDomainChange: (domain: string | null) => void;
+}) {
+  const [input, setInput] = useState("");
+  const [domain, setDomain] = useState<string | null>(initialDomain || null);
+  const [status, setStatus] = useState<"pending" | "issuing" | "active" | "failed" | null>(
+    initialDomain ? "active" : null
+  );
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const timer = useRef<NodeJS.Timeout | null>(null);
+
+  const cleaned = cleanDomain(input);
+  const valid = DOMAIN_RE.test(cleaned);
+  const apex = valid && isApex(cleaned);
+
+  const connect = async () => {
+    if (!valid || busy) return;
+    setBusy(true);
+    try {
+      const res = await updateForm(formId, { custom_domain: cleaned });
+      if (res.error) {
+        setStatus("failed");
+        setReason(res.error);
+        setBusy(false);
+        return;
+      }
+      setDomain(cleaned);
+      onDomainChange(cleaned);
+
+      const checkRes = await checkCustomDomainStatus(cleaned);
+      if (checkRes.status === "verified") {
+        setStatus("active");
+        setReason("");
+      } else if (checkRes.status === "failed") {
+        setStatus("failed");
+        setReason(checkRes.error || "DNS not pointing yet.");
+      } else {
+        setStatus("pending");
+        setReason("");
+      }
+    } catch (err: any) {
+      setStatus("failed");
+      setReason(err.message || "Failed to connect.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const check = async () => {
+    if (!domain || checking) return;
+    setChecking(true);
+    try {
+      const checkRes = await checkCustomDomainStatus(domain);
+      if (checkRes.status === "verified") {
+        setStatus("active");
+        setReason("");
+      } else if (checkRes.status === "failed") {
+        setStatus("failed");
+        setReason(checkRes.error || "DNS record not found yet.");
+      } else {
+        setStatus("pending");
+        setReason("");
+      }
+    } catch (err: any) {
+      setStatus("failed");
+      setReason(err.message || "Failed to check DNS.");
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const remove = async () => {
+    await updateForm(formId, { custom_domain: null });
+    if (timer.current) clearTimeout(timer.current);
+    setDomain(null);
+    setStatus(null);
+    setInput("");
+    setReason("");
+    onDomainChange(null);
+  };
+
+  useEffect(() => {
+    if (status === "pending" || status === "issuing") {
+      timer.current = setTimeout(check, POLL_MS);
+      return () => {
+        if (timer.current) clearTimeout(timer.current);
+      };
+    }
+  }, [status, checking]); // eslint-disable-line
+
+  const connected = !!domain;
+  const dnsDomain = connected ? domain : cleaned;
+  const showApex = connected ? isApex(domain) : apex;
+
+  return (
+    <section className="space-y-1.5 font-sans">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Globe size={13} className="text-blue-600" />
+          <label className="text-xs font-bold text-gray-900 block">
+            Custom Domain
+          </label>
+        </div>
+        {connected ? (
+          <StatusPill status={status || "pending"} />
+        ) : (
+          <span className="text-[11px] text-gray-400 font-medium">Optional</span>
+        )}
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-3 space-y-2.5 shadow-2xs">
+        {!connected ? (
+          <div className="space-y-2">
+            <div className="flex rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 overflow-hidden bg-white shadow-2xs">
+              <span className="flex items-center bg-slate-50 px-2.5 font-mono text-xs text-slate-400 border-r border-slate-200 select-none">
+                https://
+              </span>
+              <input
+                id="cd-input"
+                value={input}
+                onChange={(e) => setInput(cleanDomain(e.target.value))}
+                onKeyDown={(e) => e.key === "Enter" && connect()}
+                placeholder="reviews.yourbrand.com"
+                autoComplete="off"
+                spellCheck={false}
+                className="min-w-0 flex-1 px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none font-mono"
+              />
+              <button
+                type="button"
+                onClick={connect}
+                disabled={!valid || busy}
+                className="px-3 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white transition cursor-pointer shrink-0 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                {busy && <Loader2 size={11} className="animate-spin" />}
+                <span>Connect</span>
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-500 leading-normal">
+              {cleaned.length > 0 && !valid ? (
+                <span className="text-red-500">Enter a valid domain (e.g. reviews.yourbrand.com).</span>
+              ) : apex ? (
+                <span>Tip: A subdomain like <code className="font-mono text-blue-600">reviews.yourbrand.com</code> is easiest to set up.</span>
+              ) : (
+                <span>Collect reviews on your own domain with automatic SSL.</span>
+              )}
+            </p>
+
+            {valid && (
+              <div className="bg-slate-50/90 border border-slate-200/90 rounded-xl p-2.5 space-y-1.5">
+                <div className="flex items-center justify-between text-[10.5px] text-slate-500 font-medium">
+                  <span>Add this DNS record to connect:</span>
+                  <span className="text-[10px] text-slate-400">Cloudflare: DNS only</span>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-2 grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <span className="text-[9.5px] text-slate-400 uppercase font-semibold block">Type</span>
+                    <span className="font-mono font-bold text-slate-800 text-[11px]">{showApex ? "A" : "CNAME"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-slate-400 uppercase font-semibold block">Host</span>
+                    <span className="font-mono font-bold text-slate-800 text-[11px] truncate block">{showApex ? "@" : hostLabel(dnsDomain)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-slate-400 uppercase font-semibold block">Target</span>
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="font-mono font-bold text-slate-800 text-[11px] truncate">{showApex ? APEX_A_RECORD : CNAME_TARGET}</span>
+                      <DnsCopyButton value={showApex ? APEX_A_RECORD : CNAME_TARGET} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
+              <span className="font-mono text-xs font-semibold text-slate-900 truncate">{domain}</span>
+              <div className="flex items-center gap-1 shrink-0">
+                {status === "active" && (
+                  <a
+                    href={`https://${domain}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1 text-slate-400 hover:text-blue-600 rounded transition cursor-pointer"
+                    title="Open live custom domain"
+                  >
+                    <ExternalLink size={12} />
+                  </a>
+                )}
+                {(status === "pending" || status === "failed") && (
+                  <button
+                    type="button"
+                    onClick={check}
+                    disabled={checking}
+                    className="p-1 text-slate-400 hover:text-slate-800 rounded transition cursor-pointer disabled:opacity-50"
+                    title="Check DNS status"
+                  >
+                    <RefreshCw size={12} className={checking ? "animate-spin text-blue-600" : ""} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={remove}
+                  className="p-1 text-slate-400 hover:text-red-600 rounded transition cursor-pointer"
+                  title="Remove domain"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            </div>
+
+            {status === "active" && (
+              <p className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
+                <ShieldCheck size={12} className="shrink-0" /> Live with automatic SSL.
+              </p>
+            )}
+            {status === "issuing" && (
+              <p className="flex items-center gap-1 text-[11px] text-blue-700 font-medium">
+                <Loader2 size={12} className="animate-spin shrink-0" /> DNS verified. Issuing SSL certificate (~1 min).
+              </p>
+            )}
+            {status === "failed" && (
+              <p className="flex items-center gap-1 text-[11px] text-red-600 font-medium">
+                <XCircle size={12} className="shrink-0" /> {reason || "DNS record not found. Check settings and retry."}
+              </p>
+            )}
+
+            {status !== "active" && (
+              <div className="bg-slate-50/90 border border-slate-200/90 rounded-xl p-2.5 space-y-1.5">
+                <div className="flex items-center justify-between text-[10.5px] text-slate-500 font-medium">
+                  <span>DNS Record:</span>
+                  <span className="text-[10px] text-slate-400">Cloudflare: DNS only</span>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-2 grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <span className="text-[9.5px] text-slate-400 uppercase font-semibold block">Type</span>
+                    <span className="font-mono font-bold text-slate-800 text-[11px]">{showApex ? "A" : "CNAME"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-slate-400 uppercase font-semibold block">Host</span>
+                    <span className="font-mono font-bold text-slate-800 text-[11px] truncate block">{showApex ? "@" : hostLabel(dnsDomain)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9.5px] text-slate-400 uppercase font-semibold block">Target</span>
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="font-mono font-bold text-slate-800 text-[11px] truncate">{showApex ? APEX_A_RECORD : CNAME_TARGET}</span>
+                      <DnsCopyButton value={showApex ? APEX_A_RECORD : CNAME_TARGET} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function CollectWorkspaceClient({
   form,
   appUrl,
@@ -280,38 +607,99 @@ export default function CollectWorkspaceClient({
   // Sub-page switcher in Pages tab: "rating" | "review" | "thankyou"
   const [activePage, setActivePage] = useState<"rating" | "review" | "thankyou">("rating");
 
+  // Helper to detect if a value was an old system default that should be upgraded to the warm & human defaults
+  const isOldDefaultRatingTitle = (val?: string | null) =>
+    !val ||
+    val === "Do you enjoy using Blovi?" ||
+    val === "How would you rate your experience with Blovi?";
+
+  const isOldDefaultRatingSubtitle = (val?: string | null) =>
+    !val ||
+    val === "On a scale of 1 to 5, how would you rate us?" ||
+    val === "Select a rating from 1 to 5.";
+
+  const isOldDefaultRatingCta = (val?: string | null) =>
+    !val || val === "Continue";
+
+  const isOldDefaultHeadline = (val?: string | null) =>
+    !val ||
+    val === "Leave a review" ||
+    val === "Introduce yourself and share why you love our product 💜" ||
+    val === "Share your feedback";
+
+  const isOldDefaultPrompt = (val?: string | null) =>
+    !val ||
+    val === "Tell us what you think about our product." ||
+    val === "In a few sentences, share what you love about using our product." ||
+    val === "A few sentences about your experience help others decide.";
+
+  const isOldDefaultPlaceholder = (val?: string | null) =>
+    !val ||
+    val === "Write your testimonial..." ||
+    val === "Write your review…" ||
+    val === "Write your testimonial…";
+
+  const isOldDefaultReviewCta = (val?: string | null) =>
+    !val || val === "Continue" || val === "Submit review";
+
+  const isOldDefaultThankYouTitle = (val?: string | null) =>
+    !val || val === "Thank you!" || val === "Thank you";
+
+  const isOldDefaultThankYouMessage = (val?: string | null) =>
+    !val ||
+    val === "Thank you for your feedback!" ||
+    val.includes("Testimonials help me grow my business") ||
+    val === "Your review has been submitted.";
+
   // Page 1: Rating Page Copy
   const [ratingTitle, setRatingTitle] = useState(
-    initialMeta.current.rating_title || "Do you enjoy using Blovi?"
+    isOldDefaultRatingTitle(initialMeta.current.rating_title)
+      ? "How was your experience with {business_name}?"
+      : initialMeta.current.rating_title!
   );
   const [ratingSubtitle, setRatingSubtitle] = useState(
-    initialMeta.current.rating_subtitle || "On a scale of 1 to 5, how would you rate us?"
+    isOldDefaultRatingSubtitle(initialMeta.current.rating_subtitle)
+      ? "Your honest rating takes 2 seconds and means a lot to us."
+      : initialMeta.current.rating_subtitle!
   );
   const [ratingCta, setRatingCta] = useState(
-    initialMeta.current.rating_cta || "Continue"
+    isOldDefaultRatingCta(initialMeta.current.rating_cta)
+      ? "Next →"
+      : initialMeta.current.rating_cta!
   );
 
   // Page 2: Review Page Copy (Introduce yourself + review body)
   const [headline, setHeadline] = useState(
-    form.headline || "Introduce yourself and share why you love our product 💜"
+    isOldDefaultHeadline(form.headline)
+      ? "Tell us what stood out"
+      : form.headline!
   );
   const [prompt, setPrompt] = useState(
-    form.prompt || "In a few sentences, share what you love about using our product."
+    isOldDefaultPrompt(form.prompt)
+      ? "A sentence or two is plenty. Your words help others decide, and they genuinely make our day."
+      : form.prompt!
   );
   const [reviewPlaceholder, setReviewPlaceholder] = useState(
-    initialMeta.current.review_placeholder || "Write your testimonial..."
+    isOldDefaultPlaceholder(initialMeta.current.review_placeholder)
+      ? "What did you love? What problem did we help you solve? What would you tell a friend?"
+      : initialMeta.current.review_placeholder!
   );
   const [reviewCta, setReviewCta] = useState(
-    initialMeta.current.review_cta || "Continue"
+    isOldDefaultReviewCta(initialMeta.current.review_cta)
+      ? "Share my review"
+      : initialMeta.current.review_cta!
   );
 
   // Page 3: Thank You Page Copy
   const [thankYouTitle, setThankYouTitle] = useState(
-    initialMeta.current.thank_you_title || "Thank you!"
+    isOldDefaultThankYouTitle(initialMeta.current.thank_you_title)
+      ? "You just made our day! 🎉"
+      : initialMeta.current.thank_you_title!
   );
   const [thankYouMessage, setThankYouMessage] = useState(
-    form.thank_you_message ||
-      "Thank you so much for leaving a testimonial! Testimonials help me grow my business. They're the best way of helping me out if you read and enjoy my work."
+    isOldDefaultThankYouMessage(form.thank_you_message)
+      ? "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us."
+      : form.thank_you_message!
   );
 
   // Design States
@@ -330,6 +718,9 @@ export default function CollectWorkspaceClient({
   const [copiedLink, setCopiedLink] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
+
+  // Active Custom Domain state for shareUrl and live preview sync
+  const [activeCustomDomain, setActiveCustomDomain] = useState(form.custom_domain || "");
 
   // Live interactive preview test states
   const [testRating, setTestRating] = useState(5);
@@ -372,10 +763,28 @@ export default function CollectWorkspaceClient({
     };
   }, []);
 
+  const applyRecommendedDefaults = () => {
+    setRatingTitle("How was your experience with {business_name}?");
+    setRatingSubtitle("Your honest rating takes 2 seconds and means a lot to us.");
+    setRatingCta("Next →");
+    setHeadline("Tell us what stood out");
+    setPrompt(
+      "A sentence or two is plenty. Your words help others decide, and they genuinely make our day."
+    );
+    setReviewPlaceholder(
+      "What did you love? What problem did we help you solve? What would you tell a friend?"
+    );
+    setReviewCta("Share my review");
+    setThankYouTitle("You just made our day! 🎉");
+    setThankYouMessage(
+      "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us."
+    );
+  };
+
   // Compute live share link
   const safeSlug = form.slug || "reviews";
-  const shareUrl = form.custom_domain
-    ? `https://${form.custom_domain}`
+  const shareUrl = activeCustomDomain.trim()
+    ? `https://${activeCustomDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "")}`
     : `${appUrl.replace(/\/$/, "")}/c/${safeSlug}`;
 
   const safeThemeColor = isValidHexColor(themeColor)
@@ -607,11 +1016,22 @@ export default function CollectWorkspaceClient({
                     {activePage === "thankyou" && "Thank You"}
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                  {activePage === "rating" && "Step 1 of 3"}
-                  {activePage === "review" && "Step 2 of 3"}
-                  {activePage === "thankyou" && "Step 3 of 3"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={applyRecommendedDefaults}
+                    className="text-[10px] font-medium text-gray-500 hover:text-brand-600 transition-colors flex items-center gap-1 cursor-pointer bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md"
+                    title="Load recommended warm & human copy across all pages"
+                  >
+                    <RotateCcw size={10} />
+                    <span>Recommended copy</span>
+                  </button>
+                  <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                    {activePage === "rating" && "Step 1 of 3"}
+                    {activePage === "review" && "Step 2 of 3"}
+                    {activePage === "thankyou" && "Step 3 of 3"}
+                  </span>
+                </div>
               </div>
 
               {/* Sub-page 1: Rating Page Copy */}
@@ -627,7 +1047,7 @@ export default function CollectWorkspaceClient({
                         value={ratingTitle}
                         onChange={(e) => setRatingTitle(e.target.value)}
                         className={inputClass}
-                        placeholder="e.g. Do you enjoy using Blovi?"
+                        placeholder="e.g. How was your experience with {business_name}?"
                       />
                     </div>
 
@@ -640,7 +1060,7 @@ export default function CollectWorkspaceClient({
                         value={ratingSubtitle}
                         onChange={(e) => setRatingSubtitle(e.target.value)}
                         className={textareaClass}
-                        placeholder="e.g. On a scale of 1 to 5, how would you rate us?"
+                        placeholder="e.g. Your honest rating takes 2 seconds and means a lot to us."
                       />
                     </div>
 
@@ -653,7 +1073,7 @@ export default function CollectWorkspaceClient({
                         value={ratingCta}
                         onChange={(e) => setRatingCta(e.target.value)}
                         className={inputClass}
-                        placeholder="e.g. Continue"
+                        placeholder="e.g. Next →"
                       />
                     </div>
                   </div>
@@ -679,7 +1099,7 @@ export default function CollectWorkspaceClient({
                         value={headline}
                         onChange={(e) => setHeadline(e.target.value)}
                         className={inputClass}
-                        placeholder="e.g. Introduce yourself and share why you love our product 💜"
+                        placeholder="e.g. Tell us what stood out"
                       />
                     </div>
 
@@ -692,7 +1112,7 @@ export default function CollectWorkspaceClient({
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         className={textareaClass}
-                        placeholder="e.g. In a few sentences, share what you love about using our product."
+                        placeholder="e.g. A sentence or two is plenty. Your words help others decide, and they genuinely make our day."
                       />
                     </div>
 
@@ -705,7 +1125,7 @@ export default function CollectWorkspaceClient({
                         value={reviewPlaceholder}
                         onChange={(e) => setReviewPlaceholder(e.target.value)}
                         className={inputClass}
-                        placeholder="e.g. Write your testimonial..."
+                        placeholder="e.g. What did you love? What problem did we help you solve? What would you tell a friend?"
                       />
                     </div>
 
@@ -718,7 +1138,7 @@ export default function CollectWorkspaceClient({
                         value={reviewCta}
                         onChange={(e) => setReviewCta(e.target.value)}
                         className={inputClass}
-                        placeholder="e.g. Continue"
+                        placeholder="e.g. Share my review"
                       />
                     </div>
                   </div>
@@ -744,7 +1164,7 @@ export default function CollectWorkspaceClient({
                         value={thankYouTitle}
                         onChange={(e) => setThankYouTitle(e.target.value)}
                         className={inputClass}
-                        placeholder="e.g. Thank you!"
+                        placeholder="e.g. You just made our day! 🎉"
                       />
                     </div>
 
@@ -757,7 +1177,7 @@ export default function CollectWorkspaceClient({
                         value={thankYouMessage}
                         onChange={(e) => setThankYouMessage(e.target.value)}
                         className={textareaClass}
-                        placeholder="e.g. Thank you so much for leaving a testimonial! Testimonials help me grow my business..."
+                        placeholder="e.g. Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us."
                       />
                     </div>
                   </div>
@@ -1036,15 +1456,27 @@ export default function CollectWorkspaceClient({
           )}
 
           {/* ======================================================== */}
-          {/* TAB 3: SHARE (PURE DIRECT URL SIMPLICITY)                 */}
+          {/* TAB 3: SHARE (DIRECT URL & CUSTOM DOMAIN)                */}
           {/* ======================================================== */}
           {tab === "share" && (
             <div className="space-y-4">
-              <section className="space-y-2.5">
+              {/* Card 1: Direct Share Link */}
+              <section className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-gray-900 block">
-                    Direct Share Link
-                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-xs font-bold text-gray-900 block">
+                      Direct Share Link
+                    </label>
+                    {activeCustomDomain ? (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
+                        Custom Domain
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200/60">
+                        Default URL
+                      </span>
+                    )}
+                  </div>
                   <a
                     href={shareUrl}
                     target="_blank"
@@ -1056,9 +1488,18 @@ export default function CollectWorkspaceClient({
                   </a>
                 </div>
 
-                <div className="bg-white border border-gray-200/90 rounded-2xl p-4 space-y-3.5 shadow-2xs">
-                  <div className="bg-gray-50/90 border border-gray-200 rounded-xl px-3.5 py-3 text-xs font-mono text-gray-700 break-all select-all">
-                    {shareUrl}
+                <div className="bg-white border border-gray-200/90 rounded-2xl p-3.5 space-y-3 shadow-2xs">
+                  <div className="bg-gray-50/90 border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-mono text-gray-700 break-all select-all flex items-center justify-between gap-2">
+                    <span className="truncate">{shareUrl}</span>
+                    <a
+                      href={shareUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-gray-400 hover:text-brand-600 shrink-0 p-0.5"
+                      title="Open in new tab"
+                    >
+                      <ExternalLink size={12} />
+                    </a>
                   </div>
 
                   <button
@@ -1084,6 +1525,13 @@ export default function CollectWorkspaceClient({
                   </button>
                 </div>
               </section>
+
+              {/* Card 2: Custom Domain Panel */}
+              <CustomDomainPanel
+                formId={form.id}
+                initialDomain={activeCustomDomain || null}
+                onDomainChange={(d) => setActiveCustomDomain(d || "")}
+              />
             </div>
           )}
         </div>
@@ -1109,7 +1557,11 @@ export default function CollectWorkspaceClient({
               <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 bg-white border border-gray-200/80 rounded-full px-3 py-0.5 text-[11px] text-gray-500 font-mono items-center gap-1.5 shadow-2xs max-w-[220px] truncate pointer-events-none">
                 <Lock size={10} className="text-gray-400 shrink-0" />
                 <span className="text-gray-400 shrink-0">https://</span>
-                <span className="truncate">your-brand.com/c/{safeSlug}</span>
+                <span className="truncate">
+                  {activeCustomDomain.trim()
+                    ? activeCustomDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "")
+                    : `your-brand.com/c/${safeSlug}`}
+                </span>
               </div>
 
               {/* Viewport switch: Desktop vs Mobile */}
@@ -1270,7 +1722,7 @@ export default function CollectWorkspaceClient({
                       }}
                       className="w-full h-9 rounded-xl font-semibold text-xs transition-all shadow-xs flex items-center justify-center cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.99]"
                     >
-                      {ratingCta}
+                      {ratingCta || "Next →"}
                     </button>
                   </section>
                 )}
@@ -1370,7 +1822,7 @@ export default function CollectWorkspaceClient({
                       }}
                       className="w-full h-9 rounded-xl font-semibold text-xs transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 active:scale-[0.99]"
                     >
-                      {reviewCta || "Submit review"}
+                      {reviewCta || "Share my review"}
                     </button>
 
                     {/* Back link */}
@@ -1419,10 +1871,11 @@ export default function CollectWorkspaceClient({
                     </svg>
 
                     <h1 className="text-xl font-semibold text-gray-900 tracking-tight leading-snug mb-1.5">
-                      {thankYouTitle || "Thank you"}
+                      {thankYouTitle || "You just made our day! 🎉"}
                     </h1>
                     <p className="text-xs text-gray-500 m-0 leading-relaxed">
-                      {thankYouMessage || "Your review has been submitted."}
+                      {thankYouMessage ||
+                        "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us."}
                     </p>
                   </section>
                 )}
