@@ -274,6 +274,9 @@ export interface ImportTestimonialRow {
   author_role: string | null;
   body: string;
   rating: number | null;
+  avatar_url?: string | null;
+  source?: string;
+  tags?: string[];
 }
 
 export async function importTestimonials(
@@ -322,17 +325,28 @@ export async function importTestimonials(
   const { data, error } = await admin
     .from("testimonials")
     .insert(
-      rows.map((row) => ({
-        user_id: user.id,
-        author_name: row.author_name,
-        author_role: row.author_role,
-        body_original: row.body,
-        display_body: row.body,
-        rating: row.rating,
-        status: "approved",
-        source: "csv",
-        consent: true,
-      }))
+      rows.map((row) => {
+        const rawSource = row.source || "csv";
+        const safeDbSource = rawSource === "form" || rawSource === "csv" ? rawSource : "manual";
+        const platformTag = rawSource !== "form" && rawSource !== "csv" && rawSource !== "manual" ? rawSource : null;
+        const mergedTags = Array.from(
+          new Set([...(platformTag ? [platformTag] : []), ...(row.tags || [])])
+        ).filter(Boolean);
+
+        return {
+          user_id: user.id,
+          author_name: row.author_name,
+          author_role: row.author_role,
+          body_original: row.body,
+          display_body: row.body,
+          rating: row.rating,
+          status: "approved",
+          source: safeDbSource,
+          avatar_url: row.avatar_url || null,
+          tags: mergedTags,
+          consent: true,
+        };
+      })
     )
     .select("id");
 
@@ -381,6 +395,8 @@ export interface ImportSingleTestimonialData {
   rating: number | null;
   avatar_url: string | null;
   source: string;
+  tags?: string[];
+  created_at?: string;
 }
 
 async function downloadAndUploadAvatar(
@@ -489,11 +505,39 @@ export async function importSingleTestimonial(
     };
   }
 
-  // Self-host avatar if present
+  // Self-host avatar if present (http or base64 data URL)
   let finalAvatarUrl = data.avatar_url;
   if (data.avatar_url && data.avatar_url.startsWith("http")) {
     finalAvatarUrl = await downloadAndUploadAvatar(user.id, data.avatar_url);
+  } else if (data.avatar_url && data.avatar_url.startsWith("data:image/")) {
+    try {
+      const match = data.avatar_url.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+      if (match) {
+        const rawExt = match[1];
+        const ext = rawExt === "jpeg" ? "jpg" : rawExt;
+        const buffer = Buffer.from(match[2], "base64");
+        if (buffer.length <= 5 * 1024 * 1024) {
+          const filename = `${user.id}/manual-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+          const { error: upErr } = await admin.storage.from("avatars").upload(filename, buffer, {
+            contentType: `image/${rawExt}`,
+            cacheControl: "31536000",
+            upsert: true,
+          });
+          if (!upErr) {
+            const { data: pub } = admin.storage.from("avatars").getPublicUrl(filename);
+            finalAvatarUrl = pub.publicUrl;
+          }
+        }
+      }
+    } catch {}
   }
+
+  const rawSource = data.source || "manual";
+  const safeDbSource = rawSource === "form" || rawSource === "csv" ? rawSource : "manual";
+  const platformTag = rawSource !== "form" && rawSource !== "csv" && rawSource !== "manual" ? rawSource : null;
+  const mergedTags = Array.from(
+    new Set([...(platformTag ? [platformTag] : []), ...(data.tags || [])])
+  ).filter(Boolean);
 
   const { error } = await admin.from("testimonials").insert({
     user_id: user.id,
@@ -504,8 +548,10 @@ export async function importSingleTestimonial(
     rating: data.rating,
     avatar_url: finalAvatarUrl,
     status: "approved",
-    source: data.source,
+    source: safeDbSource,
+    tags: mergedTags,
     consent: true,
+    ...(data.created_at ? { created_at: data.created_at } : {}),
   });
 
   if (error) return { error: error.message, success: false };

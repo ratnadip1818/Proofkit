@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import ImportPanel from "./import-panel";
+import ImportWorkspaceClient from "./import-workspace-client";
 
 export const metadata = {
-  title: "Import Testimonials — Blovi",
-  description: "Import testimonials from Twitter/X, Product Hunt, or bulk import via CSV.",
+  title: "Import Proof & Testimonials — Blovi",
+  description: "Import customer testimonials from 20+ web sources, spreadsheets, or direct notes.",
 };
 
 export default async function ImportPage() {
@@ -16,19 +16,9 @@ export default async function ImportPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="max-w-[960px] mx-auto p-6 md:p-12">
-      <div className="w-full py-8 animate-fade-in font-sans text-ink">
-        {/* Page Header */}
-        <div className="pb-6 border-b border-hairline mb-8">
-          <h1 className="font-display font-bold text-2xl text-ink tracking-tight flex items-center space-x-2">
-            <span>Import Testimonials</span>
-          </h1>
-          <p className="text-ink-secondary text-xs mt-1 leading-relaxed">
-            Import reviews from Twitter/X, Product Hunt, LinkedIn, or bulk import via CSV.
-          </p>
-        </div>
-
-        <ImportPanel />
+    <div className="max-w-[860px] mx-auto p-4 sm:p-8 md:p-10">
+      <div className="w-full py-4 animate-fade-in font-sans">
+        <ImportWorkspaceClient />
       </div>
     </div>
   );

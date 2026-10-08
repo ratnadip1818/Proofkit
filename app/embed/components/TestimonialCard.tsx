@@ -119,7 +119,7 @@ export function TestimonialCard({
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "auto" }}>
-        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
+        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} tags={t.tags} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
         <div style={{ minWidth: 0 }}>
           <div
             style={{
