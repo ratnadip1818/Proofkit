@@ -135,6 +135,121 @@ export async function deleteForm(id: string): Promise<void> {
   revalidatePath("/dashboard");
 }
 
+export async function duplicateForm(
+  id: string
+): Promise<{ error: string | null; formId?: string }> {
+  const { supabase, user } = await getAuthenticatedClient();
+
+  const { data: sourceForm, error: fetchErr } = await supabase
+    .from("forms")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fetchErr || !sourceForm) {
+    return { error: "Source form not found" };
+  }
+
+  const admin = createAdminClient();
+  const [{ data: profile }, { count: formCount }] = await Promise.all([
+    admin.from("profiles").select("plan_tier, is_lifetime").eq("id", user.id).maybeSingle(),
+    admin.from("forms").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+  ]);
+
+  const tier = profile?.plan_tier || "free";
+  let maxForms = 1;
+  if (tier === "agency" || tier === "business") maxForms = Infinity;
+  else if (tier === "pro") maxForms = 10;
+  else if (tier === "starter") maxForms = 3;
+
+  if ((formCount ?? 0) >= maxForms) {
+    return {
+      error: `Form limit reached (${maxForms} form${maxForms === 1 ? "" : "s"}). Stack more AppSumo codes or upgrade to create more.`,
+    };
+  }
+
+  const prefix = (sourceForm.slug || "form").split("-")[0] || "form";
+  const suffix = Math.random().toString(36).slice(2, 6);
+  const slug = `${prefix}-${suffix}`;
+
+  const { data: newForm, error: insertErr } = await supabase
+    .from("forms")
+    .insert({
+      user_id: user.id,
+      slug,
+      headline: `${sourceForm.headline || "Testimonial Form"} (Copy)`,
+      prompt: sourceForm.prompt,
+      thank_you_message: sourceForm.thank_you_message,
+      theme_color: sourceForm.theme_color,
+      collect_photo: sourceForm.collect_photo,
+      collect_rating: sourceForm.collect_rating,
+      require_consent: sourceForm.require_consent,
+      custom_css: sourceForm.custom_css,
+      custom_font: sourceForm.custom_font,
+    })
+    .select("id")
+    .single();
+
+  if (insertErr) return { error: insertErr.message };
+
+  revalidatePath("/dashboard/collect");
+  revalidatePath("/dashboard");
+  return { error: null, formId: newForm?.id };
+}
+
+export async function createNewFormDirect(): Promise<{ error: string | null; formId?: string }> {
+  const { supabase, user } = await getAuthenticatedClient();
+
+  const admin = createAdminClient();
+  const [{ data: profile }, { count: formCount }] = await Promise.all([
+    admin.from("profiles").select("plan_tier, is_lifetime").eq("id", user.id).maybeSingle(),
+    admin.from("forms").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+  ]);
+
+  const tier = profile?.plan_tier || "free";
+  let maxForms = 1;
+  if (tier === "agency" || tier === "business") maxForms = Infinity;
+  else if (tier === "pro") maxForms = 10;
+  else if (tier === "starter") maxForms = 3;
+
+  if ((formCount ?? 0) >= maxForms) {
+    return {
+      error: `You have reached the form limit for your plan (${maxForms} form${maxForms === 1 ? "" : "s"}). Please upgrade to create more.`,
+    };
+  }
+
+  const prefix = (user.email ?? "form")
+    .split("@")[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 20);
+  const suffix = Math.random().toString(36).slice(2, 6);
+  const slug = `${prefix}-${suffix}`;
+
+  const { data: newForm, error } = await supabase
+    .from("forms")
+    .insert({
+      user_id: user.id,
+      slug,
+      headline: "Tell us what stood out",
+      prompt:
+        "A sentence or two is plenty. Your words help others decide, and they genuinely make our day.",
+      thank_you_message:
+        "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us.",
+      theme_color: "#2563EB",
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/collect");
+  return { error: null, formId: newForm?.id };
+}
+
 export interface UpdateFormInput {
   headline?: string;
   prompt?: string;
@@ -590,6 +705,88 @@ export async function updateTestimonialTags(
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/manage");
   revalidatePath("/dashboard/publish");
+  revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
+
+  return { error: null, success: true };
+}
+
+export interface UpdateTestimonialInput {
+  author_name?: string;
+  author_role?: string | null;
+  author_company?: string | null;
+  display_body?: string;
+  rating?: number | null;
+  status?: "pending" | "approved" | "hidden";
+  tags?: string[];
+}
+
+export async function updateTestimonialContent(
+  id: string,
+  input: UpdateTestimonialInput
+): Promise<{ error: string | null; success: boolean }> {
+  const { supabase, user } = await getAuthenticatedClient();
+
+  const updateData: Record<string, unknown> = {};
+  if (input.author_name !== undefined) updateData.author_name = input.author_name.trim();
+  if (input.author_role !== undefined) updateData.author_role = input.author_role ? input.author_role.trim() : null;
+  if (input.author_company !== undefined) updateData.author_company = input.author_company ? input.author_company.trim() : null;
+  if (input.display_body !== undefined) updateData.display_body = input.display_body.trim();
+  if (input.rating !== undefined) updateData.rating = input.rating;
+  if (input.status !== undefined) updateData.status = input.status;
+  if (input.tags !== undefined) {
+    updateData.tags = Array.from(
+      new Set(input.tags.map((t) => t.trim().toLowerCase()).filter((t) => t.length > 0 && t.length <= 30))
+    );
+  }
+
+  const { error } = await supabase
+    .from("testimonials")
+    .update(updateData)
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message, success: false };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/manage");
+  revalidatePath("/dashboard/publish");
+  revalidatePath("/embed/" + user.id);
+  updateTag("widget-" + user.id);
+
+  return { error: null, success: true };
+}
+
+export async function bulkAddTestimonialTag(
+  ids: string[],
+  tag: string
+): Promise<{ error: string | null; success: boolean }> {
+  const { supabase, user } = await getAuthenticatedClient();
+  const cleanTag = tag.trim().toLowerCase();
+  if (!cleanTag) return { error: "Tag cannot be empty", success: false };
+
+  const { data, error: fetchErr } = await supabase
+    .from("testimonials")
+    .select("id, tags")
+    .in("id", ids)
+    .eq("user_id", user.id);
+
+  if (fetchErr) return { error: fetchErr.message, success: false };
+
+  for (const item of data || []) {
+    const existing = (item.tags as string[]) || [];
+    if (!existing.includes(cleanTag)) {
+      await supabase
+        .from("testimonials")
+        .update({ tags: [...existing, cleanTag] })
+        .eq("id", item.id)
+        .eq("user_id", user.id);
+    }
+  }
+
+  revalidatePath("/dashboard/manage");
   revalidatePath("/embed/" + user.id);
   updateTag("widget-" + user.id);
 

@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import CollectWorkspaceClient from "./collect-workspace-client";
+import FormsHubClient from "./forms-hub-client";
 
 export const metadata = {
-  title: "Collect Reviews — Blovi",
-  description: "Customize your testimonial collection forms, fonts, colors, and shareable QR codes.",
+  title: "Your Forms — ProofKit",
+  description: "Use forms to collect testimonials and feedback from your customers.",
 };
 
 const APP_URL =
@@ -18,46 +18,33 @@ export default async function CollectPage() {
 
   if (!user) redirect("/login");
 
-  // Fetch the primary review collection form for the user
-  const { data: form, error } = await supabase
-    .from("forms")
-    .select(
-      "id, slug, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent, custom_domain, custom_css"
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  // Fetch all review collection forms and testimonial activity for this user
+  const [formsResult, testimonialsResult] = await Promise.all([
+    supabase
+      .from("forms")
+      .select(
+        "id, slug, headline, prompt, thank_you_message, theme_color, collect_photo, collect_rating, require_consent, custom_domain, custom_css, custom_font, created_at"
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("testimonials")
+      .select("id, form_id, status, rating, created_at")
+      .eq("user_id", user.id),
+  ]);
 
-  if (error) {
-    console.error("Error fetching form:", error);
+  if (formsResult.error) {
+    console.error("Error fetching forms:", formsResult.error);
   }
 
-  // Fallback if no form exists (though onboarding creates one)
-  if (!form) {
-    redirect("/dashboard");
-  }
+  const forms = formsResult.data || [];
+  const testimonials = testimonialsResult.data || [];
 
   return (
-    <CollectWorkspaceClient
+    <FormsHubClient
       user={{ id: user.id, email: user.email }}
-      form={{
-        id: form.id,
-        slug: form.slug,
-        headline: form.headline ?? "Tell us what stood out",
-        prompt:
-          form.prompt ??
-          "A sentence or two is plenty. Your words help others decide, and they genuinely make our day.",
-        thank_you_message:
-          form.thank_you_message ??
-          "Thank you for taking the time to share this. Every word helps us improve and helps others find us. We're so glad to have you with us.",
-        theme_color: form.theme_color ?? "#2563EB",
-        collect_photo: !!form.collect_photo,
-        collect_rating: form.collect_rating ?? true,
-        require_consent: form.require_consent ?? true,
-        custom_domain: form.custom_domain || null,
-        custom_css: (form as any).custom_css || null,
-      }}
+      forms={forms}
+      testimonials={testimonials}
       appUrl={APP_URL}
     />
   );

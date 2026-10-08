@@ -18,32 +18,34 @@ export default async function ManagePage() {
 
   if (!user) redirect("/login");
 
-  const [{ data: form }, { data: rawTestimonials }] = await Promise.all([
+  const [{ data: forms }, { data: rawTestimonials }] = await Promise.all([
     supabase
       .from("forms")
-      .select("slug")
+      .select("id, slug, headline")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle(),
+      .order("created_at", { ascending: true }),
     supabase
       .from("testimonials")
       .select(
-        "id, author_name, author_role, body_original, display_body, rating, status, created_at, avatar_url, tags, source"
+        "id, author_name, author_role, author_company, body_original, body_improved, display_body, is_ai_improved, rating, status, created_at, avatar_url, tags, source, form_id"
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
 
-  const formUrl = form ? `${APP_URL}/c/${form.slug}` : null;
+  const primaryForm = forms?.[0];
+  const formUrl = primaryForm ? `${APP_URL}/c/${primaryForm.slug}` : null;
 
   return (
-    <div className="max-w-[960px] mx-auto p-6 md:p-12">
-      <ManageWorkspaceClient
-        user={{ id: user.id, email: user.email }}
-        testimonials={rawTestimonials ?? []}
-        formUrl={formUrl}
-      />
+    <div className="w-full min-h-screen bg-white">
+      <div className="max-w-5xl mx-auto px-6 sm:px-10 py-8">
+        <ManageWorkspaceClient
+          user={{ id: user.id, email: user.email }}
+          testimonials={rawTestimonials ?? []}
+          forms={forms ?? []}
+          formUrl={formUrl}
+        />
+      </div>
     </div>
   );
 }
