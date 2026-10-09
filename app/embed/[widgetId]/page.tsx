@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { logWidgetView } from "@/lib/tracking";
 import { type Testimonial } from "../constants";
 import WidgetClientWrapper from "../widget-client-wrapper";
+import { applyTierLimits, getWidgetOwnerPlan } from "@/lib/widget-tier";
 
 // Cache the widget iframe at the edge for 12 hours (stale-while-revalidate is handled automatically by Next.js / Vercel CDN)
 export const revalidate = 43200;
@@ -50,11 +51,12 @@ export default async function EmbedPage({
     .catch(() => []);
 
   const supabase = createAdminClient();
-  const [testimonials, { data: profile }] = await Promise.all([
+  const [testimonials, plan, { data: profile }] = await Promise.all([
     testimonialsPromise,
+    getWidgetOwnerPlan(widgetId),
     supabase
       .from("profiles")
-      .select("is_lifetime, full_name")
+      .select("full_name")
       .eq("id", widgetId)
       .maybeSingle(),
   ]);
@@ -72,8 +74,17 @@ export default async function EmbedPage({
     form = formData;
   }
 
-  const isLifetime = profile?.is_lifetime ?? false;
-  const approved = testimonials as Testimonial[];
+  const { testimonials: limitedTestimonials, isPaid } = applyTierLimits({
+    plan,
+    testimonials: (testimonials as Testimonial[]) ?? [],
+    config: {
+      showBadge: sParams.badge !== "false",
+      type: typeof sParams.type === "string" ? sParams.type : typeof sParams.layout === "string" ? sParams.layout : undefined,
+    },
+  });
+
+  const isLifetime = isPaid;
+  const approved = limitedTestimonials;
 
   const fontParam = typeof sParams.font === "string" ? sParams.font : typeof sParams.fontFamily === "string" ? sParams.fontFamily : undefined;
   const customFont = fontParam || form?.custom_font || "Plus Jakarta Sans";

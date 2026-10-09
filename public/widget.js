@@ -1,32 +1,110 @@
 (function () {
-  var currentScript =
-    document.currentScript ||
-    (function () {
-      var s = document.getElementsByTagName("script");
-      return s[s.length - 1];
-    })();
+  // Whitelist-only, length-capped, strictly validated JSON-LD schema builder
+  function buildSafeJsonLd(testimonials, productName) {
+    if (!Array.isArray(testimonials) || testimonials.length === 0) return null;
 
-  // Look for target container element if present (check adjacent sibling first to support multiple widgets per page)
-  var prevEl = currentScript.previousElementSibling;
-  var targetContainer =
-    (prevEl && (prevEl.id === "blovi-widget" || prevEl.id === "proofkit-widget" || prevEl.getAttribute("data-widget-id")))
-      ? prevEl
-      : (document.getElementById("blovi-widget") || document.getElementById("proofkit-widget"));
-
-  // Helper to get attribute from script tag or container element
-  function getAttr(key) {
-    var kebabKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
-    var val = currentScript.getAttribute("data-" + key) || currentScript.getAttribute("data-" + kebabKey);
-    if (val) return val;
-    if (targetContainer) {
-      val = targetContainer.getAttribute("data-" + key) || targetContainer.getAttribute("data-" + kebabKey);
-      if (val) return val;
+    var safeName = "Product";
+    if (typeof productName === "string" && productName.trim().length > 0) {
+      safeName = productName.trim().slice(0, 200);
     }
-    return null;
+
+    var reviews = [];
+    var ratingsSum = 0;
+    var ratingsCount = 0;
+    var maxReviews = Math.min(testimonials.length, 20);
+
+    for (var i = 0; i < maxReviews; i++) {
+      var t = testimonials[i];
+      if (!t || typeof t !== "object") continue;
+
+      var authorName = "Anonymous";
+      if (typeof t.author_name === "string" && t.author_name.trim().length > 0) {
+        authorName = t.author_name.trim().slice(0, 200);
+      }
+
+      var bodyText = "";
+      if (typeof t.body === "string") {
+        bodyText = t.body.slice(0, 2000);
+      } else if (typeof t.display_body === "string") {
+        bodyText = t.display_body.slice(0, 2000);
+      } else if (typeof t.body_original === "string") {
+        bodyText = t.body_original.slice(0, 2000);
+      }
+
+      var reviewObj = {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": authorName
+        },
+        "reviewBody": bodyText
+      };
+
+      if (t.created_at && typeof t.created_at === "string") {
+        try {
+          var d = new Date(t.created_at);
+          if (!isNaN(d.getTime())) {
+            reviewObj.datePublished = d.toISOString().split("T")[0];
+          }
+        } catch (e) {}
+      }
+
+      if (t.rating !== null && t.rating !== undefined) {
+        var ratingVal = Number(t.rating);
+        if (typeof ratingVal === "number" && isFinite(ratingVal) && ratingVal >= 0 && ratingVal <= 5) {
+          reviewObj.reviewRating = {
+            "@type": "Rating",
+            "ratingValue": ratingVal
+          };
+          ratingsSum += ratingVal;
+          ratingsCount++;
+        }
+      }
+
+      reviews.push(reviewObj);
+    }
+
+    if (reviews.length === 0) return null;
+
+    var schema = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": safeName
+    };
+
+    if (ratingsCount > 0) {
+      var avgVal = Number((ratingsSum / ratingsCount).toFixed(1));
+      if (isFinite(avgVal) && avgVal >= 0 && avgVal <= 5) {
+        schema.aggregateRating = {
+          "@type": "AggregateRating",
+          "ratingValue": avgVal,
+          "reviewCount": ratingsCount,
+          "bestRating": 5,
+          "worstRating": 1
+        };
+      }
+    }
+
+    schema.review = reviews;
+    return schema;
   }
 
-  var userId = getAttr("user") || getAttr("widget-id");
-  if (!userId) return;
+  function escapeJsonLd(schema) {
+    if (!schema || typeof schema !== "object") return "";
+    return JSON.stringify(schema)
+      .replace(/</g, "\\u003c")
+      .replace(/\u2028/g, "\\u2028")
+      .replace(/\u2029/g, "\\u2029");
+  }
+
+  var currentScript =
+    (typeof document !== "undefined" && document.currentScript) ||
+    (typeof document !== "undefined" &&
+      (function () {
+        var s = document.getElementsByTagName("script");
+        return s && s.length ? s[s.length - 1] : null;
+      })()) ||
+    null;
 
   // Baseline height estimation to eliminate layout shift before iframe renders
   function getEstimatedHeight(type) {
@@ -43,30 +121,6 @@
       default: return 520;
     }
   }
-
-  // Derive base URL from the script src so the widget works on any domain
-  var baseUrl = currentScript.src.replace(/\/widget\.js(\?.*)?$/, "");
-
-  // Lightweight privacy-friendly view tracking
-  try {
-    var ref = document.referrer || window.location.href;
-    var trackPayload = JSON.stringify({
-      type: "widget_view",
-      userId: userId,
-      widgetType: getAttr("type") || getAttr("layout") || "wall",
-      referrer: ref
-    });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(baseUrl + "/api/track", trackPayload);
-    } else if (window.fetch) {
-      fetch(baseUrl + "/api/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: trackPayload,
-        keepalive: true
-      }).catch(function () {});
-    }
-  } catch (e) {}
 
   // data-theme="auto": match the host page by sampling the effective background color
   function resolveTheme(value) {
@@ -91,6 +145,81 @@
       return "light";
     }
   }
+
+  function isTrustedMessage(event, iframeWindow, expectedOrigin) {
+    if (!event || !event.data || typeof event.data !== "object") return false;
+    if (typeof event.data.type !== "string" || event.data.type.indexOf("proofkit-") !== 0) return false;
+    if (event.source !== iframeWindow) return false;
+    if (event.origin !== expectedOrigin) return false;
+    return true;
+  }
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = {
+      buildSafeJsonLd: buildSafeJsonLd,
+      escapeJsonLd: escapeJsonLd,
+      getEstimatedHeight: getEstimatedHeight,
+      resolveTheme: resolveTheme,
+      isTrustedMessage: isTrustedMessage,
+    };
+    if (!currentScript) return;
+  }
+
+  if (!currentScript) return;
+
+  // Look for target container element if present (check adjacent sibling first to support multiple widgets per page)
+  var prevEl = currentScript.previousElementSibling;
+  var targetContainer =
+    (prevEl && (prevEl.id === "blovi-widget" || prevEl.id === "proofkit-widget" || prevEl.getAttribute("data-widget-id")))
+      ? prevEl
+      : (document.getElementById("blovi-widget") || document.getElementById("proofkit-widget"));
+
+  // Helper to get attribute from script tag or container element
+  function getAttr(key) {
+    var kebabKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+    var val = currentScript.getAttribute("data-" + key) || currentScript.getAttribute("data-" + kebabKey);
+    if (val) return val;
+    if (targetContainer) {
+      val = targetContainer.getAttribute("data-" + key) || targetContainer.getAttribute("data-" + kebabKey);
+      if (val) return val;
+    }
+    return null;
+  }
+
+  var userId = getAttr("user") || getAttr("widget-id");
+  if (!userId) return;
+
+  // Derive base URL and expected embed origin from the script src
+  var baseUrl = currentScript.src.replace(/\/widget\.js(\?.*)?$/, "");
+  var embedOrigin = (function () {
+    try {
+      return new URL(currentScript.src, window.location.href).origin;
+    } catch (e) {
+      return window.location.origin;
+    }
+  })();
+
+  // Lightweight privacy-friendly view tracking
+  try {
+    var ref = document.referrer || window.location.href;
+    var trackPayload = JSON.stringify({
+      type: "widget_view",
+      userId: userId,
+      widgetType: getAttr("type") || getAttr("layout") || "wall",
+      referrer: ref
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(baseUrl + "/api/track", trackPayload);
+    } else if (window.fetch) {
+      fetch(baseUrl + "/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: trackPayload,
+        keepalive: true
+      }).catch(function () {});
+    }
+  } catch (e) {}
+
 
   var params = [];
   ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "backgroundColor", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "font", "fontFamily", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding", "selectMode", "selectedIds", "autoRating"].forEach(
@@ -201,86 +330,52 @@
     setTimeout(revealWidget, 3500);
 
     function injectJsonLdSchema(testimonials) {
-      if (!testimonials || !testimonials.length) return;
-      if (document.getElementById("blovi-schema")) return;
+      try {
+        if (!Array.isArray(testimonials) || testimonials.length === 0) return;
 
-      var productName = "Product";
-      if (document.title) {
-        var parts = document.title.split(/ - | \| | \u2013 | \u2014 /);
-        if (parts[0]) productName = parts[0].trim();
-      } else {
-        productName = window.location.hostname || "Product";
-      }
+        var productName = "Product";
+        try {
+          if (document.title) {
+            var parts = document.title.split(/ - | \| | \u2013 | \u2014 /);
+            if (parts[0] && parts[0].trim()) productName = parts[0].trim();
+          } else if (window.location && window.location.hostname) {
+            productName = window.location.hostname;
+          }
+        } catch (e) {}
 
-      var reviews = [];
-      var ratingsSum = 0;
-      var ratingsCount = 0;
+        var schemaObj = buildSafeJsonLd(testimonials, productName);
+        if (!schemaObj) return;
 
-      for (var i = 0; i < testimonials.length; i++) {
-        var t = testimonials[i];
-        var ratingVal = Number(t.rating);
-        var hasRating = !isNaN(ratingVal) && t.rating !== null && t.rating !== undefined;
+        var escapedJson = escapeJsonLd(schemaObj);
+        if (!escapedJson) return;
 
-        var reviewObj = {
-          "@type": "Review",
-          "author": {
-            "@type": "Person",
-            "name": t.author_name || "Anonymous"
-          },
-          "reviewBody": t.body || ""
-        };
-
-        if (t.created_at) {
-          try {
-            reviewObj.datePublished = new Date(t.created_at).toISOString().split("T")[0];
-          } catch (e) {}
+        // Replace any previously injected schema for the same widget
+        var existingScripts = document.querySelectorAll('script[type="application/ld+json"]');
+        for (var i = 0; i < existingScripts.length; i++) {
+          var s = existingScripts[i];
+          if (
+            s.getAttribute("data-blovi-widget") === userId ||
+            (!s.getAttribute("data-blovi-widget") && s.id === "blovi-schema")
+          ) {
+            if (s.parentNode) {
+              s.parentNode.removeChild(s);
+            }
+          }
         }
 
-        if (hasRating) {
-          reviewObj.reviewRating = {
-            "@type": "Rating",
-            "ratingValue": ratingVal,
-            "bestRating": 5,
-            "worstRating": 1
-          };
-          ratingsSum += ratingVal;
-          ratingsCount++;
-        }
-
-        reviews.push(reviewObj);
+        var script = document.createElement("script");
+        script.type = "application/ld+json";
+        script.setAttribute("data-blovi-widget", userId);
+        script.textContent = escapedJson;
+        document.head.appendChild(script);
+      } catch (err) {
+        // Skip injection silently (no throw, no console noise in production)
       }
-
-      var schema = {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": productName,
-        "description": "Reviews and testimonials for " + productName + "."
-      };
-
-      if (ratingsCount > 0) {
-        schema.aggregateRating = {
-          "@type": "AggregateRating",
-          "ratingValue": (ratingsSum / ratingsCount).toFixed(1),
-          "reviewCount": ratingsCount,
-          "bestRating": 5,
-          "worstRating": 1
-        };
-      }
-
-      if (reviews.length > 0) {
-        schema.review = reviews;
-      }
-
-      var script = document.createElement("script");
-      script.type = "application/ld+json";
-      script.id = "blovi-schema";
-      script.text = JSON.stringify(schema);
-      document.head.appendChild(script);
     }
 
     // Handle incoming messages from iframe
     window.addEventListener("message", function (event) {
-      if (!event.data || event.source !== iframe.contentWindow) return;
+      if (!isTrustedMessage(event, iframe.contentWindow, embedOrigin)) return;
 
       if (
         event.data.type === "proofkit-ready" ||
@@ -311,7 +406,7 @@
         typeof event.data.deltaY === "number"
       ) {
         var dy = event.data.deltaY;
-        var dx = event.data.deltaX;
+        var dx = typeof event.data.deltaX === "number" ? event.data.deltaX : 0;
         if (event.data.deltaMode === 1) {
           dy *= 16;
           dx *= 16;

@@ -6,7 +6,7 @@ import type { WidgetType, WidgetRadius } from "./types/widget";
 import type { WidgetPresetId } from "./styles/types";
 import { styleRegistry } from "./styles";
 import { SAMPLE_TESTIMONIALS, type Testimonial } from "./constants";
-import { FREE_WIDGET_TESTIMONIAL_LIMIT } from "@/lib/limits";
+import { FREE_WIDGET_TESTIMONIAL_LIMIT, FREE_LOCKED_WIDGET_TYPES } from "@/lib/limits";
 
 interface WidgetConfig {
   isDemo: boolean;
@@ -34,16 +34,20 @@ interface WidgetConfig {
   selectMode: "auto" | "manual";
   selectedIds?: string[];
   autoRating: string;
+  showDate: boolean;
+  cardLayout: "top" | "bottom";
 }
 
 export default function WidgetClientWrapper({
   testimonials,
   isLifetime,
   searchParams: rawSearchParams,
+  isPreview = false,
 }: {
   testimonials: Testimonial[];
   isLifetime: boolean;
   searchParams?: Record<string, string | string[] | undefined>;
+  isPreview?: boolean;
 }) {
   // Helper to extract param value from passed searchParams or window.location
   const getParam = (key: string): string | undefined => {
@@ -62,10 +66,14 @@ export default function WidgetClientWrapper({
   const [config, setConfig] = useState<WidgetConfig>(() => {
     const isDemo = getParam("demo") === "1";
     const spType = getParam("type");
-    const requestedType: WidgetType =
+    const rawType: WidgetType =
       spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack"
         ? spType
         : "wall";
+    const requestedType: WidgetType =
+      !isLifetime && (FREE_LOCKED_WIDGET_TYPES as readonly string[]).includes(rawType)
+        ? "wall"
+        : rawType;
 
     const spPreset = getParam("preset") as WidgetPresetId;
     const preset: WidgetPresetId = spPreset && styleRegistry[spPreset] ? spPreset : "base";
@@ -109,6 +117,8 @@ export default function WidgetClientWrapper({
       ? (rawSelectedIds.trim() === "" ? [] : rawSelectedIds.split(",").map((s) => s.trim()).filter(Boolean))
       : undefined;
     const autoRating = getParam("autoRating") || getParam("auto_rating") || "all";
+    const showDate = getParam("showDate") !== "false";
+    const cardLayout = getParam("cardLayout") === "bottom" ? "bottom" : "top";
 
     return {
       isDemo,
@@ -136,6 +146,8 @@ export default function WidgetClientWrapper({
       selectMode,
       selectedIds,
       autoRating,
+      showDate,
+      cardLayout,
     };
   });
 
@@ -155,10 +167,14 @@ export default function WidgetClientWrapper({
     const searchParams = new URLSearchParams(window.location.search);
     const spType = searchParams.get("type");
     if (spType) {
-      const requestedType: WidgetType =
+      const rawType: WidgetType =
         spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack"
           ? spType
           : "wall";
+      const requestedType: WidgetType =
+        !isLifetime && (FREE_LOCKED_WIDGET_TYPES as readonly string[]).includes(rawType)
+          ? "wall"
+          : rawType;
       
       const spPreset = searchParams.get("preset") as WidgetPresetId;
       const preset: WidgetPresetId = spPreset && styleRegistry[spPreset] ? spPreset : "base";
@@ -214,8 +230,45 @@ export default function WidgetClientWrapper({
       }));
     }
 
+    const isPreviewRoute =
+      isPreview ||
+      (typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/embed/preview"));
+
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === "proofkit-config-update") {
+      if (!event.data || event.data.type !== "proofkit-config-update") {
+        return;
+      }
+
+      // a) Reject if not the preview route (ignore entirely on production embed)
+      if (!isPreviewRoute) {
+        return;
+      }
+
+      // c) Reject if source is not window.parent
+      if (!event.source || event.source !== window.parent || window.parent === window) {
+        return;
+      }
+
+      // b) Reject if origin does not match dashboard origin
+      let dashboardOrigin = "";
+      try {
+        if (process.env.NEXT_PUBLIC_DASHBOARD_ORIGIN) {
+          dashboardOrigin = new URL(process.env.NEXT_PUBLIC_DASHBOARD_ORIGIN).origin;
+        } else if (process.env.NEXT_PUBLIC_SITE_URL) {
+          dashboardOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL).origin;
+        } else {
+          dashboardOrigin = window.location.origin;
+        }
+      } catch (e) {
+        dashboardOrigin = window.location.origin;
+      }
+
+      if (event.origin !== dashboardOrigin) {
+        return;
+      }
+
+      if (event.data.config && typeof event.data.config === "object") {
         setConfig((prev) => ({
           ...prev,
           ...event.data.config,
@@ -344,6 +397,8 @@ export default function WidgetClientWrapper({
         highlightColor={highlightColor}
         chatCustomerPrompt={chatCustomerPrompt}
         chatFounderReply={chatFounderReply}
+        showDate={config.showDate}
+        cardLayout={config.cardLayout}
       />
 
       {capped && type !== "stack" && type !== "single" && (

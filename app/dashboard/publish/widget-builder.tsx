@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 import {
   ArrowLeft,
@@ -12,9 +12,6 @@ import {
   Code2,
   Palette,
   MousePointerClick,
-  Monitor,
-  Tablet,
-  Smartphone,
   RotateCcw,
   X,
   ExternalLink,
@@ -122,8 +119,7 @@ export default function WidgetBuilder({
   // Widget layout is strictly the one selected in Step 1
   const layout = initialLayout;
 
-  // Viewport mode & refresh state for canvas preview
-  const [viewportMode, setViewportMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  // Refresh state for canvas preview
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Widget Name with inline editing
@@ -142,6 +138,8 @@ export default function WidgetBuilder({
   const [fallbackAvatar, setFallbackAvatar] = useState("Placeholder");
   const [useHighlights, setUseHighlights] = useState(true);
   const [showHighlights, setShowHighlights] = useState(true);
+  const [showDate, setShowDate] = useState(true);
+  const [cardLayout, setCardLayout] = useState<"top" | "bottom">("top");
 
   // Colors Customization (Images 4 & 5)
   const [primaryColor, setPrimaryColor] = useState("#2563EB");
@@ -249,11 +247,28 @@ export default function WidgetBuilder({
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
 
+  // Stage Scrolling & Dynamic Preview Sizing
+  const stageScrollRef = useRef<HTMLDivElement>(null);
+  const [iframeHeight, setIframeHeight] = useState<number>(850);
+
+  // Listen to height and wheel messages from widget preview iframe
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === "proofkit-resize" && typeof e.data?.height === "number") {
+        setIframeHeight(Math.max(e.data.height + 40, 320));
+      }
+      if (e.data?.type === "proofkit-wheel" && stageScrollRef.current) {
+        stageScrollRef.current.scrollTop += e.data.deltaY;
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
   // Step 4 Share Modal State
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [shareTab, setShareTab] = useState<"embed" | "link" | "export">("embed");
+  const [shareTab, setShareTab] = useState<"embed" | "link">("embed");
   const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedFramer, setCopiedFramer] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Auto-sync configuration changes with debounce (guarded against demo-widget)
@@ -368,7 +383,7 @@ export default function WidgetBuilder({
     selectedIdsParamValue
   )}&autoRating=${encodeURIComponent(
     autoRatingFilter
-  )}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
+  )}&showDate=${showDate}&cardLayout=${cardLayout}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
 
   const publicShareUrl = `${appUrl}/embed/${userId || "demo-widget"}?type=${layout}`;
 
@@ -386,89 +401,14 @@ export default function WidgetBuilder({
 
   const getEmbedCode = () => {
     const widgetId = userId || "demo-widget";
-    const estimatedHeight = getEstimatedHeight(layout, effectiveTestimonials.length);
 
-    if (layout === "stack") {
-      if (stackEmbedMode === "inline") {
-        return `<!-- Blovi Spotlight: Inline Card -->
-<div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; max-width: 460px; min-height: 190px;"></div>
-<script 
-  src="${appUrl}/widget.js" 
-  data-user="${widgetId}"
-  data-type="stack"
-  data-preset="${preset}"
-  data-theme="${theme}"
-  data-accent="${primaryColor}"
-  data-background-color="${backgroundColor}"
-  data-text-color="${textColor}"
-  data-rating-color="${ratingColor}"
-  data-rating-border-color="${ratingBorderColor}"
-  data-highlight-color="${highlightColor}"
-  data-font="${fontFamily}"
-  data-show-photos="${showPhotos}"
-  data-use-gravatar="${useGravatar}"
-  data-fallback-avatar="${fallbackAvatar}"
-  data-show-branding="${showBranding}"
-  data-select-mode="${selectModeType}"
-  ${selectModeType === "manual" ? `data-selected-ids="${selectedIdsParamValue}"` : `data-auto-rating="${autoRatingFilter}"`}
-  async
-></script>`;
-      }
-
-      return `<!-- Blovi Spotlight: Floating Corner Widget (Pinned to bottom-left) -->
-<div style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; max-width: 400px; width: 100%;">
-  <div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; min-height: 190px;"></div>
-  <script 
-    src="${appUrl}/widget.js" 
-    data-user="${widgetId}"
-    data-type="stack"
-    data-preset="${preset}"
-    data-theme="${theme}"
-    data-accent="${primaryColor}"
-    data-background-color="${backgroundColor}"
-    data-text-color="${textColor}"
-    data-rating-color="${ratingColor}"
-    data-rating-border-color="${ratingBorderColor}"
-    data-highlight-color="${highlightColor}"
-    data-font="${fontFamily}"
-    data-show-photos="${showPhotos}"
-    data-use-gravatar="${useGravatar}"
-    data-fallback-avatar="${fallbackAvatar}"
-    data-show-branding="${showBranding}"
-    data-select-mode="${selectModeType}"
-    ${selectModeType === "manual" ? `data-selected-ids="${selectedIdsParamValue}"` : `data-auto-rating="${autoRatingFilter}"`}
-    async
-  ></script>
-</div>`;
+    if (layout === "stack" && stackEmbedMode === "floating") {
+      return `<script src="${appUrl}/widget.js" data-user="${widgetId}" data-type="stack" async></script>
+<div id="blovi-widget" data-widget-id="${widgetId}" style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; max-width: 420px; width: 100%;"></div>`;
     }
 
-    return `<!-- Blovi Widget: ${layout.toUpperCase()} -->
-<div id="blovi-widget" data-widget-id="${widgetId}" style="width: 100%; min-height: ${estimatedHeight}px; contain: layout style paint; position: relative;"></div>
-<script 
-  src="${appUrl}/widget.js" 
-  data-user="${widgetId}"
-  data-type="${layout}"
-  data-preset="${preset}"
-  data-theme="${theme}"
-  data-accent="${primaryColor}"
-  data-background-color="${backgroundColor}"
-  data-text-color="${textColor}"
-  data-rating-color="${ratingColor}"
-  data-rating-border-color="${ratingBorderColor}"
-  data-highlight-color="${highlightColor}"
-  data-font="${fontFamily}"
-  data-show-photos="${showPhotos}"
-  data-use-gravatar="${useGravatar}"
-  data-fallback-avatar="${fallbackAvatar}"
-  data-show-branding="${showBranding}"
-  data-select-mode="${selectModeType}"
-  ${selectModeType === "manual" ? `data-selected-ids="${selectedIdsParamValue}"` : `data-auto-rating="${autoRatingFilter}"`}
-  async
-></script>`;
-  };
-
-  const getFramerCode = () => {
-    return `${appUrl}/m/BloviWidget-${layout}.js`;
+    return `<script src="${appUrl}/widget.js" data-user="${widgetId}" data-type="${layout}" async></script>
+<div id="blovi-widget" data-widget-id="${widgetId}"></div>`;
   };
 
   const handleCopyCode = () => {
@@ -477,11 +417,6 @@ export default function WidgetBuilder({
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const handleCopyFramer = () => {
-    navigator.clipboard.writeText(getFramerCode());
-    setCopiedFramer(true);
-    setTimeout(() => setCopiedFramer(false), 2000);
-  };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(publicShareUrl);
@@ -578,7 +513,15 @@ export default function WidgetBuilder({
         </div>
 
         {/* Right Side: Auto-save status + Brand Blue Share Button */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setRefreshKey((k) => k + 1)}
+            className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
+            title="Refresh preview"
+          >
+            <RotateCcw size={14} />
+          </button>
           <div className="hidden sm:flex items-center gap-1.5 text-xs text-[#787774]">
             {isSaving ? (
               <>
@@ -755,6 +698,52 @@ export default function WidgetBuilder({
 
             <div className="h-px bg-[#E3E0DB]/60" />
 
+            {/* DETAILS & CARD LAYOUT */}
+            <section className="space-y-3">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                Details & Layout
+              </span>
+
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <Switch checked={showDate} onChange={setShowDate} />
+                <span className="text-xs font-medium text-zinc-700">
+                  Show Review Date
+                </span>
+              </label>
+
+              <div className="space-y-1.5 pt-0.5">
+                <span className="text-xs font-medium text-zinc-700 block">
+                  Card Layout
+                </span>
+                <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                  <button
+                    type="button"
+                    onClick={() => setCardLayout("top")}
+                    className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                      cardLayout === "top"
+                        ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                        : "text-zinc-500 hover:text-[#1A1A1A]"
+                    }`}
+                  >
+                    Author at top
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardLayout("bottom")}
+                    className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                      cardLayout === "bottom"
+                        ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                        : "text-zinc-500 hover:text-[#1A1A1A]"
+                    }`}
+                  >
+                    Author at bottom
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <div className="h-px bg-[#E3E0DB]/60" />
+
             {/* 2. COLORS SECTION */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
@@ -881,127 +870,60 @@ export default function WidgetBuilder({
             backgroundSize: "20px 20px",
           }}
         >
-          {/* Top Canvas Toolbar */}
-          <div className="h-12 px-6 flex items-center justify-between shrink-0 z-10">
-            {/* Viewport switchers */}
-            <div className="flex items-center gap-1 bg-white border border-[#E3E0DB] p-1 rounded-xl shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setViewportMode("desktop")}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewportMode === "desktop"
-                    ? "bg-[#1A1A1A] text-white"
-                    : "text-[#787774] hover:text-[#1A1A1A]"
-                }`}
-                title="Desktop View"
-              >
-                <Monitor size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewportMode("tablet")}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewportMode === "tablet"
-                    ? "bg-[#1A1A1A] text-white"
-                    : "text-[#787774] hover:text-[#1A1A1A]"
-                }`}
-                title="Tablet View"
-              >
-                <Tablet size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewportMode("mobile")}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewportMode === "mobile"
-                    ? "bg-[#1A1A1A] text-white"
-                    : "text-[#787774] hover:text-[#1A1A1A]"
-                }`}
-                title="Mobile View"
-              >
-                <Smartphone size={14} />
-              </button>
-            </div>
-
-            {/* Refresh Live Preview */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setRefreshKey((k) => k + 1)}
-                className="p-1.5 bg-white border border-[#E3E0DB] text-[#787774] hover:text-[#1A1A1A] rounded-xl shadow-2xs transition-all cursor-pointer"
-                title="Refresh preview render"
-              >
-                <RotateCcw size={14} />
-              </button>
-            </div>
-          </div>
-
-          {/* Centered Stage */}
-          <div className="flex-1 w-full h-full p-4 sm:p-6 overflow-hidden flex items-center justify-center">
-            <div
-              className={`h-full bg-white rounded-2xl border border-[#E3E0DB] shadow-md overflow-hidden flex flex-col transition-all duration-300 relative ${
-                viewportMode === "desktop"
-                  ? "w-full max-w-5xl"
-                  : viewportMode === "tablet"
-                  ? "w-[768px]"
-                  : "w-[390px]"
-              }`}
-            >
-              {/* Browser Chrome Header */}
-              <div className="h-9 bg-[#FAF9F7] border-b border-[#E3E0DB] px-4 flex items-center justify-between shrink-0">
-                <div className="flex items-center space-x-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
-                </div>
-                <div className="bg-white border border-[#E3E0DB] rounded-md px-3 py-0.5 text-[11px] text-[#787774] font-mono flex items-center gap-1.5 shadow-2xs">
-                  <span className="text-[#AFAFAC]">https://</span>your-website.com
-                </div>
-                <div className="w-12" />
-              </div>
-
-              {/* Dynamic Live Widget Preview */}
-              {layout === "stack" ? (
-                <div className="flex-1 relative w-full h-full overflow-hidden flex flex-col justify-between p-6 md:p-8 bg-[#FAF9F7]">
-                  {/* Simulated Content in Background */}
-                  <div className="max-w-md space-y-4 pt-4 select-none pointer-events-none opacity-30">
-                    <div className="h-2.5 w-24 bg-[#2563EB]/40 rounded-full" />
-                    <div className="h-7 w-72 bg-[#1A1A1A]/20 rounded-lg" />
-                    <div className="h-3.5 w-80 bg-[#787774]/25 rounded-md" />
-                    <div className="flex gap-2.5 pt-2">
-                      <div className="h-8 w-24 bg-[#2563EB]/40 rounded-lg" />
-                      <div className="h-8 w-24 bg-[#E3E0DB] rounded-lg" />
-                    </div>
-                  </div>
-
-                  {/* Spotlight Card Preview */}
-                  <div
-                    className={`${
-                      stackEmbedMode === "inline"
-                        ? "mx-auto w-[440px] max-w-full my-auto"
-                        : "w-[400px] max-w-full"
-                    }`}
-                  >
-                    <iframe
-                      key={`preview-stack-${rawPreviewUrl}`}
-                      src={rawPreviewUrl}
-                      className="w-full border-none block bg-transparent"
-                      style={{ height: "180px" }}
-                      title="Live Render Output"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 w-full h-full overflow-hidden bg-white">
+          {/* Open Stage Preview Area: Pure clean space on dot-grid canvas with zero background card or fake browser chrome */}
+          <div className="flex-1 w-full h-full relative overflow-hidden flex flex-col">
+            {layout === "stack" ? (
+              /* Spotlight / Stack Layout: Floating directly on canvas or centered if inline */
+              <div className="flex-1 w-full h-full relative overflow-hidden">
+                <div
+                  className={`transition-all duration-300 ${
+                    stackEmbedMode === "inline"
+                      ? "w-full h-full flex items-center justify-center p-4 sm:p-6"
+                      : "absolute bottom-8 left-8 sm:bottom-12 sm:left-12 w-[420px] max-w-[calc(100%-4rem)] z-10"
+                  }`}
+                >
                   <iframe
-                    key={`preview-full-${rawPreviewUrl}`}
+                    key={`preview-stack-${rawPreviewUrl}`}
                     src={rawPreviewUrl}
-                    className="w-full h-full border-none"
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: "200px" }}
                     title="Live Render Output"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            ) : layout === "orbit" ? (
+              /* Orbit Layout: Centered directly on open dot-grid canvas */
+              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
+                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-2xl">
+                  <iframe
+                    key={`preview-orbit-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: "560px" }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            ) : (
+              /* Wall of Love & Other Multi-Testimonial Widgets: Rendered directly on open dot-grid canvas */
+              <div
+                ref={stageScrollRef}
+                className="flex-1 w-full h-full overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex justify-center"
+              >
+                <div className="w-full transition-all duration-300 mx-auto max-w-5xl">
+                  <iframe
+                    key={`preview-full-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{
+                      height: `${iframeHeight}px`,
+                      minHeight: "420px",
+                    }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
@@ -1412,7 +1334,7 @@ export default function WidgetBuilder({
             {/* List */}
             <div className="flex-1 p-4 overflow-y-auto space-y-2 bg-white">
               {orderedTestimonialIds.map((id, index) => {
-                const t = testimonials.find((item) => item.id === id);
+                const t = effectiveTestimonials.find((item) => item.id === id);
                 if (!t) return null;
                 return (
                   <div
@@ -1473,7 +1395,7 @@ export default function WidgetBuilder({
               <button
                 type="button"
                 onClick={() => setIsReorderModalOpen(false)}
-                className="px-4 py-2 bg-[#1A1A1A] hover:bg-black text-white text-xs font-semibold rounded-lg cursor-pointer transition-colors"
+                className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold rounded-xl cursor-pointer transition-colors shadow-xs"
               >
                 Done
               </button>
@@ -1483,259 +1405,155 @@ export default function WidgetBuilder({
       )}
 
       {/* ======================================================================= */}
-      {/* 4. STEP 4: "SHARE YOUR WIDGET" MODAL                                    */}
+      {/* 4. SHARE YOUR WIDGET VIEW: Senja Clean Space (No Heaviness)             */}
       {/* ======================================================================= */}
       {isShareModalOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 bg-white z-50 overflow-y-auto animate-fade-in select-text"
         >
-          <div className="bg-white rounded-2xl border border-[#E3E0DB] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh] animate-fade-in">
-            {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-[#E3E0DB] flex items-center justify-between shrink-0 bg-white">
-              <div className="space-y-0.5">
-                <h2 className="text-base sm:text-lg font-bold text-[#1A1A1A]">
-                  Share your widget
-                </h2>
-                <p className="text-xs text-[#787774]">
-                  Embed this {WIDGET_TITLES[layout]} on your website in seconds.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsShareModalOpen(false)}
-                className="p-1.5 rounded-lg text-[#787774] hover:text-[#1A1A1A] hover:bg-[#F7F6F3] transition-colors cursor-pointer"
-                aria-label="Close modal"
-              >
-                <X size={16} />
-              </button>
-            </div>
+          <div className="max-w-5xl mx-auto px-6 py-8 sm:px-12 sm:py-12">
+            {/* Back Button */}
+            <button
+              type="button"
+              onClick={() => setIsShareModalOpen(false)}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#787774] hover:text-[#1A1A1A] transition-colors cursor-pointer group mb-6"
+            >
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+              <span>Back</span>
+            </button>
 
-            {/* Modal Content: Dual Pane */}
-            <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
-              {/* Left Sub-Nav Rail */}
-              <div className="w-full sm:w-52 bg-[#F7F6F3] border-b sm:border-b-0 sm:border-r border-[#E3E0DB] p-3 space-y-1 shrink-0">
+            {/* Title */}
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] tracking-tight mb-8">
+              Share your widget
+            </h1>
+
+            {/* Two-Column Clean Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Navigation Tabs */}
+              <div className="md:col-span-5 space-y-2.5">
                 <button
                   type="button"
                   onClick={() => setShareTab("embed")}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-xl font-medium transition-all text-left cursor-pointer ${
+                  className={`w-full p-4 rounded-2xl text-left transition-all cursor-pointer flex items-start gap-3.5 ${
                     shareTab === "embed"
-                      ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                      : "text-[#787774] hover:text-[#1A1A1A]"
+                      ? "bg-blue-50/80 border border-[#2563EB]/25 text-[#1A1A1A] shadow-2xs"
+                      : "bg-transparent border border-transparent text-[#787774] hover:bg-[#FAF9F7] hover:border-[#E3E0DB]/60 hover:text-[#1A1A1A]"
                   }`}
                 >
-                  <Code2 size={15} className={shareTab === "embed" ? "text-[#2563EB]" : ""} />
-                  <span>Embed code</span>
+                  <Code2
+                    size={20}
+                    className={`shrink-0 mt-0.5 ${
+                      shareTab === "embed" ? "text-[#2563EB]" : "text-[#787774]"
+                    }`}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-[#1A1A1A]">Embed code</div>
+                    <p className="text-xs text-[#787774] mt-1 leading-relaxed">
+                      Copy the embed code for your widget and paste it into your website.
+                    </p>
+                  </div>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setShareTab("link")}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-xl font-medium transition-all text-left cursor-pointer ${
+                  className={`w-full p-4 rounded-2xl text-left transition-all cursor-pointer flex items-start gap-3.5 ${
                     shareTab === "link"
-                      ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                      : "text-[#787774] hover:text-[#1A1A1A]"
+                      ? "bg-blue-50/80 border border-[#2563EB]/25 text-[#1A1A1A] shadow-2xs"
+                      : "bg-transparent border border-transparent text-[#787774] hover:bg-[#FAF9F7] hover:border-[#E3E0DB]/60 hover:text-[#1A1A1A]"
                   }`}
                 >
-                  <LinkIcon size={15} className={shareTab === "link" ? "text-[#2563EB]" : ""} />
-                  <span>Direct link</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShareTab("export")}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-xl font-medium transition-all text-left cursor-pointer ${
-                    shareTab === "export"
-                      ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                      : "text-[#787774] hover:text-[#1A1A1A]"
-                  }`}
-                >
-                  <ImageIcon size={15} className={shareTab === "export" ? "text-[#2563EB]" : ""} />
-                  <span>Export as image</span>
+                  <LinkIcon
+                    size={20}
+                    className={`shrink-0 mt-0.5 ${
+                      shareTab === "link" ? "text-[#2563EB]" : "text-[#787774]"
+                    }`}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-[#1A1A1A]">Link</div>
+                    <p className="text-xs text-[#787774] mt-1 leading-relaxed">
+                      Share your widget by copying a direct link to it.
+                    </p>
+                  </div>
                 </button>
               </div>
 
-              {/* Right Panel Body */}
-              <div className="flex-1 p-5 sm:p-6 overflow-y-auto space-y-6 bg-white">
+              {/* Right Column: Active Tab Content */}
+              <div className="md:col-span-7">
                 {shareTab === "embed" && (
-                  <>
-                    {/* Primary Snippet */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">
-                            Embed code
-                          </h3>
-                          <p className="text-xs text-[#787774]">
-                            Paste this code snippet where you want to display the widget.
-                          </p>
+                  <div className="bg-white border border-[#E3E0DB] rounded-2xl p-6 shadow-2xs">
+                    <h3 className="text-sm font-bold text-[#1A1A1A]">Embed code</h3>
+                    <p className="text-xs text-[#787774] mt-1">
+                      Paste this 2-line code snippet where you want to display the embed on your site.
+                    </p>
+
+                    {/* Dark Code Box */}
+                    <div className="mt-4 rounded-xl overflow-hidden border border-zinc-800 bg-[#18181B] text-zinc-200">
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-[#202024] border-b border-zinc-800/80">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                          <span className="text-[11px] font-mono text-zinc-400">Javascript</span>
                         </div>
                         <button
                           type="button"
                           onClick={handleCopyCode}
-                          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white flex items-center space-x-1.5 shadow-xs transition-colors cursor-pointer"
+                          className="px-3 py-1.5 text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold shadow-xs"
+                          title="Copy snippet"
                         >
                           {copiedCode ? (
                             <>
-                              <Check size={12} className="stroke-[3]" />
+                              <Check size={13} className="text-white stroke-[2.5]" />
                               <span>Copied!</span>
                             </>
                           ) : (
                             <>
-                              <Copy size={12} />
-                              <span>Copy code</span>
+                              <Copy size={13} />
+                              <span>Copy snippet</span>
                             </>
                           )}
                         </button>
                       </div>
 
-                      <div className="rounded-xl overflow-hidden border border-[#E3E0DB] bg-[#1A1A1A] text-zinc-200 shadow-2xs">
-                        <div className="flex items-center justify-between px-3.5 py-1.5 border-b border-zinc-800 bg-zinc-900/60">
-                          <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                            HTML / SCRIPT
-                          </span>
-                        </div>
-                        <pre className="p-3 text-[11px] font-mono overflow-x-auto max-h-40 scrollbar-thin select-all">
-                          {getEmbedCode()}
+                      <div className="p-4 overflow-x-auto font-mono text-xs leading-relaxed select-all">
+                        <pre className="text-zinc-200 whitespace-pre-wrap break-all font-mono">
+                          <code>{getEmbedCode()}</code>
                         </pre>
                       </div>
-                    </div>
-
-                    {/* Framer Component Snippet */}
-                    <div className="space-y-2 pt-2 border-t border-[#E3E0DB]">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="text-xs font-bold text-[#1A1A1A]">Using Framer?</h4>
-                          <p className="text-[11px] text-[#787774]">
-                            Paste this component URL on any page in Framer.
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleCopyFramer}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] cursor-pointer"
-                        >
-                          {copiedFramer ? "Copied!" : "Copy Framer URL"}
-                        </button>
-                      </div>
-                      <div className="bg-[#FAF9F7] border border-[#E3E0DB] rounded-lg p-2.5 flex items-center justify-between">
-                        <code className="text-xs font-mono text-[#1A1A1A] truncate max-w-[420px]">
-                          {getFramerCode()}
-                        </code>
-                        <button
-                          type="button"
-                          onClick={handleCopyFramer}
-                          className="text-[#787774] hover:text-[#1A1A1A] p-1 cursor-pointer"
-                        >
-                          <Copy size={13} />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Website Builder Guides */}
-                    <div className="space-y-2.5 pt-2 border-t border-[#E3E0DB]">
-                      <h4 className="text-xs font-bold text-[#1A1A1A]">Instructions</h4>
-                      <p className="text-[11px] text-[#787774]">
-                        Click to view instructions for different website builders:
-                      </p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                        {[
-                          { name: "WordPress", desc: "Custom HTML block" },
-                          { name: "Webflow", desc: "Embed element" },
-                          { name: "Wix", desc: "Embed HTML code" },
-                          { name: "Shopify", desc: "Theme custom liquid" },
-                          { name: "Carrd", desc: "Embed widget" },
-                          { name: "Notion", desc: "Embed URL block" },
-                        ].map((platform) => (
-                          <div
-                            key={platform.name}
-                            className="p-2.5 rounded-xl border border-[#E3E0DB] bg-[#FAF9F7] hover:bg-white hover:border-[#2563EB]/40 transition-colors flex items-center justify-between group cursor-pointer"
-                          >
-                            <div>
-                              <div className="text-xs font-semibold text-[#1A1A1A]">
-                                {platform.name}
-                              </div>
-                              <div className="text-[10px] text-[#787774]">
-                                {platform.desc}
-                              </div>
-                            </div>
-                            <ExternalLink size={12} className="text-[#787774] group-hover:text-[#2563EB]" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {shareTab === "link" && (
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <h3 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">
-                        Direct public link
-                      </h3>
-                      <p className="text-xs text-[#787774]">
-                        Share this live link directly with teammates or clients.
-                      </p>
-                    </div>
-
-                    <div className="bg-[#FAF9F7] border border-[#E3E0DB] rounded-xl p-3 flex items-center justify-between gap-3">
-                      <input
-                        type="text"
-                        readOnly
-                        value={publicShareUrl}
-                        className="bg-transparent text-xs font-mono text-[#1A1A1A] w-full focus:outline-none select-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center space-x-1.5 shrink-0 cursor-pointer shadow-xs"
-                      >
-                        {copiedLink ? <Check size={12} /> : <Copy size={12} />}
-                        <span>{copiedLink ? "Copied" : "Copy"}</span>
-                      </button>
                     </div>
                   </div>
                 )}
 
-                {shareTab === "export" && (
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <h3 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">
-                        Export as image
-                      </h3>
-                      <p className="text-xs text-[#787774]">
-                        Download a 2x retina screenshot of your current widget.
-                      </p>
-                    </div>
+                {shareTab === "link" && (
+                  <div className="bg-white border border-[#E3E0DB] rounded-2xl p-6 shadow-2xs">
+                    <h3 className="text-sm font-bold text-[#1A1A1A]">Your widget link</h3>
+                    <p className="text-xs text-[#787774] mt-1">
+                      Click to copy and paste your widget link.
+                    </p>
 
-                    <div className="border border-[#E3E0DB] rounded-xl p-4 bg-[#FAF9F7] flex flex-col items-center gap-3 text-center">
-                      <div className="w-48 h-28 rounded-lg overflow-hidden border border-[#E3E0DB] relative bg-white">
-                        <Image
-                          src={
-                            layout === "wall"
-                              ? "/widgets/wall-of-love.png"
-                              : layout === "orbit"
-                              ? "/widgets/orbit-cosmos.png"
-                              : "/widgets/card-spotlight.png"
-                          }
-                          alt="Widget snapshot"
-                          fill
-                          className="object-contain p-2"
-                        />
-                      </div>
-                      <a
-                        href={
-                          layout === "wall"
-                            ? "/widgets/wall-of-love.png"
-                            : layout === "orbit"
-                            ? "/widgets/orbit-cosmos.png"
-                            : "/widgets/card-spotlight.png"
-                        }
-                        download={`blovi-${layout}-widget.png`}
-                        className="inline-flex items-center gap-1.5 bg-[#1A1A1A] hover:bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer shadow-xs"
+                    <div className="mt-4 bg-[#FAF9F7] border border-[#E3E0DB] focus-within:border-[#2563EB] focus-within:ring-1 focus-within:ring-[#2563EB] rounded-xl px-4 py-3 flex items-center justify-between gap-3 transition-all">
+                      <span className="text-xs font-mono text-[#1A1A1A] truncate select-all">
+                        {publicShareUrl}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs transition-colors"
+                        title="Copy link"
                       >
-                        <ImageIcon size={13} />
-                        <span>Download PNG</span>
-                      </a>
+                        {copiedLink ? (
+                          <>
+                            <Check size={13} className="stroke-[2.5]" />
+                            <span>Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={13} />
+                            <span>Copy link</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 )}

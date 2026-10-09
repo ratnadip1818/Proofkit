@@ -43,5 +43,5 @@ export default async function EmbedPreviewPage({
     isLifetime = profile?.is_lifetime === true || profile?.plan_tier === "pro" || profile?.plan_tier === "business";
   }
 
-  return <WidgetClientWrapper testimonials={testimonials} isLifetime={isLifetime} searchParams={sParams} />;
+  return <WidgetClientWrapper testimonials={testimonials} isLifetime={isLifetime} searchParams={sParams} isPreview={true} />;
 }

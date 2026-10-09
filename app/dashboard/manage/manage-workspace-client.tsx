@@ -12,7 +12,6 @@ import {
   Archive,
   Sparkles,
   ExternalLink,
-  Plus,
   Filter,
   CheckCheck,
   Copy,
@@ -481,26 +480,6 @@ export default function ManageWorkspaceClient({
             )}
           </div>
 
-          {/* Primary Action Button: ProofKit Signature Brand Blue */}
-          {formUrl ? (
-            <a
-              href={formUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white flex items-center space-x-1.5 shadow-xs transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Invite a customer</span>
-            </a>
-          ) : (
-            <Link
-              href="/dashboard/collect"
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white flex items-center space-x-1.5 shadow-xs transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Invite a customer</span>
-            </Link>
-          )}
         </div>
       </div>
 

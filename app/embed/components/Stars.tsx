@@ -16,7 +16,7 @@ export const StarIcon = ({
     viewBox="0 0 24 24"
     fill={fill}
     stroke={color}
-    strokeWidth="2.5"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{ display: "block" }}
@@ -28,24 +28,29 @@ export const StarIcon = ({
 export function Stars({
   rating,
   colors,
-  size = 14,
-  marginBottom = 12,
+  size = 16,
+  marginBottom = 10,
 }: {
   rating: number;
   colors: ThemeColors;
   size?: number;
   marginBottom?: number;
 }) {
+  const litFill = colors.starOn || "#FBBF24";
+  const litStroke = colors.ratingBorder || colors.starOn || "#FBBF24";
+  const unlitFill = colors.starOff || "#E5E7EB";
+  const unlitStroke = colors.starOff || "#E5E7EB";
+
   return (
-    <div style={{ display: "flex", gap: "3px", marginBottom }}>
+    <div style={{ display: "flex", gap: "2.5px", marginBottom, alignItems: "center" }}>
       {[1, 2, 3, 4, 5].map((n) => {
         const isLit = n <= rating;
         return (
-          <div key={n}>
+          <div key={n} style={{ display: "flex" }}>
             <StarIcon
               size={size}
-              fill={isLit ? colors.starOn : "transparent"}
-              color={isLit ? (colors.ratingBorder || colors.starOn) : colors.starOff}
+              fill={isLit ? litFill : unlitFill}
+              color={isLit ? litStroke : unlitStroke}
             />
           </div>
         );

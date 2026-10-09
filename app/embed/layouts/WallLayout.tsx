@@ -33,6 +33,8 @@ export interface WallLayoutProps {
   ratingColor?: string;
   ratingBorderColor?: string;
   highlightColor?: string;
+  showDate?: boolean;
+  cardLayout?: "top" | "bottom";
 }
 
 export function WallLayout({
@@ -55,6 +57,8 @@ export function WallLayout({
   ratingColor,
   ratingBorderColor,
   highlightColor,
+  showDate = true,
+  cardLayout = "top",
 }: WallLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(
@@ -93,6 +97,8 @@ export function WallLayout({
     const updateColumns = (width: number) => {
       if (width < 640) {
         setNumColumns(1);
+      } else if (width < 1024) {
+        setNumColumns(2);
       } else {
         setNumColumns(3);
       }
@@ -257,6 +263,8 @@ export function WallLayout({
                     showPhotos={showPhotos}
                     useGravatar={useGravatar}
                     fallbackAvatar={fallbackAvatar}
+                    showDate={showDate}
+                    cardLayout={cardLayout}
                     onExpandChange={() => {
                       if (typeof window !== "undefined") {
                         setTimeout(() => sendWidgetHeight(), 100);

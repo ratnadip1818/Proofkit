@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useTransition } from "react";
+import { useState, useEffect, useMemo, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,17 +12,18 @@ import {
   Mail,
   QrCode,
   CheckCircle2,
-  Circle,
-  AlertCircle,
-  Code2,
+  MoreHorizontal,
+  Trash2,
+  Share2,
+  ChevronDown,
   Sparkles,
-  Layers,
-  SlidersHorizontal,
-  ChevronRight,
-  RefreshCw,
 } from "lucide-react";
 import QrModal from "./qr-modal";
-import { approveTestimonial, updateTestimonialTags } from "./actions";
+import {
+  approveTestimonial,
+  updateTestimonialTags,
+  deleteTestimonial,
+} from "./actions";
 import type { WorkspaceTrackingStats } from "@/lib/tracking";
 
 export interface TestimonialItem {
@@ -79,20 +80,38 @@ export default function HomeWorkspaceClient({
   appUrl,
 }: HomeWorkspaceClientProps) {
   const router = useRouter();
-  const [isPendingTransition, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Local state for testimonials to support optimistic updates
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(initialTestimonials);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedWidgetKey, setCopiedWidgetKey] = useState<string | null>(null);
+  const [copiedStepLink, setCopiedStepLink] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [actionInProgressId, setActionInProgressId] = useState<string | null>(null);
+
+  // Active dropdown states
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [mobileShareOpen, setMobileShareOpen] = useState(false);
 
   // Sync state if props change
   useEffect(() => {
     setTestimonials(initialTestimonials);
   }, [initialTestimonials]);
+
+  // Click outside to close menus
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (activeMenuId && !(e.target as HTMLElement).closest("[data-row-menu]")) {
+        setActiveMenuId(null);
+      }
+      if (mobileShareOpen && !(e.target as HTMLElement).closest("[data-mobile-share]")) {
+        setMobileShareOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeMenuId, mobileShareOpen]);
 
   // Local time greeting
   const [timeGreeting, setTimeGreeting] = useState("Good morning");
@@ -151,7 +170,6 @@ export default function HomeWorkspaceClient({
   // Testimonial metrics
   const totalCount = testimonials.length;
   const pendingCount = testimonials.filter((t) => t.status === "pending").length;
-  const approvedCount = testimonials.filter((t) => t.status === "approved").length;
 
   // Average rating
   const { avgRating, ratedCount } = useMemo(() => {
@@ -187,7 +205,6 @@ export default function HomeWorkspaceClient({
   // Plan limits
   const planTier = limits.planTier || "free";
   const planLimit = planTier === "free" ? 10 : null;
-  const isNearLimit = planTier === "free" && totalCount >= 8;
 
   // Copy collection link
   const handleCopyLink = async () => {
@@ -198,13 +215,11 @@ export default function HomeWorkspaceClient({
     } catch {}
   };
 
-  // Copy widget embed code snippet
-  const handleCopyEmbedCode = async (widgetKey: string, snippetType: string) => {
-    const code = `<script src="${appUrl}/widget.js" data-user="${user.id}" data-type="${snippetType}"></script>`;
+  const handleCopyStepLink = async () => {
     try {
-      await navigator.clipboard.writeText(code);
-      setCopiedWidgetKey(widgetKey);
-      setTimeout(() => setCopiedWidgetKey(null), 2000);
+      await navigator.clipboard.writeText(formUrl);
+      setCopiedStepLink(true);
+      setTimeout(() => setCopiedStepLink(false), 2000);
     } catch {}
   };
 
@@ -219,9 +234,9 @@ export default function HomeWorkspaceClient({
 
   // Quick Action: Approve
   const handleApprove = async (id: string) => {
+    setActiveMenuId(null);
     setActionInProgressId(id);
     try {
-      // Optimistic update
       setTestimonials((prev) =>
         prev.map((t) => (t.id === id ? { ...t, status: "approved" } : t))
       );
@@ -233,7 +248,6 @@ export default function HomeWorkspaceClient({
       });
     } catch (err) {
       console.error("Approve failed:", err);
-      // Revert if failed
       setTestimonials(initialTestimonials);
     } finally {
       setActionInProgressId(null);
@@ -242,6 +256,7 @@ export default function HomeWorkspaceClient({
 
   // Quick Action: Feature
   const handleToggleFeature = async (t: TestimonialItem) => {
+    setActiveMenuId(null);
     setActionInProgressId(t.id);
     const existingTags = t.tags || [];
     const isCurrentlyFeatured = existingTags.includes("featured");
@@ -250,7 +265,6 @@ export default function HomeWorkspaceClient({
       : [...existingTags, "featured"];
 
     try {
-      // Optimistic update
       setTestimonials((prev) =>
         prev.map((item) => (item.id === t.id ? { ...item, tags: newTags } : item))
       );
@@ -268,14 +282,35 @@ export default function HomeWorkspaceClient({
     }
   };
 
-  // Quick Action: Add to widget (copies embed snippet for this item)
-  const handleAddToWidget = async (t: TestimonialItem) => {
+  // Quick Action: Add to widget (copies single quote embed snippet)
+  const handleAddToWidget = async () => {
+    setActiveMenuId(null);
     const snippet = `<script src="${appUrl}/widget.js" data-user="${user.id}" data-type="single"></script>`;
     try {
       await navigator.clipboard.writeText(snippet);
       setActionNotice(`Copied single quote widget code ✓`);
       setTimeout(() => setActionNotice(null), 3000);
     } catch {}
+  };
+
+  // Quick Action: Delete
+  const handleDelete = async (id: string) => {
+    setActiveMenuId(null);
+    setActionInProgressId(id);
+    try {
+      setTestimonials((prev) => prev.filter((t) => t.id !== id));
+      await deleteTestimonial(id);
+      setActionNotice("Testimonial deleted ✓");
+      setTimeout(() => setActionNotice(null), 2500);
+      startTransition(() => {
+        router.refresh();
+      });
+    } catch (err) {
+      console.error("Delete failed:", err);
+      setTestimonials(initialTestimonials);
+    } finally {
+      setActionInProgressId(null);
+    }
   };
 
   // Determine if a testimonial is a sample/seed
@@ -288,654 +323,430 @@ export default function HomeWorkspaceClient({
     );
   };
 
-  // Needs your attention items
-  const attentionItems = useMemo(() => {
-    const items: Array<{
-      id: string;
-      message: string;
-      actionText: string;
-      actionHref?: string;
-      onClick?: () => void;
-    }> = [];
-
-    if (pendingCount > 0) {
-      items.push({
-        id: "pending",
-        message: `${pendingCount} ${pendingCount === 1 ? "testimonial is" : "testimonials are"} waiting for approval`,
-        actionText: "Review",
-        actionHref: "/dashboard/manage?status=pending",
-      });
-    }
-
-    if (!hasDetectedWidget) {
-      items.push({
-        id: "widget_install",
-        message: "We haven't detected your widget on any site yet",
-        actionText: "Check install",
-        actionHref: "/dashboard/publish",
-      });
-    }
-
-    if (isNearLimit) {
-      items.push({
-        id: "plan_limit",
-        message: `You've used ${totalCount} of ${planLimit} testimonials`,
-        actionText: "Upgrade",
-        actionHref: "/dashboard/billing",
-      });
-    }
-
-    return items;
-  }, [pendingCount, hasDetectedWidget, isNearLimit, totalCount, planLimit]);
-
-  // Widget definitions for Section 5
-  const widgetCards = [
-    {
-      key: "wall",
-      type: "wall",
-      name: "Wall of Love",
-      description: "Masonry grid that displays your top reviews with photo avatars.",
-      status: trackingStats?.widgetsStatus?.wall,
-    },
-    {
-      key: "carousel",
-      type: "carousel",
-      name: "Carousel",
-      description: "Touch-friendly slider ideal for homepages and landing heroes.",
-      status: trackingStats?.widgetsStatus?.carousel,
-    },
-    {
-      key: "marquee",
-      type: "marquee",
-      name: "Marquee",
-      description: "Endless smooth scrolling ticker for maximum credibility.",
-      status: trackingStats?.widgetsStatus?.marquee,
-    },
-    {
-      key: "single",
-      type: "single",
-      name: "Single Quote",
-      description: "High-impact spotlight card beside conversion checkout buttons.",
-      status: trackingStats?.widgetsStatus?.single,
-    },
-  ];
-
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 space-y-8 font-sans text-[#1A1A1A]">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 space-y-7 font-sans text-[#1A1A1A]">
       {/* Toast Notice */}
       {actionNotice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white text-xs font-medium px-4 py-2.5 rounded-[10px] shadow-lg flex items-center gap-2 animate-fade-in">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 animate-fade-in border border-gray-700">
           <Check className="w-3.5 h-3.5 text-emerald-400" />
           <span>{actionNotice}</span>
         </div>
       )}
 
-      {/* 1. GREETING + STATUS LINE */}
-      <section className="space-y-1.5 pb-2">
-        <h1 className="font-serif text-2xl sm:text-3xl lg:text-[34px] font-normal tracking-tight text-[#1A1A1A] leading-tight">
-          {timeGreeting}, {firstName}
-        </h1>
-        <p className="text-sm text-[#787774] font-normal leading-relaxed">
-          {totalCount === 0
-            ? "Let's collect your first testimonial."
-            : pendingCount > 0
-            ? `You collected ${thisWeekCount} new ${thisWeekCount === 1 ? "testimonial" : "testimonials"} this week. ${pendingCount} waiting for your approval.`
-            : `You collected ${thisWeekCount} new ${thisWeekCount === 1 ? "testimonial" : "testimonials"} this week. You're all caught up.`}
-        </p>
+      {/* 1. GREETING + STATUS LINE + HEADER ACTIONS */}
+      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+        <div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal tracking-tight text-[#1A1A1A] leading-tight">
+            {timeGreeting}, {firstName}
+          </h1>
+          <p className="text-sm text-[#787774] font-normal leading-relaxed mt-1">
+            {totalCount === 0
+              ? "Let's collect your first testimonial."
+              : pendingCount > 0
+              ? `You collected ${thisWeekCount} new ${thisWeekCount === 1 ? "testimonial" : "testimonials"} this week. ${pendingCount} waiting for your approval.`
+              : `You collected ${thisWeekCount} new ${thisWeekCount === 1 ? "testimonial" : "testimonials"} this week. You're all caught up.`}
+          </p>
+        </div>
+
+        {/* Desktop Header Action Buttons */}
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleCopyLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E3E0DB] bg-white text-xs font-medium text-[#1A1A1A] hover:bg-[#F7F6F3] transition-colors shadow-2xs cursor-pointer"
+            title="Copy collection link"
+          >
+            {copiedLink ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Copied ✓</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-[#787774]" />
+                <span>Copy collection link</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="p-2 rounded-xl border border-[#E3E0DB] bg-white text-[#787774] hover:text-[#1A1A1A] hover:bg-[#F7F6F3] transition-colors shadow-2xs cursor-pointer"
+            title="Show QR code"
+            aria-label="Show QR code"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+          </button>
+
+          <a
+            href={mailtoLink}
+            className="p-2 rounded-xl border border-[#E3E0DB] bg-white text-[#787774] hover:text-[#1A1A1A] hover:bg-[#F7F6F3] transition-colors shadow-2xs cursor-pointer"
+            title="Send by email"
+            aria-label="Send by email"
+          >
+            <Mail className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
+        {/* Mobile Header Action Dropdown */}
+        <div className="sm:hidden relative" data-mobile-share>
+          <button
+            onClick={() => setMobileShareOpen((prev) => !prev)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E3E0DB] bg-white text-xs font-medium text-[#1A1A1A] shadow-2xs cursor-pointer w-fit"
+          >
+            <Share2 className="w-3.5 h-3.5 text-[#787774]" />
+            <span>Share</span>
+            <ChevronDown className="w-3 h-3 text-[#787774]" />
+          </button>
+
+          {mobileShareOpen && (
+            <div className="absolute left-0 mt-1.5 w-52 bg-white border border-[#E3E0DB] rounded-xl shadow-lg p-1.5 z-40 space-y-1">
+              <button
+                onClick={() => {
+                  handleCopyLink();
+                  setMobileShareOpen(false);
+                }}
+                className="w-full text-left px-2.5 py-1.5 text-xs text-[#1A1A1A] hover:bg-[#F7F6F3] rounded-lg flex items-center gap-2 cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5 text-[#787774]" />
+                <span>{copiedLink ? "Copied ✓" : "Copy collection link"}</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsQrModalOpen(true);
+                  setMobileShareOpen(false);
+                }}
+                className="w-full text-left px-2.5 py-1.5 text-xs text-[#1A1A1A] hover:bg-[#F7F6F3] rounded-lg flex items-center gap-2 cursor-pointer"
+              >
+                <QrCode className="w-3.5 h-3.5 text-[#787774]" />
+                <span>Show QR code</span>
+              </button>
+              <a
+                href={mailtoLink}
+                onClick={() => setMobileShareOpen(false)}
+                className="w-full text-left px-2.5 py-1.5 text-xs text-[#1A1A1A] hover:bg-[#F7F6F3] rounded-lg flex items-center gap-2 block cursor-pointer"
+              >
+                <Mail className="w-3.5 h-3.5 text-[#787774]" />
+                <span>Send by email</span>
+              </a>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* 2. STAT CARDS OR GET STARTED CHECKLIST */}
-      {totalCount === 0 ? (
-        /* NEW USER: GET STARTED CHECKLIST */
-        <section className="bg-white border border-[#E8E5E0] rounded-[14px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-[#F0ECE6]">
-            <div>
-              <h2 className="font-serif text-lg font-normal text-[#1A1A1A] tracking-tight">
-                Get started
-              </h2>
-              <p className="text-xs text-[#787774] mt-0.5">
-                Complete these steps to collect social proof and embed your live widget.
-              </p>
-            </div>
-            <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-[6px] bg-[#F7F5F2] text-[#787774] border border-[#E8E5E0]">
-              Step 1 of 5
+      {/* 2. STAT CARDS (COMPACT ROW OF 4) */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {/* Card 1: Testimonials */}
+        <div className="bg-white border border-[#E3E0DB] rounded-xl p-4 shadow-2xs flex flex-col justify-between min-h-[96px]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
+            Testimonials
+          </span>
+          <div className="my-1">
+            <span className="font-display text-2xl sm:text-[26px] font-bold text-[#1A1A1A] tracking-tight">
+              {totalCount}
             </span>
           </div>
-
-          <div className="space-y-3">
-            {/* Step 1: Create workspace */}
-            <div className="flex items-center justify-between p-3.5 rounded-[10px] bg-[#FAF9F6] border border-[#F0ECE6]">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <div>
-                  <span className="text-xs sm:text-sm font-medium text-[#1A1A1A] block">
-                    Create workspace
-                  </span>
-                  <span className="text-[11px] text-[#787774] block">
-                    Workspace and database initialized.
-                  </span>
-                </div>
-              </div>
-              <span className="text-xs text-[#787774] font-medium">Done ✓</span>
-            </div>
-
-            {/* Step 2: Customize form */}
-            <div className="flex items-center justify-between p-3.5 rounded-[10px] bg-white border border-[#E8E5E0]">
-              <div className="flex items-center gap-3">
-                <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
-                <div>
-                  <span className="text-xs sm:text-sm font-medium text-[#1A1A1A] block">
-                    Customize form
-                  </span>
-                  <span className="text-[11px] text-[#787774] block">
-                    Edit questions, colors, and branding for your collection page.
-                  </span>
-                </div>
-              </div>
-              <Link
-                href="/dashboard/collect"
-                className="bg-[#1A1A1A] hover:bg-black text-white text-xs font-medium px-3 py-1.5 rounded-[10px] transition-colors cursor-pointer shrink-0"
-              >
-                Customize
-              </Link>
-            </div>
-
-            {/* Step 3: Share link */}
-            <div className="flex items-center justify-between p-3.5 rounded-[10px] bg-white border border-[#E8E5E0]">
-              <div className="flex items-center gap-3">
-                <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
-                <div>
-                  <span className="text-xs sm:text-sm font-medium text-[#1A1A1A] block">
-                    Share link
-                  </span>
-                  <span className="text-[11px] text-[#787774] block">
-                    Send your public collection link to your first customers.
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={handleCopyLink}
-                className="bg-[#1A1A1A] hover:bg-black text-white text-xs font-medium px-3 py-1.5 rounded-[10px] transition-colors cursor-pointer shrink-0"
-              >
-                {copiedLink ? "Copied ✓" : "Copy link"}
-              </button>
-            </div>
-
-            {/* Step 4: Approve first testimonial */}
-            <div className="flex items-center justify-between p-3.5 rounded-[10px] bg-white border border-[#E8E5E0]">
-              <div className="flex items-center gap-3">
-                <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
-                <div>
-                  <span className="text-xs sm:text-sm font-medium text-[#1A1A1A] block">
-                    Approve first testimonial
-                  </span>
-                  <span className="text-[11px] text-[#787774] block">
-                    Review and publish incoming submissions to your widget feed.
-                  </span>
-                </div>
-              </div>
-              <span className="text-xs text-[#787774]">Waiting for review</span>
-            </div>
-
-            {/* Step 5: Publish widget */}
-            <div className="flex items-center justify-between p-3.5 rounded-[10px] bg-white border border-[#E8E5E0]">
-              <div className="flex items-center gap-3">
-                <Circle className="w-4 h-4 text-[#AFAFAC] shrink-0" />
-                <div>
-                  <span className="text-xs sm:text-sm font-medium text-[#1A1A1A] block">
-                    Publish widget
-                  </span>
-                  <span className="text-[11px] text-[#787774] block">
-                    Paste one line of HTML embed code on your website.
-                  </span>
-                </div>
-              </div>
-              <Link
-                href="/dashboard/publish"
-                className="bg-[#1A1A1A] hover:bg-black text-white text-xs font-medium px-3 py-1.5 rounded-[10px] transition-colors cursor-pointer shrink-0"
-              >
-                Publish
-              </Link>
-            </div>
-          </div>
-        </section>
-      ) : (
-        /* STAT CARDS ROW (4 CARDS) */
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Testimonials */}
-          <div className="bg-white border border-[#E8E5E0] rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
-              Testimonials
-            </span>
-            <div className="my-3">
-              <span className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] tracking-tight">
-                {totalCount}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-[#787774]">
-              <span>{thisWeekCount} new this week</span>
+          <div className="flex items-center justify-between text-xs text-[#787774]">
+            <span>{thisWeekCount} new this week</span>
+            {lastWeekCount > 0 && (
               <span
                 className={`font-medium ${
                   vsLastWeekDiff > 0
-                    ? "text-emerald-700"
-                    : vsLastWeekDiff < 0
-                    ? "text-[#787774]"
+                    ? "text-[#2563EB]"
                     : "text-[#787774]"
                 }`}
               >
                 {vsLastWeekDiff > 0
                   ? `+${vsLastWeekDiff} vs last week`
-                  : vsLastWeekDiff < 0
-                  ? `${vsLastWeekDiff} vs last week`
-                  : "same as last week"}
+                  : `${vsLastWeekDiff} vs last week`}
               </span>
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* Card 2: Average rating */}
-          <div className="bg-white border border-[#E8E5E0] rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
-              Average rating
+        {/* Card 2: Average rating */}
+        <div className="bg-white border border-[#E3E0DB] rounded-xl p-4 shadow-2xs flex flex-col justify-between min-h-[96px]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
+            Average rating
+          </span>
+          <div className="my-1 flex items-center gap-1.5">
+            <span className="font-display text-2xl sm:text-[26px] font-bold text-[#1A1A1A] tracking-tight">
+              {avgRating ? avgRating : "—"}
             </span>
-            <div className="my-3 flex items-center gap-1.5">
-              <span className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] tracking-tight">
-                {avgRating ? avgRating : "—"}
-              </span>
-              <span className="text-amber-500 text-xl font-bold">★</span>
-            </div>
-            <div className="text-xs text-[#787774]">
-              {ratedCount > 0 ? `across ${ratedCount} reviews` : "No rated reviews yet"}
-            </div>
+            <span className="text-[#F59E0B] text-lg font-bold">★</span>
           </div>
+          <div className="text-xs text-[#787774]">
+            {ratedCount > 0 ? `across ${ratedCount} reviews` : "No rated reviews yet"}
+          </div>
+        </div>
 
-          {/* Card 3: Form conversion */}
-          <div className="bg-white border border-[#E8E5E0] rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
-              Form conversion
+        {/* Card 3: Form conversion */}
+        <div className="bg-white border border-[#E3E0DB] rounded-xl p-4 shadow-2xs flex flex-col justify-between min-h-[96px]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
+            Form conversion
+          </span>
+          <div className="my-1">
+            <span className="font-display text-2xl sm:text-[26px] font-bold text-[#1A1A1A] tracking-tight">
+              {conversionRate !== null ? `${conversionRate}%` : "—"}
             </span>
-            <div className="my-3">
-              <span className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] tracking-tight">
-                {conversionRate !== null ? `${conversionRate}%` : "—"}
-              </span>
-            </div>
-            <div className="text-xs text-[#787774]">
-              {conversionRate !== null
-                ? "of visitors submitted"
-                : "Starts counting once your widget is live"}
-            </div>
           </div>
+          <div className="text-xs text-[#787774] truncate">
+            {conversionRate !== null
+              ? "of visitors submitted"
+              : "Starts counting once your widget is live"}
+          </div>
+        </div>
 
-          {/* Card 4: Widget views */}
-          <div className="bg-white border border-[#E8E5E0] rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
-              Widget views
+        {/* Card 4: Widget views */}
+        <div className="bg-white border border-[#E3E0DB] rounded-xl p-4 shadow-2xs flex flex-col justify-between min-h-[96px]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#787774]">
+            Widget views
+          </span>
+          <div className="my-1">
+            <span className="font-display text-2xl sm:text-[26px] font-bold text-[#1A1A1A] tracking-tight">
+              {widgetViewsMonth !== null ? widgetViewsMonth : "—"}
             </span>
-            <div className="my-3">
-              <span className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] tracking-tight">
-                {widgetViewsMonth !== null ? widgetViewsMonth : "—"}
-              </span>
-            </div>
-            <div className="text-xs text-[#787774]">
-              {widgetViewsMonth !== null
-                ? "this month"
-                : "Starts counting once your widget is live"}
-            </div>
           </div>
-        </section>
-      )}
+          <div className="text-xs text-[#787774] truncate">
+            {widgetViewsMonth !== null
+              ? "this month"
+              : "Starts counting once your widget is live"}
+          </div>
+        </div>
+      </section>
 
-      {/* 3. NEEDS YOUR ATTENTION */}
-      <section className="bg-white border border-[#E8E5E0] rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-        {attentionItems.length === 0 ? (
-          <div className="flex items-center gap-2 text-sm text-[#787774] py-1 font-normal">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>You&apos;re all caught up ✓</span>
+      {/* 3. YOUR NEXT STEP (FULL-WIDTH CARD, UNDER 120px ON DESKTOP) */}
+      <section className="bg-white border border-[#E3E0DB] border-l-[3.5px] border-l-[#2563EB] rounded-xl p-4 sm:p-5 shadow-2xs">
+        {pendingCount > 0 ? (
+          /* STATE A: PENDING APPROVALS */
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="font-serif text-base sm:text-lg font-normal text-[#1A1A1A] tracking-tight leading-snug">
+                Approve {pendingCount} new {pendingCount === 1 ? "testimonial" : "testimonials"}
+              </h2>
+              <p className="text-xs text-[#787774] mt-0.5 leading-relaxed">
+                They won&apos;t appear in your widgets until you approve them.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/manage?status=pending"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0 text-center shadow-xs self-start sm:self-auto"
+            >
+              Review now
+            </Link>
+          </div>
+        ) : !hasDetectedWidget ? (
+          /* STATE B: NO WIDGET INSTALLED/DETECTED (NEUTRAL/SOFT ACCENT, NOT A WARNING) */
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="font-serif text-base sm:text-lg font-normal text-[#1A1A1A] tracking-tight leading-snug">
+                Show your testimonials on your website
+              </h2>
+              <p className="text-xs text-[#787774] mt-0.5">
+                It takes about 2 minutes.
+              </p>
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-[11px] text-[#787774]">
+                <span>1. Pick a widget</span>
+                <span className="text-[#AFAFAC]">·</span>
+                <span>2. Copy one line of code</span>
+                <span className="text-[#AFAFAC]">·</span>
+                <span>3. Paste it into your site</span>
+              </div>
+            </div>
+            <Link
+              href="/dashboard/publish"
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0 text-center shadow-xs self-start sm:self-auto"
+            >
+              Get embed code
+            </Link>
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#F0ECE6]">
-              <h2 className="font-serif text-base font-normal text-[#1A1A1A] tracking-tight">
-                Needs your attention
+          /* STATE C: ALL CAUGHT UP, COLLECT MORE */
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 className="font-serif text-base sm:text-lg font-normal text-[#1A1A1A] tracking-tight leading-snug">
+                Collect more testimonials
               </h2>
-              <span className="text-[11px] font-mono text-[#787774]">
-                {attentionItems.length} {attentionItems.length === 1 ? "item" : "items"}
-              </span>
+              <p className="text-xs text-[#787774] mt-0.5 leading-relaxed">
+                Send your link to a customer who&apos;s happy with your product.
+              </p>
             </div>
-
-            <div className="divide-y divide-[#F0ECE6]">
-              {attentionItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 first:pt-1 last:pb-1"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                    <span className="text-xs sm:text-sm font-medium text-[#1A1A1A]">
-                      {item.message}
-                    </span>
-                  </div>
-
-                  {item.actionHref && (
-                    <Link
-                      href={item.actionHref}
-                      className="bg-[#1A1A1A] hover:bg-black text-white text-xs font-medium px-3.5 py-1.5 rounded-[10px] transition-colors cursor-pointer shrink-0 text-center"
-                    >
-                      {item.actionText}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+            <button
+              onClick={handleCopyStepLink}
+              className="bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0 shadow-xs self-start sm:self-auto flex items-center gap-1.5"
+            >
+              {copiedStepLink ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-white" />
+                  <span>Copied ✓</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy collection link</span>
+                </>
+              )}
+            </button>
           </div>
         )}
       </section>
 
-      {/* 4. TWO-COLUMN SECTION: LATEST TESTIMONIALS + GET MORE TESTIMONIALS */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (Wider): LATEST TESTIMONIALS */}
-        <div className="lg:col-span-7 xl:col-span-8 bg-white border border-[#E8E5E0] rounded-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between overflow-hidden">
-          <div className="p-5 sm:p-6 border-b border-[#F0ECE6] flex items-center justify-between">
-            <h2 className="font-serif text-lg font-normal text-[#1A1A1A] tracking-tight">
-              Latest testimonials
-            </h2>
-            {totalCount > 0 && (
-              <span className="text-xs text-[#787774] font-mono">
-                Showing {Math.min(5, totalCount)} of {totalCount}
-              </span>
-            )}
-          </div>
-
-          {testimonials.length === 0 ? (
-            <div className="py-16 px-6 text-center">
-              <p className="text-sm text-[#787774] max-w-sm mx-auto leading-relaxed">
-                No testimonials yet. Share your link with your first customer.
-              </p>
-              <button
-                onClick={handleCopyLink}
-                className="mt-4 inline-flex items-center gap-1.5 bg-[#1A1A1A] hover:bg-black text-white text-xs font-medium px-3.5 py-2 rounded-[10px] transition-colors cursor-pointer"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                <span>{copiedLink ? "Copied ✓" : "Copy link"}</span>
-              </button>
-            </div>
-          ) : (
-            <div className="divide-y divide-[#F0ECE6]">
-              {testimonials.slice(0, 5).map((t) => {
-                const isFeatured = t.tags?.includes("featured");
-                const quoteExcerpt =
-                  t.display_body || t.body_original || "No text provided.";
-                const truncatedQuote =
-                  quoteExcerpt.length > 140
-                    ? quoteExcerpt.slice(0, 140).trim() + "…"
-                    : quoteExcerpt;
-
-                return (
-                  <div key={t.id} className="p-4 sm:p-5 space-y-3 hover:bg-[#FAF9F6]/50 transition-colors">
-                    {/* Top Row: Author + Rating + Status Badge */}
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-3">
-                        {t.avatar_url ? (
-                          <img
-                            src={t.avatar_url}
-                            alt={t.author_name}
-                            className="w-8 h-8 rounded-full object-cover border border-[#E8E5E0]"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-[#F7F5F2] border border-[#E8E5E0] flex items-center justify-center font-bold text-xs text-[#1A1A1A]">
-                            {t.author_name ? t.author_name[0].toUpperCase() : "?"}
-                          </div>
-                        )}
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-xs sm:text-sm text-[#1A1A1A] leading-tight">
-                              {t.author_name || "Anonymous"}
-                            </span>
-                            {isSampleTestimonial(t) && (
-                              <span className="text-[10px] font-medium bg-[#F0ECE6] text-[#787774] px-1.5 py-0.5 rounded">
-                                Sample
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-[11px] text-[#787774] block mt-0.5">
-                            {[t.author_role, t.author_company].filter(Boolean).join(" · ") ||
-                              "Verified Customer"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        {t.rating && (
-                          <div className="flex items-center gap-0.5 text-amber-500">
-                            {Array.from({ length: t.rating }).map((_, i) => (
-                              <Star key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Status Badge */}
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide uppercase ${
-                            t.status === "pending"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : isFeatured
-                              ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          }`}
-                        >
-                          {t.status === "pending" ? "Pending" : isFeatured ? "Featured" : "Approved"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Middle: Quote Excerpt */}
-                    <p className="text-xs sm:text-sm text-[#4A4946] leading-relaxed italic pl-11">
-                      &ldquo;{truncatedQuote}&rdquo;
-                    </p>
-
-                    {/* Bottom: Quick Actions */}
-                    <div className="flex items-center justify-end gap-2 pt-1 pl-11">
-                      {t.status === "pending" && (
-                        <button
-                          onClick={() => handleApprove(t.id)}
-                          disabled={actionInProgressId === t.id}
-                          className="bg-[#1A1A1A] hover:bg-black text-white text-[11px] font-medium px-3 py-1 rounded-[8px] transition-colors cursor-pointer"
-                        >
-                          Approve
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => handleToggleFeature(t)}
-                        disabled={actionInProgressId === t.id}
-                        className={`text-[11px] font-medium px-3 py-1 rounded-[8px] border transition-colors cursor-pointer ${
-                          isFeatured
-                            ? "border-[#E8E5E0] bg-[#F7F5F2] text-[#1A1A1A] hover:bg-[#EAE6DF]"
-                            : "border-[#E8E5E0] bg-white text-[#1A1A1A] hover:bg-[#F7F5F2]"
-                        }`}
-                      >
-                        {isFeatured ? "Unfeature" : "Feature"}
-                      </button>
-
-                      <button
-                        onClick={() => handleAddToWidget(t)}
-                        className="text-[11px] font-medium px-3 py-1 rounded-[8px] border border-[#E8E5E0] bg-white text-[#1A1A1A] hover:bg-[#F7F5F2] transition-colors cursor-pointer"
-                      >
-                        Add to widget
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Link at bottom: View all reviews */}
-          <div className="p-4 border-t border-[#F0ECE6] bg-[#FAF9F6]/50">
-            <Link
-              href="/dashboard/manage"
-              className="text-xs font-medium text-[#1A1A1A] hover:underline inline-flex items-center gap-1.5"
-            >
-              <span>View all reviews ({totalCount})</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#787774]" />
-            </Link>
-          </div>
+      {/* 4. LATEST TESTIMONIALS (COMPACT, 3 MAX, 56px ROWS) */}
+      <section className="bg-white border border-[#E3E0DB] rounded-xl shadow-2xs overflow-hidden">
+        <div className="px-4 py-3.5 border-b border-[#F0ECE6] flex items-center justify-between">
+          <h2 className="font-serif text-base sm:text-lg font-normal text-[#1A1A1A] tracking-tight">
+            Latest testimonials
+          </h2>
         </div>
 
-        {/* Right Column: GET MORE TESTIMONIALS */}
-        <div className="lg:col-span-5 xl:col-span-4 bg-white border border-[#E8E5E0] rounded-[14px] p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
-          <div>
-            <h2 className="font-serif text-lg font-normal text-[#1A1A1A] tracking-tight">
-              Get more testimonials
-            </h2>
-            <p className="text-xs text-[#787774] mt-1 leading-relaxed">
-              Share your public collection form link with satisfied clients.
+        {testimonials.length === 0 ? (
+          <div className="py-12 px-6 text-center">
+            <p className="text-xs sm:text-sm text-[#787774] max-w-sm mx-auto leading-relaxed">
+              No testimonials yet. Share your link with your first customer.
             </p>
-          </div>
-
-          {/* Collection Link Input + Copy Button */}
-          <div className="space-y-2">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-[#787774] block">
-              Collection link
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={formUrl}
-                className="w-full bg-[#FAF9F6] border border-[#E8E5E0] rounded-[10px] px-3 py-2 text-xs font-mono text-[#1A1A1A] truncate select-all focus:outline-none"
-              />
-              <button
-                onClick={handleCopyLink}
-                className="bg-[#1A1A1A] hover:bg-black text-white text-xs font-medium px-3.5 py-2 rounded-[10px] transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Copied ✓</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy link</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Secondary Actions: Send by email & Show QR code */}
-          <div className="grid grid-cols-2 gap-2.5 pt-1">
-            <a
-              href={mailtoLink}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] border border-[#E8E5E0] bg-white text-xs font-medium text-[#1A1A1A] hover:bg-[#F7F5F2] transition-colors shadow-xs"
-            >
-              <Mail className="w-3.5 h-3.5 text-[#787774]" />
-              <span>Send by email</span>
-            </a>
-
             <button
-              onClick={() => setIsQrModalOpen(true)}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] border border-[#E8E5E0] bg-white text-xs font-medium text-[#1A1A1A] hover:bg-[#F7F5F2] transition-colors shadow-xs cursor-pointer"
+              onClick={handleCopyLink}
+              className="mt-3.5 inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer shadow-xs"
             >
-              <QrCode className="w-3.5 h-3.5 text-[#787774]" />
-              <span>Show QR code</span>
+              <Copy className="w-3.5 h-3.5" />
+              <span>{copiedLink ? "Copied ✓" : "Copy link"}</span>
             </button>
           </div>
+        ) : (
+          <div className="divide-y divide-[#F0ECE6]">
+            {testimonials.slice(0, 3).map((t) => {
+              const isFeatured = t.tags?.includes("featured");
+              const quoteRaw = t.display_body || t.body_original || "No text provided.";
+              const isMenuOpen = activeMenuId === t.id;
 
-          {/* Small Tip Text */}
-          <div className="pt-4 border-t border-[#F0ECE6]">
-            <p className="text-xs text-[#787774] leading-relaxed">
-              Ask right after a customer succeeds with your product. That&apos;s when they respond most.
-            </p>
-          </div>
-        </div>
-      </section>
+              return (
+                <div
+                  key={t.id}
+                  className="px-4 py-2.5 sm:min-h-[56px] flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-[#FAF9F6]/60 transition-colors text-xs"
+                >
+                  {/* Left Side: Avatar, Author, Quote */}
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    {/* Avatar initial */}
+                    {t.avatar_url ? (
+                      <img
+                        src={t.avatar_url}
+                        alt={t.author_name}
+                        className="w-7 h-7 rounded-full object-cover border border-[#E3E0DB] shrink-0"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center font-bold text-[11px] shrink-0">
+                        {t.author_name ? t.author_name[0].toUpperCase() : "?"}
+                      </div>
+                    )}
 
-      {/* 5. YOUR WIDGETS */}
-      <section className="bg-white border border-[#E8E5E0] rounded-[14px] p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-[#F0ECE6]">
-          <div>
-            <h2 className="font-serif text-lg font-normal text-[#1A1A1A] tracking-tight">
-              Your widgets
-            </h2>
-            <p className="text-xs text-[#787774] mt-0.5">
-              Live embeds displaying approved social proof across websites.
-            </p>
+                    {/* Desktop Content Row: Name + role + quote on one line */}
+                    <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2.5">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="font-medium text-[#1A1A1A] truncate max-w-[120px]">
+                          {t.author_name || "Anonymous"}
+                        </span>
+                        {isSampleTestimonial(t) && (
+                          <span className="text-[10px] font-medium bg-[#F0ECE6] text-[#787774] px-1.5 py-0.2 rounded">
+                            Sample
+                          </span>
+                        )}
+                        <span className="text-[11px] text-[#787774] truncate max-w-[130px] hidden md:inline">
+                          · {t.author_role || t.author_company || "Customer"}
+                        </span>
+                      </div>
+
+                      {/* Truncated one-line quote with ellipsis */}
+                      <p className="text-[11px] text-[#4A4946] truncate italic flex-1 max-w-full sm:max-w-md lg:max-w-lg">
+                        &ldquo;{quoteRaw}&rdquo;
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right Side: Rating + Status Badge + ⋯ Menu */}
+                  <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pl-9 sm:pl-0">
+                    {t.rating && (
+                      <div className="flex items-center gap-0.5 text-[#F59E0B]">
+                        {Array.from({ length: t.rating }).map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Status Badge */}
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide uppercase ${
+                        t.status === "pending"
+                          ? "bg-amber-50 text-amber-700 border border-amber-200"
+                          : isFeatured
+                          ? "bg-blue-50 text-[#2563EB] border border-blue-200"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      }`}
+                    >
+                      {t.status === "pending" ? "Pending" : isFeatured ? "Featured" : "Approved"}
+                    </span>
+
+                    {/* ⋯ Dropdown Menu per row */}
+                    <div className="relative" data-row-menu>
+                      <button
+                        onClick={() => setActiveMenuId((prev) => (prev === t.id ? null : t.id))}
+                        className="p-1 rounded-md text-[#787774] hover:text-[#1A1A1A] hover:bg-[#F0ECE6] transition-colors cursor-pointer"
+                        title="More actions"
+                        aria-label="More actions"
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+
+                      {isMenuOpen && (
+                        <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-[#E3E0DB] rounded-xl shadow-lg p-1 z-30 space-y-0.5 animate-fade-in text-xs">
+                          {t.status === "pending" && (
+                            <button
+                              onClick={() => handleApprove(t.id)}
+                              className="w-full text-left px-2.5 py-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg font-medium cursor-pointer"
+                            >
+                              Approve
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleToggleFeature(t)}
+                            className="w-full text-left px-2.5 py-1.5 text-[#1A1A1A] hover:bg-[#F7F6F3] rounded-lg cursor-pointer"
+                          >
+                            {isFeatured ? "Unfeature" : "Feature"}
+                          </button>
+                          <button
+                            onClick={handleAddToWidget}
+                            className="w-full text-left px-2.5 py-1.5 text-[#1A1A1A] hover:bg-[#F7F6F3] rounded-lg cursor-pointer"
+                          >
+                            Add to widget
+                          </button>
+                          <button
+                            onClick={() => handleDelete(t.id)}
+                            className="w-full text-left px-2.5 py-1.5 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer flex items-center justify-between"
+                          >
+                            <span>Delete</span>
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+        )}
+
+        {/* Footer Link: View all reviews */}
+        <div className="px-4 py-3 border-t border-[#F0ECE6] bg-[#FAF9F6]/40">
           <Link
-            href="/dashboard/publish"
-            className="text-xs font-medium text-[#1A1A1A] hover:underline inline-flex items-center gap-1"
+            href="/dashboard/manage"
+            className="text-xs font-medium text-[#1A1A1A] hover:text-[#2563EB] hover:underline inline-flex items-center gap-1.5 transition-colors"
           >
-            <span>Manage widgets →</span>
+            <span>View all reviews ({totalCount}) →</span>
           </Link>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {widgetCards.map((w) => {
-            const isInstalled = w.status?.installed ?? false;
-            const domain = w.status?.domain ?? null;
-            const views = w.status?.views ?? 0;
-            const isCopied = copiedWidgetKey === w.key;
-
-            return (
-              <div
-                key={w.key}
-                className="p-4 rounded-[12px] bg-[#FAF9F6] border border-[#E8E5E0] flex flex-col justify-between space-y-4"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-serif text-sm font-medium text-[#1A1A1A]">
-                      {w.name}
-                    </span>
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        isInstalled ? "bg-emerald-500" : "bg-[#AFAFAC]"
-                      }`}
-                    />
-                  </div>
-                  <p className="text-[11px] text-[#787774] leading-relaxed line-clamp-2">
-                    {w.description}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-[#EAE6DF] flex flex-col gap-2">
-                  <div className="text-[11px] font-medium text-[#1A1A1A] truncate">
-                    {isInstalled ? (
-                      <span className="text-emerald-700">
-                        Live on {domain || "website"} · {views} {views === 1 ? "view" : "views"}
-                      </span>
-                    ) : (
-                      <span className="text-[#787774]">Not installed</span>
-                    )}
-                  </div>
-
-                  {!isInstalled && (
-                    <button
-                      onClick={() => handleCopyEmbedCode(w.key, w.type)}
-                      className="w-full bg-[#1A1A1A] hover:bg-black text-white text-[11px] font-medium py-1.5 px-3 rounded-[8px] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      {isCopied ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          <span>Copied ✓</span>
-                        </>
-                      ) : (
-                        <>
-                          <Code2 className="w-3 h-3" />
-                          <span>Copy embed code</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </section>
 
-      {/* 6. PLAN USAGE (SMALL, QUIET CARD) */}
-      <section className="bg-white/80 border border-[#E8E5E0] rounded-[12px] p-4 text-xs text-[#787774] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* 5. PLAN USAGE (SMALL, QUIET FOOTER CARD) */}
+      <section className="bg-white/80 border border-[#E3E0DB] rounded-xl p-3.5 text-xs text-[#787774] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
         <div className="space-y-1.5 flex-1 max-w-md">
           <div className="flex items-center justify-between">
             <span className="text-[#1A1A1A] font-medium">
@@ -953,7 +764,7 @@ export default function HomeWorkspaceClient({
           {planTier === "free" && (
             <div className="w-full h-1.5 bg-[#EAE6DF] rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#1A1A1A] rounded-full transition-all duration-300"
+                className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
                 style={{
                   width: `${Math.min(100, (totalCount / (planLimit || 10)) * 100)}%`,
                 }}
@@ -965,7 +776,7 @@ export default function HomeWorkspaceClient({
         {planTier === "free" && (
           <Link
             href="/dashboard/billing"
-            className="text-xs font-semibold text-[#1A1A1A] hover:underline shrink-0"
+            className="text-xs font-semibold text-[#2563EB] hover:underline shrink-0"
           >
             Upgrade
           </Link>

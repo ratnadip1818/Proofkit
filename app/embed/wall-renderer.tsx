@@ -77,6 +77,8 @@ export interface WallRendererProps {
   highlightColor?: string;
   chatCustomerPrompt?: string;
   chatFounderReply?: string;
+  showDate?: boolean;
+  cardLayout?: "top" | "bottom";
 }
 
 /**
@@ -107,6 +109,8 @@ export default function WallRenderer({
   highlightColor,
   chatCustomerPrompt,
   chatFounderReply,
+  showDate = true,
+  cardLayout = "top",
 }: WallRendererProps) {
   const presetDef = getPresetDefinition(preset);
 
@@ -278,6 +282,8 @@ export default function WallRenderer({
       ratingColor={ratingColor}
       ratingBorderColor={ratingBorderColor}
       highlightColor={highlightColor}
+      showDate={showDate}
+      cardLayout={cardLayout}
     />
   );
 }
