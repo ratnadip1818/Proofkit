@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FREE_TESTIMONIAL_LIMIT } from "@/lib/limits";
+import { logFormView } from "@/lib/tracking";
 import CollectionForm from "./collection-form";
 
 interface FormRow {
@@ -55,6 +56,9 @@ export default async function CollectionPage({
   }
 
   if (!form) notFound();
+
+  // Non-blocking privacy-friendly form view tracking
+  logFormView(form.user_id, form.id).catch(() => {});
 
   // Free plan holds 3 testimonials total — show a friendly closed state
   // instead of letting visitors fill a form that will reject them

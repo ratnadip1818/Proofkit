@@ -47,6 +47,27 @@
   // Derive base URL from the script src so the widget works on any domain
   var baseUrl = currentScript.src.replace(/\/widget\.js(\?.*)?$/, "");
 
+  // Lightweight privacy-friendly view tracking
+  try {
+    var ref = document.referrer || window.location.href;
+    var trackPayload = JSON.stringify({
+      type: "widget_view",
+      userId: userId,
+      widgetType: getAttr("type") || getAttr("layout") || "wall",
+      referrer: ref
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(baseUrl + "/api/track", trackPayload);
+    } else if (window.fetch) {
+      fetch(baseUrl + "/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: trackPayload,
+        keepalive: true
+      }).catch(function () {});
+    }
+  } catch (e) {}
+
   // data-theme="auto": match the host page by sampling the effective background color
   function resolveTheme(value) {
     if (value !== "auto") return value;
@@ -72,7 +93,7 @@
   }
 
   var params = [];
-  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding"].forEach(
+  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "backgroundColor", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "font", "fontFamily", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding", "selectMode", "selectedIds", "autoRating"].forEach(
     function (key) {
       var val = getAttr(key);
       if (!val) return;

@@ -93,6 +93,14 @@ export const THEME: Record<WidgetTheme, ThemeColors> = {
   },
 };
 
+export interface CustomColorOverrides {
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
+}
+
 /**
  * Single shared style builder merging base theme, preset overrides, and brand accent.
  */
@@ -100,7 +108,8 @@ export function buildStyle(
   theme: WidgetTheme,
   accent?: string,
   radius: WidgetRadius = "rounded",
-  presetOverrides?: PresetVisualOverrides
+  presetOverrides?: PresetVisualOverrides,
+  customColors?: CustomColorOverrides
 ): WidgetStyle {
   const base = THEME[theme];
 
@@ -122,26 +131,36 @@ export function buildStyle(
     };
   }
 
-  // 3. Apply custom color overrides from searchParams if present
+  // 3. Resolve custom colors from arguments or searchParams
+  let bg = customColors?.backgroundColor;
+  let text = customColors?.textColor;
+  let rating = customColors?.ratingColor;
+  let ratingBorder = customColors?.ratingBorderColor;
+  let highlight = customColors?.highlightColor;
+
   if (typeof window !== "undefined") {
     const params = new URLSearchParams(window.location.search);
-    const textColor = params.get("textColor");
-    const ratingColor = params.get("ratingColor");
-    const ratingBorderColor = params.get("ratingBorderColor");
-    const highlightColor = params.get("highlightColor");
+    if (!bg) bg = params.get("backgroundColor") || params.get("cardBg") || undefined;
+    if (!text) text = params.get("textColor") || undefined;
+    if (!rating) rating = params.get("ratingColor") || undefined;
+    if (!ratingBorder) ratingBorder = params.get("ratingBorderColor") || undefined;
+    if (!highlight) highlight = params.get("highlightColor") || undefined;
+  }
 
-    if (textColor) {
-      colors = { ...colors, text: textColor, name: textColor };
-    }
-    if (ratingColor) {
-      colors = { ...colors, starOn: ratingColor };
-    }
-    if (ratingBorderColor) {
-      colors = { ...colors, ratingBorder: ratingBorderColor };
-    }
-    if (highlightColor) {
-      colors = { ...colors, highlight: highlightColor };
-    }
+  if (bg) {
+    colors = { ...colors, cardBg: bg };
+  }
+  if (text) {
+    colors = { ...colors, text, name: text };
+  }
+  if (rating) {
+    colors = { ...colors, starOn: rating };
+  }
+  if (ratingBorder) {
+    colors = { ...colors, ratingBorder };
+  }
+  if (highlight) {
+    colors = { ...colors, highlight };
   }
 
   return { colors, radius: RADIUS_PX[radius] };

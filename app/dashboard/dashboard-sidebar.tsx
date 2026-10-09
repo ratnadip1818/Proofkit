@@ -51,8 +51,7 @@ function SidebarInner({
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
 
-  // Accordion states
-  const [reviewsOpen, setReviewsOpen] = useState(true);
+  // Accordion state
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Collapsed mode hover state
@@ -84,16 +83,6 @@ function SidebarInner({
   const isReviewsActive = pathname.startsWith("/dashboard/manage");
   const isSettingsActive =
     pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/billing");
-
-  const reviewSubItems = [
-    { label: "All Reviews", href: "/dashboard/manage" },
-    {
-      label: "Pending",
-      href: "/dashboard/manage?status=pending",
-      badge: pendingCount > 0 ? pendingCount : undefined,
-    },
-    { label: "Approved", href: "/dashboard/manage?status=approved" },
-  ];
 
   const settingsSubItems = [
     { label: "Workspace Settings", href: "/dashboard/settings" },
@@ -259,18 +248,18 @@ function SidebarInner({
             )}
           </div>
 
-          {/* Reviews Accordion with Tree Connector Lines (Matches Income item in reference) */}
+          {/* Direct Reviews Link (Clean, no branches) */}
           <div
             className="relative"
             onMouseEnter={() => isCollapsed && handleMouseEnter("reviews")}
             onMouseLeave={() => isCollapsed && handleMouseLeave()}
           >
-            <button
-              type="button"
-              onClick={() => !isCollapsed && setReviewsOpen(!reviewsOpen)}
-              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
+            <Link
+              href="/dashboard/manage"
+              onClick={onItemClick}
+              className={`flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors ${
                 isReviewsActive
-                  ? "text-gray-900 font-semibold"
+                  ? "bg-gray-100 text-gray-900 font-semibold"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
               } ${isCollapsed ? "justify-center px-0" : ""}`}
             >
@@ -283,84 +272,16 @@ function SidebarInner({
                 {!isCollapsed && <span>Reviews</span>}
               </div>
 
-              {!isCollapsed && (
-                <div className="flex items-center gap-1.5">
-                  {pendingCount > 0 && (
-                    <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
-                      {pendingCount}
-                    </span>
-                  )}
-                  <ChevronDown
-                    size={14}
-                    className={`text-gray-400 transition-transform duration-200 ${
-                      reviewsOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </div>
+              {!isCollapsed && pendingCount > 0 && (
+                <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
+                  {pendingCount}
+                </span>
               )}
-            </button>
+            </Link>
 
-            {/* Tree Branch Submenu (Expanded Mode) */}
-            {!isCollapsed && reviewsOpen && (
-              <div className="relative ml-4 pl-5 border-l border-gray-200 space-y-1 my-1">
-                {reviewSubItems.map((sub) => {
-                  const isSubActive =
-                    pathname === sub.href ||
-                    (sub.href.includes("?") && pathname + (typeof window !== "undefined" ? window.location.search : "") === sub.href);
-
-                  return (
-                    <Link
-                      key={sub.label}
-                      href={sub.href}
-                      onClick={onItemClick}
-                      className={`relative flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                        isSubActive
-                          ? "bg-gray-100 text-gray-900 font-semibold"
-                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
-                    >
-                      {/* Tree Branch Tick */}
-                      <span className="absolute -left-5 top-1/2 w-3.5 h-[1px] bg-gray-200 -translate-y-1/2" />
-                      <span>{sub.label}</span>
-                      {sub.badge !== undefined && (
-                        <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
-                          {sub.badge}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Flyout Submenu Popover (Collapsed Mode) */}
             {isCollapsed && hoveredMenu === "reviews" && (
-              <div
-                className="absolute left-full ml-3 top-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 min-w-[150px] space-y-1 animate-fade-in"
-                onMouseEnter={() => handleMouseEnter("reviews")}
-                onMouseLeave={handleMouseLeave}
-              >
-                <div className="text-[10px] font-semibold text-gray-400 px-2.5 py-1 uppercase tracking-wider border-b border-gray-100">
-                  Reviews
-                </div>
-                {reviewSubItems.map((sub) => (
-                  <Link
-                    key={sub.label}
-                    href={sub.href}
-                    onClick={() => {
-                      setHoveredMenu(null);
-                      onItemClick();
-                    }}
-                    className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-                  >
-                    <span>{sub.label}</span>
-                    {sub.badge !== undefined && (
-                      <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
-                        {sub.badge}
-                      </span>
-                    )}
-                  </Link>
-                ))}
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                Reviews
               </div>
             )}
           </div>

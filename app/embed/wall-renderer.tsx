@@ -68,7 +68,13 @@ export interface WallRendererProps {
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
   showPhotos?: boolean;
+  useGravatar?: boolean;
   fallbackAvatar?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
   chatCustomerPrompt?: string;
   chatFounderReply?: string;
 }
@@ -92,7 +98,13 @@ export default function WallRenderer({
   radius = "rounded",
   preset = "base",
   showPhotos = true,
+  useGravatar = true,
   fallbackAvatar = "Initials",
+  backgroundColor,
+  textColor,
+  ratingColor,
+  ratingBorderColor,
+  highlightColor,
   chatCustomerPrompt,
   chatFounderReply,
 }: WallRendererProps) {
@@ -111,6 +123,14 @@ export default function WallRenderer({
         radius={radius}
         layout={singleLayout}
         preset={presetDef.id}
+        showPhotos={showPhotos}
+        useGravatar={useGravatar}
+        fallbackAvatar={fallbackAvatar}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
       />
     );
   }
@@ -125,6 +145,14 @@ export default function WallRenderer({
         accent={accent}
         radius={radius}
         preset={presetDef.id}
+        showPhotos={showPhotos}
+        useGravatar={useGravatar}
+        fallbackAvatar={fallbackAvatar}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
       />
     );
   }
@@ -139,6 +167,14 @@ export default function WallRenderer({
         accent={accent}
         radius={radius}
         preset={presetDef.id}
+        showPhotos={showPhotos}
+        useGravatar={useGravatar}
+        fallbackAvatar={fallbackAvatar}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
       />
     );
   }
@@ -212,7 +248,13 @@ export default function WallRenderer({
         radius={radius}
         preset={presetDef.id}
         showPhotos={showPhotos}
+        useGravatar={useGravatar}
         fallbackAvatar={fallbackAvatar}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
       />
     );
   }
@@ -229,7 +271,13 @@ export default function WallRenderer({
       radius={radius}
       preset={presetDef.id}
       showPhotos={showPhotos}
+      useGravatar={useGravatar}
       fallbackAvatar={fallbackAvatar}
+      backgroundColor={backgroundColor}
+      textColor={textColor}
+      ratingColor={ratingColor}
+      ratingBorderColor={ratingBorderColor}
+      highlightColor={highlightColor}
     />
   );
 }

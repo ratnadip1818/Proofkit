@@ -7,6 +7,8 @@ export interface Testimonial {
   rating: number | null;
   created_at: string;
   avatar_url?: string | null;
+  author_email?: string | null;
+  email?: string | null;
   tags?: string[] | null;
   source?: string | null;
 }

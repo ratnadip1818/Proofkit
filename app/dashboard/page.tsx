@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { checkLimits } from "@/lib/limits";
+import { getWorkspaceStats } from "@/lib/tracking";
 import HomeWorkspaceClient from "./home-workspace-client";
 
 export const metadata = {
-  title: "Overview — Blovi",
-  description: "View your campaign performance, setup checklist, and moderate testimonials in real-time.",
+  title: "Dashboard — Blovi",
+  description: "View incoming proof, take immediate moderation action, and monitor live website widgets.",
 };
 
 const APP_URL =
@@ -18,40 +20,46 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
-  // Fetch form configuration and testimonials in parallel
-  const [{ data: form }, { data: testimonials }] = await Promise.all([
+  // Fetch form configuration, testimonials, profile, limits, and tracking in parallel
+  const [
+    { data: form },
+    { data: testimonials },
+    { data: profileData },
+    limits,
+    trackingStats,
+  ] = await Promise.all([
     supabase
       .from("forms")
-      .select("id, slug, custom_domain")
+      .select("id, slug, custom_domain, headline")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle(),
     supabase
       .from("testimonials")
-      .select("id, status, rating, display_body, author_name, author_role, avatar_url, created_at")
-      .eq("user_id", user.id),
+      .select(
+        "id, status, rating, display_body, body_original, author_name, author_role, author_company, avatar_url, created_at, tags, source"
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select("full_name, plan_tier, is_lifetime")
+      .eq("id", user.id)
+      .maybeSingle(),
+    checkLimits(user.id),
+    getWorkspaceStats(user.id),
   ]);
 
-  // Fetch user profile information
-  let profile: { full_name?: string | null } | null = null;
-  const { data: profileData } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profileData) {
-    profile = profileData;
-  }
-
   return (
-    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+    <div className="w-full">
       <HomeWorkspaceClient
         user={{ id: user.id, email: user.email }}
         form={form}
         testimonials={testimonials ?? []}
-        profile={profile}
+        profile={profileData}
+        limits={limits}
+        trackingStats={trackingStats}
         appUrl={APP_URL}
       />
     </div>

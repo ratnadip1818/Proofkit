@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logWidgetView } from "@/lib/tracking";
 import { type Testimonial } from "../constants";
 import WidgetClientWrapper from "../widget-client-wrapper";
 
@@ -27,6 +29,14 @@ export default async function EmbedPage({
 }) {
   const { widgetId } = await params;
   const sParams = await searchParams;
+
+  try {
+    const headersList = await headers();
+    const referer = headersList.get("referer");
+    const widgetTypeParam = typeof sParams.type === "string" ? sParams.type : typeof sParams.layout === "string" ? sParams.layout : "wall";
+    const safeWidgetType = (["wall", "carousel", "marquee", "single"].includes(widgetTypeParam) ? widgetTypeParam : "wall") as "wall" | "carousel" | "marquee" | "single";
+    logWidgetView(widgetId, safeWidgetType, referer).catch(() => {});
+  } catch {}
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blovi.space";
 
@@ -65,7 +75,8 @@ export default async function EmbedPage({
   const isLifetime = profile?.is_lifetime ?? false;
   const approved = testimonials as Testimonial[];
 
-  const customFont = form?.custom_font || "Inter";
+  const fontParam = typeof sParams.font === "string" ? sParams.font : typeof sParams.fontFamily === "string" ? sParams.fontFamily : undefined;
+  const customFont = fontParam || form?.custom_font || "Plus Jakarta Sans";
   const customCss = form?.custom_css;
 
   // Calculate review average rating and count for SEO Rich Schema

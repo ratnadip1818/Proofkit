@@ -24,6 +24,14 @@ export interface CarouselLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  showPhotos?: boolean;
+  useGravatar?: boolean;
+  fallbackAvatar?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
 }
 
 export function CarouselLayout({
@@ -34,9 +42,29 @@ export function CarouselLayout({
   accent,
   radius = "rounded",
   preset = "base",
+  showPhotos = true,
+  useGravatar = true,
+  fallbackAvatar = "Initials",
+  backgroundColor,
+  textColor,
+  ratingColor,
+  ratingBorderColor,
+  highlightColor,
 }: CarouselLayoutProps) {
   const presetDef = getPresetDefinition(preset);
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
+  const { colors, radius: radiusPx } = buildStyle(
+    theme,
+    accent,
+    radius,
+    presetDef.preset.overrides,
+    {
+      backgroundColor,
+      textColor,
+      ratingColor,
+      ratingBorderColor,
+      highlightColor,
+    }
+  );
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
@@ -149,7 +177,17 @@ export function CarouselLayout({
                       </svg>
                     </span>
                     <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}>
-                      <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} />
+                      <Avatar
+                        name={t.author_name}
+                        avatarUrl={t.avatar_url}
+                        email={t.author_email || (t as { email?: string }).email}
+                        colors={colors}
+                        size={36}
+                        source={t.source}
+                        showPhotos={showPhotos}
+                        useGravatar={useGravatar}
+                        fallbackAvatar={fallbackAvatar}
+                      />
                     </div>
                     {showRatings && t.rating !== null && (
                       <div style={{ display: "flex", justifyContent: "center", marginBottom: "4px" }}>

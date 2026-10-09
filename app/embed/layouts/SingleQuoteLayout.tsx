@@ -23,6 +23,14 @@ export interface SingleQuoteLayoutProps {
   radius?: WidgetRadius;
   layout?: SingleQuoteLayoutType;
   preset?: WidgetPresetId;
+  showPhotos?: boolean;
+  useGravatar?: boolean;
+  fallbackAvatar?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
 }
 
 export function SingleQuoteLayout({
@@ -34,9 +42,29 @@ export function SingleQuoteLayout({
   radius = "rounded",
   layout = "card",
   preset = "base",
+  showPhotos = true,
+  useGravatar = true,
+  fallbackAvatar = "Initials",
+  backgroundColor,
+  textColor,
+  ratingColor,
+  ratingBorderColor,
+  highlightColor,
 }: SingleQuoteLayoutProps) {
   const presetDef = getPresetDefinition(preset);
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
+  const { colors, radius: radiusPx } = buildStyle(
+    theme,
+    accent,
+    radius,
+    presetDef.preset.overrides,
+    {
+      backgroundColor,
+      textColor,
+      ratingColor,
+      ratingBorderColor,
+      highlightColor,
+    }
+  );
 
   if (!testimonial) {
     return (
@@ -106,7 +134,17 @@ export function SingleQuoteLayout({
           )}
           <div style={{ width: "48px", height: "1px", background: colors.cardBorder, margin: "0 auto 20px auto" }} />
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-            <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={44} source={testimonial.source} />
+            <Avatar
+              name={testimonial.author_name}
+              avatarUrl={testimonial.avatar_url}
+              email={testimonial.author_email || (testimonial as { email?: string }).email}
+              colors={colors}
+              size={44}
+              source={testimonial.source}
+              showPhotos={showPhotos}
+              useGravatar={useGravatar}
+              fallbackAvatar={fallbackAvatar}
+            />
             <div>
               <p
                 style={{
@@ -200,7 +238,17 @@ export function SingleQuoteLayout({
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginTop: "8px" }}>
-          <Avatar name={testimonial.author_name} avatarUrl={testimonial.avatar_url} colors={colors} size={38} source={testimonial.source} />
+          <Avatar
+            name={testimonial.author_name}
+            avatarUrl={testimonial.avatar_url}
+            email={testimonial.author_email || (testimonial as { email?: string }).email}
+            colors={colors}
+            size={38}
+            source={testimonial.source}
+            showPhotos={showPhotos}
+            useGravatar={useGravatar}
+            fallbackAvatar={fallbackAvatar}
+          />
           <div style={{ textAlign: "left" }}>
             <p
               style={{

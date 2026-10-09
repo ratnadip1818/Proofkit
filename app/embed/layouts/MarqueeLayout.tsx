@@ -22,6 +22,14 @@ export interface MarqueeLayoutProps {
   accent?: string;
   radius?: WidgetRadius;
   preset?: WidgetPresetId;
+  showPhotos?: boolean;
+  useGravatar?: boolean;
+  fallbackAvatar?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
 }
 
 export function MarqueeLayout({
@@ -32,9 +40,29 @@ export function MarqueeLayout({
   accent,
   radius = "rounded",
   preset = "base",
+  showPhotos = true,
+  useGravatar = true,
+  fallbackAvatar = "Initials",
+  backgroundColor,
+  textColor,
+  ratingColor,
+  ratingBorderColor,
+  highlightColor,
 }: MarqueeLayoutProps) {
   const presetDef = getPresetDefinition(preset);
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
+  const { colors, radius: radiusPx } = buildStyle(
+    theme,
+    accent,
+    radius,
+    presetDef.preset.overrides,
+    {
+      backgroundColor,
+      textColor,
+      ratingColor,
+      ratingBorderColor,
+      highlightColor,
+    }
+  );
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
   useEffect(() => {
@@ -137,6 +165,9 @@ export function MarqueeLayout({
                 colors={colors}
                 radius={radiusPx}
                 index={i}
+                showPhotos={showPhotos}
+                useGravatar={useGravatar}
+                fallbackAvatar={fallbackAvatar}
                 onReadMore={setActiveModalTestimonial}
               />
             </div>

@@ -16,6 +16,7 @@ export function TestimonialCard({
   onReadMore,
   surface,
   showPhotos = true,
+  useGravatar = true,
   fallbackAvatar = "Initials",
   onExpandChange,
 }: {
@@ -29,6 +30,7 @@ export function TestimonialCard({
   /** Optional wall-only surface tint. Other layouts retain the selected theme surface. */
   surface?: string;
   showPhotos?: boolean;
+  useGravatar?: boolean;
   fallbackAvatar?: string;
   onExpandChange?: (expanded: boolean) => void;
 }) {
@@ -47,8 +49,8 @@ export function TestimonialCard({
 
   const cardStyle: React.CSSProperties = {
     position: "relative",
-    background: isLightSurface ? "#ffffff" : colors.cardBg,
-    border: isLightSurface ? "1px solid #E5E7EB" : `1px solid ${colors.cardBorder}`,
+    background: colors.cardBg || (isLightSurface ? "#ffffff" : colors.cardBg),
+    border: `1px solid ${colors.cardBorder || (isLightSurface ? "#E5E7EB" : "#374151")}`,
     borderRadius: `${Math.max(radius, 12)}px`,
     padding: "24px",
     display: "flex",
@@ -59,7 +61,7 @@ export function TestimonialCard({
       ? "0 1px 3px 0 rgba(0,0,0,0.04), 0 4px 12px 0 rgba(0,0,0,0.02)"
       : SHADOWS.cardDark,
     boxSizing: "border-box",
-    transition: "box-shadow 0.25s ease, border-color 0.25s ease",
+    transition: "box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease",
   };
 
   return (
@@ -103,7 +105,7 @@ export function TestimonialCard({
               fontWeight: 600,
               color: colors.accent || "#2563EB",
               cursor: "pointer",
-              fontFamily: FONT,
+              fontFamily: "inherit",
               display: "inline-flex",
               alignItems: "center",
               gap: "3px",
@@ -119,7 +121,18 @@ export function TestimonialCard({
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "auto" }}>
-        <Avatar name={t.author_name} avatarUrl={t.avatar_url} colors={colors} size={36} source={t.source} tags={t.tags} showPhotos={showPhotos} fallbackAvatar={fallbackAvatar} />
+        <Avatar
+          name={t.author_name}
+          avatarUrl={t.avatar_url}
+          email={t.author_email || (t as { email?: string }).email}
+          colors={colors}
+          size={36}
+          source={t.source}
+          tags={t.tags}
+          showPhotos={showPhotos}
+          useGravatar={useGravatar}
+          fallbackAvatar={fallbackAvatar}
+        />
         <div style={{ minWidth: 0 }}>
           <div
             style={{

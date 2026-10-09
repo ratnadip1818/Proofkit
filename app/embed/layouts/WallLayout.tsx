@@ -26,7 +26,13 @@ export interface WallLayoutProps {
   heading?: string;
   subheading?: string;
   showPhotos?: boolean;
+  useGravatar?: boolean;
   fallbackAvatar?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
 }
 
 export function WallLayout({
@@ -42,10 +48,28 @@ export function WallLayout({
   heading = "Loved by the best teams",
   subheading = "Software companies and agencies rely on Blovi to turn happy customers into their best growth engine.",
   showPhotos = true,
+  useGravatar = true,
   fallbackAvatar = "Initials",
+  backgroundColor,
+  textColor,
+  ratingColor,
+  ratingBorderColor,
+  highlightColor,
 }: WallLayoutProps) {
   const presetDef = getPresetDefinition(preset);
-  const { colors, radius: radiusPx } = buildStyle(theme, accent, radius, presetDef.preset.overrides);
+  const { colors, radius: radiusPx } = buildStyle(
+    theme,
+    accent,
+    radius,
+    presetDef.preset.overrides,
+    {
+      backgroundColor,
+      textColor,
+      ratingColor,
+      ratingBorderColor,
+      highlightColor,
+    }
+  );
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [numColumns, setNumColumns] = useState<number>(3);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -231,6 +255,7 @@ export function WallLayout({
                     layout={layout}
                     index={itemIdx}
                     showPhotos={showPhotos}
+                    useGravatar={useGravatar}
                     fallbackAvatar={fallbackAvatar}
                     onExpandChange={() => {
                       if (typeof window !== "undefined") {

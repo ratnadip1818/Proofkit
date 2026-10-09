@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import type { ThemeColors } from "../theme/types";
 import { BRAND_COLORS } from "../theme/brand";
+import { getGravatarUrl } from "../utils/gravatar";
 
 function getInitials(name: string) {
   const parts = (name || "Anonymous").trim().split(/\s+/);
@@ -12,26 +14,71 @@ function getInitials(name: string) {
 export function Avatar({
   name,
   avatarUrl,
+  email,
   colors,
   size = 40,
   source,
   tags,
   showPhotos = true,
+  useGravatar = true,
   fallbackAvatar = "Initials",
 }: {
   name: string;
   avatarUrl?: string | null;
+  email?: string | null;
   colors: ThemeColors;
   size?: number;
   source?: string | null;
   tags?: string[] | null;
   showPhotos?: boolean;
+  useGravatar?: boolean;
   fallbackAvatar?: string;
 }) {
+  const [imgError, setImgError] = useState(false);
+  const [gravatarLoadedUrl, setGravatarLoadedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setImgError(false);
+    setGravatarLoadedUrl(null);
+
+    // If direct avatar is provided, no need for Gravatar
+    if (avatarUrl) return;
+
+    // Only query Gravatar if explicitly enabled and an email exists
+    if (!useGravatar) return;
+
+    const gravatarTarget = email ? email.trim() : null;
+    if (!gravatarTarget) return;
+
+    if (typeof window === "undefined") return;
+
+    let isMounted = true;
+    const testImg = new window.Image();
+    testImg.onload = () => {
+      if (isMounted) setGravatarLoadedUrl(testImg.src);
+    };
+    testImg.onerror = () => {
+      if (isMounted) setGravatarLoadedUrl(null);
+    };
+    testImg.src = getGravatarUrl(gravatarTarget, size * 2);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [avatarUrl, email, useGravatar, size]);
+
   if (!showPhotos) return null;
 
+  const isDark =
+    colors.cardBg === "#1F1F28" ||
+    colors.cardBg === "#141419" ||
+    colors.cardBg === "#121212" ||
+    colors.cardBg === "#111827" ||
+    colors.pageBg === "#0E0E12";
+
   const renderAvatarContent = () => {
-    if (avatarUrl) {
+    // 1. Direct author photo if provided
+    if (avatarUrl && !imgError) {
       let optimizedUrl = avatarUrl;
       if (avatarUrl.includes("/storage/v1/object/public/avatars/")) {
         const doubleSize = size * 2;
@@ -41,6 +88,28 @@ export function Avatar({
       return (
         <img
           src={optimizedUrl}
+          alt={name}
+          width={size}
+          height={size}
+          loading="lazy"
+          onError={() => setImgError(true)}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: "50%",
+            objectFit: "cover",
+            flexShrink: 0,
+            border: `1px solid ${colors.cardBorder}`,
+          }}
+        />
+      );
+    }
+
+    // 2. Verified Gravatar photo if resolved
+    if (gravatarLoadedUrl) {
+      return (
+        <img
+          src={gravatarLoadedUrl}
           alt={name}
           width={size}
           height={size}
@@ -57,10 +126,10 @@ export function Avatar({
       );
     }
 
+    // 3. Fallbacks
     if (fallbackAvatar === "None") return null;
 
-    if (fallbackAvatar === "Initials" || fallbackAvatar === "Placeholder") {
-      const isDark = colors.cardBg === "#1F1F28" || colors.cardBg === "#141419" || colors.cardBg === "#121212" || colors.pageBg === "#0E0E12";
+    if (fallbackAvatar === "Placeholder") {
       return (
         <div
           style={{
@@ -68,44 +137,54 @@ export function Avatar({
             height: size,
             borderRadius: "50%",
             background: isDark ? "rgba(255, 255, 255, 0.08)" : "#F3F4F6",
-            color: isDark ? "#E5E7EB" : "#374151",
+            color: isDark ? "#9CA3AF" : "#6B7280",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            fontWeight: 700,
-            fontSize: `${Math.round(size * 0.4)}px`,
             border: isDark ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid #E5E7EB",
             overflow: "hidden",
             userSelect: "none",
           }}
         >
-          {getInitials(name)}
+          <svg
+            width={Math.round(size * 0.58)}
+            height={Math.round(size * 0.58)}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
         </div>
       );
     }
 
+    // Default: "Initials"
     return (
       <div
         style={{
           width: size,
           height: size,
           borderRadius: "50%",
-          background: colors.avatarBg,
-          color: colors.avatarText,
+          background: isDark ? "rgba(255, 255, 255, 0.08)" : "#F3F4F6",
+          color: isDark ? "#E5E7EB" : "#374151",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          border: `1px solid ${colors.cardBorder}`,
+          fontWeight: 700,
+          fontSize: `${Math.round(size * 0.4)}px`,
+          border: isDark ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid #E5E7EB",
           overflow: "hidden",
+          userSelect: "none",
         }}
       >
-        <svg width={size * 0.65} height={size * 0.65} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="22" cy="22" r="22" fill="#E2E8F0" />
-          <circle cx="22" cy="16" r="7" fill="#94A3B8" />
-          <path d="M9 36C9 28.8203 14.8203 23 22 23C29.1797 23 35 28.8203 35 36V40H9V36Z" fill="#94A3B8" />
-        </svg>
+        {getInitials(name)}
       </div>
     );
   };

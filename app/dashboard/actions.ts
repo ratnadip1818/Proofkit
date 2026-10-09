@@ -349,6 +349,9 @@ export interface WidgetConfigInput {
   fallback_avatar?: string;
   font_family?: string;
   show_branding?: boolean;
+  select_mode?: "auto" | "manual";
+  selected_testimonial_ids?: string[];
+  auto_rating_filter?: string;
 }
 
 export async function saveWidgetConfig(

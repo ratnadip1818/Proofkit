@@ -21,9 +21,19 @@ interface WidgetConfig {
   singleLayout: "card" | "minimal";
   showBadge: boolean;
   showPhotos: boolean;
+  useGravatar: boolean;
   fallbackAvatar: string;
+  fontFamily: string;
+  backgroundColor: string | undefined;
+  textColor: string | undefined;
+  ratingColor: string | undefined;
+  ratingBorderColor: string | undefined;
+  highlightColor: string | undefined;
   chatCustomerPrompt?: string;
   chatFounderReply?: string;
+  selectMode: "auto" | "manual";
+  selectedIds?: string[];
+  autoRating: string;
 }
 
 export default function WidgetClientWrapper({
@@ -43,7 +53,7 @@ export default function WidgetClientWrapper({
     }
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
-      return sp.get(key) || undefined;
+      return sp.has(key) ? (sp.get(key) ?? "") : undefined;
     }
     return undefined;
   };
@@ -80,10 +90,25 @@ export default function WidgetClientWrapper({
     const singleLayout = getParam("layout") === "minimal" ? "minimal" : "card";
     const showBadge = !isLifetime || getParam("badge") !== "false";
     const showPhotos = getParam("showPhotos") !== "false";
+    const useGravatar = getParam("useGravatar") !== "false";
     const fallbackAvatar = getParam("fallbackAvatar") || "Initials";
+    const fontFamily = getParam("font") || getParam("fontFamily") || "Plus Jakarta Sans";
+    const backgroundColor = getParam("backgroundColor") || getParam("cardBg") || undefined;
+    const textColor = getParam("textColor") || undefined;
+    const ratingColor = getParam("ratingColor") || undefined;
+    const ratingBorderColor = getParam("ratingBorderColor") || undefined;
+    const highlightColor = getParam("highlightColor") || undefined;
 
     const chatCustomerPrompt = getParam("chatCustomerPrompt") || undefined;
     const chatFounderReply = getParam("chatFounderReply") || undefined;
+
+    const rawSelectMode = getParam("selectMode") || getParam("select_mode");
+    const selectMode: "auto" | "manual" = rawSelectMode === "auto" ? "auto" : "manual";
+    const rawSelectedIds = getParam("selectedIds") || getParam("selected_ids");
+    const selectedIds = rawSelectedIds !== undefined
+      ? (rawSelectedIds.trim() === "" ? [] : rawSelectedIds.split(",").map((s) => s.trim()).filter(Boolean))
+      : undefined;
+    const autoRating = getParam("autoRating") || getParam("auto_rating") || "all";
 
     return {
       isDemo,
@@ -98,9 +123,19 @@ export default function WidgetClientWrapper({
       singleLayout,
       showBadge,
       showPhotos,
+      useGravatar,
       fallbackAvatar,
+      fontFamily,
+      backgroundColor,
+      textColor,
+      ratingColor,
+      ratingBorderColor,
+      highlightColor,
       chatCustomerPrompt,
       chatFounderReply,
+      selectMode,
+      selectedIds,
+      autoRating,
     };
   });
 
@@ -131,8 +166,29 @@ export default function WidgetClientWrapper({
       const showRatings = searchParams.get("ratings") !== "false";
       const accentHex = (searchParams.get("accent") ?? "").replace(/^#/, "");
       const accent = /^[0-9a-fA-F]{6}$/.test(accentHex) ? `#${accentHex}` : undefined;
+      const showPhotos = searchParams.get("showPhotos") !== "false";
+      const useGravatar = searchParams.get("useGravatar") !== "false";
+      const fallbackAvatar = searchParams.get("fallbackAvatar") || "Initials";
+      const fontFamily = searchParams.get("font") || searchParams.get("fontFamily") || "Plus Jakarta Sans";
+      const backgroundColor = searchParams.get("backgroundColor") || searchParams.get("cardBg") || undefined;
+      const textColor = searchParams.get("textColor") || undefined;
+      const ratingColor = searchParams.get("ratingColor") || undefined;
+      const ratingBorderColor = searchParams.get("ratingBorderColor") || undefined;
+      const highlightColor = searchParams.get("highlightColor") || undefined;
       const chatCustomerPrompt = searchParams.get("chatCustomerPrompt") || undefined;
       const chatFounderReply = searchParams.get("chatFounderReply") || undefined;
+
+      const rawSelectMode = searchParams.get("selectMode") || searchParams.get("select_mode");
+      const selectMode: "auto" | "manual" = rawSelectMode === "auto" ? "auto" : "manual";
+      const rawSelectedIds = searchParams.has("selectedIds")
+        ? (searchParams.get("selectedIds") ?? "")
+        : searchParams.has("selected_ids")
+          ? (searchParams.get("selected_ids") ?? "")
+          : undefined;
+      const selectedIds = rawSelectedIds !== undefined
+        ? (rawSelectedIds.trim() === "" ? [] : rawSelectedIds.split(",").map((s) => s.trim()).filter(Boolean))
+        : undefined;
+      const autoRating = searchParams.get("autoRating") || searchParams.get("auto_rating") || "all";
 
       setConfig((prev) => ({
         ...prev,
@@ -141,8 +197,20 @@ export default function WidgetClientWrapper({
         theme,
         showRatings,
         accent,
+        showPhotos,
+        useGravatar,
+        fallbackAvatar,
+        fontFamily,
+        backgroundColor,
+        textColor,
+        ratingColor,
+        ratingBorderColor,
+        highlightColor,
         chatCustomerPrompt,
         chatFounderReply,
+        selectMode,
+        selectedIds,
+        autoRating,
       }));
     }
 
@@ -180,24 +248,79 @@ export default function WidgetClientWrapper({
     singleLayout,
     showBadge,
     showPhotos,
+    useGravatar,
     fallbackAvatar,
+    fontFamily,
+    backgroundColor,
+    textColor,
+    ratingColor,
+    ratingBorderColor,
+    highlightColor,
     chatCustomerPrompt,
     chatFounderReply,
+    selectMode,
+    selectedIds,
+    autoRating,
   } = config;
 
   // Use requested layout type (Spotlight, Wall, etc.)
   const type: WidgetType = requestedType;
-  const capped = !isDemo && !isLifetime && testimonials.length > FREE_WIDGET_TESTIMONIAL_LIMIT;
-  const list = isDemo
+
+  // 1. Initial testimonial pool (fall back to SAMPLE_TESTIMONIALS if demo or empty)
+  const basePool: Testimonial[] = (isDemo || testimonials.length === 0)
     ? SAMPLE_TESTIMONIALS
-    : isLifetime
-      ? testimonials
-      : testimonials.slice(0, FREE_WIDGET_TESTIMONIAL_LIMIT);
+    : testimonials;
+
+  // 2. Filter & Order based on selection mode
+  let filteredList: Testimonial[] = basePool;
+
+  if (selectMode === "manual" && selectedIds !== undefined) {
+    if (selectedIds.length === 0) {
+      filteredList = [];
+    } else {
+      const idMap = new Map<string, Testimonial>();
+      basePool.forEach((t) => {
+        if (t.id) idMap.set(t.id, t);
+      });
+      const ordered: Testimonial[] = [];
+      for (const id of selectedIds) {
+        const item = idMap.get(id);
+        if (item) ordered.push(item);
+      }
+      filteredList = ordered;
+    }
+  } else if (selectMode === "auto") {
+    if (autoRating === "5") {
+      filteredList = basePool.filter((t) => (t.rating || 0) === 5);
+    } else if (autoRating === "4") {
+      filteredList = basePool.filter((t) => (t.rating || 0) >= 4);
+    } else if (autoRating === "3") {
+      filteredList = basePool.filter((t) => (t.rating || 0) >= 3);
+    }
+    // "all" keeps all basePool testimonials
+  }
+
+  const capped = !isDemo && !isLifetime && filteredList.length > FREE_WIDGET_TESTIMONIAL_LIMIT;
+  const list = isLifetime
+    ? filteredList
+    : filteredList.slice(0, FREE_WIDGET_TESTIMONIAL_LIMIT);
 
   const layout = "grid";
 
   return (
-    <div id="proofkit-widget-wrapper" style={{ width: "100%", overflow: "hidden" }}>
+    <div
+      id="proofkit-widget-wrapper"
+      style={{
+        width: "100%",
+        overflow: "hidden",
+        fontFamily: `'${fontFamily}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
+      }}
+    >
+      <style>{`
+        #proofkit-widget-wrapper, #proofkit-widget-wrapper * {
+          font-family: '${fontFamily}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+      `}</style>
       <WidgetRenderer
         type={type}
         preset={preset}
@@ -212,7 +335,13 @@ export default function WidgetClientWrapper({
         accent={accent}
         radius={radius}
         showPhotos={showPhotos}
+        useGravatar={useGravatar}
         fallbackAvatar={fallbackAvatar}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
         chatCustomerPrompt={chatCustomerPrompt}
         chatFounderReply={chatFounderReply}
       />

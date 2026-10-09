@@ -1624,7 +1624,7 @@ export default function CollectWorkspaceClient({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            scrollToPage(collectRating ? "rating" : "review");
+                            scrollToPage("rating");
                           }}
                           className="blovi-btn"
                         >
@@ -2148,21 +2148,13 @@ export default function CollectWorkspaceClient({
                         <label className="text-xs font-medium text-gray-600 block mb-1.5">
                           Subtitle
                         </label>
-                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-colors">
-                          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-gray-100 text-gray-400 bg-gray-50/60 select-none">
-                            <span className="font-bold text-xs text-gray-600 hover:text-gray-900 cursor-pointer">B</span>
-                            <span className="italic font-serif text-xs text-gray-600 hover:text-gray-900 cursor-pointer">I</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">⋮≡</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">1.≡</span>
-                          </div>
-                          <textarea
-                            rows={3}
-                            value={welcomeSubtitle}
-                            onChange={(e) => setWelcomeSubtitle(e.target.value)}
-                            placeholder="Your experience can help someone else find the right fit."
-                            className="w-full text-xs px-3.5 py-2.5 text-gray-900 focus:outline-none resize-none leading-relaxed border-none"
-                          />
-                        </div>
+                        <textarea
+                          rows={3}
+                          value={welcomeSubtitle}
+                          onChange={(e) => setWelcomeSubtitle(e.target.value)}
+                          placeholder="Your experience can help someone else find the right fit."
+                          className={`${inputClass} resize-none leading-relaxed`}
+                        />
                       </div>
 
                       <div>
@@ -2226,21 +2218,13 @@ export default function CollectWorkspaceClient({
                         <label className="text-xs font-medium text-gray-600 block mb-1.5">
                           Subtitle
                         </label>
-                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-colors">
-                          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-gray-100 text-gray-400 bg-gray-50/60 select-none">
-                            <span className="font-bold text-xs text-gray-600 hover:text-gray-900 cursor-pointer">B</span>
-                            <span className="italic font-serif text-xs text-gray-600 hover:text-gray-900 cursor-pointer">I</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">⋮≡</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">1.≡</span>
-                          </div>
-                          <textarea
-                            rows={3}
-                            value={ratingSubtitle}
-                            onChange={(e) => setRatingSubtitle(e.target.value)}
-                            placeholder="Your honest rating means a lot to us."
-                            className="w-full text-xs px-3.5 py-2.5 text-gray-900 focus:outline-none resize-none leading-relaxed border-none"
-                          />
-                        </div>
+                        <textarea
+                          rows={3}
+                          value={ratingSubtitle}
+                          onChange={(e) => setRatingSubtitle(e.target.value)}
+                          placeholder="Your honest rating means a lot to us."
+                          className={`${inputClass} resize-none leading-relaxed`}
+                        />
                       </div>
 
                       <div>
@@ -2253,17 +2237,6 @@ export default function CollectWorkspaceClient({
                           onChange={(e) => setRatingCta(e.target.value)}
                           className={inputClass}
                           placeholder="Continue →"
-                        />
-                      </div>
-
-                      <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-700">
-                          Enable star rating step
-                        </span>
-                        <Switch
-                          checked={collectRating}
-                          onChange={setCollectRating}
-                          aria-label="Toggle star rating"
                         />
                       </div>
                     </div>
@@ -2289,21 +2262,13 @@ export default function CollectWorkspaceClient({
                         <label className="text-xs font-medium text-gray-600 block mb-1.5">
                           Subtitle
                         </label>
-                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-colors">
-                          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-gray-100 text-gray-400 bg-gray-50/60 select-none">
-                            <span className="font-bold text-xs text-gray-600 hover:text-gray-900 cursor-pointer">B</span>
-                            <span className="italic font-serif text-xs text-gray-600 hover:text-gray-900 cursor-pointer">I</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">⋮≡</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">1.≡</span>
-                          </div>
-                          <textarea
-                            rows={3}
-                            value={prompt}
-                            onChange={(e) => setPrompt(e.target.value)}
-                            placeholder="A sentence or two is plenty. Your words help others decide, and they genuinely make our day."
-                            className="w-full text-xs px-3.5 py-2.5 text-gray-900 focus:outline-none resize-none leading-relaxed border-none"
-                          />
-                        </div>
+                        <textarea
+                          rows={3}
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                          placeholder="A sentence or two is plenty. Your words help others decide, and they genuinely make our day."
+                          className={`${inputClass} resize-none leading-relaxed`}
+                        />
                       </div>
 
                       <div>
@@ -2378,21 +2343,13 @@ export default function CollectWorkspaceClient({
                         <label className="text-xs font-medium text-gray-600 block mb-1.5">
                           Thank you message
                         </label>
-                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-colors">
-                          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-gray-100 text-gray-400 bg-gray-50/60 select-none">
-                            <span className="font-bold text-xs text-gray-600 hover:text-gray-900 cursor-pointer">B</span>
-                            <span className="italic font-serif text-xs text-gray-600 hover:text-gray-900 cursor-pointer">I</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">⋮≡</span>
-                            <span className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer">1.≡</span>
-                          </div>
-                          <textarea
-                            rows={3}
-                            value={thankYouMessage}
-                            onChange={(e) => setThankYouMessage(e.target.value)}
-                            placeholder="Thank you for taking the time to share this..."
-                            className="w-full text-xs px-3.5 py-2.5 text-gray-900 focus:outline-none resize-none leading-relaxed border-none"
-                          />
-                        </div>
+                        <textarea
+                          rows={3}
+                          value={thankYouMessage}
+                          onChange={(e) => setThankYouMessage(e.target.value)}
+                          placeholder="Thank you for taking the time to share this..."
+                          className={`${inputClass} resize-none leading-relaxed`}
+                        />
                       </div>
                     </div>
                   )}
