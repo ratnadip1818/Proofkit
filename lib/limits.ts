@@ -62,7 +62,7 @@ export async function checkLimits(userId: string): Promise<UserLimits> {
   return {
     planTier,
     approvedCount: count ?? 0,
-    widgetLimit: isPaid ? null : FREE_WIDGET_TESTIMONIAL_LIMIT,
-    lockedWidgetTypes: isPaid ? [] : FREE_LOCKED_WIDGET_TYPES,
+    widgetLimit: null,
+    lockedWidgetTypes: [],
   };
 }

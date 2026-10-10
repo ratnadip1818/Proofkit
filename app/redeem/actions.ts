@@ -96,7 +96,6 @@ export async function redeemAppSumoCode(code: string): Promise<RedeemResult> {
 
     // 5. Revalidate cache
     revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
     revalidatePath("/redeem");
 
     return { success: true };

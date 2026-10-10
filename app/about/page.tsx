@@ -121,30 +121,30 @@ export default function AboutPage() {
                 </div>
               </FadeIn>
 
-              {/* 4. WHY AVOID SUBSCRIPTIONS */}
+              {/* 4. PRODUCT PHILOSOPHY */}
               <FadeIn delay={0.12}>
                 <div className="mt-20 border-t border-[#ECE7E0] pt-16">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2563EB] mb-3">
-                    Pricing Philosophy
+                    Product Philosophy
                   </p>
                   <h2
                     className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1A1A1A] mb-6"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    Why Blovi avoids recurring subscriptions.
+                    Built for simplicity and true ownership.
                   </h2>
 
                   <div className="space-y-6 text-base md:text-lg text-[#333333] leading-relaxed">
                     <p>
-                      Testimonials aren't heavy cloud infrastructure. Once a customer leaves a kind review and you embed it on your website, serving those words shouldn't become an expensive recurring bill.
+                      Testimonials aren't heavy cloud infrastructure. Once a customer leaves a kind review and you embed it on your website, showcasing those words should be simple, fast, and permanent.
                     </p>
 
                     <p>
-                      Instead of renting your reputation back to you every month, Blovi is structured around lifetime ownership. You pay once when the software proves its value, and you keep your social proof forever.
+                      Blovi is structured around true ownership. You collect your reviews, keep full control over your social proof, and showcase credibility without artificial complexity.
                     </p>
 
                     <p>
-                      This aligns my incentives directly with yours: my focus stays on speed, reliability, and polish—not on finding clever ways to lock you into endless subscription tiers.
+                      This aligns my incentives directly with yours: my focus stays on speed, reliability, and widget polish—giving you tools that work smoothly out of the box.
                     </p>
                   </div>
                 </div>

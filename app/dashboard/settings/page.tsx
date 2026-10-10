@@ -15,7 +15,7 @@ export default async function SettingsPage() {
 
   if (!user) redirect("/login");
 
-  // Fetch user profile and billing tiers
+  // Fetch user profile
   let profile = null;
   const { data: profileData } = await supabase
     .from("profiles")

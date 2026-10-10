@@ -5,7 +5,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata = {
   title: "Terms of Service — Blovi",
-  description: "Read the Terms of Service for Blovi lifetime plans, custom domain usage, and acceptable platform policies.",
+  description: "Read the Terms of Service for Blovi account usage, custom domain configuration, and acceptable platform policies.",
 };
 
 export default function TermsPage() {
@@ -35,10 +35,10 @@ export default function TermsPage() {
 
               <section>
                 <h2 className="text-xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-                  2. Lifetime Licenses &amp; Pricing
+                  2. Service Usage &amp; Platform Access
                 </h2>
                 <p className="text-[#6B6B6B] leading-relaxed">
-                  Blovi Pro is offered as a simple one-time lifetime license key redeemed through AppSumo. There are no mandatory monthly subscription fees or recurring rent. Redeeming a lifetime license grants you access to core widget features, custom branding, and future performance updates for as long as Blovi operates as a commercial service.
+                  Blovi provides tools to collect, curate, and display customer feedback. Registered accounts grant access to widget builders, collection forms, and embed scripts for as long as Blovi operates as a commercial service.
                 </p>
               </section>
 

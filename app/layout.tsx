@@ -42,21 +42,21 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.blovi.space"),
-  title: "Blovi — Collect & Embed Testimonials. Pay Once, Own Forever.",
+  title: "Blovi — Collect & Embed Customer Testimonials.",
   description:
-    "Blovi helps indie founders, agencies, and freelancers collect text testimonials and embed a beautiful Wall of Love — with an affordable one-time payment of $49 for lifetime access.",
-  keywords: "testimonials, social proof, wall of love, senja alternative, lifetime deal, pay once",
+    "Blovi helps founders, agencies, and businesses collect customer testimonials and embed beautiful Wall of Love and carousel widgets on any website.",
+  keywords: "testimonials, social proof, wall of love, customer reviews, embed widget, social proof platform",
   openGraph: {
-    title: "Blovi — Collect & Embed Testimonials. Lifetime Deal.",
-    description: "Collect testimonials and embed a Wall of Love with a simple one-time lifetime payment of $49.",
+    title: "Blovi — Collect & Embed Customer Testimonials.",
+    description: "Collect testimonials, manage reviews, and embed high-converting social proof widgets on any website.",
     url: "https://www.blovi.space",
     siteName: "Blovi",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blovi — Collect & Embed Testimonials. Lifetime Deal.",
-    description: "Collect testimonials and embed a Wall of Love with a simple one-time lifetime payment of $49.",
+    title: "Blovi — Collect & Embed Customer Testimonials.",
+    description: "Collect testimonials, manage reviews, and embed high-converting social proof widgets on any website.",
   },
   icons: {
     icon: [

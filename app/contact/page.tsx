@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, CreditCard, ShieldCheck } from "lucide-react";
+import { Mail, HelpCircle, ShieldCheck } from "lucide-react";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
@@ -19,11 +19,10 @@ const CARDS = [
     email: "hello@blovi.space",
   },
   {
-    icon: CreditCard,
-    title: "Billing & Refunds",
-    desc: "License redemption, account setup, or refund assistance under our 60-day AppSumo policy.",
+    icon: HelpCircle,
+    title: "Account & Support",
+    desc: "Account setup, widget embedding guidance, or troubleshooting assistance for your live site.",
     email: "hello@blovi.space",
-    link: { href: "/refund", label: "View refund policy" },
   },
   {
     icon: ShieldCheck,

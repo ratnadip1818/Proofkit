@@ -79,24 +79,7 @@ export async function createForm(
     admin.from("forms").select("id", { count: "exact", head: true }).eq("user_id", user.id),
   ]);
 
-  const tier = profile?.plan_tier || "free";
-  const isLifetime = profile?.is_lifetime || false;
-
-  let maxForms = 1; // Default free plan limit
-  if (tier === "agency" || tier === "business") {
-    maxForms = Infinity;
-  } else if (tier === "pro") {
-    maxForms = 10;
-  } else if (tier === "starter") {
-    maxForms = 3;
-  }
-
-  if ((formCount ?? 0) >= maxForms) {
-    return {
-      error: `You have reached the form limit for your plan (${maxForms} form${maxForms === 1 ? "" : "s"}). Please stack more AppSumo codes or upgrade to create more.`,
-      done: false,
-    };
-  }
+  const maxForms = Infinity;
 
   const prefix = (user.email ?? "form")
     .split("@")[0]
@@ -157,17 +140,7 @@ export async function duplicateForm(
     admin.from("forms").select("id", { count: "exact", head: true }).eq("user_id", user.id),
   ]);
 
-  const tier = profile?.plan_tier || "free";
-  let maxForms = 1;
-  if (tier === "agency" || tier === "business") maxForms = Infinity;
-  else if (tier === "pro") maxForms = 10;
-  else if (tier === "starter") maxForms = 3;
 
-  if ((formCount ?? 0) >= maxForms) {
-    return {
-      error: `Form limit reached (${maxForms} form${maxForms === 1 ? "" : "s"}). Stack more AppSumo codes or upgrade to create more.`,
-    };
-  }
 
   const prefix = (sourceForm.slug || "form").split("-")[0] || "form";
   const suffix = Math.random().toString(36).slice(2, 6);
@@ -207,17 +180,7 @@ export async function createNewFormDirect(): Promise<{ error: string | null; for
     admin.from("forms").select("id", { count: "exact", head: true }).eq("user_id", user.id),
   ]);
 
-  const tier = profile?.plan_tier || "free";
-  let maxForms = 1;
-  if (tier === "agency" || tier === "business") maxForms = Infinity;
-  else if (tier === "pro") maxForms = 10;
-  else if (tier === "starter") maxForms = 3;
 
-  if ((formCount ?? 0) >= maxForms) {
-    return {
-      error: `You have reached the form limit for your plan (${maxForms} form${maxForms === 1 ? "" : "s"}). Please upgrade to create more.`,
-    };
-  }
 
   const prefix = (user.email ?? "form")
     .split("@")[0]
@@ -431,15 +394,7 @@ export async function importTestimonials(
     profile = profileData;
   }
 
-  const isPaid = profile?.is_lifetime === true || profile?.plan_tier === "pro" || profile?.plan_tier === "business";
-
-  if (!isPaid && (existing ?? 0) + rows.length > FREE_TESTIMONIAL_LIMIT) {
-    const remaining = Math.max(0, FREE_TESTIMONIAL_LIMIT - (existing ?? 0));
-    return {
-      error: `Free plan is limited to ${FREE_TESTIMONIAL_LIMIT} testimonials (${remaining} slot${remaining === 1 ? "" : "s"} left). Upgrade for unlimited.`,
-      count: 0,
-    };
-  }
+  const isPaid = true;
   const { data, error } = await admin
     .from("testimonials")
     .insert(
@@ -614,14 +569,7 @@ export async function importSingleTestimonial(
     profile = profileData;
   }
 
-  const isPaid = profile?.is_lifetime === true || profile?.plan_tier === "pro" || profile?.plan_tier === "business";
-
-  if (!isPaid && (existing ?? 0) + 1 > FREE_TESTIMONIAL_LIMIT) {
-    return {
-      error: `Free plan is limited to ${FREE_TESTIMONIAL_LIMIT} testimonials. Upgrade for unlimited.`,
-      success: false,
-    };
-  }
+  const isPaid = true;
 
   // Self-host avatar if present (http or base64 data URL)
   let finalAvatarUrl = data.avatar_url;

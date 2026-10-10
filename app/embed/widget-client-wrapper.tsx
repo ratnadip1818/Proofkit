@@ -401,24 +401,6 @@ export default function WidgetClientWrapper({
         cardLayout={config.cardLayout}
       />
 
-      {capped && type !== "stack" && type !== "single" && (
-        <div style={{ textAlign: "center", paddingBottom: "12px" }}>
-          <a
-            href="https://www.blovi.space/pricing"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: "11px",
-              color: theme === "dark" ? "#a1a1aa" : "#9ca3af",
-              textDecoration: "none",
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-            }}
-          >
-            Showing {FREE_WIDGET_TESTIMONIAL_LIMIT} of {testimonials.length} — upgrade for unlimited
-          </a>
-        </div>
-      )}
-
       {/* Hidden container for testimonials data to safely pass to the parent page schema builder */}
       <div
         id="proofkit-schema-data"

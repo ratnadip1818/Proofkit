@@ -41,9 +41,8 @@ export default async function DashboardLayout({
     profile = profileData;
   }
 
-  // Onboarding is complete once a name is saved — until then, every
-  // dashboard route funnels back through the onboarding flow.
-  if (!profile?.full_name) redirect("/onboarding");
+  // Access is granted once an invite code is activated and onboarding name is saved
+  if (!profile?.full_name || !profile?.is_lifetime) redirect("/onboarding");
 
   const avatarUrl =
     (user?.user_metadata?.avatar_url as string | undefined) ??

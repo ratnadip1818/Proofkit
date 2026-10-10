@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { verifyAndStoreAccessCode, claimStoredAccessCode } from "./actions";
 
 function GoogleIcon() {
   return (
@@ -16,33 +18,57 @@ function GoogleIcon() {
   );
 }
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Auto-fill invite code from URL if present (?invite=XYZ or ?code=XYZ)
+  useEffect(() => {
+    const codeFromUrl = searchParams.get("invite") || searchParams.get("code");
+    if (codeFromUrl) {
+      setInviteCode(codeFromUrl.trim().toUpperCase());
+    }
+  }, [searchParams]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setMessage(null);
+
+    if (!inviteCode.trim()) {
+      setError("Please enter your invite code to create an account.");
+      return;
+    }
+
     setLoading(true);
 
+    // 1. Validate invite code first
+    const codeCheck = await verifyAndStoreAccessCode(inviteCode);
+    if (!codeCheck.valid) {
+      setError(codeCheck.error || "Invalid access code. An invite pass is required to register.");
+      setLoading(false);
+      return;
+    }
+
+    // 2. Proceed with Supabase Auth signup
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        // Confirmation links land in the callback, which routes new
-        // accounts through onboarding
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
-    if (error) {
-      setError(error.message);
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
       return;
     }
@@ -53,11 +79,30 @@ export default function SignupPage() {
       return;
     }
 
+    // 3. Claim the invite code for the new session immediately
+    await claimStoredAccessCode();
+
     router.push("/onboarding");
     router.refresh();
   }
 
   async function handleGoogleSignIn() {
+    setError(null);
+    if (!inviteCode.trim()) {
+      setError("Please enter your invite code before continuing with Google.");
+      return;
+    }
+
+    setLoading(true);
+
+    // Validate and store invite code in cookie before OAuth redirect
+    const codeCheck = await verifyAndStoreAccessCode(inviteCode);
+    if (!codeCheck.valid) {
+      setError(codeCheck.error || "Invalid access code. An invite pass is required to register.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -66,7 +111,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-5 md:px-10">
+    <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-5 md:px-10 py-12">
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-[#ECE7E0] bg-white p-8 shadow-sm">
           {/* Wordmark */}
@@ -79,28 +124,37 @@ export default function SignupPage() {
             >
               Blovi
             </Link>
-            <p className="mt-2 text-sm text-[#6B6B6B]">
-              Create your free account
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs font-semibold text-[#2563EB]">
+              <KeyRound size={13} />
+              <span>Invite-Only Registration</span>
+            </div>
+            <p className="mt-1 text-xs text-[#6B6B6B]">
+              Enter your access code to create your workspace
             </p>
           </div>
 
-          {/* Google OAuth */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#ECE7E0] bg-white py-3 text-sm font-medium text-[#1A1A1A] transition-all hover:bg-[#FAF8F5] hover:border-[#1A1A1A]/20"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
-
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#ECE7E0]" />
-            <span className="text-xs text-[#6B6B6B]">or</span>
-            <div className="h-px flex-1 bg-[#ECE7E0]" />
-          </div>
-
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {/* Invite Code Input */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="inviteCode"
+                className="text-xs font-semibold uppercase tracking-wider text-[#1A1A1A] flex items-center justify-between"
+              >
+                <span>Invite / Access Code</span>
+                <span className="text-[10px] text-[#2563EB] lowercase font-normal">required</span>
+              </label>
+              <input
+                id="inviteCode"
+                name="inviteCode"
+                type="text"
+                required
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                className="rounded-lg border border-[#ECE7E0] px-3.5 py-2.5 text-sm font-mono text-[#1A1A1A] placeholder-zinc-400 uppercase tracking-wider transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-[#FAF8F5]"
+                placeholder="e.g. BLOVI2026"
+              />
+            </div>
+
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="email"
@@ -142,13 +196,13 @@ export default function SignupPage() {
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600">
+              <p className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 text-xs text-red-600 font-medium">
                 {error}
               </p>
             )}
 
             {message && (
-              <p className="rounded-lg bg-[#2E9E6B]/8 px-3 py-2.5 text-sm text-[#2E9E6B]">
+              <p className="rounded-lg bg-[#2E9E6B]/10 border border-[#2E9E6B]/20 px-3 py-2.5 text-xs text-[#2E9E6B] font-medium">
                 {message}
               </p>
             )}
@@ -156,13 +210,30 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 w-full rounded-lg bg-[#2563EB] py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-1 w-full rounded-lg bg-[#2563EB] py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#1d4ed8] hover:scale-[1.01] active:scale-98 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-xs"
             >
               {loading ? "Creating account…" : "Create account"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-[#6B6B6B]">
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-[#ECE7E0]" />
+            <span className="text-xs text-[#6B6B6B]">or</span>
+            <div className="h-px flex-1 bg-[#ECE7E0]" />
+          </div>
+
+          {/* Google OAuth */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#ECE7E0] bg-white py-2.5 text-sm font-medium text-[#1A1A1A] transition-all hover:bg-[#FAF8F5] hover:border-[#1A1A1A]/20 cursor-pointer disabled:opacity-50"
+          >
+            <GoogleIcon />
+            Continue with Google
+          </button>
+
+          <p className="mt-6 text-center text-xs text-[#6B6B6B]">
             Already have an account?{" "}
             <Link
               href="/login"
@@ -174,5 +245,13 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FAF8F5]" />}>
+      <SignupForm />
+    </Suspense>
   );
 }

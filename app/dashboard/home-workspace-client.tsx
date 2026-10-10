@@ -202,10 +202,6 @@ export default function HomeWorkspaceClient({
   const detectedDomains = trackingStats?.detectedDomains ?? [];
   const hasDetectedWidget = detectedDomains.length > 0 || (totalWidgetViews !== null && totalWidgetViews > 0);
 
-  // Plan limits
-  const planTier = limits.planTier || "free";
-  const planLimit = planTier === "free" ? 10 : null;
-
   // Copy collection link
   const handleCopyLink = async () => {
     try {
@@ -743,44 +739,6 @@ export default function HomeWorkspaceClient({
             <span>View all reviews ({totalCount}) →</span>
           </Link>
         </div>
-      </section>
-
-      {/* 5. PLAN USAGE (SMALL, QUIET FOOTER CARD) */}
-      <section className="bg-white/80 border border-[#E3E0DB] rounded-xl p-3.5 text-xs text-[#787774] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-        <div className="space-y-1.5 flex-1 max-w-md">
-          <div className="flex items-center justify-between">
-            <span className="text-[#1A1A1A] font-medium">
-              {planTier === "free"
-                ? `Free plan · ${totalCount} of ${planLimit} testimonials`
-                : `Pro plan · ${totalCount} testimonials (Unlimited)`}
-            </span>
-            {planTier === "free" && (
-              <span className="text-[11px] font-mono text-[#787774]">
-                {Math.min(100, Math.round((totalCount / (planLimit || 10)) * 100))}% used
-              </span>
-            )}
-          </div>
-
-          {planTier === "free" && (
-            <div className="w-full h-1.5 bg-[#EAE6DF] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(100, (totalCount / (planLimit || 10)) * 100)}%`,
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {planTier === "free" && (
-          <Link
-            href="/dashboard/billing"
-            className="text-xs font-semibold text-[#2563EB] hover:underline shrink-0"
-          >
-            Upgrade
-          </Link>
-        )}
       </section>
 
       {/* QR Code Modal */}

@@ -102,7 +102,7 @@ function parseFormMetadata(customCss?: string | null): {
   return {};
 }
 
-  const isPaid = ownerProfile?.is_lifetime === true || ownerProfile?.plan_tier === "pro" || ownerProfile?.plan_tier === "business";
+  const isPaid = true;
 
   const meta = parseFormMetadata(form.custom_css);
   const headingFont = meta.heading_font || form.custom_font || "Instrument Serif";

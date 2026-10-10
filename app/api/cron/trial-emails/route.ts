@@ -20,12 +20,9 @@ function emailShell(heading: string, body: string, cta: string) {
       <p style="font-size:20px;font-weight:800;color:#2563EB;margin-bottom:4px;">Blovi</p>
       <h2 style="margin:16px 0 8px;">${heading}</h2>
       <p style="color:#6B6B6B;line-height:1.6;">${body}</p>
-      <a href="${SITE_URL}/dashboard/billing" style="display:inline-block;margin-top:20px;background:#2563EB;color:white;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;">
+      <a href="${SITE_URL}/dashboard" style="display:inline-block;margin-top:20px;background:#2563EB;color:white;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;">
         ${cta}
       </a>
-      <p style="margin-top:24px;font-size:12px;color:#9CA3AF;">
-        Pro plan billed annually. Cancel anytime. 30-day money-back guarantee.
-      </p>
     </div>
   `;
 }
@@ -35,16 +32,16 @@ const TEMPLATES = {
     subject: "Getting the most out of Blovi",
     html: emailShell(
       "How's your Wall of Love coming along?",
-      "You're on the free plan with up to 3 testimonials. When you're ready, upgrading to Pro for $49/year unlocks unlimited testimonials, every widget layout, custom branding, and badge removal.",
-      "Unlock everything — $49/year"
+      "Explore all widget layouts, custom branding, and 1-click import options to showcase your customer proof.",
+      "Go to Dashboard"
     ),
   },
   expired: {
     subject: "Show every testimonial you've earned",
     html: emailShell(
-      "Your free plan holds up to 3 testimonials",
-      "Social proof works best in volume. Upgrade to Pro for $49/year to collect unlimited testimonials, show them all, and unlock Carousel, Marquee, and Single Quote widgets with custom accent colors.",
-      "Upgrade to Pro — $49/year"
+      "Amplify your customer trust",
+      "Social proof works best in volume. Embed your Wall of Love, Carousel, Marquee, or Single Quote widget on your live site today.",
+      "Go to Dashboard"
     ),
   },
 };

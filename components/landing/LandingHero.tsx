@@ -91,7 +91,7 @@ export default function LandingHero() {
               <div className="flex items-center gap-2">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                 <p className="text-xs font-semibold text-gray-700">
-                  <span className="font-bold text-gray-900">Official AppSumo Select Partner</span> &mdash; Lifetime Deal Available
+                  <span className="font-bold text-gray-900">Official AppSumo Select Partner</span>
                 </p>
               </div>
             </div>

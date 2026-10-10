@@ -203,9 +203,6 @@ export default function SettingsPanel({
               <div>
                 <div className="flex items-center space-x-1.5">
                   <span className="text-sm font-medium text-[#1A1A1A]">Hide ProofKit Branding</span>
-                  <span className="px-1.5 py-0.25 rounded text-[10px] font-semibold bg-[#2563EB]/10 text-[#2563EB] uppercase">
-                    PRO
-                  </span>
                 </div>
                 <p className="text-xs text-[#787774] mt-0.5">
                   Remove &quot;Powered by ProofKit&quot; from widgets and forms.

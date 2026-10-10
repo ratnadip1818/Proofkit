@@ -10,14 +10,21 @@ export default async function OnboardingPage() {
 
   if (!user) redirect("/login");
 
-  // If already onboarded, skip to dashboard
+  // Check profile full_name and is_lifetime status
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, is_lifetime")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.full_name) redirect("/dashboard");
+  // If already onboarded and has access granted, skip to dashboard
+  if (profile?.full_name && profile?.is_lifetime) redirect("/dashboard");
 
-  return <OnboardingFlow email={user.email} />;
+  return (
+    <OnboardingFlow
+      email={user.email}
+      initialName={profile?.full_name ?? ""}
+      initialIsActivated={profile?.is_lifetime ?? false}
+    />
+  );
 }

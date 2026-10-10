@@ -63,7 +63,7 @@ export const THEME: Record<WidgetTheme, ThemeColors> = {
     avatarBg: "#EFF6FF",
     avatarText: "#2563EB",
     accent: "#2563EB",
-    ratingBorder: "#4F46E5",
+    ratingBorder: "#FBBF24",
     highlight: "rgba(251, 191, 36, 0.25)",
     dotInactive: "#e5e7eb",
     arrowBg: "#ffffff",
@@ -85,7 +85,7 @@ export const THEME: Record<WidgetTheme, ThemeColors> = {
     avatarBg: "#1f2937",
     avatarText: "#ffffff",
     accent: "#3b82f6",
-    ratingBorder: "#4F46E5",
+    ratingBorder: "#FBBF24",
     highlight: "rgba(251, 191, 36, 0.25)",
     dotInactive: "#374151",
     arrowBg: "#111827",
@@ -154,7 +154,7 @@ export function buildStyle(
     colors = { ...colors, text, name: text };
   }
   if (rating) {
-    colors = { ...colors, starOn: rating };
+    colors = { ...colors, starOn: rating, ratingBorder: ratingBorder || rating };
   }
   if (ratingBorder) {
     colors = { ...colors, ratingBorder };

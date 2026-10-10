@@ -5,32 +5,28 @@ import Reveal from "./Reveal";
 
 const FAQ_ITEMS = [
   {
-    q: "Why lifetime?",
-    a: "I don't believe your customer testimonials should become another monthly bill. You earned every review—you should own them forever."
+    q: "How does testimonial collection work?",
+    a: "You get a dedicated collection form link that you can share with your customers directly, embed on your website, or send via email to gather verified customer reviews in seconds."
   },
   {
-    q: "Can I start free?",
-    a: "Yes. You can collect your first customer stories and publish your first Wall of Love completely free, with no credit card required."
+    q: "Can I import reviews from external platforms?",
+    a: "Yes. Blovi supports 1-click importing from Twitter/X, Product Hunt, LinkedIn, and Google reviews, as well as CSV bulk imports."
   },
   {
-    q: "Can I upgrade later?",
-    a: "Absolutely. Start with the free tier to test Blovi on your site. When you're ready for unlimited testimonials, custom branding, and extra layouts, upgrade to Lifetime."
-  },
-  {
-    q: "Do I receive future updates?",
-    a: "Yes. Every lifetime license includes future core widget improvements, performance optimizations, and CDN speed enhancements."
-  },
-  {
-    q: "Is there a refund policy?",
-    a: "Yes. We offer a 14-day no-questions-asked refund policy. If Blovi doesn't fit your needs, email us and we'll refund you immediately."
-  },
-  {
-    q: "What happens if Blovi shuts down?",
-    a: "Blovi runs on lightweight serverless architecture with virtually zero overhead. Your widgets and embed scripts will remain active and hosted."
+    q: "How do I embed testimonials on my website?",
+    a: "Once you approve testimonials in your dashboard, choose your widget style (Wall of Love, Carousel, Marquee, or Single Quote) and copy a single line of embed code into WordPress, Webflow, Framer, Shopify, or custom HTML."
   },
   {
     q: "How do custom domains work?",
-    a: "You can point your custom domain (like feedback.yourbrand.com) directly to Blovi so visitors submit testimonials natively on your site."
+    a: "You can point your custom domain (like feedback.yourbrand.com) directly to Blovi so visitors submit testimonials natively under your own brand."
+  },
+  {
+    q: "Can I export my testimonials?",
+    a: "Yes. You maintain complete ownership of your social proof. You can export all your reviews to CSV format at any time."
+  },
+  {
+    q: "What happens if Blovi experiences downtime?",
+    a: "Blovi runs on lightweight serverless architecture hosted on global edge CDNs. Your embedded widget scripts remain fast, cached, and reliable."
   }
 ];
 

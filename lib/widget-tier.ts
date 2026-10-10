@@ -28,14 +28,10 @@ export interface ApplyTierLimitsResult<T = any> {
 }
 
 /**
- * Checks whether the widget owner plan qualifies for paid/unlimited features.
- * Grandfathered lifetime users and pro/business plan tiers are treated as paid.
+ * With plans and billing removed, all accounts have full access.
  */
-export function isPlanPaid(plan?: WidgetOwnerPlan | null): boolean {
-  if (!plan) return false;
-  if (plan.is_lifetime === true) return true;
-  const tier = (plan.plan_tier || "").toLowerCase();
-  return tier === "pro" || tier === "business";
+export function isPlanPaid(_plan?: WidgetOwnerPlan | null): boolean {
+  return true;
 }
 
 /**

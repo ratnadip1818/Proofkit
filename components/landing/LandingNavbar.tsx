@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 
 const LINKS = [
   { href: "/how-it-works", label: "How it works" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/faq", label: "FAQ" },
 ];
 
@@ -202,7 +201,7 @@ export default function LandingNavbar() {
                   }
                 }}
               >
-                Get Blovi — $49 one-time
+                Get Blovi
                 <ArrowRight
                   size={15}
                   className="transition-transform group-hover:translate-x-0.5"
@@ -269,7 +268,7 @@ export default function LandingNavbar() {
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-2 rounded-full bg-[#2563EB] py-4 text-base font-semibold text-white focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:outline-none active:scale-[0.97] transition-transform duration-120"
               >
-                Get Blovi — $49 one-time
+                Get Blovi
                 <ArrowRight size={18} />
               </Link>
               <Link

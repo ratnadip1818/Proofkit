@@ -24,12 +24,21 @@ export async function GET(request: Request) {
         data: { user },
       } = await supabase.auth.getUser()
       if (user) {
+        // If an invite code was validated prior to OAuth/email redirect, claim it now
+        const cookieStore = await (await import('next/headers')).cookies()
+        const inviteCookie = cookieStore.get('blovi_invite_code')?.value
+        if (inviteCookie) {
+          const { grantUserAccess } = await import('@/lib/access-code')
+          await grantUserAccess(user.id, inviteCookie)
+          cookieStore.delete('blovi_invite_code')
+        }
+
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name')
+          .select('full_name, is_lifetime')
           .eq('id', user.id)
           .maybeSingle()
-        if (!profile?.full_name) {
+        if (!profile?.full_name || !profile?.is_lifetime) {
           return NextResponse.redirect(`${origin}/onboarding`)
         }
       }

@@ -6,7 +6,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 export const metadata = {
   title: "FAQ — Blovi",
   description:
-    "Answers about Blovi's free plan, yearly pricing, widget compatibility, and more.",
+    "Answers about Blovi testimonial collection, widget embedding, compatibility, and more.",
 };
 
 export default function FAQPage() {

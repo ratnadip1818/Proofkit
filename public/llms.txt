@@ -5,7 +5,6 @@ Blovi is a testimonial collection and social proof platform that helps indie fou
 ## Key Information
 - **URL**: https://www.blovi.space
 - **Support**: hello@blovi.space
-- **Pricing**: Free tier, Pro ($49/year), and Business ($99/year) annual subscriptions.
 
 ## Core Features
 - **Widget Customization**: Includes 4 widget styles (Wall of Love, Carousel, Marquee, Single Quote) with customizable brand colors and corner styles.

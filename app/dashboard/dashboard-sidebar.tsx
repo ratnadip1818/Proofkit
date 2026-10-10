@@ -51,9 +51,6 @@ function SidebarInner({
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
 
-  // Accordion state
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
   // Collapsed mode hover state
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,16 +75,10 @@ function SidebarInner({
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  const userRole = planTier === "pro" ? "PRO MEMBER" : "FOUNDER";
+  const userRole = "FOUNDER";
 
   const isReviewsActive = pathname.startsWith("/dashboard/manage");
-  const isSettingsActive =
-    pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/billing");
-
-  const settingsSubItems = [
-    { label: "Workspace Settings", href: "/dashboard/settings" },
-    { label: "Billing & Plans", href: "/dashboard/billing" },
-  ];
+  const isSettingsActive = pathname.startsWith("/dashboard/settings");
 
   const handleMouseEnter = (key: string) => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -327,87 +318,32 @@ function SidebarInner({
             SETTINGS
           </div>
 
-          {/* Settings Accordion */}
+          {/* Settings Link */}
           <div
             className="relative"
             onMouseEnter={() => isCollapsed && handleMouseEnter("settings")}
             onMouseLeave={() => isCollapsed && handleMouseLeave()}
           >
-            <button
-              type="button"
-              onClick={() => !isCollapsed && setSettingsOpen(!settingsOpen)}
-              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
-                isSettingsActive
-                  ? "text-gray-900 font-semibold"
+            <Link
+              href="/dashboard/settings"
+              onClick={onItemClick}
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs transition-colors ${
+                pathname.startsWith("/dashboard/settings")
+                  ? "bg-gray-100 text-gray-900 font-semibold"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
               } ${isCollapsed ? "justify-center px-0" : ""}`}
             >
-              <div className="flex items-center gap-3">
-                <Settings
-                  size={18}
-                  strokeWidth={1.75}
-                  className={`shrink-0 ${isSettingsActive ? "text-gray-900" : "text-gray-500"}`}
-                />
-                {!isCollapsed && <span>Settings</span>}
-              </div>
+              <Settings
+                size={18}
+                strokeWidth={1.75}
+                className={`shrink-0 ${pathname.startsWith("/dashboard/settings") ? "text-gray-900" : "text-gray-500"}`}
+              />
+              {!isCollapsed && <span>Settings</span>}
+            </Link>
 
-              {!isCollapsed && (
-                <ChevronDown
-                  size={14}
-                  className={`text-gray-400 transition-transform duration-200 ${
-                    settingsOpen ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </button>
-
-            {/* Tree Branch Submenu (Expanded Mode) */}
-            {!isCollapsed && settingsOpen && (
-              <div className="relative ml-4 pl-5 border-l border-gray-200 space-y-1 my-1">
-                {settingsSubItems.map((sub) => {
-                  const isSubActive = pathname === sub.href;
-                  return (
-                    <Link
-                      key={sub.label}
-                      href={sub.href}
-                      onClick={onItemClick}
-                      className={`relative flex items-center px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                        isSubActive
-                          ? "bg-gray-100 text-gray-900 font-semibold"
-                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
-                    >
-                      <span className="absolute -left-5 top-1/2 w-3.5 h-[1px] bg-gray-200 -translate-y-1/2" />
-                      <span>{sub.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Flyout Submenu Popover (Collapsed Mode) */}
             {isCollapsed && hoveredMenu === "settings" && (
-              <div
-                className="absolute left-full ml-3 top-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 min-w-[160px] space-y-1 animate-fade-in"
-                onMouseEnter={() => handleMouseEnter("settings")}
-                onMouseLeave={handleMouseLeave}
-              >
-                <div className="text-[10px] font-semibold text-gray-400 px-2.5 py-1 uppercase tracking-wider border-b border-gray-100">
-                  Settings
-                </div>
-                {settingsSubItems.map((sub) => (
-                  <Link
-                    key={sub.label}
-                    href={sub.href}
-                    onClick={() => {
-                      setHoveredMenu(null);
-                      onItemClick();
-                    }}
-                    className="block px-2.5 py-1.5 rounded-lg text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-                  >
-                    {sub.label}
-                  </Link>
-                ))}
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                Settings
               </div>
             )}
           </div>
@@ -596,7 +532,7 @@ export default function DashboardSidebar({
             )}
             <div className="min-w-0">
               <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">
-                {planTier === "pro" ? "PRO MEMBER" : "FOUNDER"}
+                FOUNDER
               </span>
               <span className="font-bold text-sm text-gray-900 block truncate">{displayName}</span>
             </div>

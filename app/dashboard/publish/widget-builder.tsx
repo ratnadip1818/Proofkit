@@ -145,7 +145,7 @@ export default function WidgetBuilder({
   const [primaryColor, setPrimaryColor] = useState("#2563EB");
   const [backgroundColor, setBackgroundColor] = useState("#FFFFFF");
   const [ratingColor, setRatingColor] = useState("#F59E0B");
-  const [ratingBorderColor, setRatingBorderColor] = useState("#2563EB");
+  const [ratingBorderColor, setRatingBorderColor] = useState("#F59E0B");
   const [textColor, setTextColor] = useState("#1A1A1A");
   const [highlightColor, setHighlightColor] = useState("#FFCD3640");
   const [showBranding, setShowBranding] = useState(true);
@@ -441,10 +441,17 @@ export default function WidgetBuilder({
     setManualSelectedIds((prev) => prev.filter((id) => !idsToRemove.has(id)));
   };
 
+  const handleRatingColorChange = (newColor: string) => {
+    if (ratingBorderColor === ratingColor) {
+      setRatingBorderColor(newColor);
+    }
+    setRatingColor(newColor);
+  };
+
   const colorFields = [
     { label: "Primary Color", value: primaryColor, onChange: setPrimaryColor },
     { label: "Background Color", value: backgroundColor, onChange: setBackgroundColor },
-    { label: "Rating Color", value: ratingColor, onChange: setRatingColor },
+    { label: "Rating Color", value: ratingColor, onChange: handleRatingColorChange },
     { label: "Rating Border Color", value: ratingBorderColor, onChange: setRatingBorderColor },
     { label: "Text Color", value: textColor, onChange: setTextColor },
     { label: "Highlight Color", value: highlightColor, onChange: setHighlightColor },
