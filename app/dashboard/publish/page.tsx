@@ -7,7 +7,12 @@ export const metadata = {
   description: "Create and publish high-converting social proof widgets including Wall of Love, Orbit, and Card Spotlight.",
 };
 
-export default async function WidgetsPage() {
+export default async function WidgetsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string; widgetId?: string }>;
+}) {
+  const sp = searchParams ? await searchParams : {};
   const supabase = await createClient();
   const {
     data: { user },
@@ -42,6 +47,7 @@ export default async function WidgetsPage() {
   const planTier = profile?.is_lifetime === true ? "pro" : (profile?.plan_tier ?? "free");
   const isPaid = planTier === "pro" || planTier === "business";
 
+  // Fetch approved testimonials
   const { data: testimonials } = await supabase
     .from("testimonials")
     .select(
@@ -51,6 +57,13 @@ export default async function WidgetsPage() {
     .eq("status", "approved")
     .order("created_at", { ascending: false });
 
+  // Fetch all saved created widgets for this user
+  const { data: savedWidgets } = await supabase
+    .from("widgets")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
   return (
     <WidgetHubClient
       userId={user.id}
@@ -58,6 +71,9 @@ export default async function WidgetsPage() {
       email={user.email}
       fullName={profile?.full_name}
       testimonials={testimonials ?? []}
+      savedWidgets={savedWidgets ?? []}
+      initialTab={sp.tab || "saved"}
+      initialWidgetId={sp.widgetId || null}
     />
   );
 }

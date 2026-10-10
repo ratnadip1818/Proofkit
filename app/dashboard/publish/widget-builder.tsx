@@ -105,6 +105,8 @@ export default function WidgetBuilder({
   initialLayout = "wall",
   widgetName,
   widgetPlacement,
+  widgetId,
+  savedSettings,
   onBack,
 }: {
   userId: string;
@@ -114,6 +116,8 @@ export default function WidgetBuilder({
   initialLayout?: WidgetType;
   widgetName?: string;
   widgetPlacement?: string;
+  widgetId?: string;
+  savedSettings?: Record<string, any>;
   onBack?: () => void;
 }) {
   // Widget layout is strictly the one selected in Step 1
@@ -124,32 +128,76 @@ export default function WidgetBuilder({
 
   // Widget Name with inline editing
   const [title, setTitle] = useState(
-    widgetName || WIDGET_TITLES[layout] || "Wall of Love"
+    widgetName || savedSettings?.name || WIDGET_TITLES[layout] || "Wall of Love"
   );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   // Blovi Brand Defaults & Customization Settings (from Images 3, 4, 5)
-  const preset = "base";
-  const theme = "light";
-  const [fontFamily, setFontFamily] = useState("Plus Jakarta Sans");
-  const [autoScrollVertical, setAutoScrollVertical] = useState(false);
-  const [showPhotos, setShowPhotos] = useState(true);
-  const [useGravatar, setUseGravatar] = useState(true);
-  const [fallbackAvatar, setFallbackAvatar] = useState("Placeholder");
+  const preset = savedSettings?.preset || "base";
+  const theme = savedSettings?.theme || "light";
+  const [fontFamily, setFontFamily] = useState(
+    savedSettings?.fontFamily || savedSettings?.font_family || "Plus Jakarta Sans"
+  );
+  const [autoScrollVertical, setAutoScrollVertical] = useState(
+    savedSettings?.autoScrollVertical || false
+  );
+  const [showPhotos, setShowPhotos] = useState(
+    savedSettings?.showPhotos !== undefined
+      ? savedSettings.showPhotos
+      : savedSettings?.show_photos !== undefined
+      ? savedSettings.show_photos
+      : true
+  );
+  const [useGravatar, setUseGravatar] = useState(
+    savedSettings?.useGravatar !== undefined
+      ? savedSettings.useGravatar
+      : savedSettings?.use_gravatar !== undefined
+      ? savedSettings.use_gravatar
+      : true
+  );
+  const [fallbackAvatar, setFallbackAvatar] = useState(
+    savedSettings?.fallbackAvatar || savedSettings?.fallback_avatar || "Placeholder"
+  );
   const [useHighlights, setUseHighlights] = useState(true);
   const [showHighlights, setShowHighlights] = useState(true);
   const [showDate, setShowDate] = useState(true);
-  const [cardLayout, setCardLayout] = useState<"top" | "bottom">("top");
+  const [cardLayout, setCardLayout] = useState<"top" | "bottom">(
+    savedSettings?.cardLayout || "top"
+  );
 
   // Colors Customization (Images 4 & 5)
-  const [primaryColor, setPrimaryColor] = useState("#2563EB");
-  const [backgroundColor, setBackgroundColor] = useState("#FFFFFF");
-  const [ratingColor, setRatingColor] = useState("#F59E0B");
-  const [ratingBorderColor, setRatingBorderColor] = useState("#F59E0B");
-  const [textColor, setTextColor] = useState("#1A1A1A");
-  const [highlightColor, setHighlightColor] = useState("#FFCD3640");
-  const [showBranding, setShowBranding] = useState(true);
-  const [stackEmbedMode, setStackEmbedMode] = useState<"floating" | "inline">("floating");
+  const [primaryColor, setPrimaryColor] = useState(
+    savedSettings?.primaryColor || savedSettings?.primary_color || "#2563EB"
+  );
+  const [backgroundColor, setBackgroundColor] = useState(
+    savedSettings?.backgroundColor || savedSettings?.background_color || "#FFFFFF"
+  );
+  const [ratingColor, setRatingColor] = useState(
+    savedSettings?.ratingColor || savedSettings?.rating_color || "#F59E0B"
+  );
+  const [ratingBorderColor, setRatingBorderColor] = useState(
+    savedSettings?.ratingBorderColor ||
+      savedSettings?.rating_border_color ||
+      savedSettings?.ratingColor ||
+      savedSettings?.rating_color ||
+      "#F59E0B"
+  );
+  const [textColor, setTextColor] = useState(
+    savedSettings?.textColor || savedSettings?.text_color || "#1A1A1A"
+  );
+  const [highlightColor, setHighlightColor] = useState(
+    savedSettings?.highlightColor || savedSettings?.highlight_color || "#FFCD3640"
+  );
+  const [showBranding, setShowBranding] = useState(
+    savedSettings?.showBranding !== undefined
+      ? savedSettings.showBranding
+      : savedSettings?.show_branding !== undefined
+      ? savedSettings.show_branding
+      : true
+  );
+  const [stackEmbedMode, setStackEmbedMode] = useState<"floating" | "inline">(
+    savedSettings?.stackEmbedMode || "floating"
+  );
 
   // Effective testimonials pool: real testimonials if present, otherwise SAMPLE_TESTIMONIALS for live studio testing
   const effectiveTestimonials: TestimonialItem[] = useMemo(() => {
@@ -170,13 +218,19 @@ export default function WidgetBuilder({
 
   // Selection Modal States
   const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
-  const [selectModeType, setSelectModeType] = useState<"auto" | "manual">("manual");
-  const [autoRatingFilter, setAutoRatingFilter] = useState<string>("all");
-  const [manualSelectedIds, setManualSelectedIds] = useState<string[]>(() =>
-    (testimonials && testimonials.length > 0 ? testimonials : SAMPLE_TESTIMONIALS)
-      .map((t) => t.id)
-      .filter(Boolean) as string[]
+  const [selectModeType, setSelectModeType] = useState<"auto" | "manual">(
+    savedSettings?.selectModeType || savedSettings?.select_mode || "manual"
   );
+  const [autoRatingFilter, setAutoRatingFilter] = useState<string>(
+    savedSettings?.autoRatingFilter || savedSettings?.auto_rating_filter || "all"
+  );
+  const [manualSelectedIds, setManualSelectedIds] = useState<string[]>(() => {
+    if (savedSettings?.manualSelectedIds) return savedSettings.manualSelectedIds;
+    if (savedSettings?.selected_testimonial_ids) return savedSettings.selected_testimonial_ids;
+    return (testimonials && testimonials.length > 0 ? testimonials : SAMPLE_TESTIMONIALS)
+      .map((t) => t.id)
+      .filter(Boolean) as string[];
+  });
 
   // Filters within Manual Selection view
   const [selectSearch, setSelectSearch] = useState("");
@@ -187,11 +241,12 @@ export default function WidgetBuilder({
   // Reorder Testimonials State
   const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
   const [colorsExpanded, setColorsExpanded] = useState(true);
-  const [orderedTestimonialIds, setOrderedTestimonialIds] = useState<string[]>(() =>
-    (testimonials && testimonials.length > 0 ? testimonials : SAMPLE_TESTIMONIALS)
+  const [orderedTestimonialIds, setOrderedTestimonialIds] = useState<string[]>(() => {
+    if (savedSettings?.orderedTestimonialIds) return savedSettings.orderedTestimonialIds;
+    return (testimonials && testimonials.length > 0 ? testimonials : SAMPLE_TESTIMONIALS)
       .map((t) => t.id)
-      .filter(Boolean) as string[]
-  );
+      .filter(Boolean) as string[];
+  });
 
   // Auto ratings counts
   const allApprovedCount = effectiveTestimonials.length;
@@ -283,9 +338,14 @@ export default function WidgetBuilder({
     const timer = setTimeout(async () => {
       try {
         await saveWidgetConfig({
+          widget_id: widgetId,
+          name: title,
+          layout: layout as "wall" | "orbit" | "stack",
+          placement: widgetPlacement,
           preset,
           theme,
           primary_color: primaryColor,
+          background_color: backgroundColor,
           text_color: textColor,
           rating_color: ratingColor,
           rating_border_color: ratingBorderColor,
@@ -309,7 +369,12 @@ export default function WidgetBuilder({
     return () => clearTimeout(timer);
   }, [
     userId,
+    widgetId,
+    title,
+    layout,
+    widgetPlacement,
     primaryColor,
+    backgroundColor,
     textColor,
     ratingColor,
     ratingBorderColor,
@@ -470,10 +535,10 @@ export default function WidgetBuilder({
               type="button"
               onClick={onBack}
               className="inline-flex items-center gap-1.5 text-xs text-[#787774] hover:text-[#1A1A1A] transition-colors font-medium cursor-pointer py-1 px-2 rounded-lg hover:bg-[#F7F6F3]"
-              title="Return to Templates Hub"
+              title="Return to Widgets"
             >
               <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-0.5" />
-              <span>Templates</span>
+              <span>Widgets</span>
             </button>
           )}
 

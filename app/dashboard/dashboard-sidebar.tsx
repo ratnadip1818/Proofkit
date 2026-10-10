@@ -50,22 +50,29 @@ function SidebarInner({
 }) {
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
+  const [savedWidgetsCount, setSavedWidgetsCount] = useState<number | null>(null);
 
   // Collapsed mode hover state
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch pending review count
+  // Fetch pending review count and saved widgets count
   useEffect(() => {
     const supabase = createClient();
-    async function loadPending() {
-      const { count } = await supabase
-        .from("testimonials")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending");
-      if (count !== null) setPendingCount(count);
+    async function loadCounts() {
+      const [{ count: pending }, { count: widgetsCount }] = await Promise.all([
+        supabase
+          .from("testimonials")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabase
+          .from("widgets")
+          .select("id", { count: "exact", head: true }),
+      ]);
+      if (pending !== null) setPendingCount(pending);
+      if (widgetsCount !== null) setSavedWidgetsCount(widgetsCount);
     }
-    loadPending();
+    loadCounts();
   }, []);
 
   const displayName = fullName || email?.split("@")[0] || "User";
@@ -276,33 +283,40 @@ function SidebarInner({
               </div>
             )}
           </div>
-
-          {/* Publish Widgets Link */}
+          {/* Widgets Link (Blovi Brand Identity) */}
           <div
             className="relative"
-            onMouseEnter={() => isCollapsed && handleMouseEnter("publish")}
+            onMouseEnter={() => isCollapsed && handleMouseEnter("widgets")}
             onMouseLeave={() => isCollapsed && handleMouseLeave()}
           >
             <Link
               href="/dashboard/publish"
               onClick={onItemClick}
-              className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs transition-colors ${
+              className={`flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors ${
                 pathname.startsWith("/dashboard/publish")
                   ? "bg-gray-100 text-gray-900 font-semibold"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
               } ${isCollapsed ? "justify-center px-0" : ""}`}
             >
-              <Layers
-                size={18}
-                strokeWidth={1.75}
-                className={`shrink-0 ${pathname.startsWith("/dashboard/publish") ? "text-gray-900" : "text-gray-500"}`}
-              />
-              {!isCollapsed && <span>Publish Widgets</span>}
+              <div className="flex items-center gap-3">
+                <Layers
+                  size={18}
+                  strokeWidth={1.75}
+                  className={`shrink-0 ${pathname.startsWith("/dashboard/publish") ? "text-gray-900" : "text-gray-500"}`}
+                />
+                {!isCollapsed && <span>Widgets</span>}
+              </div>
+
+              {!isCollapsed && savedWidgetsCount !== null && savedWidgetsCount > 0 && (
+                <span className="px-1.5 py-0.25 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
+                  {savedWidgetsCount}
+                </span>
+              )}
             </Link>
 
-            {isCollapsed && hoveredMenu === "publish" && (
+            {isCollapsed && hoveredMenu === "widgets" && (
               <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 bg-[#18181B] text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
-                Publish Widgets
+                Widgets
               </div>
             )}
           </div>

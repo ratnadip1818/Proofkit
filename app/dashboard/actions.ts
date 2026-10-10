@@ -300,9 +300,14 @@ export async function updateForm(
 }
 
 export interface WidgetConfigInput {
+  widget_id?: string;
+  name?: string;
+  layout?: "wall" | "orbit" | "stack";
+  placement?: string;
   preset?: string;
   theme?: string;
   primary_color?: string;
+  background_color?: string;
   text_color?: string;
   rating_color?: string;
   rating_border_color?: string;
@@ -317,10 +322,275 @@ export interface WidgetConfigInput {
   auto_rating_filter?: string;
 }
 
+export interface SavedWidgetRecord {
+  id: string;
+  user_id: string;
+  name: string;
+  widget_type: string;
+  theme?: string;
+  accent?: string | null;
+  radius?: string;
+  show_ratings?: boolean;
+  show_badge?: boolean;
+  featured_index?: number;
+  settings?: Record<string, any>;
+  is_published?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getSavedWidgets(): Promise<SavedWidgetRecord[]> {
+  const { user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("widgets")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to fetch saved widgets:", error.message);
+    return [];
+  }
+  return data || [];
+}
+
+export async function createSavedWidget(input: {
+  name: string;
+  layout: "wall" | "orbit" | "stack";
+  placement?: string;
+  settings?: Record<string, any>;
+}): Promise<{ error: string | null; widget?: SavedWidgetRecord }> {
+  const { user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  // Map to db constraint allowed types: 'wall', 'carousel', 'spotlight'
+  const dbType =
+    input.layout === "wall"
+      ? "wall"
+      : input.layout === "orbit"
+      ? "carousel"
+      : "spotlight";
+
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+  const initialSettings = {
+    layout: input.layout,
+    placement: input.placement || "Home Page",
+    analytics: {
+      views_count: 0,
+      views_this_month: 0,
+      month: currentMonth,
+      detected_domains: [],
+      last_view_at: null,
+    },
+    ...(input.settings || {}),
+  };
+
+  const { data, error } = await admin
+    .from("widgets")
+    .insert({
+      user_id: user.id,
+      name: input.name.trim() || "My Social Proof Widget",
+      widget_type: dbType,
+      theme: "light",
+      accent: "#2563EB",
+      radius: "rounded",
+      show_ratings: true,
+      show_badge: true,
+      featured_index: 0,
+      is_published: true,
+      settings: initialSettings,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/publish");
+  return { error: null, widget: data };
+}
+
+export async function updateSavedWidget(
+  widgetId: string,
+  updates: {
+    name?: string;
+    layout?: "wall" | "orbit" | "stack";
+    settings?: Record<string, any>;
+    theme?: string;
+    accent?: string;
+    is_published?: boolean;
+  }
+): Promise<{ error: string | null; widget?: SavedWidgetRecord }> {
+  const { user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  const updatePayload: Record<string, any> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (updates.name !== undefined) updatePayload.name = updates.name.trim();
+  if (updates.theme !== undefined) updatePayload.theme = updates.theme;
+  if (updates.accent !== undefined) updatePayload.accent = updates.accent;
+  if (updates.is_published !== undefined) updatePayload.is_published = updates.is_published;
+
+  if (updates.layout !== undefined) {
+    updatePayload.widget_type =
+      updates.layout === "wall"
+        ? "wall"
+        : updates.layout === "orbit"
+        ? "carousel"
+        : "spotlight";
+  }
+
+  if (updates.settings !== undefined) {
+    const { data: existing } = await admin
+      .from("widgets")
+      .select("settings")
+      .eq("id", widgetId)
+      .eq("user_id", user.id)
+      .single();
+
+    const existingSettings = (existing?.settings as Record<string, any>) || {};
+    updatePayload.settings = {
+      ...existingSettings,
+      ...updates.settings,
+      ...(updates.layout ? { layout: updates.layout } : {}),
+    };
+  }
+
+  const { data, error } = await admin
+    .from("widgets")
+    .update(updatePayload)
+    .eq("id", widgetId)
+    .eq("user_id", user.id)
+    .select("*")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/publish");
+  revalidatePath(`/embed/${user.id}`);
+  updateTag("widget-" + user.id);
+  return { error: null, widget: data };
+}
+
+export async function deleteSavedWidget(
+  widgetId: string
+): Promise<{ error: string | null }> {
+  const { user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("widgets")
+    .delete()
+    .eq("id", widgetId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/publish");
+  return { error: null };
+}
+
+export async function duplicateSavedWidget(
+  widgetId: string
+): Promise<{ error: string | null; widget?: SavedWidgetRecord }> {
+  const { user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  const { data: source, error: fetchErr } = await admin
+    .from("widgets")
+    .select("*")
+    .eq("id", widgetId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fetchErr || !source) {
+    return { error: fetchErr?.message || "Widget not found" };
+  }
+
+  const { id: _, created_at: __, updated_at: ___, ...cloneData } = source;
+  cloneData.name = `${source.name} (Copy)`;
+
+  const { data, error } = await admin
+    .from("widgets")
+    .insert({
+      ...cloneData,
+      user_id: user.id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/publish");
+  return { error: null, widget: data };
+}
+
 export async function saveWidgetConfig(
   config: WidgetConfigInput
 ): Promise<{ error: string | null }> {
   const { supabase, user } = await getAuthenticatedClient();
+  const admin = createAdminClient();
+
+  // If specific widget_id provided, sync directly to widgets table
+  if (config.widget_id) {
+    const { data: current } = await admin
+      .from("widgets")
+      .select("settings, name")
+      .eq("id", config.widget_id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (current) {
+      const mergedSettings = {
+        ...(current.settings || {}),
+        primary_color: config.primary_color,
+        background_color: config.background_color,
+        text_color: config.text_color,
+        rating_color: config.rating_color,
+        rating_border_color: config.rating_border_color,
+        highlight_color: config.highlight_color,
+        show_photos: config.show_photos,
+        use_gravatar: config.use_gravatar,
+        fallback_avatar: config.fallback_avatar,
+        font_family: config.font_family,
+        show_branding: config.show_branding,
+        select_mode: config.select_mode,
+        selected_testimonial_ids: config.selected_testimonial_ids,
+        auto_rating_filter: config.auto_rating_filter,
+        layout: config.layout,
+        placement: config.placement,
+      };
+
+      await admin
+        .from("widgets")
+        .update({
+          name: config.name || current.name,
+          accent: config.primary_color,
+          settings: mergedSettings,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", config.widget_id)
+        .eq("user_id", user.id);
+    }
+  }
 
   const { data: firstForm } = await supabase
     .from("forms")
