@@ -236,8 +236,8 @@ export default function FormsHubClient({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#1A1A1A] pb-24">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-6">
+    <div className="min-h-screen bg-[#F7F6F3] font-sans text-[#1A1A1A] pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6">
         {/* Error Alert */}
         {errorMessage && (
           <div className="flex items-center justify-between rounded-xl bg-red-50 border border-red-200/80 px-4 py-3 text-xs font-medium text-red-800">
@@ -257,12 +257,12 @@ export default function FormsHubClient({
         {/* ============================================================ */}
         {/* HEADER: Title, Subtitle, and ProofKit Brand Blue CTA         */}
         {/* ============================================================ */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A1A]">
               Forms
             </h1>
-            <p className="mt-0.5 text-xs text-[#787774]">
+            <p className="mt-0.5 text-xs sm:text-sm text-[#787774]">
               Manage your review collection forms, share links, and track responses.
             </p>
           </div>
@@ -271,14 +271,14 @@ export default function FormsHubClient({
             type="button"
             onClick={handleCreateNew}
             disabled={creating}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
           >
             {creating ? (
               <Loader2 size={13} className="animate-spin text-white" />
             ) : (
               <Plus size={14} className="stroke-[2.5]" />
             )}
-            <span>New Form</span>
+            <span>New form</span>
           </button>
         </div>
 

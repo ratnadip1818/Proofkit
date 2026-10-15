@@ -37,8 +37,8 @@ export default async function ManagePage() {
   const formUrl = primaryForm ? `${APP_URL}/c/${primaryForm.slug}` : null;
 
   return (
-    <div className="w-full min-h-screen bg-white">
-      <div className="max-w-5xl mx-auto px-6 sm:px-10 py-8">
+    <div className="w-full min-h-screen bg-[#F7F6F3]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6">
         <ManageWorkspaceClient
           user={{ id: user.id, email: user.email }}
           testimonials={rawTestimonials ?? []}

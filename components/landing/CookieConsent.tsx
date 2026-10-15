@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Sparkles, ShieldCheck } from "lucide-react";
 
 export default function CookieConsent() {
+  const pathname = usePathname();
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
+    if (pathname?.startsWith("/dashboard") || pathname?.startsWith("/embed")) {
+      return;
+    }
     // Check if consent preference is already stored
     const consent = localStorage.getItem("cookie-consent");
     if (!consent) {

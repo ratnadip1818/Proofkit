@@ -16,10 +16,8 @@ export default async function ImportPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="max-w-[860px] mx-auto p-4 sm:p-8 md:p-10">
-      <div className="w-full py-4 animate-fade-in font-sans">
-        <ImportWorkspaceClient />
-      </div>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6 font-sans text-[#1A1A1A] pb-24">
+      <ImportWorkspaceClient />
     </div>
   );
 }

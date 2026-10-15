@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { 
   Check, 
   Copy, 
@@ -43,7 +44,7 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
   const [activePlatform, setActivePlatform] = useState<PlatformId>("framer");
   const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
 
-  const APP_URL = typeof window !== "undefined" ? window.location.origin : "https://www.blovi.space";
+  const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
 
   const genericSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="wall" data-preset="base" data-layout="grid"></script>`;
   const carouselSnippet = `<script src="${APP_URL}/widget.js" data-user="${userId}" data-type="carousel" data-preset="base" data-max="9"></script>`;
@@ -227,57 +228,38 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
   const activeDetails = platforms[activePlatform];
 
   return (
-    <div className="w-full bg-canvas min-h-screen relative overflow-hidden pb-20">
-      {/* Decorative background gradients */}
-      <div className="absolute top-0 right-0 h-[450px] w-[450px] rounded-full bg-[radial-gradient(circle,rgba(11,84,216,0.015)_0%,transparent_70%)] pointer-events-none -z-10" />
-      <div className="absolute top-[30%] left-[-100px] h-[550px] w-[550px] rounded-full bg-[radial-gradient(circle,rgba(46,158,107,0.015)_0%,transparent_70%)] pointer-events-none -z-10" />
-
-      <div className="w-full px-5 md:px-10 py-10">
+    <div className="w-full min-h-screen bg-[#F7F6F3] font-sans text-[#1A1A1A] pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6">
         
-        {/* Header Title section */}
-        <div className="relative overflow-hidden rounded-3xl border border-hairline bg-surface p-8 shadow-sm mb-8">
-          <div className="absolute inset-0 bg-gradient-to-br from-surface via-surface to-canvas -z-10" />
-          <div className="absolute right-0 bottom-0 h-40 w-40 bg-[radial-gradient(circle_at_bottom_right,rgba(11,84,216,0.02),transparent_80%)] pointer-events-none" />
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded bg-accent/10 text-accent">
-                  <BookOpen size={11} strokeWidth={2.5} />
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-ink-secondary">
-                  Onboarding Documentation
-                </span>
-              </div>
-              <h1
-                className="text-3xl font-black tracking-tight text-ink sm:text-4xl"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                A to Z Setup Guide
-              </h1>
-              <p className="mt-2 text-sm text-ink-secondary max-w-xl leading-relaxed">
-                Connect your brand&apos;s Wall of Love. Learn how to import reviews, manage feedback, and copy embedding scripts for your website CMS.
-              </p>
-            </div>
-            
-            <div className="hidden lg:flex items-center gap-1 bg-canvas border border-hairline rounded-2xl p-4 shrink-0 max-w-[280px]">
-              <Sparkles size={16} className="text-accent shrink-0" />
-              <p className="text-[10px] font-semibold text-ink-secondary leading-normal">
-                Want to fine-tune colors and layout shapes? Make custom revisions inside the <a href="/dashboard/publish" className="text-accent underline font-bold">Widgets tab</a>.
-              </p>
-            </div>
+        {/* Symmetrical Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A1A]">
+              Setup Guide
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-[#787774]">
+              Learn how to embed your Wall of Love testimonial widget on Framer, Webflow, Shopify, WordPress, and more.
+            </p>
           </div>
+
+          <Link
+            href="/dashboard/publish"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
+          >
+            <Sparkles size={14} className="stroke-[2.5]" />
+            <span>Customize widgets</span>
+          </Link>
         </div>
 
         {/* Setup Content - Grid layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Sidebar - Platform Buttons */}
-          <div className="lg:col-span-4 space-y-4">
-            <div className="rounded-3xl border border-hairline bg-surface p-5 shadow-sm">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-ink-secondary mb-3 pl-1">
-                Select Your Platform
-              </h3>
+          <div className="lg:col-span-4 space-y-5">
+            <div className="rounded-2xl border border-[#E3E0DB] bg-white p-5 shadow-2xs space-y-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774] block pl-1">
+                SELECT YOUR PLATFORM
+              </span>
               <div className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-2 lg:pb-0 scrollbar-none">
                 {(Object.keys(platforms) as PlatformId[]).map((pid) => {
                   const plat = platforms[pid];
@@ -286,21 +268,21 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
                     <button
                       key={pid}
                       onClick={() => setActivePlatform(pid)}
-                      className={`flex items-center gap-3 shrink-0 text-left w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
+                      className={`flex items-center gap-3 shrink-0 text-left w-full rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all cursor-pointer ${
                         isActive
-                          ? "bg-[#2563EB] text-white shadow-sm shadow-[#2563EB]/20"
-                          : "text-[#4B5563] bg-transparent hover:bg-black/5 hover:text-[#1A1A1A]"
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "text-[#1A1A1A] bg-transparent hover:bg-gray-50"
                       }`}
                     >
                       <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
                         isActive 
                           ? "bg-white/20 text-white" 
-                          : "bg-[#FAF8F5] text-[#6B6B6B] border border-[#ECE7E0]/60"
+                          : "bg-[#F7F6F3] text-[#787774] border border-[#E3E0DB]"
                       }`}>
                         {plat.iconText}
                       </span>
                       <span className="flex-1 truncate">{plat.name}</span>
-                      <ChevronRight size={14} className={`shrink-0 opacity-60 transition-transform ${isActive ? "translate-x-0.5" : "lg:opacity-0"}`} />
+                      <ChevronRight size={13} className={`shrink-0 opacity-60 transition-transform ${isActive ? "translate-x-0.5" : "lg:opacity-0"}`} />
                     </button>
                   );
                 })}
@@ -308,59 +290,59 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
             </div>
 
             {/* Quick snippet presets helper */}
-            <div className="rounded-3xl border border-[#ECE7E0] bg-white p-5 shadow-sm">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#6B6B6B] mb-3">
-                Other Layout Presets
-              </h3>
+            <div className="rounded-2xl border border-[#E3E0DB] bg-white p-5 shadow-2xs space-y-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774] block">
+                OTHER LAYOUT PRESETS
+              </span>
               <div className="space-y-3">
                 {/* Carousel Card */}
-                <div className="rounded-2xl border border-[#ECE7E0]/60 p-3 bg-[#FAF8F5]/30">
+                <div className="rounded-xl border border-[#E3E0DB] p-3.5 bg-white">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold uppercase text-[#1A1A1A]">Testimonial Slider</span>
+                    <span className="text-xs font-bold text-[#1A1A1A]">Testimonial Slider</span>
                     <button 
                       onClick={() => copyToClipboard(carouselSnippet, "preset-carousel")}
-                      className="text-[9px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-1 hover:text-[#CF5F2C]"
+                      className="text-[11px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-1 hover:text-[#1D4ED8] cursor-pointer"
                     >
                       {copiedSnippet === "preset-carousel" ? (
                         <>
-                          <Check size={10} className="text-green-500" />
+                          <Check size={11} className="text-emerald-600" />
                           <span>Copied</span>
                         </>
                       ) : (
                         <>
-                          <Copy size={10} />
+                          <Copy size={11} />
                           <span>Copy code</span>
                         </>
                       )}
                     </button>
                   </div>
-                  <p className="text-[10px] text-[#6B6B6B] leading-relaxed">
+                  <p className="text-xs text-[#787774] leading-relaxed">
                     Interactive horizontal slider showing max 9 items.
                   </p>
                 </div>
 
                 {/* Marquee Card */}
-                <div className="rounded-2xl border border-[#ECE7E0]/60 p-3 bg-[#FAF8F5]/30">
+                <div className="rounded-xl border border-[#E3E0DB] p-3.5 bg-white">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold uppercase text-[#1A1A1A]">Infinite Marquee</span>
+                    <span className="text-xs font-bold text-[#1A1A1A]">Infinite Marquee</span>
                     <button 
                       onClick={() => copyToClipboard(marqueeSnippet, "preset-marquee")}
-                      className="text-[9px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-1 hover:text-[#CF5F2C]"
+                      className="text-[11px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-1 hover:text-[#1D4ED8] cursor-pointer"
                     >
                       {copiedSnippet === "preset-marquee" ? (
                         <>
-                          <Check size={10} className="text-green-500" />
+                          <Check size={11} className="text-emerald-600" />
                           <span>Copied</span>
                         </>
                       ) : (
                         <>
-                          <Copy size={10} />
+                          <Copy size={11} />
                           <span>Copy code</span>
                         </>
                       )}
                     </button>
                   </div>
-                  <p className="text-[10px] text-[#6B6B6B] leading-relaxed">
+                  <p className="text-xs text-[#787774] leading-relaxed">
                     Continuously scrolling ticker banner suitable for hero sections.
                   </p>
                 </div>
@@ -370,67 +352,67 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
 
           {/* Main Panel - Selected Platform Details */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="rounded-3xl border border-[#ECE7E0] bg-white p-6 md:p-8 shadow-sm">
-              <div className="flex items-center justify-between pb-4 border-b border-[#ECE7E0]/60">
+            <div className="rounded-2xl border border-[#E3E0DB] bg-white p-6 md:p-8 shadow-2xs space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[#E3E0DB]">
                 <div className="flex items-center gap-2.5">
                   <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold tracking-wide ${activeDetails.badgeColor} ${activeDetails.badgeBg}`}>
                     {activeDetails.name} Guide
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-[#787774] uppercase tracking-wider">
                   Quick Embed
                 </span>
               </div>
 
-              <p className="mt-4 text-sm text-[#6B6B6B] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#787774] leading-relaxed">
                 {activeDetails.description}
               </p>
 
               {/* Instructions loop */}
-              <div className="mt-8 space-y-6 relative">
+              <div className="space-y-6 relative pt-2">
                 {/* Connecting timeline line */}
-                <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-[#FAF8F5] border-l border-dashed border-[#ECE7E0] -z-10" />
+                <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-[#F7F6F3] border-l border-dashed border-[#E3E0DB] -z-10" />
 
                 {activeDetails.steps.map((step, idx) => (
                   <div key={idx} className="flex gap-4 items-start relative z-10">
                     {/* Index Bullet */}
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FAF8F5] border border-[#ECE7E0] text-xs font-black text-[#1A1A1A]">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F7F6F3] border border-[#E3E0DB] text-xs font-bold text-[#1A1A1A]">
                       {idx + 1}
                     </div>
 
                     <div className="flex-1 min-w-0 pt-0.5">
-                      <h4 className="text-sm font-bold text-[#1A1A1A] leading-tight">
+                      <h4 className="text-xs sm:text-sm font-bold text-[#1A1A1A] leading-tight">
                         {step.title}
                       </h4>
-                      <p className="mt-1.5 text-xs text-[#6B6B6B] leading-relaxed">
+                      <p className="mt-1 text-xs text-[#787774] leading-relaxed">
                         {step.description}
                       </p>
 
                       {/* Code Block if exists */}
                       {step.code && (
-                        <div className="mt-3 overflow-hidden rounded-2xl border border-[#ECE7E0] bg-[#0A0A0B] shadow-[0_4px_20px_rgba(0,0,0,0.06)] max-w-full">
-                          <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-4 py-2 select-none">
-                            <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">
+                        <div className="mt-3 overflow-hidden rounded-xl border border-[#E3E0DB] bg-[#0A0A0B] shadow-2xs max-w-full">
+                          <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.03] px-4 py-2 select-none">
+                            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
                               {activePlatform === "react" ? "ReactComponent.tsx" : "widget-snippet.html"}
                             </span>
                             <button
                               onClick={() => copyToClipboard(step.code!, `snippet-${idx}`)}
-                              className="flex items-center gap-1 text-[10px] font-bold text-[#2563EB] uppercase tracking-wider hover:text-white transition-colors"
+                              className="flex items-center gap-1.5 text-[11px] font-bold text-[#2563EB] hover:text-white transition-colors cursor-pointer"
                             >
                               {copiedSnippet === `snippet-${idx}` ? (
                                 <>
-                                  <Check size={11} className="text-green-400" strokeWidth={2.5} />
-                                  <span className="text-green-400">Copied</span>
+                                  <Check size={12} className="text-emerald-400" strokeWidth={2.5} />
+                                  <span className="text-emerald-400">Copied</span>
                                 </>
                               ) : (
                                 <>
-                                  <Copy size={11} />
+                                  <Copy size={12} />
                                   <span>Copy</span>
                                 </>
                               )}
                             </button>
                           </div>
-                          <div className="p-3 overflow-x-auto max-w-full">
+                          <div className="p-3.5 overflow-x-auto max-w-full">
                             <pre className="text-[11px] font-mono leading-relaxed text-zinc-300 whitespace-pre scrollbar-thin">
                               <code>{step.code}</code>
                             </pre>
@@ -444,50 +426,50 @@ export default function InteractiveGuideClient({ userId }: InteractiveGuideClien
             </div>
 
             {/* Troubleshooting Card */}
-            <div className="rounded-3xl border border-[#ECE7E0] bg-white p-6 md:p-8 shadow-sm">
-              <div className="flex items-center gap-2 pb-4 border-b border-[#ECE7E0]/60 mb-5">
+            <div className="rounded-2xl border border-[#E3E0DB] bg-white p-6 md:p-8 shadow-2xs space-y-5">
+              <div className="flex items-center gap-2 pb-4 border-b border-[#E3E0DB]">
                 <HelpCircle size={18} className="text-[#2563EB]" />
-                <h3 className="text-sm font-bold text-[#1A1A1A] uppercase tracking-widest">
-                  Troubleshooting & Best Practices
-                </h3>
+                <span className="text-[11px] font-semibold text-[#1A1A1A] uppercase tracking-wider">
+                  Troubleshooting &amp; Best Practices
+                </span>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {/* Rule 1: CLS */}
-                <div className="flex gap-3 items-start rounded-2xl border border-[#ECE7E0]/50 p-4 bg-[#FAF8F5]/30">
+                <div className="flex gap-3.5 items-start rounded-xl border border-[#E3E0DB] p-4 bg-white">
                   <Monitor size={18} className="text-[#2563EB] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">
+                    <h4 className="text-xs font-bold text-[#1A1A1A]">
                       Prevent Cumulative Layout Shift (CLS)
                     </h4>
-                    <p className="mt-1 text-[11px] text-[#6B6B6B] leading-relaxed">
-                      Browsers can shift content when the dynamic Wall of Love loaded script replaces empty page sections. To prevent layout jumps, Blovi automatically loads a clean, size-matched skeleton placeholder to reserve the correct page height.
+                    <p className="mt-1 text-xs text-[#787774] leading-relaxed">
+                      Browsers can shift content when the dynamic Wall of Love script renders. To prevent layout jumps, Blovi automatically loads a clean, size-matched skeleton placeholder to reserve the correct page height.
                     </p>
                   </div>
                 </div>
 
                 {/* Rule 2: Smooth Scroll */}
-                <div className="flex gap-3 items-start rounded-2xl border border-[#ECE7E0]/50 p-4 bg-[#FAF8F5]/30">
+                <div className="flex gap-3.5 items-start rounded-xl border border-[#E3E0DB] p-4 bg-white">
                   <Smartphone size={18} className="text-[#2563EB] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">
+                    <h4 className="text-xs font-bold text-[#1A1A1A]">
                       Smooth Scrolling Libraries (Lenis / Locomotive)
                     </h4>
-                    <p className="mt-1 text-[11px] text-[#6B6B6B] leading-relaxed">
-                      If your site uses high-momentum trackpad scroll scripts, standard browser iframes can sometimes swallow scroll events. Blovi&apos;s client wrapper includes native trackpad event forwarding that intercepts coordinates and forwards them to the parent document context, guaranteeing 100% smooth mouse scrolling.
+                    <p className="mt-1 text-xs text-[#787774] leading-relaxed">
+                      If your site uses smooth scroll scripts, standard iframes can sometimes swallow scroll events. Blovi&apos;s client script forwards wheel and trackpad events seamlessly, guaranteeing smooth scrolling.
                     </p>
                   </div>
                 </div>
 
                 {/* Rule 3: Fonts */}
-                <div className="flex gap-3 items-start rounded-2xl border border-[#ECE7E0]/50 p-4 bg-[#FAF8F5]/30">
+                <div className="flex gap-3.5 items-start rounded-xl border border-[#E3E0DB] p-4 bg-white">
                   <Info size={18} className="text-[#2563EB] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide">
-                      Dynamic Heights & Lazy Fonts Loading
+                    <h4 className="text-xs font-bold text-[#1A1A1A]">
+                      Dynamic Heights &amp; Lazy Fonts Loading
                     </h4>
-                    <p className="mt-1 text-[11px] text-[#6B6B6B] leading-relaxed">
-                      Custom fonts loading asynchronously can cause early height measurements to be off. Blovi automatically subscribes to your site&apos;s font loading promise (`document.fonts.ready`) and automatically resizes the iframe wrapper container when fonts finish rendering.
+                    <p className="mt-1 text-xs text-[#787774] leading-relaxed">
+                      Custom fonts loading asynchronously can cause early height measurements to shift. Blovi automatically subscribes to your site&apos;s font loading state (<code className="text-[11px] bg-[#F7F6F3] px-1 py-0.5 rounded border border-[#E3E0DB]">document.fonts.ready</code>) and resizes the container automatically when fonts finish rendering.
                     </p>
                   </div>
                 </div>

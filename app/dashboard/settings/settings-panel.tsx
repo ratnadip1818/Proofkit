@@ -132,26 +132,26 @@ export default function SettingsPanel({
   };
 
   return (
-    <div className="w-full space-y-8 animate-fade-in font-sans text-[#1A1A1A]">
+    <div className="w-full space-y-6 font-sans text-[#1A1A1A]">
       {/* Title Header */}
       <div>
-        <h1 className="text-[28px] font-semibold text-[#1A1A1A] tracking-[-0.02em] leading-tight">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A1A]">
           Workspace Settings
         </h1>
-        <p className="text-[#787774] text-sm mt-1 leading-relaxed">
+        <p className="mt-0.5 text-xs sm:text-sm text-[#787774]">
           Configure business brand profiles, custom domain aliases, and account credentials.
         </p>
       </div>
 
       <div className="space-y-6">
         {/* CARD 1: WORKSPACE PROFILE SETTINGS */}
-        <form onSubmit={handleSaveWorkspace} className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] space-y-5">
+        <form onSubmit={handleSaveWorkspace} className="bg-white border border-[#E3E0DB] rounded-2xl p-6 shadow-2xs space-y-5">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
               WORKSPACE PROFILE SETTINGS
             </span>
             {workspaceSaved && (
-              <span className="text-xs font-semibold text-[#16A34A] bg-[#16A34A]/10 px-2 py-0.5 rounded border border-[#16A34A]/20">
+              <span className="text-xs font-semibold text-[#16A34A] bg-[#16A34A]/10 px-2 py-0.5 rounded-lg border border-[#16A34A]/20">
                 ✓ Changes Saved
               </span>
             )}
@@ -164,8 +164,8 @@ export default function SettingsPanel({
                 type="text"
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
-                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/12 bg-white text-[#1A1A1A]"
-                placeholder="ProofKit Inc."
+                className="w-full text-xs border border-[#E3E0DB] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 bg-white text-[#1A1A1A]"
+                placeholder="Blovi Workspace"
                 required
               />
             </div>
@@ -176,7 +176,7 @@ export default function SettingsPanel({
                 type="email"
                 readOnly
                 value={email}
-                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 bg-[#F7F6F3] text-[#787774] outline-none"
+                className="w-full text-xs border border-[#E3E0DB] rounded-xl px-3.5 py-2.5 bg-[#F7F6F3] text-[#787774] outline-none"
               />
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function SettingsPanel({
                 }`}
               >
                 <span
-                  className={`w-4 h-4 rounded-full bg-white shadow-sm absolute top-0.5 transition-transform ${
+                  className={`w-4 h-4 rounded-full bg-white shadow-xs absolute top-0.5 transition-transform ${
                     hideBranding ? "translate-x-4.5" : "translate-x-0.5"
                   }`}
                 />
@@ -202,17 +202,17 @@ export default function SettingsPanel({
 
               <div>
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-sm font-medium text-[#1A1A1A]">Hide ProofKit Branding</span>
+                  <span className="text-xs font-semibold text-[#1A1A1A]">Hide Blovi Branding</span>
                 </div>
                 <p className="text-xs text-[#787774] mt-0.5">
-                  Remove &quot;Powered by ProofKit&quot; from widgets and forms.
+                  Remove &quot;Powered by Blovi&quot; badge from your widgets and forms.
                 </p>
               </div>
             </div>
 
             <button
               type="submit"
-              className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium text-sm rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
             >
               Save Profile
             </button>
@@ -220,19 +220,19 @@ export default function SettingsPanel({
         </form>
 
         {/* CARD 2: CUSTOM SHARING DOMAIN */}
-        <form onSubmit={handleSaveDomain} className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] space-y-4">
+        <form onSubmit={handleSaveDomain} className="bg-white border border-[#E3E0DB] rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774]">
               CUSTOM SHARING DOMAIN
             </span>
             {dnsVerified && (
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-[0.06em] bg-[#16A34A]/10 border border-[#16A34A]/20 text-[#16A34A] uppercase">
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold tracking-[0.06em] bg-[#16A34A]/10 border border-[#16A34A]/20 text-[#16A34A] uppercase">
                 ACTIVE
               </span>
             )}
           </div>
 
-          <p className="text-sm text-[#787774] leading-relaxed">
+          <p className="text-xs text-[#787774] leading-relaxed">
             Host your collection forms on your own domain (e.g. reviews.yourdomain.com).
           </p>
 
@@ -242,12 +242,12 @@ export default function SettingsPanel({
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               placeholder="reviews.blovi.space"
-              className="flex-1 text-xs font-mono border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/12 bg-white text-[#1A1A1A]"
+              className="flex-1 text-xs font-mono border border-[#E3E0DB] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 bg-white text-[#1A1A1A]"
             />
             <button
               type="submit"
               disabled={checkingDns}
-              className="px-4 py-2 bg-white hover:bg-[#F7F6F3] border border-[#E3E0DB] text-[#1A1A1A] font-medium text-sm rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-[#F7F6F3] border border-[#E3E0DB] text-[#1A1A1A] font-semibold text-xs rounded-xl shadow-2xs transition-colors cursor-pointer shrink-0"
             >
               {checkingDns ? "Connecting..." : "Connect Domain"}
             </button>
@@ -255,13 +255,13 @@ export default function SettingsPanel({
         </form>
 
         {/* CARD 3: UPDATE PASSWORD & SECURITY */}
-        <form onSubmit={handleUpdatePassword} className="bg-white border border-[#E3E0DB] rounded-[12px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] space-y-5">
+        <form onSubmit={handleUpdatePassword} className="bg-white border border-[#E3E0DB] rounded-2xl p-6 shadow-2xs space-y-5">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#787774] block">
             UPDATE PASSWORD &amp; SECURITY
           </span>
 
           {passwordMsg && (
-            <div className={`p-3 rounded-[6px] text-xs font-medium ${passwordState === "error" ? "bg-[#DC2626]/10 text-[#DC2626]" : "bg-[#16A34A]/10 text-[#16A34A]"}`}>
+            <div className={`p-3 rounded-xl text-xs font-medium ${passwordState === "error" ? "bg-[#DC2626]/10 text-[#DC2626] border border-[#DC2626]/20" : "bg-[#16A34A]/10 text-[#16A34A] border border-[#16A34A]/20"}`}>
               {passwordMsg}
             </div>
           )}
@@ -273,7 +273,7 @@ export default function SettingsPanel({
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] bg-white text-[#1A1A1A]"
+                className="w-full text-xs border border-[#E3E0DB] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 bg-white text-[#1A1A1A]"
                 placeholder="••••••••"
               />
             </div>
@@ -283,7 +283,7 @@ export default function SettingsPanel({
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full text-sm border border-[#E3E0DB] rounded-[6px] px-3 py-2 outline-none focus:border-[#2563EB] bg-white text-[#1A1A1A]"
+                className="w-full text-xs border border-[#E3E0DB] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 bg-white text-[#1A1A1A]"
                 placeholder="••••••••"
               />
             </div>
@@ -292,14 +292,14 @@ export default function SettingsPanel({
           <button
             type="submit"
             disabled={!newPassword || passwordState === "saving"}
-            className="px-4 py-2 bg-white hover:bg-[#F7F6F3] border border-[#E3E0DB] text-[#1A1A1A] font-medium text-sm rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-[#F7F6F3] border border-[#E3E0DB] text-[#1A1A1A] font-semibold text-xs rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
           >
             {passwordState === "saving" ? "Updating..." : "Update Password"}
           </button>
         </form>
 
         {/* CARD 4: DANGER ZONE */}
-        <div className="bg-white border border-[#DC2626]/20 rounded-[12px] p-6 space-y-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+        <div className="bg-white border border-[#DC2626]/20 rounded-2xl p-6 space-y-3 shadow-2xs">
           <div>
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#DC2626] block">
               DANGER ZONE
@@ -315,12 +315,12 @@ export default function SettingsPanel({
               value={deleteText}
               onChange={(e) => setDeleteText(e.target.value)}
               placeholder="Type DELETE to confirm"
-              className="flex-1 text-xs border border-[#DC2626]/30 rounded-[6px] px-3 py-2 bg-white outline-none focus:border-[#DC2626] text-[#DC2626]"
+              className="flex-1 text-xs border border-[#DC2626]/30 rounded-xl px-3.5 py-2.5 bg-white outline-none focus:border-[#DC2626] text-[#DC2626]"
             />
             <button
               onClick={handleDeleteAccount}
               disabled={deleteText !== "DELETE" || deleting}
-              className="px-4 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-medium text-sm rounded-[6px] transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+              className="px-4 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50 shrink-0"
             >
               {deleting ? "Deleting..." : "Delete Workspace"}
             </button>

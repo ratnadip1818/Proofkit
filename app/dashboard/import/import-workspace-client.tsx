@@ -654,7 +654,7 @@ export default function ImportWorkspaceClient() {
       {/* NAVIGATION BAR (When inside a subview & not in Step 2 full view) */}
       {/* ================================================================ */}
       {view !== "hub" && webSubStep === "input" && (
-        <div className="mb-6 flex items-center justify-between pb-4 border-b border-slate-200/80">
+        <div className="mb-6 flex items-center justify-between pb-4 border-b border-[#E3E0DB]">
           <button
             type="button"
             onClick={() => {
@@ -664,9 +664,9 @@ export default function ImportWorkspaceClient() {
               setManualSuccessMsg(null);
               setWebError(null);
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer group py-1 px-2 -ml-2 rounded-lg hover:bg-slate-100"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E3E0DB] bg-white text-xs font-semibold text-[#1A1A1A] hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer group"
           >
-            <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-0.5" />
+            <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
             <span>All import methods</span>
           </button>
         </div>
@@ -677,13 +677,23 @@ export default function ImportWorkspaceClient() {
       {/* ================================================================ */}
       {view === "hub" && (
         <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold tracking-tight text-slate-900">
-              Add proof to your account
-            </h2>
-            <p className="text-xs text-slate-500">
-              Import customer reviews and testimonials from the web, spreadsheets, or manual notes.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A1A]">
+                Import Proof
+              </h1>
+              <p className="mt-0.5 text-xs sm:text-sm text-[#787774]">
+                Import customer reviews and testimonials from the web, spreadsheets, or manual notes.
+              </p>
+            </div>
+
+            <Link
+              href="/dashboard/manage"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#E3E0DB] bg-white text-xs font-semibold text-[#1A1A1A] hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer shrink-0"
+            >
+              <span>View all reviews</span>
+              <ArrowRight size={13} className="text-[#787774]" />
+            </Link>
           </div>
 
           <div className="grid gap-3.5 sm:gap-4">

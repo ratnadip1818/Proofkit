@@ -415,7 +415,7 @@ export default function WidgetHubClient({
   if (currentView === "create") {
     return (
       <div className="min-h-screen bg-[#F7F6F3] font-sans text-[#1A1A1A] pb-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 space-y-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6">
           {/* Header with Back to Saved Pill */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
@@ -633,7 +633,7 @@ export default function WidgetHubClient({
   // =========================================================================
   return (
     <div className="min-h-screen bg-[#F7F6F3] font-sans text-[#1A1A1A] pb-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6">
         {/* Header with Blovi Identity */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
@@ -876,7 +876,7 @@ export default function WidgetHubClient({
                     <div className="flex items-center gap-1.5 text-xs text-[#787774]">
                       <span className="font-medium text-[#52514F]">{layoutTitle}</span>
                       <span className="text-[#AFAFAC]">•</span>
-                      <span>{timeAgo}</span>
+                      <span suppressHydrationWarning>{timeAgo}</span>
                     </div>
 
                     {/* Divider */}

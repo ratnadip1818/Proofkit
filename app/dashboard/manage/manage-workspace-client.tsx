@@ -24,6 +24,7 @@ import {
   Clock,
   Building,
   User as UserIcon,
+  Plus,
 } from "lucide-react";
 import {
   approveTestimonial,
@@ -432,7 +433,7 @@ export default function ManageWorkspaceClient({
       {/* ========================================================================= */}
       {/* 1. HEADER: Clean, Symmetrical Title & Brand Blue CTA Button               */}
       {/* ========================================================================= */}
-      <div className="flex items-center justify-between pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
           <div className="flex items-center space-x-2">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1A1A1A]">
@@ -442,44 +443,29 @@ export default function ManageWorkspaceClient({
               {testimonials.length}
             </span>
           </div>
-          <p className="text-xs text-[#787774] mt-0.5">
+          <p className="mt-0.5 text-xs sm:text-sm text-[#787774]">
             All your testimonials and case studies.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {/* More actions menu */}
-          <div className="relative" ref={moreRef}>
-            <button
-              onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-              className="p-2 text-[#787774] hover:text-[#1A1A1A] rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-            {isMoreMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-[#E3E0DB] rounded-xl shadow-lg p-1 z-40 text-xs animate-fade-in">
-                <Link
-                  href="/dashboard/import"
-                  className="flex items-center space-x-2 px-3 py-2 text-[#1A1A1A] hover:bg-gray-50 rounded-lg cursor-pointer"
-                  onClick={() => setIsMoreMenuOpen(false)}
-                >
-                  <Download className="w-3.5 h-3.5 text-[#787774]" />
-                  <span>Import Proof</span>
-                </Link>
-                <button
-                  onClick={() => {
-                    exportSelectedAsCsv();
-                    setIsMoreMenuOpen(false);
-                  }}
-                  className="w-full flex items-center space-x-2 px-3 py-2 text-[#1A1A1A] hover:bg-gray-50 rounded-lg cursor-pointer text-left"
-                >
-                  <Download className="w-3.5 h-3.5 text-[#787774]" />
-                  <span>Export CSV</span>
-                </button>
-              </div>
-            )}
-          </div>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={exportSelectedAsCsv}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E3E0DB] bg-white text-xs font-semibold text-[#1A1A1A] hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer"
+            title="Export CSV"
+          >
+            <Download className="w-3.5 h-3.5 text-[#787774]" />
+            <span>Export CSV</span>
+          </button>
 
+          <Link
+            href="/dashboard/import"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
+          >
+            <Plus size={14} className="stroke-[2.5]" />
+            <span>Add proof</span>
+          </Link>
         </div>
       </div>
 
@@ -765,7 +751,7 @@ export default function ManageWorkspaceClient({
       {/* 3. SYMMETRICAL, CLEAN REVIEWS FEED (Exact Consistent Spacing & Alignment) */}
       {/* ========================================================================= */}
       {filtered.length === 0 ? (
-        <div className="py-24 text-center space-y-2">
+        <div className="rounded-2xl border border-[#E3E0DB] bg-white shadow-2xs py-20 px-6 text-center space-y-2">
           <Sparkles className="w-8 h-8 text-[#787774]/40 mx-auto" />
           <h3 className="font-semibold text-sm text-[#1A1A1A]">No testimonials found</h3>
           <p className="text-xs text-[#787774] max-w-sm mx-auto">
@@ -783,7 +769,7 @@ export default function ManageWorkspaceClient({
           )}
         </div>
       ) : (
-        <div className="divide-y divide-[#E3E0DB]/60">
+        <div className="rounded-2xl border border-[#E3E0DB] bg-white shadow-2xs divide-y divide-[#E3E0DB]/60 overflow-hidden px-6">
           {filtered.map((review) => {
             const isSelected = selectedIds.includes(review.id);
             const initials = getAvatarInitials(review.author_name || "A");

@@ -40,7 +40,7 @@ export default async function SettingsPage() {
   const isPaid = planTier === "pro" || planTier === "business";
 
   return (
-    <div className="max-w-[960px] mx-auto p-6 md:p-12">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6 font-sans text-[#1A1A1A] pb-24">
       <SettingsPanel
         email={user.email ?? ""}
         fullName={profile?.full_name ?? ""}

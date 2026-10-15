@@ -320,7 +320,7 @@ export default function HomeWorkspaceClient({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 space-y-7 font-sans text-[#1A1A1A]">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-9 space-y-6 font-sans text-[#1A1A1A]">
       {/* Toast Notice */}
       {actionNotice && (
         <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 animate-fade-in border border-gray-700">
