@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import type { Testimonial } from "../constants";
-import { FONT, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
+import { FONT, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme } from "../types/widget";
 import type { WidgetPresetId } from "../styles/types";
 import { getPresetDefinition } from "../styles/registry";
@@ -30,7 +30,7 @@ export interface MarqueeLayoutProps {
   ratingColor?: string;
   ratingBorderColor?: string;
   highlightColor?: string;
-  // Dual-Row Marquee Specific Options (Matching Senja Reference #4)
+  // Dual-Row Marquee Specific Options (Optimized for Consistent Sizing & Calm Slow Pace)
   marqueeRows?: 1 | 2;
   marqueeDirection?: "left" | "right" | "opposing";
   marqueeSpeed?: "slow" | "normal" | "fast";
@@ -56,11 +56,7 @@ export function MarqueeLayout({
   ratingBorderColor,
   highlightColor,
   marqueeRows = 2,
-  marqueeDirection = "opposing",
-  marqueeSpeed = "normal",
   marqueePauseOnHover = true,
-  cardLayout = "top",
-  cardWidth = 290,
 }: MarqueeLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(
@@ -88,20 +84,15 @@ export function MarqueeLayout({
     }
   }, [testimonials.length, marqueeRows]);
 
-  // Duration in seconds based on speed
-  const durationSeconds = useMemo(() => {
-    switch (marqueeSpeed) {
-      case "fast":
-        return 18;
-      case "slow":
-        return 48;
-      case "normal":
-      default:
-        return 30;
-    }
-  }, [marqueeSpeed]);
+  // Calm, readable slow pace default
+  const row1Duration = 55;
+  const row2Duration = 60;
 
-  // Prepare items for Row 1 and Row 2
+  // Fixed consistent card dimensions (320px width x 185px height)
+  const consistentCardWidth = 320;
+  const consistentCardHeight = 185;
+
+  // Prepare duplicate items for infinite smooth scrolling
   const { row1Items, row2Items } = useMemo(() => {
     if (!testimonials || testimonials.length === 0) {
       return { row1Items: [], row2Items: [] };
@@ -118,7 +109,7 @@ export function MarqueeLayout({
       };
     }
 
-    // Split for 2 rows
+    // Split evenly across 2 rows
     let r1: Testimonial[] = [];
     let r2: Testimonial[] = [];
 
@@ -157,16 +148,6 @@ export function MarqueeLayout({
     );
   }
 
-  // Row 1 & Row 2 animation class names and durations
-  const row1AnimationName =
-    marqueeDirection === "right" ? "blovi-marquee-right" : "blovi-marquee-left";
-  const row2AnimationName =
-    marqueeDirection === "opposing"
-      ? "blovi-marquee-right"
-      : marqueeDirection === "right"
-      ? "blovi-marquee-right"
-      : "blovi-marquee-left";
-
   const isDark = theme === "dark";
 
   return (
@@ -194,7 +175,7 @@ export function MarqueeLayout({
           gap: 16px;
           width: max-content;
           will-change: transform;
-          animation: ${row1AnimationName} ${durationSeconds}s linear infinite;
+          animation: blovi-marquee-left ${row1Duration}s linear infinite;
           padding: 4px 0;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
@@ -204,7 +185,7 @@ export function MarqueeLayout({
           gap: 16px;
           width: max-content;
           will-change: transform;
-          animation: ${row2AnimationName} ${Math.round(durationSeconds * 1.08)}s linear infinite;
+          animation: blovi-marquee-right ${row2Duration}s linear infinite;
           padding: 4px 0;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
@@ -219,8 +200,10 @@ export function MarqueeLayout({
         `
             : ""
         }
+        /* Consistent Card Sizing: fixed 320px width & 185px height */
         .blovi-marquee-card-wrapper {
-          width: ${cardWidth}px;
+          width: ${consistentCardWidth}px;
+          height: ${consistentCardHeight}px;
           flex-shrink: 0;
           cursor: pointer;
           transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -231,7 +214,13 @@ export function MarqueeLayout({
         .blovi-marquee-card-wrapper:hover {
           transform: translateY(-3px);
         }
-        .blovi-card {
+        .blovi-marquee-card-wrapper .blovi-card {
+          height: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: flex-start !important;
+          padding: 16px 18px !important;
+          overflow: hidden !important;
           transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .blovi-marquee-card-wrapper:hover .blovi-card {
@@ -241,6 +230,19 @@ export function MarqueeLayout({
               ? "0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(37, 99, 235, 0.15)"
               : "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 15px -3px rgba(37, 99, 235, 0.1)"
           } !important;
+        }
+        /* Clamp testimonial review body to 3 lines cleanly */
+        .blovi-marquee-card-wrapper .blovi-card p {
+          display: -webkit-box !important;
+          -webkit-line-clamp: 3 !important;
+          -webkit-box-orient: vertical !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          font-size: 13.5px !important;
+          line-height: 1.5 !important;
+        }
+        .blovi-marquee-card-wrapper .blovi-card button {
+          display: none !important;
         }
         @media (prefers-reduced-motion: reduce) {
           .blovi-marquee-track-row1,
@@ -264,7 +266,7 @@ export function MarqueeLayout({
           padding: "6px 0",
         }}
       >
-        {/* ROW 1 */}
+        {/* ROW 1 (Scrolls Left) */}
         <div className="blovi-marquee-track-row1">
           {row1Items.map((t, i) => (
             <div
@@ -281,7 +283,7 @@ export function MarqueeLayout({
                 showPhotos={showPhotos}
                 useGravatar={useGravatar}
                 fallbackAvatar={fallbackAvatar}
-                cardLayout={cardLayout}
+                cardLayout="top"
                 showDate={false}
                 onReadMore={setActiveModalTestimonial}
               />
@@ -289,7 +291,7 @@ export function MarqueeLayout({
           ))}
         </div>
 
-        {/* ROW 2 (Dual Marquee) */}
+        {/* ROW 2 (Dual Marquee - Scrolls Right) */}
         {marqueeRows === 2 && row2Items.length > 0 && (
           <div className="blovi-marquee-track-row2">
             {row2Items.map((t, i) => (
@@ -307,7 +309,7 @@ export function MarqueeLayout({
                   showPhotos={showPhotos}
                   useGravatar={useGravatar}
                   fallbackAvatar={fallbackAvatar}
-                  cardLayout={cardLayout}
+                  cardLayout="top"
                   showDate={false}
                   onReadMore={setActiveModalTestimonial}
                 />

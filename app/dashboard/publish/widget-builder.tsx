@@ -1195,87 +1195,6 @@ export default function WidgetBuilder({
                     </div>
                   </div>
 
-                  {/* Scroll Direction */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Scroll Direction
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "opposing", label: "Opposing" },
-                        { id: "left", label: "Left" },
-                        { id: "right", label: "Right" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setMarqueeDirection(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            marqueeDirection === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Speed */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Scroll Speed
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "slow", label: "Slow" },
-                        { id: "normal", label: "Normal" },
-                        { id: "fast", label: "Fast" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setMarqueeSpeed(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            marqueeSpeed === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Card Width */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Card Width
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: 260, label: "260px" },
-                        { id: 290, label: "290px" },
-                        { id: 330, label: "330px" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setMarqueeCardWidth(item.id)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            marqueeCardWidth === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Pause on Hover */}
                   <label className="flex items-center justify-between cursor-pointer select-none pt-1">
                     <span className="text-xs font-medium text-zinc-700">
@@ -1352,7 +1271,7 @@ export default function WidgetBuilder({
             )}
 
             {/* DETAILS & CARD LAYOUT */}
-            {layout !== "badge" && layout !== "avatars" && (
+            {layout !== "badge" && layout !== "avatars" && layout !== "marquee" && (
               <>
                 <section className="space-y-3">
                   <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
