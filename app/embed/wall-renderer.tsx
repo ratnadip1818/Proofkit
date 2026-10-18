@@ -156,7 +156,7 @@ export default function WallRenderer({
   quotesColumns = 3,
   quotesStyle = "editorial",
   avatarPosition = "top",
-  maxQuotes = 5,
+  maxQuotes = 3,
   marqueeRows = 2,
   marqueeDirection = "opposing",
   marqueeSpeed = "normal",

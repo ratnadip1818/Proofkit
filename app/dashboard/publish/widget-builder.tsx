@@ -1056,91 +1056,41 @@ export default function WidgetBuilder({
                     Hero Quotes Settings
                   </span>
 
-                  {/* Columns */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Grid Columns
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: 2, label: "2 Columns" },
-                        { id: 3, label: "3 Columns" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setQuotesColumns(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            quotesColumns === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
+                  {/* Columns (only if more than 1 quote) */}
+                  {maxQuotes > 1 && (
+                    <div className="space-y-1.5">
+                      <span className="text-xs font-medium text-zinc-700 block">
+                        Grid Columns
+                      </span>
+                      <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                        {[
+                          { id: 2, label: "2 Columns" },
+                          { id: 3, label: "3 Columns" },
+                        ].map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setQuotesColumns(item.id as any)}
+                            className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                              quotesColumns === item.id
+                                ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                                : "text-zinc-500 hover:text-[#1A1A1A]"
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Container Style */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Card Container
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "editorial", label: "Editorial Frameless" },
-                        { id: "card", label: "Soft Card Box" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setQuotesStyle(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            quotesStyle === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Avatar Position */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Avatar Position
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "top", label: "Centered on Top" },
-                        { id: "bottom", label: "Bottom Profile" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setAvatarPosition(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            avatarPosition === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Max Quotes */}
+                  {/* Max Quotes Displayed (Includes 1) */}
                   <div className="space-y-1.5">
                     <span className="text-xs font-medium text-zinc-700 block">
                       Max Quotes Displayed
                     </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-4 gap-1 border border-[#E3E0DB]">
-                      {[2, 3, 4, 6].map((num) => (
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-5 gap-1 border border-[#E3E0DB]">
+                      {[1, 2, 3, 4, 6].map((num) => (
                         <button
                           key={num}
                           type="button"
@@ -1271,7 +1221,7 @@ export default function WidgetBuilder({
             )}
 
             {/* DETAILS & CARD LAYOUT */}
-            {layout !== "badge" && layout !== "avatars" && layout !== "marquee" && (
+            {layout !== "badge" && layout !== "avatars" && layout !== "marquee" && layout !== "quotes" && (
               <>
                 <section className="space-y-3">
                   <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
@@ -1486,12 +1436,24 @@ export default function WidgetBuilder({
             ) : layout === "quotes" ? (
               /* Hero Quotes: Centered on dot-grid canvas */
               <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
-                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-5xl">
+                <div
+                  className={`w-full flex items-center justify-center transition-all duration-300 ${
+                    maxQuotes === 1 ? "max-w-2xl" : "max-w-5xl"
+                  }`}
+                >
                   <iframe
                     key={`preview-quotes-${rawPreviewUrl}`}
                     src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{ height: "460px" }}
+                    className="w-full border-none block bg-transparent transition-all duration-200"
+                    style={{
+                      height:
+                        iframeHeight < 750
+                          ? `${Math.max(iframeHeight, 220)}px`
+                          : maxQuotes === 1
+                          ? "280px"
+                          : "420px",
+                      maxHeight: "85vh",
+                    }}
                     title="Live Render Output"
                   />
                 </div>

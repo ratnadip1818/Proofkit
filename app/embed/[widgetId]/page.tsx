@@ -70,6 +70,7 @@ export default async function EmbedPage({
     if (savedSettings.badge_url) mergedSearchParams.badgeUrl = savedSettings.badge_url;
     if (savedSettings.quotes_columns) mergedSearchParams.quotesColumns = String(savedSettings.quotes_columns);
     if (savedSettings.quotes_style) mergedSearchParams.quotesStyle = savedSettings.quotes_style;
+    if (savedSettings.max_quotes) mergedSearchParams.maxQuotes = String(savedSettings.max_quotes);
     if (savedSettings.marquee_rows) mergedSearchParams.marqueeRows = String(savedSettings.marquee_rows);
     if (savedSettings.marquee_direction) mergedSearchParams.marqueeDirection = savedSettings.marquee_direction;
     if (savedSettings.marquee_speed) mergedSearchParams.marqueeSpeed = savedSettings.marquee_speed;

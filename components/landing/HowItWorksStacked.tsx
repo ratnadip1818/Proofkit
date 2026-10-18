@@ -68,16 +68,16 @@ export default function HowItWorksStacked({
   return (
     <section
       id="how-it-works"
-      className="relative overflow-hidden bg-[#FAF8F5] px-6 py-24 text-[#141413] md:px-12 md:py-36 border-t border-[#EAE6DF]"
+      className="relative overflow-hidden bg-[#FAF8F5] px-6 py-24 text-[#1A1A1A] md:px-12 md:py-36 border-t border-[#E3E0DB]"
     >
       <div className="relative mx-auto max-w-[1240px]">
         {/* Section Header */}
         <div className="max-w-[780px] space-y-4">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#63724E]">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563EB]">
             How it works
           </p>
           <TitleTag
-            className="text-balance text-[clamp(2.4rem,4.8vw,4.25rem)] font-normal leading-[1.04] tracking-[-0.04em] text-[#141413]"
+            className="text-balance text-[clamp(2.4rem,4.8vw,4.25rem)] font-normal leading-[1.04] tracking-[-0.04em] text-[#1A1A1A]"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Three quiet steps.{" "}
@@ -88,13 +88,13 @@ export default function HowItWorksStacked({
               Zero friction social proof.
             </span>
           </TitleTag>
-          <p className="max-w-[560px] text-[16px] md:text-[17px] leading-relaxed text-[#6E6C68]">
+          <p className="max-w-[560px] text-[16px] md:text-[17px] leading-relaxed text-[#787774]">
             Send a link to collect reviews, approve the ones you like, and paste two lines of code onto your website.
           </p>
         </div>
 
         {/* 3-Tab Selector Pill Bar */}
-        <div className="mt-12 flex flex-wrap items-center gap-2 sm:gap-3 rounded-full border border-[#E5E0D8] bg-[#F3EFE7] p-1.5 w-fit">
+        <div className="mt-12 flex flex-wrap items-center gap-2 sm:gap-3 rounded-full border border-[#E3E0DB] bg-[#EFECE8] p-1.5 w-fit">
           {STEPS.map((step, idx) => {
             const isActive = activeTab === idx;
             return (
@@ -104,13 +104,13 @@ export default function HowItWorksStacked({
                 onClick={() => setActiveTab(idx)}
                 className={`relative flex items-center gap-2 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-white text-[#141413] shadow-xs"
-                    : "text-[#6E6C68] hover:text-[#141413]"
+                    ? "bg-white text-[#1A1A1A] shadow-xs"
+                    : "text-[#787774] hover:text-[#1A1A1A]"
                 }`}
               >
                 <span
                   className={`font-mono text-[11px] font-medium ${
-                    isActive ? "text-[#2563EB]" : "text-[#9A9893]"
+                    isActive ? "text-[#2563EB]" : "text-[#787774]"
                   }`}
                 >
                   {step.stepNumber}
@@ -122,7 +122,7 @@ export default function HowItWorksStacked({
         </div>
 
         {/* 2-Column Studio Stage (Left: Content, Right: Fixed Consistent Sized Canvas) */}
-        <div className="mt-8 rounded-[28px] border border-[#EAE6DF] bg-white p-6 sm:p-10 md:p-12 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+        <div className="mt-8 rounded-[28px] border border-[#E3E0DB] bg-white p-6 sm:p-10 md:p-12 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             
             {/* Left Column: Step Description & Bullets */}
@@ -137,25 +137,25 @@ export default function HowItWorksStacked({
                   className="space-y-6"
                 >
                   <div>
-                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#63724E]">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2563EB]">
                       {activeStep.subhead}
                     </span>
                     <h3
-                      className="mt-3 text-[24px] sm:text-[28px] md:text-[32px] font-normal tracking-[-0.035em] leading-[1.14] text-[#141413]"
+                      className="mt-3 text-[24px] sm:text-[28px] md:text-[32px] font-normal tracking-[-0.035em] leading-[1.14] text-[#1A1A1A]"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
                       {activeStep.title}
                     </h3>
-                    <p className="mt-3 text-[14.5px] md:text-[15.5px] leading-relaxed text-[#6E6C68]">
+                    <p className="mt-3 text-[14.5px] md:text-[15.5px] leading-relaxed text-[#787774]">
                       {activeStep.body}
                     </p>
                   </div>
 
                   {/* Clean, quiet bullet points */}
-                  <div className="space-y-3 border-t border-[#F0ECE1] pt-5">
+                  <div className="space-y-3 border-t border-[#E3E0DB]/60 pt-5">
                     {activeStep.bullets.map((bullet, i) => (
-                      <div key={i} className="flex items-center gap-2.5 text-[13.5px] text-[#45433F]">
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100/80 text-emerald-700">
+                      <div key={i} className="flex items-center gap-2.5 text-[13.5px] text-[#1A1A1A]">
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                           <Check size={10} strokeWidth={2.5} />
                         </span>
                         <span>{bullet}</span>
@@ -168,7 +168,7 @@ export default function HowItWorksStacked({
 
             {/* Right Column: 100% Consistent Size Preview Canvas */}
             <div className="lg:col-span-7">
-              <div className="relative w-full h-[400px] sm:h-[440px] rounded-2xl bg-[#FAF8F5] border border-[#EAE6DF] p-3 sm:p-5 flex items-center justify-center overflow-hidden">
+              <div className="relative w-full h-[400px] sm:h-[440px] rounded-2xl bg-[#FAF8F5] border border-[#E3E0DB] p-3 sm:p-5 flex items-center justify-center overflow-hidden">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activeStep.id}
@@ -200,7 +200,7 @@ export default function HowItWorksStacked({
 function Step1FormVisual() {
   return (
     <div className="relative flex h-full w-full items-center justify-center p-2 sm:p-4">
-      <div className="relative w-full max-w-[340px] rounded-2xl bg-white border border-[#EAE6DF] p-3 sm:p-3.5 shadow-xs">
+      <div className="relative w-full max-w-[340px] rounded-2xl bg-white border border-[#E3E0DB] p-3 sm:p-3.5 shadow-xs">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/step-collect-form.png"
@@ -215,7 +215,7 @@ function Step1FormVisual() {
 function Step2DashboardVisual() {
   return (
     <div className="relative flex h-full w-full items-center justify-center p-2 sm:p-4">
-      <div className="w-full max-w-[560px] rounded-xl bg-white border border-[#EAE6DF] overflow-hidden shadow-xs">
+      <div className="w-full max-w-[560px] rounded-xl bg-white border border-[#E3E0DB] overflow-hidden shadow-xs">
         <div className="flex shrink-0 items-center justify-between border-b border-gray-100 bg-gray-50/80 px-3.5 py-2">
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
@@ -258,7 +258,7 @@ function Step3ShareVisual() {
         <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
           <span>← Back</span>
         </div>
-        <h4 className="mt-1.5 text-base sm:text-lg font-bold tracking-tight text-[#141413]">
+        <h4 className="mt-1.5 text-base sm:text-lg font-bold tracking-tight text-[#1A1A1A]">
           Share your widget
         </h4>
 
@@ -288,13 +288,13 @@ function Step3ShareVisual() {
 
           {/* Right Side Code Card */}
           <div className="sm:col-span-7 rounded-xl border border-gray-200/90 bg-white p-3 shadow-2xs">
-            <p className="text-xs font-bold text-[#141413]">Embed code</p>
+            <p className="text-xs font-bold text-[#1A1A1A]">Embed code</p>
             <p className="mt-0.5 text-[10px] text-gray-500">
               Paste this 2-line code snippet where you want to display the embed on your site.
             </p>
 
             {/* Dark Snippet Box */}
-            <div className="mt-2.5 overflow-hidden rounded-xl bg-[#141413] p-2.5 text-white">
+            <div className="mt-2.5 overflow-hidden rounded-xl bg-[#18181B] p-2.5 text-white">
               <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-1.5">
                 <span className="flex items-center gap-1.5 text-[9.5px] text-emerald-400 font-mono">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

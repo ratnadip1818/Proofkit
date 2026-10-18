@@ -167,7 +167,7 @@ export default function WidgetClientWrapper({
     const quotesStyle = (getParam("quotesStyle") as "editorial" | "card") || "editorial";
     const avatarPosition = (getParam("avatarPosition") as "top" | "bottom") || "top";
     const rawMaxQuotes = getParam("maxQuotes") || getParam("quotesMax");
-    const maxQuotes = rawMaxQuotes ? parseInt(rawMaxQuotes, 10) || 5 : 5;
+    const maxQuotes = rawMaxQuotes ? parseInt(rawMaxQuotes, 10) || 3 : 3;
 
     const rawMarqueeRows = getParam("marqueeRows") || getParam("rows");
     const marqueeRows: 1 | 2 = rawMarqueeRows === "1" ? 1 : 2;

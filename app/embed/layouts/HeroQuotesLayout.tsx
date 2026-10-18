@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import type { Testimonial } from "../constants";
 import { buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme } from "../types/widget";
@@ -9,6 +9,8 @@ import { getPresetDefinition } from "../styles/registry";
 import { Stars } from "../components/Stars";
 import { Avatar } from "../components/Avatar";
 import { BadgeLink } from "../components/BadgeLink";
+import { TestimonialModal } from "../components/TestimonialModal";
+import { sendWidgetHeight } from "../utils";
 
 export interface HeroQuotesLayoutProps {
   testimonials: Testimonial[];
@@ -23,14 +25,15 @@ export interface HeroQuotesLayoutProps {
   ratingColor?: string;
   ratingBorderColor?: string;
   highlightColor?: string;
-  // Specific Hero Quotes configuration
+  // Hero Quotes configuration
   columns?: 2 | 3;
-  quotesStyle?: "editorial" | "card";
-  avatarPosition?: "top" | "bottom";
   maxQuotes?: number;
   showPhotos?: boolean;
   useGravatar?: boolean;
   fallbackAvatar?: string;
+  // Retained for backward-compatibility
+  quotesStyle?: "editorial" | "card";
+  avatarPosition?: "top" | "bottom";
 }
 
 const DEFAULT_PORTRAITS = [
@@ -56,15 +59,13 @@ export function HeroQuotesLayout({
   ratingBorderColor,
   highlightColor,
   columns = 3,
-  quotesStyle = "editorial",
-  avatarPosition = "top",
-  maxQuotes = 5,
+  maxQuotes = 3,
   showPhotos = true,
   useGravatar = true,
   fallbackAvatar = "Initials",
 }: HeroQuotesLayoutProps) {
   const presetDef = getPresetDefinition(preset);
-  const { colors } = buildStyle(
+  const { colors, radius: radiusPx } = buildStyle(
     theme,
     accent,
     radius,
@@ -78,6 +79,18 @@ export function HeroQuotesLayout({
     }
   );
 
+  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
+
+  // Dynamic height reporting to embed parent
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const timer = setTimeout(() => {
+        sendWidgetHeight();
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [testimonials.length, columns, maxQuotes]);
+
   const isDark = theme === "dark";
 
   // Limit testimonials slice
@@ -86,51 +99,140 @@ export function HeroQuotesLayout({
     return testimonials.slice(0, effectiveMax);
   }, [testimonials, effectiveMax]);
 
-  // Dynamic layout calculations
-  const isCard = quotesStyle === "card";
+  const isSingleQuote = displayedTestimonials.length === 1;
+  const isTwoQuotes = displayedTestimonials.length === 2 || columns === 2;
 
   return (
     <div
-      className="w-full py-8 px-4 flex flex-col items-center select-none"
+      className="w-full py-6 px-4 flex flex-col items-center select-none"
       style={{
-        backgroundColor: isDark ? (colors.pageBg || "#0B0F19") : (colors.pageBg || "transparent"),
+        backgroundColor: backgroundColor || (isDark ? "#0B0F19" : "transparent"),
         color: colors.text,
       }}
     >
-      {/* Centered Editorial Quotes Grid matching Senja Reference 3 */}
-      <div
-        className="w-full max-w-5xl flex flex-wrap justify-center gap-x-8 sm:gap-x-10 gap-y-12 sm:gap-y-16 text-center"
-      >
-        {displayedTestimonials.map((t, idx) => {
-          const quote = t.display_body || t.body_original || "";
-          const photoUrl = t.avatar_url || DEFAULT_PORTRAITS[idx % DEFAULT_PORTRAITS.length];
-          const authorRole = t.author_role || t.tags?.[0] || "";
+      {/* Frameless Editorial Quotes Presentation (Senja Reference 3 Signature) */}
+      {isSingleQuote ? (
+        /* Variant A: Single Hero Statement (Max Quotes = 1) */
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center text-center py-4 px-2">
+          {displayedTestimonials.map((t, idx) => {
+            const rawQuote = t.display_body || t.body_original || "";
+            const quote = rawQuote.replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
+            const photoUrl = t.avatar_url || DEFAULT_PORTRAITS[idx % DEFAULT_PORTRAITS.length];
+            const authorRole = t.author_role || t.tags?.[0] || "";
 
-          return (
-            <div
-              key={t.id || `quote-${idx}`}
-              className="w-full min-w-0 transition-transform duration-200 hover:-translate-y-1"
-              style={{
-                flex: columns === 2 ? "1 1 calc(50% - 2rem)" : "1 1 calc(33.333% - 2rem)",
-                maxWidth: columns === 2 ? "calc(50% - 1rem)" : "calc(33.333% - 1rem)",
-              }}
-            >
+            return (
               <div
-                className={`mx-auto flex flex-col items-center gap-3.5 h-full ${
-                  isCard
-                    ? "p-6 rounded-2xl border shadow-xs transition-all " +
-                      (isDark
-                        ? "bg-zinc-900/90 border-zinc-800 text-zinc-100"
-                        : "bg-white border-zinc-200/80 text-zinc-900")
-                    : "p-2"
-                }`}
-                style={isCard && backgroundColor ? { backgroundColor } : undefined}
+                key={t.id || `single-quote-${idx}`}
+                className="w-full flex flex-col items-center gap-4 cursor-pointer group transition-transform duration-200 hover:-translate-y-1"
+                onClick={() => setActiveModalTestimonial(t)}
               >
-                {/* 1. TOP AVATAR (Senja Reference 3 style) */}
-                {avatarPosition === "top" && showPhotos && (
+                {/* 1. Prominent Top Avatar */}
+                {showPhotos && (
                   <div className="shrink-0 mb-1">
                     <div
-                      className="rounded-full shadow-xs transition-transform duration-200 hover:scale-105"
+                      className="rounded-full shadow-md transition-transform duration-200 group-hover:scale-105"
+                      style={{
+                        padding: "3px",
+                        backgroundColor: isDark ? "#27272A" : "#FFFFFF",
+                        border: isDark ? "1.5px solid #3F3F46" : "1.5px solid #E5E7EB",
+                      }}
+                    >
+                      <Avatar
+                        name={t.author_name}
+                        avatarUrl={photoUrl}
+                        email={t.author_email || t.email}
+                        colors={colors}
+                        size={60}
+                        showPhotos={true}
+                        useGravatar={useGravatar}
+                        fallbackAvatar={fallbackAvatar}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Prominent Hero Quote Text */}
+                <div className="text-center px-2">
+                  <p
+                    className="text-lg sm:text-xl md:text-2xl font-medium leading-relaxed tracking-tight"
+                    style={{
+                      color: textColor || (isDark ? "#F4F4F5" : "#18181B"),
+                    }}
+                  >
+                    <span
+                      className="font-serif font-bold text-xl sm:text-2xl opacity-40 select-none mr-1"
+                      style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
+                    >
+                      &ldquo;
+                    </span>
+                    {quote}
+                    <span
+                      className="font-serif font-bold text-xl sm:text-2xl opacity-40 select-none ml-1"
+                      style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
+                    >
+                      &rdquo;
+                    </span>
+                  </p>
+                </div>
+
+                {/* 3. Gold Stars Rating */}
+                {showRatings && typeof t.rating === "number" && t.rating > 0 && (
+                  <div className="flex justify-center mt-1">
+                    <Stars rating={t.rating} colors={colors} size={18} marginBottom={0} />
+                  </div>
+                )}
+
+                {/* 4. Author Details */}
+                <div className="flex flex-col items-center gap-0.5 mt-0.5">
+                  <span
+                    className="font-bold text-base tracking-tight"
+                    style={{
+                      color: isDark ? "#FFFFFF" : "#09090B",
+                    }}
+                  >
+                    {t.author_name}
+                  </span>
+                  {authorRole && (
+                    <span
+                      className="text-xs sm:text-sm font-normal"
+                      style={{
+                        color: isDark ? "#A1A1AA" : "#71717A",
+                      }}
+                    >
+                      {authorRole}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* Variant B: Multi-Quote Frameless Grid (Max Quotes = 2, 3, 4, 6) */
+        <div
+          className={`w-full max-w-5xl grid gap-x-8 sm:gap-x-12 gap-y-10 sm:gap-y-14 text-center ${
+            isTwoQuotes
+              ? "grid-cols-1 sm:grid-cols-2 max-w-4xl"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          }`}
+        >
+          {displayedTestimonials.map((t, idx) => {
+            const rawQuote = t.display_body || t.body_original || "";
+            const quote = rawQuote.replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
+            const photoUrl = t.avatar_url || DEFAULT_PORTRAITS[idx % DEFAULT_PORTRAITS.length];
+            const authorRole = t.author_role || t.tags?.[0] || "";
+
+            return (
+              <div
+                key={t.id || `quote-${idx}`}
+                className="w-full flex flex-col items-center gap-3.5 p-2 cursor-pointer group transition-transform duration-200 hover:-translate-y-1"
+                onClick={() => setActiveModalTestimonial(t)}
+              >
+                {/* 1. Top Avatar */}
+                {showPhotos && (
+                  <div className="shrink-0 mb-1">
+                    <div
+                      className="rounded-full shadow-xs transition-transform duration-200 group-hover:scale-105"
                       style={{
                         padding: "2px",
                         backgroundColor: isDark ? "#27272A" : "#FFFFFF",
@@ -151,38 +253,38 @@ export function HeroQuotesLayout({
                   </div>
                 )}
 
-                {/* 2. QUOTE TEXT WITH TYPOGRAPHIC QUOTES */}
-                <div className="text-center text-[15px] sm:text-base leading-snug px-1">
-                  <span
-                    className="font-serif font-bold text-lg sm:text-xl opacity-40 select-none mr-0.5"
-                    style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
-                  >
-                    &ldquo;
-                  </span>
-                  <span
-                    className="font-normal leading-relaxed"
+                {/* 2. Frameless Editorial Quote Text */}
+                <div className="text-center px-1">
+                  <p
+                    className="text-[14.5px] sm:text-[15.5px] font-normal leading-relaxed line-clamp-4"
                     style={{
                       color: textColor || (isDark ? "#F4F4F5" : "#27272A"),
                     }}
                   >
+                    <span
+                      className="font-serif font-bold text-lg opacity-40 select-none mr-0.5"
+                      style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
+                    >
+                      &ldquo;
+                    </span>
                     {quote}
-                  </span>
-                  <span
-                    className="font-serif font-bold text-lg sm:text-xl opacity-40 select-none ml-0.5"
-                    style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
-                  >
-                    &rdquo;
-                  </span>
+                    <span
+                      className="font-serif font-bold text-lg opacity-40 select-none ml-0.5"
+                      style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
+                    >
+                      &rdquo;
+                    </span>
+                  </p>
                 </div>
 
-                {/* 3. GOLD STAR RATING */}
+                {/* 3. Gold Stars Rating */}
                 {showRatings && typeof t.rating === "number" && t.rating > 0 && (
                   <div className="flex justify-center mt-0.5">
                     <Stars rating={t.rating} colors={colors} size={15} marginBottom={0} />
                   </div>
                 )}
 
-                {/* 4. AUTHOR DETAILS */}
+                {/* 4. Author Details */}
                 <div className="flex flex-col items-center gap-0.5">
                   <span
                     className="font-semibold text-sm tracking-tight"
@@ -194,7 +296,7 @@ export function HeroQuotesLayout({
                   </span>
                   {authorRole && (
                     <span
-                      className="text-xs"
+                      className="text-xs font-normal"
                       style={{
                         color: isDark ? "#A1A1AA" : "#71717A",
                       }}
@@ -203,42 +305,27 @@ export function HeroQuotesLayout({
                     </span>
                   )}
                 </div>
-
-                {/* 5. BOTTOM AVATAR (if avatarPosition === "bottom") */}
-                {avatarPosition === "bottom" && showPhotos && (
-                  <div className="shrink-0 mt-2">
-                    <div
-                      className="rounded-full shadow-xs"
-                      style={{
-                        padding: "2px",
-                        backgroundColor: isDark ? "#27272A" : "#FFFFFF",
-                        border: isDark ? "1px solid #3F3F46" : "1px solid #E5E7EB",
-                      }}
-                    >
-                      <Avatar
-                        name={t.author_name}
-                        avatarUrl={photoUrl}
-                        email={t.author_email || t.email}
-                        colors={colors}
-                        size={52}
-                        showPhotos={true}
-                        useGravatar={useGravatar}
-                        fallbackAvatar={fallbackAvatar}
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* BLOVI COLLECTION BADGE */}
       {showBadge && (
-        <div className="mt-12 sm:mt-14 flex justify-center">
+        <div className="mt-10 sm:mt-12 flex justify-center">
           <BadgeLink colors={colors} />
         </div>
+      )}
+
+      {activeModalTestimonial && (
+        <TestimonialModal
+          t={activeModalTestimonial}
+          onClose={() => setActiveModalTestimonial(null)}
+          colors={colors}
+          radius={radiusPx}
+          showRatings={showRatings}
+        />
       )}
     </div>
   );
