@@ -65,6 +65,9 @@ export default async function EmbedPage({
     if (savedSettings.show_branding !== undefined) mergedSearchParams.badge = String(savedSettings.show_branding);
     if (savedSettings.badge_style) mergedSearchParams.badgeStyle = savedSettings.badge_style;
     if (savedSettings.badge_text) mergedSearchParams.badgeText = savedSettings.badge_text;
+    if (savedSettings.rating_box_bg) mergedSearchParams.ratingBoxBg = savedSettings.rating_box_bg;
+    if (savedSettings.rating_box_text) mergedSearchParams.ratingBoxText = savedSettings.rating_box_text;
+    if (savedSettings.badge_url) mergedSearchParams.badgeUrl = savedSettings.badge_url;
     if (savedSettings.quotes_columns) mergedSearchParams.quotesColumns = String(savedSettings.quotes_columns);
     if (savedSettings.quotes_style) mergedSearchParams.quotesStyle = savedSettings.quotes_style;
     if (savedSettings.marquee_rows) mergedSearchParams.marqueeRows = String(savedSettings.marquee_rows);

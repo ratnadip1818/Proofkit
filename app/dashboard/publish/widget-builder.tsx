@@ -942,75 +942,6 @@ export default function WidgetBuilder({
                     </div>
                   )}
 
-                  {/* Subtitle Text */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-zinc-700 block">
-                        Subtitle Text
-                      </span>
-                      <span className="text-[10px] text-zinc-400">
-                        {"Use {count} for count"}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={badgeText}
-                      onChange={(e) => setBadgeText(e.target.value)}
-                      placeholder="from {count} reviews"
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
-                    />
-                  </div>
-
-                  {/* Container Shape */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Container Style
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "plain", label: "Seamless" },
-                        { id: "pill", label: "Pill pill" },
-                        { id: "card", label: "Card box" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setBadgeContainer(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            badgeContainer === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Alignment */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Alignment
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {(["left", "center", "right"] as const).map((a) => (
-                        <button
-                          key={a}
-                          type="button"
-                          onClick={() => setBadgeAlign(a)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer capitalize font-medium ${
-                            badgeAlign === a
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {a}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Optional Target Link */}
                   <div className="space-y-1.5">
                     <span className="text-xs font-medium text-zinc-700 block">
@@ -1361,107 +1292,113 @@ export default function WidgetBuilder({
             )}
 
             {/* 1. CUSTOMER PHOTOS SECTION */}
-            <section className="space-y-3">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                Customer Photos
-              </span>
-
-              <label className="flex items-center gap-3 cursor-pointer select-none">
-                <Switch checked={showPhotos} onChange={setShowPhotos} />
-                <span className="text-xs font-medium text-zinc-700">
-                  Show Customer Photos
-                </span>
-              </label>
-
-              {showPhotos && (
-                <div className="space-y-3 pt-0.5">
-                  <span className="text-[11px] text-zinc-500 block">
-                    If customer doesn&apos;t have a photo:
+            {layout !== "badge" && (
+              <>
+                <section className="space-y-3">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Customer Photos
                   </span>
 
                   <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <Switch checked={useGravatar} onChange={setUseGravatar} />
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-medium text-zinc-700">
-                        Use Gravatar if available
+                    <Switch checked={showPhotos} onChange={setShowPhotos} />
+                    <span className="text-xs font-medium text-zinc-700">
+                      Show Customer Photos
+                    </span>
+                  </label>
+
+                  {showPhotos && (
+                    <div className="space-y-3 pt-0.5">
+                      <span className="text-[11px] text-zinc-500 block">
+                        If customer doesn&apos;t have a photo:
                       </span>
-                      <HelpCircle size={13} className="text-zinc-400 shrink-0" />
+
+                      <label className="flex items-center gap-3 cursor-pointer select-none">
+                        <Switch checked={useGravatar} onChange={setUseGravatar} />
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-zinc-700">
+                            Use Gravatar if available
+                          </span>
+                          <HelpCircle size={13} className="text-zinc-400 shrink-0" />
+                        </div>
+                      </label>
+
+                      <div className="space-y-1.5 pt-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <label className="text-xs font-medium text-zinc-700">
+                            Fallback Avatar
+                          </label>
+                          <HelpCircle size={13} className="text-zinc-400 shrink-0" />
+                        </div>
+                        <div className="relative">
+                          <select
+                            value={fallbackAvatar}
+                            onChange={(e) => setFallbackAvatar(e.target.value)}
+                            className="w-full h-10 px-3 pr-8 rounded-lg border border-[#E3E0DB] text-xs font-medium text-zinc-800 bg-white hover:border-zinc-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/25 cursor-pointer appearance-none shadow-2xs"
+                          >
+                            <option value="Placeholder">Placeholder</option>
+                            <option value="Initials">Initials</option>
+                          </select>
+                          <ChevronDown
+                            size={14}
+                            className="text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                          />
+                        </div>
+                      </div>
                     </div>
+                  )}
+                </section>
+                <div className="h-px bg-[#E3E0DB]/60" />
+              </>
+            )}
+
+            {/* DETAILS & CARD LAYOUT */}
+            {layout !== "badge" && layout !== "avatars" && (
+              <>
+                <section className="space-y-3">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Details & Layout
+                  </span>
+
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <Switch checked={showDate} onChange={setShowDate} />
+                    <span className="text-xs font-medium text-zinc-700">
+                      Show Review Date
+                    </span>
                   </label>
 
                   <div className="space-y-1.5 pt-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <label className="text-xs font-medium text-zinc-700">
-                        Fallback Avatar
-                      </label>
-                      <HelpCircle size={13} className="text-zinc-400 shrink-0" />
-                    </div>
-                    <div className="relative">
-                      <select
-                        value={fallbackAvatar}
-                        onChange={(e) => setFallbackAvatar(e.target.value)}
-                        className="w-full h-10 px-3 pr-8 rounded-lg border border-[#E3E0DB] text-xs font-medium text-zinc-800 bg-white hover:border-zinc-300 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/25 cursor-pointer appearance-none shadow-2xs"
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Card Layout
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                      <button
+                        type="button"
+                        onClick={() => setCardLayout("top")}
+                        className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                          cardLayout === "top"
+                            ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                            : "text-zinc-500 hover:text-[#1A1A1A]"
+                        }`}
                       >
-                        <option value="Placeholder">Placeholder</option>
-                        <option value="Initials">Initials</option>
-                      </select>
-                      <ChevronDown
-                        size={14}
-                        className="text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                      />
+                        Author at top
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCardLayout("bottom")}
+                        className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                          cardLayout === "bottom"
+                            ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                            : "text-zinc-500 hover:text-[#1A1A1A]"
+                        }`}
+                      >
+                        Author at bottom
+                      </button>
                     </div>
                   </div>
-                </div>
-              )}
-            </section>
-
-            <div className="h-px bg-[#E3E0DB]/60" />
-
-            {/* DETAILS & CARD LAYOUT */}
-            <section className="space-y-3">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                Details & Layout
-              </span>
-
-              <label className="flex items-center gap-3 cursor-pointer select-none">
-                <Switch checked={showDate} onChange={setShowDate} />
-                <span className="text-xs font-medium text-zinc-700">
-                  Show Review Date
-                </span>
-              </label>
-
-              <div className="space-y-1.5 pt-0.5">
-                <span className="text-xs font-medium text-zinc-700 block">
-                  Card Layout
-                </span>
-                <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
-                  <button
-                    type="button"
-                    onClick={() => setCardLayout("top")}
-                    className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                      cardLayout === "top"
-                        ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                        : "text-zinc-500 hover:text-[#1A1A1A]"
-                    }`}
-                  >
-                    Author at top
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCardLayout("bottom")}
-                    className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                      cardLayout === "bottom"
-                        ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                        : "text-zinc-500 hover:text-[#1A1A1A]"
-                    }`}
-                  >
-                    Author at bottom
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            <div className="h-px bg-[#E3E0DB]/60" />
+                </section>
+                <div className="h-px bg-[#E3E0DB]/60" />
+              </>
+            )}
 
             {/* 2. COLORS SECTION */}
             <section className="space-y-3">
@@ -1565,18 +1502,22 @@ export default function WidgetBuilder({
             <div className="h-px bg-[#E3E0DB]/60" />
 
             {/* 4. REMOVE BLOVI BRANDING */}
-            <section className="space-y-2">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                Remove Blovi Branding
-              </span>
+            {layout !== "badge" && (
+              <>
+                <section className="space-y-2">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Remove Blovi Branding
+                  </span>
 
-              <label className="flex items-center gap-3 cursor-pointer select-none py-1">
-                <Switch checked={showBranding} onChange={setShowBranding} />
-                <span className="text-xs font-medium text-zinc-700">
-                  Show Blovi Powered By
-                </span>
-              </label>
-            </section>
+                  <label className="flex items-center gap-3 cursor-pointer select-none py-1">
+                    <Switch checked={showBranding} onChange={setShowBranding} />
+                    <span className="text-xs font-medium text-zinc-700">
+                      Show Blovi Powered By
+                    </span>
+                  </label>
+                </section>
+              </>
+            )}
           </div>
         </aside>
 

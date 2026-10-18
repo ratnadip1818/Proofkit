@@ -1,380 +1,307 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { Copy, Check, Sliders, Inbox, Filter, Code, Sparkles, ShieldCheck, Globe, Layers } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Check, Copy, Code2, Link2 } from "lucide-react";
 
-const STEPS = [
+interface StepItem {
+  id: string;
+  stepNumber: string;
+  tabLabel: string;
+  title: string;
+  body: string;
+  bullets: string[];
+}
+
+const STEPS: StepItem[] = [
   {
+    id: "collect",
     stepNumber: "01",
-    subhead: "Step 01 — Collection",
-    title: "Effortlessly collect the social proof you need",
-    body: "Share a clean, branded form link or import praise your customers already shared.",
-    features: [
-      {
-        icon: Sliders,
-        title: "Customizable Forms",
-        desc: "Collect star ratings, quotes, and buyer photos with custom colors."
-      },
-      {
-        icon: Inbox,
-        title: "Multi-Platform Import",
-        desc: "Pull existing testimonials from Twitter/X, Google Reviews, and LinkedIn."
-      },
-      {
-        icon: Globe,
-        title: "Custom Domain",
-        desc: "Share collection forms on your own branded domain for a professional look."
-      }
+    tabLabel: "Collect",
+    title: "Collect reviews with a simple link",
+    body: "Send your custom link to clients via email, WhatsApp, or social media. They can write a review, leave star ratings, or upload a photo in seconds.",
+    bullets: [
+      "No login required for customers",
+      "Star ratings, quotes & photos",
+      "Custom colors and logo",
     ],
-    imageSrc: "/images/step-collect-form.png",
-    imageAlt: "Blovi Testimonial Collection Form",
-    imageOnLeft: false,
-    frameType: "form"
   },
   {
+    id: "curate",
     stepNumber: "02",
-    subhead: "Step 02 — Management",
-    title: "Manage the customer proof in 1 dashboard",
-    body: "All customer feedback lands in one calm workspace so you can select your best proof.",
-    features: [
-      {
-        icon: Filter,
-        title: "Centralized Workspace",
-        desc: "Organize quotes with status tags, ratings, and customer handles."
-      },
-      {
-        icon: ShieldCheck,
-        title: "Smart Verification",
-        desc: "Tag verified buyers and display authenticity badges automatically."
-      }
+    tabLabel: "Curate",
+    title: "Approve your best reviews in one place",
+    body: "Every review lands in your Blovi dashboard. You choose which ones appear on your site and which ones stay private with a single click.",
+    bullets: [
+      "One-click approve or hide",
+      "Filter five-star reviews",
+      "Auto-tag verified buyers",
     ],
-    imageSrc: "/images/step-manage-table.png",
-    imageAlt: "Blovi Testimonials Management Dashboard",
-    imageOnLeft: true,
-    frameType: "browser"
   },
   {
+    id: "publish",
     stepNumber: "03",
-    subhead: "Step 03 — Publishing",
-    title: "Showcase proof anywhere & boost conversions",
-    body: "Showcase your customer proof on any website with one simple line of code.",
-    features: [
-      {
-        icon: Layers,
-        title: "Wall of Love Widgets",
-        desc: "Display responsive testimonial grids that match your brand perfectly."
-      },
-      {
-        icon: Globe,
-        title: "No-Code Integration",
-        desc: "Paste 1 snippet into Framer, Webflow, Shopify, or Next.js in seconds."
-      }
+    tabLabel: "Publish",
+    title: "Paste two lines of code into your site",
+    body: "Copy the embed snippet and paste it into Framer, Webflow, Shopify, or WordPress. It updates automatically whenever you approve new reviews.",
+    bullets: [
+      "Two-line copy-paste embed",
+      "Matches your site's style",
+      "Updates live without redeploying",
     ],
-    imageSrc: "",
-    imageAlt: "Blovi Custom Showcase Visual",
-    imageOnLeft: false,
-    frameType: "custom"
-  }
+  },
 ];
 
-export default function HowItWorksStacked({ titleAs: TitleTag = "h2" }: { titleAs?: "h1" | "h2" } = {}) {
+export default function HowItWorksStacked({
+  titleAs: TitleTag = "h2",
+}: {
+  titleAs?: "h1" | "h2";
+} = {}) {
+  const [activeTab, setActiveTab] = useState(0);
   const reduced = useReducedMotion();
+  const activeStep = STEPS[activeTab];
 
   return (
-    <section id="how-it-works" className="relative overflow-hidden bg-[#fdfbf7] px-5 py-24 md:px-10 md:py-36">
-      {/* Soft Blovi blue background glow */}
-      <div className="pointer-events-none absolute left-1/2 top-10 h-[30rem] w-[75rem] -translate-x-1/2 rounded-full bg-[#dbeafe]/60 opacity-70 blur-3xl" />
-
-      <div className="relative mx-auto max-w-[1180px]">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: reduced ? 0 : 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mx-auto max-w-[720px] text-center mb-20 md:mb-28"
-        >
-          <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#2563EB]">
+    <section
+      id="how-it-works"
+      className="relative overflow-hidden bg-[#FAF8F5] px-6 py-24 text-[#141413] md:px-12 md:py-36 border-t border-[#EAE6DF]"
+    >
+      <div className="relative mx-auto max-w-[1240px]">
+        {/* Centered Section Header */}
+        <div className="mx-auto max-w-[780px] text-center space-y-4">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#63724E]">
             How it works
           </p>
           <TitleTag
-            className="mt-4 text-balance text-[clamp(2.65rem,5.1vw,5rem)] font-medium leading-[0.94] tracking-[-0.065em] text-[#173b71]"
+            className="text-balance text-[clamp(2.4rem,4.8vw,4.25rem)] font-normal leading-[1.04] tracking-[-0.04em] text-[#141413]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Three simple steps. <br />
+            Three simple steps to show{" "}
             <span
               className="font-serif-accent font-normal italic text-[#2563EB]"
               style={{ fontFamily: "var(--font-serif-accent)" }}
             >
-              Zero friction social proof.
+              real customer proof.
             </span>
           </TitleTag>
-          <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-[#587091] md:text-[17px]">
-            Collect authentic feedback, manage responses in one calm workspace, and publish proof live on your website.
+          <p className="mx-auto max-w-[560px] text-[16px] md:text-[17px] leading-relaxed text-[#6E6C68]">
+            Send a link to collect reviews, approve the ones you like, and paste two lines of code onto your website.
           </p>
-        </motion.div>
+        </div>
 
-        {/* 3 Alternating Step Rows */}
-        <div className="flex flex-col gap-24 md:gap-36">
-          {STEPS.map((step) => (
-            <motion.div
-              key={step.stepNumber}
-              initial={{ opacity: 0, y: reduced ? 0 : 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12"
+        {/* Centered 3-Tab Selector Pill Bar */}
+        <div className="mx-auto mt-12 flex flex-wrap items-center justify-center gap-2 sm:gap-3 rounded-full border border-[#E5E0D8] bg-[#F3EFE7] p-1.5 w-fit">
+          {STEPS.map((step, idx) => {
+            const isActive = activeTab === idx;
+            return (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => setActiveTab(idx)}
+                className={`relative flex items-center gap-2 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? "bg-white text-[#141413] shadow-xs"
+                    : "text-[#6E6C68] hover:text-[#141413]"
+                }`}
+              >
+                <span
+                  className={`font-mono text-[11px] font-medium ${
+                    isActive ? "text-[#2563EB]" : "text-[#9A9893]"
+                  }`}
+                >
+                  {step.stepNumber}
+                </span>
+                <span>{step.tabLabel}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active Step Description (Centered, Simple & Real) */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeStep.id + "-info"}
+            initial={{ opacity: 0, y: reduced ? 0 : 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reduced ? 0 : -8 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto mt-8 max-w-[620px] text-center space-y-2.5"
+          >
+            <h3
+              className="text-[22px] sm:text-[26px] font-normal tracking-[-0.03em] text-[#141413]"
+              style={{ fontFamily: "var(--font-display)" }}
             >
-              {/* Text Left / Visual Right */}
-              {!step.imageOnLeft ? (
-                <>
-                  {/* Left Column: Rich Senja-Style Typography & Micro-Features */}
-                  <div className="lg:col-span-6 flex flex-col justify-center gap-6 lg:ml-auto lg:mr-0 max-w-[500px]">
-                    <div>
-                      <p
-                        className="text-[16px] font-medium italic text-[#2563EB] mb-2"
-                        style={{ fontFamily: "var(--font-serif-accent)" }}
-                      >
-                        {step.subhead}
-                      </p>
-                      <h3
-                        className="text-[28px] sm:text-[36px] md:text-[40px] font-extrabold tracking-[-0.035em] leading-[1.1] text-[#173b71]"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {step.title}
-                      </h3>
-                      <p className="mt-3 text-[15px] leading-relaxed text-[#587091]">
-                        {step.body}
-                      </p>
-                    </div>
+              {activeStep.title}
+            </h3>
+            <p className="text-[14.5px] sm:text-[15.5px] leading-relaxed text-[#6E6C68]">
+              {activeStep.body}
+            </p>
 
-                    {/* Senja-Style Micro Feature Grid */}
-                    <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-200/70">
-                      {step.features.map((feat, i) => {
-                        const Icon = feat.icon;
-                        return (
-                          <div key={i} className="space-y-1.5">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-50 text-[#2563EB] border border-blue-100/80 shadow-2xs">
-                              <Icon size={17} />
-                            </div>
-                            <h4 className="text-xs font-bold text-slate-900">{feat.title}</h4>
-                            <p className="text-[11.5px] leading-relaxed text-slate-500">{feat.desc}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+            {/* Simple Feature Pills */}
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+              {activeStep.bullets.map((bullet, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E0D8] bg-[#F4F0E8]/70 px-3 py-1 text-[12px] font-medium text-[#4D4B46]"
+                >
+                  <Check size={11} className="text-emerald-600" strokeWidth={2.5} />
+                  {bullet}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
-                  {/* Right Column: Uniform Background Canvas Card Container */}
-                  <div className="lg:col-span-6">
-                    <UniformCanvasFrame step={step} />
-                  </div>
-                </>
-              ) : (
-                /* Visual Left / Text Right (Alternating) */
-                <>
-                  {/* Left Column: Uniform Background Canvas Card Container */}
-                  <div className="lg:col-span-6 order-2 lg:order-1">
-                    <UniformCanvasFrame step={step} />
-                  </div>
+        {/* Centered Showcase Stage with Soft Ambient Edge Fade (Not a Sharp Hard Card) */}
+        <div className="relative mx-auto mt-10 w-full max-w-[840px] rounded-[32px] sm:rounded-[40px] bg-gradient-to-b from-[#F2ECE1]/50 via-[#F7F3EB]/30 to-transparent p-2.5 sm:p-5">
+          {/* Ambient Center Glow */}
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.85)_0%,rgba(250,248,245,0.4)_65%,transparent_100%)] blur-xl" />
 
-                  {/* Right Column: Rich Senja-Style Typography & Micro-Features */}
-                  <div className="lg:col-span-6 order-1 lg:order-2 flex flex-col justify-center gap-6 lg:mr-auto lg:ml-0 max-w-[500px]">
-                    <div>
-                      <p
-                        className="text-[16px] font-medium italic text-[#2563EB] mb-2"
-                        style={{ fontFamily: "var(--font-serif-accent)" }}
-                      >
-                        {step.subhead}
-                      </p>
-                      <h3
-                        className="text-[28px] sm:text-[36px] md:text-[40px] font-extrabold tracking-[-0.035em] leading-[1.1] text-[#173b71]"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {step.title}
-                      </h3>
-                      <p className="mt-3 text-[15px] leading-relaxed text-[#587091]">
-                        {step.body}
-                      </p>
-                    </div>
-
-                    {/* Senja-Style Micro Feature Grid */}
-                    <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-200/70">
-                      {step.features.map((feat, i) => {
-                        const Icon = feat.icon;
-                        return (
-                          <div key={i} className="space-y-1.5">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-50 text-[#2563EB] border border-blue-100/80 shadow-2xs">
-                              <Icon size={17} />
-                            </div>
-                            <h4 className="text-xs font-bold text-slate-900">{feat.title}</h4>
-                            <p className="text-[11.5px] leading-relaxed text-slate-500">{feat.desc}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          ))}
+          {/* Consistent Size Frame (Uniform 440px Height across all 3 steps) */}
+          <div className="relative w-full h-[420px] sm:h-[450px] flex items-center justify-center overflow-hidden rounded-[24px] sm:rounded-[32px] border border-[#EAE6DF]/70 bg-gradient-to-b from-white/90 to-[#FAF8F5]/70 shadow-[0_16px_40px_-20px_rgba(0,0,0,0.04)] backdrop-blur-xs">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeStep.id}
+                initial={{ opacity: 0, y: reduced ? 0 : 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: reduced ? 0 : -10 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full h-full flex items-center justify-center"
+              >
+                {activeTab === 0 && <Step1FormVisual />}
+                {activeTab === 1 && <Step2DashboardVisual />}
+                {activeTab === 2 && <Step3ShareVisual />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-{/* UNIFORM BACKGROUND CANVAS FRAME CONTAINER FOR PERFECT 100% VISUAL CONSISTENCY */}
-function UniformCanvasFrame({ step }: { step: typeof STEPS[0] }) {
+/* ========================================================================= */
+/* VISUAL PREVIEW SUBCOMPONENTS (UNIFORM SIZING & SOFT AMBIENT CENTERING)    */
+/* ========================================================================= */
+
+function Step1FormVisual() {
   return (
-    <div className="relative w-full max-w-[520px] mx-auto">
-      {/* Soft Ambient Glow */}
-      <div className="pointer-events-none absolute -inset-4 rounded-[36px] bg-gradient-to-tr from-[#2563EB]/10 to-transparent blur-2xl opacity-60" />
-
-      {/* Uniform Rectangle Background Card Frame */}
-      <div className="relative w-full rounded-[30px] border border-slate-200/90 bg-[#FAF8F5] p-4 sm:p-6 shadow-[0_16px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_24px_55px_rgba(0,0,0,0.1)] hover:border-blue-300">
-        
-        {step.frameType === "custom" ? (
-          <ShowcaseCodeBox />
-        ) : step.frameType === "browser" ? (
-          /* Step 2 Browser Dashboard Mockup Frame (Borderless, seamless like Step 3) */
-          <div className="w-full rounded-[20px] bg-white overflow-hidden">
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 bg-gray-50/80 px-3.5 py-2">
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
-                <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
-                <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
-              </div>
-              <div className="w-36 truncate rounded-md bg-white/80 px-2.5 py-0.5 text-center font-sans text-[9.5px] font-medium text-gray-400 select-all">
-                app.blovi.space/manage
-              </div>
-              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wider">Dashboard</span>
-            </div>
-
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={step.imageSrc}
-              alt={step.imageAlt}
-              className="w-full h-auto object-contain block"
-            />
-          </div>
-        ) : (
-          /* Step 1 Collection Form (Direct, no inner container) */
-          <div className="flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={step.imageSrc}
-              alt={step.imageAlt}
-              className="w-full max-w-[340px] h-auto object-contain block"
-            />
-          </div>
-        )}
-
+    <div className="relative flex h-full w-full items-center justify-center p-4 sm:p-6">
+      <div className="relative w-full max-w-[340px] rounded-2xl bg-white p-3 shadow-[0_12px_36px_rgba(0,0,0,0.06)] border border-[#EAE6DF]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/step-collect-form.png"
+          alt="Blovi Collection Form"
+          className="w-full h-auto object-contain block rounded-xl"
+        />
       </div>
     </div>
   );
 }
 
-{/* Showcase Embed Code Box Component */}
-function ShowcaseCodeBox() {
+function Step2DashboardVisual() {
+  return (
+    <div className="relative flex h-full w-full items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-[640px] rounded-2xl bg-white border border-[#EAE6DF] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.06)]">
+        <div className="flex shrink-0 items-center justify-between border-b border-gray-100 bg-gray-50/80 px-4 py-2.5">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
+            <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
+            <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
+          </div>
+          <div className="w-36 truncate rounded-md bg-white px-2.5 py-0.5 text-center font-sans text-[9.5px] font-medium text-gray-400 select-all border border-gray-100">
+            blovi.space/manage
+          </div>
+          <span className="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">
+            Dashboard
+          </span>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/step-manage-table.png"
+          alt="Blovi Manage Dashboard"
+          className="w-full h-auto object-contain block"
+        />
+      </div>
+    </div>
+  );
+}
+
+function Step3ShareVisual() {
   const [copied, setCopied] = useState(false);
 
-  const exactEmbedCode = `<!-- Blovi Widget: WALL OF LOVE (BASE PRESET) -->
-<div id="proofkit-widget" data-widget-id="6cfa32bf-191c-4507-8ddd-542912b35993"></div>
-<script 
-  src="https://www.blovi.space/widget.js" 
-  data-user="6cfa32bf-191c-4507-8ddd-542912b35993"
-  data-type="wall"
-  data-preset="base"
-  data-theme="light"
-  data-accent="#2564EB"
-  data-text-color="#374151"
-  data-rating-color="#FBBF24"
-  data-rating-border-color="#4E46E5"
-  data-highlight-color="#FFCD3640"
-  data-show-photos="true"
-  data-use-gravatar="true"
-  data-fallback-avatar="Placeholder"
-  data-show-branding="true"
-  data-max="9"
-  defer>
-</script>`;
+  const snippet = `<script src="https://www.blovi.space/widget.js" data-user="6e037975-54db-4705-b239-20ef10f95eb8" data-type="stack" async></script>\n<div id="blovi-widget" data-widget-id="6e037975-54db-4705-b239-20ef10f95eb8" style="position: fixed; bottom: 24px; left: 24px; z-index: 9999; max-width: 420px; width: 100%;"></div>`;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(exactEmbedCode);
+    navigator.clipboard.writeText(snippet);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-[22px] border border-slate-800 bg-[#0f172a] text-white shadow-md">
-      {/* Top Header Bar */}
-      <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-3.5 py-2.5">
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#FF5F56]" />
-          <span className="h-2 w-2 rounded-full bg-[#FFBD2E]" />
-          <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
+    <div className="relative flex h-full w-full items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-[640px] rounded-2xl bg-white border border-[#EAE6DF] p-5 sm:p-6 shadow-[0_12px_36px_rgba(0,0,0,0.06)] text-left">
+        {/* Back button & Title */}
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+          <span>← Back</span>
         </div>
-        <span className="font-mono text-[10px] font-semibold text-slate-400">
-          Embed Code Snippet
-        </span>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1 rounded-lg bg-[#2563EB] px-2.5 py-1 text-[10px] font-bold text-white transition hover:bg-blue-600 active:scale-95 cursor-pointer shadow-xs"
-        >
-          {copied ? <Check size={11} /> : <Copy size={11} />}
-          <span>{copied ? "Copied!" : "Copy Code"}</span>
-        </button>
-      </div>
+        <h4 className="mt-2 text-lg sm:text-xl font-bold tracking-tight text-[#141413]">
+          Share your widget
+        </h4>
 
-      {/* Code Display */}
-      <div className="p-3.5 font-mono text-[10.5px] leading-relaxed text-blue-100 select-all overflow-x-auto">
-        <span className="text-slate-500">&lt;!-- Blovi Widget: WALL OF LOVE (BASE PRESET) --&gt;</span>
-        <br />
-        <span className="text-pink-400">&lt;div</span>{" "}
-        <span className="text-amber-300">id</span>=
-        <span className="text-emerald-300">&quot;proofkit-widget&quot;</span>{" "}
-        <span className="text-amber-300">data-widget-id</span>=
-        <span className="text-emerald-300">&quot;6cfa32bf-191c-4507-8ddd-542912b35993&quot;</span>
-        <span className="text-pink-400">&gt;&lt;/div&gt;</span>
-        <br />
-        <span className="text-pink-400">&lt;script</span>
-        <br />
-        {"  "}<span className="text-amber-300">src</span>=<span className="text-emerald-300">&quot;https://www.blovi.space/widget.js&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-user</span>=<span className="text-emerald-300">&quot;6cfa32bf-191c-4507-8ddd-542912b35993&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-type</span>=<span className="text-emerald-300">&quot;wall&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-preset</span>=<span className="text-emerald-300">&quot;base&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-theme</span>=<span className="text-emerald-300">&quot;light&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-accent</span>=<span className="text-emerald-300">&quot;#2564EB&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-text-color</span>=<span className="text-emerald-300">&quot;#374151&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-rating-color</span>=<span className="text-emerald-300">&quot;#FBBF24&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-rating-border-color</span>=<span className="text-emerald-300">&quot;#4E46E5&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-highlight-color</span>=<span className="text-emerald-300">&quot;#FFCD3640&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-show-photos</span>=<span className="text-emerald-300">&quot;true&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-use-gravatar</span>=<span className="text-emerald-300">&quot;true&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-fallback-avatar</span>=<span className="text-emerald-300">&quot;Placeholder&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-show-branding</span>=<span className="text-emerald-300">&quot;true&quot;</span>
-        <br />
-        {"  "}<span className="text-amber-300">data-max</span>=<span className="text-emerald-300">&quot;9&quot;</span>
-        <br />
-        {"  "}<span className="text-purple-300">defer</span>
-        <span className="text-pink-400">&gt;</span>
-        <br />
-        <span className="text-pink-400">&lt;/script&gt;</span>
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-5 items-start">
+          {/* Left Side Tab Options */}
+          <div className="sm:col-span-5 space-y-2.5">
+            <div className="rounded-xl border border-blue-200 bg-[#F0F6FF] p-3 text-left">
+              <div className="flex items-center gap-2 font-semibold text-xs text-blue-900">
+                <Code2 size={13} className="text-[#2563EB]" />
+                <span>Embed code</span>
+              </div>
+              <p className="mt-1 text-[10.5px] leading-relaxed text-blue-700/80">
+                Copy the embed code for your widget and paste it into your website.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-gray-200/80 bg-white p-3 text-left opacity-70">
+              <div className="flex items-center gap-2 font-semibold text-xs text-gray-700">
+                <Link2 size={13} className="text-gray-400" />
+                <span>Link</span>
+              </div>
+              <p className="mt-1 text-[10.5px] leading-relaxed text-gray-500">
+                Share your widget by copying a direct link to it.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Side Code Card */}
+          <div className="sm:col-span-7 rounded-xl border border-gray-200/90 bg-white p-3.5 sm:p-4 shadow-2xs">
+            <p className="text-xs font-bold text-[#141413]">Embed code</p>
+            <p className="mt-0.5 text-[10.5px] text-gray-500">
+              Paste this 2-line code snippet where you want to display the embed on your site.
+            </p>
+
+            {/* Dark Snippet Box */}
+            <div className="mt-3 overflow-hidden rounded-xl bg-[#141413] p-3 text-white">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+                <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Javascript
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex items-center gap-1 rounded-md bg-[#2563EB] px-2.5 py-1 text-[10px] font-semibold text-white transition hover:bg-blue-600 active:scale-95 cursor-pointer shadow-xs"
+                >
+                  {copied ? <Check size={11} /> : <Copy size={11} />}
+                  <span>{copied ? "Copied!" : "Copy snippet"}</span>
+                </button>
+              </div>
+              <pre className="font-mono text-[9.5px] leading-relaxed text-gray-300 overflow-x-auto whitespace-pre-wrap break-all select-all">
+                <code>{snippet}</code>
+              </pre>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
