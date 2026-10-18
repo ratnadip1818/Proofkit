@@ -61,6 +61,8 @@ export default async function EmbedPage({
     if (savedSettings.background_color) mergedSearchParams.backgroundColor = savedSettings.background_color;
     if (savedSettings.text_color) mergedSearchParams.textColor = savedSettings.text_color;
     if (savedSettings.show_photos !== undefined) mergedSearchParams.showPhotos = String(savedSettings.show_photos);
+    if (savedSettings.show_date !== undefined) mergedSearchParams.showDate = String(savedSettings.show_date);
+    if (savedSettings.card_layout) mergedSearchParams.cardLayout = savedSettings.card_layout;
     if (savedSettings.font_family) mergedSearchParams.font = savedSettings.font_family;
     if (savedSettings.show_branding !== undefined) mergedSearchParams.badge = String(savedSettings.show_branding);
     if (savedSettings.badge_style) mergedSearchParams.badgeStyle = savedSettings.badge_style;
@@ -74,6 +76,7 @@ export default async function EmbedPage({
     if (savedSettings.marquee_rows) mergedSearchParams.marqueeRows = String(savedSettings.marquee_rows);
     if (savedSettings.marquee_direction) mergedSearchParams.marqueeDirection = savedSettings.marquee_direction;
     if (savedSettings.marquee_speed) mergedSearchParams.marqueeSpeed = savedSettings.marquee_speed;
+    if (savedSettings.marquee_pause_on_hover !== undefined) mergedSearchParams.marqueePauseOnHover = String(savedSettings.marquee_pause_on_hover);
     if (savedSettings.marquee_card_width) mergedSearchParams.marqueeCardWidth = String(savedSettings.marquee_card_width);
   }
 

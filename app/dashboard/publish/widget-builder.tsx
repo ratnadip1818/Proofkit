@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
+import WidgetPreview from "./widget-preview";
 import {
   ArrowLeft,
   ArrowRight,
@@ -159,13 +160,13 @@ export default function WidgetBuilder({
       : true
   );
   const [fallbackAvatar, setFallbackAvatar] = useState(
-    savedSettings?.fallbackAvatar || savedSettings?.fallback_avatar || "Placeholder"
+    savedSettings?.fallbackAvatar || savedSettings?.fallback_avatar || "Initials"
   );
   const [useHighlights, setUseHighlights] = useState(true);
   const [showHighlights, setShowHighlights] = useState(true);
-  const [showDate, setShowDate] = useState(true);
+  const [showDate, setShowDate] = useState(savedSettings?.show_date ?? savedSettings?.showDate ?? true);
   const [cardLayout, setCardLayout] = useState<"top" | "bottom">(
-    savedSettings?.cardLayout || "top"
+    savedSettings?.card_layout || savedSettings?.cardLayout || "top"
   );
 
   // Colors Customization (Images 4 & 5)
@@ -379,23 +380,10 @@ export default function WidgetBuilder({
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
 
-  // Stage Scrolling & Dynamic Preview Sizing
-  const stageScrollRef = useRef<HTMLDivElement>(null);
-  const [iframeHeight, setIframeHeight] = useState<number>(850);
-
-  // Listen to height and wheel messages from widget preview iframe
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === "proofkit-resize" && typeof e.data?.height === "number") {
-        setIframeHeight(Math.max(e.data.height + 40, 320));
-      }
-      if (e.data?.type === "proofkit-wheel" && stageScrollRef.current) {
-        stageScrollRef.current.scrollTop += e.data.deltaY;
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  const [mobilePanel, setMobilePanel] = useState<"design" | "preview">("preview");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveAttempt, setSaveAttempt] = useState(0);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   // Step 4 Share Modal State
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -412,9 +400,13 @@ export default function WidgetBuilder({
     }
     setIsSaving(true);
     setIsSaved(false);
-    const timer = setTimeout(async () => {
+    setSaveError(null);
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      saveQueueRef.current = saveQueueRef.current.then(async () => {
+      if (cancelled) return;
       try {
-        await saveWidgetConfig({
+        const result = await saveWidgetConfig({
           widget_id: widgetId,
           name: title,
           layout: layout as "wall" | "orbit" | "stack",
@@ -427,6 +419,8 @@ export default function WidgetBuilder({
           rating_color: ratingColor,
           rating_border_color: ratingBorderColor,
           highlight_color: highlightColor,
+          show_date: showDate,
+          card_layout: cardLayout,
           show_photos: showPhotos,
           use_gravatar: useGravatar,
           fallback_avatar: fallbackAvatar,
@@ -460,20 +454,28 @@ export default function WidgetBuilder({
           marquee_pause_on_hover: marqueePauseOnHover,
           marquee_card_width: marqueeCardWidth,
         });
-        setIsSaved(true);
+        if (result.error) throw new Error(result.error);
+        if (!cancelled) setIsSaved(true);
       } catch (err) {
         console.error("Failed to save widget config:", err);
+        if (!cancelled) setSaveError("Your latest changes could not be saved.");
       } finally {
-        setIsSaving(false);
+        if (!cancelled) setIsSaving(false);
       }
+      });
     }, 800);
-    return () => clearTimeout(timer);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [
     userId,
     widgetId,
     title,
     layout,
     widgetPlacement,
+    showDate,
+    cardLayout,
+    saveAttempt,
+    preset,
+    theme,
     primaryColor,
     backgroundColor,
     textColor,
@@ -594,7 +596,7 @@ export default function WidgetBuilder({
     avatarUrl
   )}&quotesColumns=${quotesColumns}&quotesStyle=${quotesStyle}&avatarPosition=${avatarPosition}&maxQuotes=${maxQuotes}&marqueeRows=${marqueeRows}&marqueeDirection=${marqueeDirection}&marqueeSpeed=${marqueeSpeed}&marqueePauseOnHover=${marqueePauseOnHover}&marqueeCardWidth=${marqueeCardWidth}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
 
-  const publicShareUrl = `${appUrl}/embed/${userId || "demo-widget"}?type=${layout}`;
+  const publicShareUrl = `${appUrl}/embed/${widgetId || userId || "demo-widget"}?type=${layout}`;
 
   const getEstimatedHeight = (layoutType: string, count: number): number => {
     switch (layoutType) {
@@ -674,7 +676,7 @@ export default function WidgetBuilder({
   ];
 
   return (
-    <div className="flex flex-col h-screen w-full bg-[#F7F6F3] font-sans text-[#1A1A1A] overflow-hidden select-none">
+    <div className="flex flex-col h-dvh w-full bg-[#F7F6F3] font-sans text-[#1A1A1A] overflow-hidden select-none">
       {/* ======================================================================= */}
       {/* 1. TOP HEADER: Clean Blovi Identity                                     */}
       {/* ======================================================================= */}
@@ -724,7 +726,7 @@ export default function WidgetBuilder({
               className="inline-flex items-center gap-2 text-xs font-bold text-[#1A1A1A] hover:text-[#2563EB] group transition-colors cursor-pointer py-1 px-2 rounded-lg hover:bg-[#F7F6F3]"
               title="Click to rename widget"
             >
-              <span className="truncate max-w-[200px] sm:max-w-[280px]">{title}</span>
+              <span className="truncate max-w-[100px] sm:max-w-[280px]">{title}</span>
               <Pencil size={11} className="text-[#787774] group-hover:text-[#2563EB] transition-colors" />
             </button>
           )}
@@ -757,7 +759,7 @@ export default function WidgetBuilder({
                 <span>Saved</span>
               </>
             ) : (
-              <span>Save changes</span>
+              <span title={saveError || undefined} className={saveError ? "text-red-600" : undefined}>{saveError ? "Not saved" : "Unsaved changes"}</span>
             )}
           </div>
 
@@ -771,13 +773,24 @@ export default function WidgetBuilder({
           </button>
         </div>
       </header>
+      {saveError && <div role="alert" className="flex items-center justify-between gap-3 border-b border-red-200 bg-red-50 px-5 py-2 text-xs text-red-700">
+        {saveError}
+        <button type="button" onClick={() => setSaveAttempt((attempt) => attempt + 1)} className="shrink-0 font-semibold underline">Retry save</button>
+      </div>}
 
       {/* ======================================================================= */}
       {/* 2. MAIN STUDIO WORKSPACE                                               */}
       {/* ======================================================================= */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex gap-1 border-b border-[#E3E0DB] bg-white p-2 md:hidden" role="group" aria-label="Builder panel">
+        {(["design", "preview"] as const).map((panel) => <button key={panel} type="button"
+          aria-pressed={mobilePanel === panel} onClick={() => setMobilePanel(panel)}
+          className={`flex-1 rounded-lg px-4 py-2 text-xs font-semibold ${mobilePanel === panel ? "bg-blue-50 text-blue-700" : "text-zinc-500"}`}>
+          {panel === "design" ? "Customize" : "Preview"}
+        </button>)}
+      </div>
+      <div className="min-h-0 flex-1 flex overflow-hidden relative">
         {/* DESIGN DRAWER (Directly on the left, matching Senja) */}
-        <aside className="w-[360px] bg-white border-r border-[#E3E0DB] flex flex-col h-full shrink-0 z-10 overflow-y-auto">
+        <aside className={`${mobilePanel === "design" ? "flex" : "hidden"} md:flex w-full md:w-[300px] xl:w-[340px] bg-white border-r border-[#E3E0DB] flex-col h-full shrink-0 z-10 overflow-y-auto`}>
           {/* Drawer Header */}
           <div className="h-12 px-4 border-b border-[#E3E0DB] flex items-center shrink-0 bg-white sticky top-0 z-10">
             <h2 className="text-sm font-semibold text-[#1A1A1A]">Design</h2>
@@ -1001,6 +1014,35 @@ export default function WidgetBuilder({
                   <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                     Dual Marquee Settings
                   </span>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="space-y-1.5 text-xs font-medium text-zinc-700">
+                      <span className="block">Rows</span>
+                      <select value={marqueeRows} onChange={(e) => setMarqueeRows(e.target.value === "1" ? 1 : 2)}
+                        className="h-10 w-full rounded-lg border border-[#E3E0DB] bg-white px-3 focus:outline-blue-600">
+                        <option value={1}>One row</option><option value={2}>Two rows</option>
+                      </select>
+                    </label>
+                    <label className="space-y-1.5 text-xs font-medium text-zinc-700">
+                      <span className="block">Speed</span>
+                      <select value={marqueeSpeed} onChange={(e) => setMarqueeSpeed(e.target.value as "slow" | "normal" | "fast")}
+                        className="h-10 w-full rounded-lg border border-[#E3E0DB] bg-white px-3 focus:outline-blue-600">
+                        <option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label className="block space-y-1.5 text-xs font-medium text-zinc-700">
+                    <span className="block">Direction</span>
+                    <select value={marqueeDirection} onChange={(e) => setMarqueeDirection(e.target.value as "opposing" | "left" | "right")}
+                      className="h-10 w-full rounded-lg border border-[#E3E0DB] bg-white px-3 focus:outline-blue-600">
+                      <option value="opposing">Alternating directions</option><option value="left">Left</option><option value="right">Right</option>
+                    </select>
+                  </label>
+                  <label className="block space-y-2 text-xs font-medium text-zinc-700">
+                    <span className="flex justify-between"><span>Card width</span><span className="text-zinc-400">{marqueeCardWidth}px</span></span>
+                    <input type="range" min={240} max={420} step={10} value={marqueeCardWidth}
+                      onChange={(e) => setMarqueeCardWidth(Number(e.target.value))} className="w-full accent-blue-600" />
+                  </label>
 
                   {/* Pause on Hover */}
                   <label className="flex items-center justify-between cursor-pointer select-none pt-1">
@@ -1252,129 +1294,8 @@ export default function WidgetBuilder({
           </div>
         </aside>
 
-        {/* PANE C: CENTER CANVAS PREVIEW AREA */}
-        <main
-          className="flex-1 flex flex-col h-full overflow-hidden relative"
-          style={{
-            backgroundColor: "#F7F6F3",
-            backgroundImage: "radial-gradient(#E3E0DB 1.2px, transparent 1.2px)",
-            backgroundSize: "20px 20px",
-          }}
-        >
-          {/* Open Stage Preview Area: Pure clean space on dot-grid canvas with zero background card or fake browser chrome */}
-          <div className="flex-1 w-full h-full relative overflow-hidden flex flex-col">
-            {layout === "stack" ? (
-              /* Spotlight / Stack Layout: Floating directly on canvas or centered if inline */
-              <div className="flex-1 w-full h-full relative overflow-hidden">
-                <div
-                  className={`transition-all duration-300 ${
-                    stackEmbedMode === "inline"
-                      ? "w-full h-full flex items-center justify-center p-4 sm:p-6"
-                      : "absolute bottom-8 left-8 sm:bottom-12 sm:left-12 w-[420px] max-w-[calc(100%-4rem)] z-10"
-                  }`}
-                >
-                  <iframe
-                    key={`preview-stack-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{ height: "200px" }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            ) : layout === "badge" ? (
-              /* Rating Badge: Centered directly on dot-grid canvas */
-              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
-                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-xl">
-                  <iframe
-                    key={`preview-badge-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{ height: "120px" }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            ) : layout === "avatars" ? (
-              /* Avatar Cluster: Centered directly on dot-grid canvas with full expand card clearance */
-              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
-                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-2xl">
-                  <iframe
-                    key={`preview-avatars-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{ height: "320px" }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            ) : layout === "quotes" ? (
-              /* Hero Quotes: Centered on dot-grid canvas without background box */
-              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
-                <div
-                  className={`w-full flex items-center justify-center transition-all duration-300 ${
-                    maxQuotes === 1 ? "max-w-2xl" : "max-w-5xl"
-                  }`}
-                >
-                  <iframe
-                    key={`preview-quotes-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent transition-all duration-200"
-                    style={{
-                      height: maxQuotes === 1 ? "260px" : "420px",
-                      maxHeight: "85vh",
-                    }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            ) : layout === "marquee" ? (
-              /* Dual Marquee: Wide container on dot-grid canvas */
-              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
-                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-6xl">
-                  <iframe
-                    key={`preview-marquee-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{ height: "480px" }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            ) : layout === "orbit" ? (
-              /* Orbit Layout: Centered directly on open dot-grid canvas */
-              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
-                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-2xl">
-                  <iframe
-                    key={`preview-orbit-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{ height: "560px" }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            ) : (
-              /* Wall of Love & Other Multi-Testimonial Widgets: Rendered directly on open dot-grid canvas */
-              <div
-                ref={stageScrollRef}
-                className="flex-1 w-full h-full overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex justify-center"
-              >
-                <div className="w-full transition-all duration-300 mx-auto max-w-5xl">
-                  <iframe
-                    key={`preview-full-${rawPreviewUrl}`}
-                    src={rawPreviewUrl}
-                    className="w-full border-none block bg-transparent"
-                    style={{
-                      height: `${iframeHeight}px`,
-                      minHeight: "420px",
-                    }}
-                    title="Live Render Output"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+        <main className={`${mobilePanel === "preview" ? "flex" : "hidden"} md:flex min-w-0 flex-1 flex-col h-full overflow-hidden`}>
+          <WidgetPreview url={rawPreviewUrl} layout={layout} floating={layout === "stack" && stackEmbedMode === "floating"} />
         </main>
       </div>
 

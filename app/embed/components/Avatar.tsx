@@ -45,7 +45,7 @@ export function Avatar({
     if (avatarUrl) return;
 
     // Only query Gravatar if explicitly enabled and an email exists
-    if (!useGravatar) return;
+    if (!showPhotos || !useGravatar) return;
 
     const gravatarTarget = email ? email.trim() : null;
     if (!gravatarTarget) return;
@@ -65,7 +65,7 @@ export function Avatar({
     return () => {
       isMounted = false;
     };
-  }, [avatarUrl, email, useGravatar, size]);
+  }, [avatarUrl, email, showPhotos, useGravatar, size]);
 
   if (!showPhotos) return null;
 
@@ -92,6 +92,7 @@ export function Avatar({
           width={size}
           height={size}
           loading="lazy"
+          decoding="async"
           onError={() => setImgError(true)}
           style={{
             width: size,
@@ -114,6 +115,7 @@ export function Avatar({
           width={size}
           height={size}
           loading="lazy"
+          decoding="async"
           style={{
             width: size,
             height: size,

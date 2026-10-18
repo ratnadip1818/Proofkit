@@ -41,8 +41,14 @@ export default async function DashboardLayout({
     profile = profileData;
   }
 
-  // Access is granted once an invite code is activated and onboarding name is saved
-  if (!profile?.full_name || !profile?.is_lifetime) redirect("/onboarding");
+  // Access is unlocked: only require onboarding name to access the dashboard
+  if (!profile?.full_name) redirect("/onboarding");
+
+  // Ensure user has lifetime access enabled
+  if (!profile?.is_lifetime) {
+    const { grantUserAccess } = await import("@/lib/access-code");
+    await grantUserAccess(user.id);
+  }
 
   const avatarUrl =
     (user?.user_metadata?.avatar_url as string | undefined) ??

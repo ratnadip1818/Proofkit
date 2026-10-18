@@ -21,6 +21,7 @@ export async function saveProfileName(
   const { error } = await admin.from("profiles").upsert({
     id: user.id,
     full_name: fullName,
+    is_lifetime: true,
     updated_at: new Date().toISOString(),
   });
   return { error: error?.message ?? null };

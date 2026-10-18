@@ -73,6 +73,47 @@ export default function WidgetClientWrapper({
   searchParams?: Record<string, string | string[] | undefined>;
   isPreview?: boolean;
 }) {
+  // Observe content, not the iframe viewport: expanding cards and fonts can change height.
+  useEffect(() => {
+    const wrapper = document.getElementById("proofkit-widget-wrapper");
+    if (!wrapper) return;
+    let frame = 0;
+    let lastHeight = -1;
+    const sendHeight = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const height = Math.ceil(wrapper.getBoundingClientRect().height);
+        if (height === lastHeight) return;
+        lastHeight = height;
+        window.parent.postMessage({ type: "proofkit-resize", height }, "*");
+      });
+    };
+    const observer = new ResizeObserver(sendHeight);
+    observer.observe(wrapper);
+    sendHeight();
+    window.parent.postMessage({ type: "proofkit-ready" }, "*");
+    const data = document.getElementById("proofkit-schema-data")?.getAttribute("data-testimonials");
+    if (data) {
+      try {
+        window.parent.postMessage({ type: "proofkit-schema", testimonials: JSON.parse(data) }, "*");
+      } catch { /* Invalid schema data must not prevent widget rendering. */ }
+    }
+    const forwardWheel = (event: WheelEvent) => {
+      // Horizontal gestures belong to scrollable widget rows.
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+      window.parent.postMessage({
+        type: "proofkit-wheel", deltaX: event.deltaX,
+        deltaY: event.deltaY, deltaMode: event.deltaMode,
+      }, "*");
+    };
+    if (isPreview) window.addEventListener("wheel", forwardWheel, { passive: true });
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("wheel", forwardWheel);
+    };
+  }, [isPreview]);
+
   // Helper to extract param value from passed searchParams or window.location
   const getParam = (key: string): string | undefined => {
     if (rawSearchParams && rawSearchParams[key] !== undefined) {
@@ -576,58 +617,7 @@ export default function WidgetClientWrapper({
         )}
       />
 
-      {/* Post height and schema data to parent */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            let lastWidth = window.innerWidth;
-            function sendHeight() {
-              const el = document.getElementById("proofkit-widget-wrapper");
-              const height = el ? el.offsetHeight : document.body.scrollHeight;
-              window.parent.postMessage(
-                { type: "proofkit-resize", height: height },
-                "*"
-              );
-              window.parent.postMessage(
-                { type: "proofkit-ready" },
-                "*"
-              );
-            }
-            window.addEventListener("load", () => {
-              sendHeight();
-              try {
-                const dataEl = document.getElementById("proofkit-schema-data");
-                if (dataEl) {
-                  const testimonials = JSON.parse(dataEl.getAttribute("data-testimonials"));
-                  window.parent.postMessage({ type: "proofkit-schema", testimonials }, "*");
-                }
-              } catch (e) {
-                console.error("Failed to send schema testimonials", e);
-              }
-            });
-            window.addEventListener("resize", () => {
-              if (window.innerWidth !== lastWidth) {
-                lastWidth = window.innerWidth;
-                sendHeight();
-              }
-            });
-            if (document.fonts) document.fonts.ready.then(sendHeight);
 
-            // Forward wheel events to the parent window for smooth scrolling
-            window.addEventListener("wheel", (e) => {
-              window.parent.postMessage(
-                {
-                  type: "proofkit-wheel",
-                  deltaX: e.deltaX,
-                  deltaY: e.deltaY,
-                  deltaMode: e.deltaMode
-                },
-                "*"
-              );
-            }, { passive: true });
-          `,
-        }}
-      />
     </div>
   );
 }

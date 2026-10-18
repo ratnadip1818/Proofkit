@@ -313,6 +313,8 @@ export interface WidgetConfigInput {
   rating_border_color?: string;
   highlight_color?: string;
   show_photos?: boolean;
+  show_date?: boolean;
+  card_layout?: "top" | "bottom";
   use_gravatar?: boolean;
   fallback_avatar?: string;
   font_family?: string;
@@ -592,6 +594,8 @@ export async function saveWidgetConfig(
         rating_border_color: config.rating_border_color,
         highlight_color: config.highlight_color,
         show_photos: config.show_photos,
+        show_date: config.show_date,
+        card_layout: config.card_layout,
         use_gravatar: config.use_gravatar,
         fallback_avatar: config.fallback_avatar,
         font_family: config.font_family,
@@ -634,7 +638,7 @@ export async function saveWidgetConfig(
           ? "carousel"
           : "spotlight";
 
-      await admin
+      const { error: saveError } = await admin
         .from("widgets")
         .update({
           name: config.name || current.name,
@@ -647,8 +651,12 @@ export async function saveWidgetConfig(
         .eq("id", config.widget_id)
         .eq("user_id", user.id);
 
+      if (saveError) return { error: saveError.message };
+
       revalidatePath(`/embed/${config.widget_id}`);
       updateTag("widget-" + config.widget_id);
+    } else {
+      return { error: "Widget could not be found. Please reopen it and try again." };
     }
   }
 

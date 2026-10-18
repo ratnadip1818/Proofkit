@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
+import styles from "./wall.module.css";
 import { type Testimonial } from "../constants";
-import { FONT, RADIUS_PX, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
+import { FONT, RADIUS_PX, TRANSITIONS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme, WallLayout as WallLayoutType } from "../types/widget";
 import type { WidgetPresetId } from "../styles/types";
 import { getPresetDefinition } from "../styles/registry";
@@ -11,7 +12,6 @@ import {
   BadgeLink,
   TestimonialCard,
 } from "../components";
-import { sendWidgetHeight } from "../utils";
 
 export interface WallLayoutProps {
   testimonials: Testimonial[];
@@ -47,8 +47,6 @@ export function WallLayout({
   accent,
   radius = "rounded",
   preset = "base",
-  heading = "Loved by the best teams",
-  subheading = "Software companies and agencies rely on Blovi to turn happy customers into their best growth engine.",
   showPhotos = true,
   useGravatar = true,
   fallbackAvatar = "Initials",
@@ -75,91 +73,22 @@ export function WallLayout({
     }
   );
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [numColumns, setNumColumns] = useState<number>(3);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Extract all unique tags present in testimonials
   const allTags = Array.from(
     new Set(testimonials.flatMap((t) => t.tags || []))
   ).filter(Boolean);
 
-  let list = maxCount !== null ? testimonials.slice(0, maxCount) : testimonials;
-
   // Filter list by selected tag
-  const filteredList = selectedTag
-    ? list.filter((t) => t.tags && t.tags.includes(selectedTag))
-    : list;
+  const matchingList = selectedTag
+    ? testimonials.filter((t) => t.tags?.includes(selectedTag))
+    : testimonials;
+  const filteredList = maxCount !== null ? matchingList.slice(0, maxCount) : matchingList;
 
-  // Dynamically calculate column count based on available container width
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const updateColumns = (width: number) => {
-      if (width < 640) {
-        setNumColumns(1);
-      } else if (width < 1024) {
-        setNumColumns(2);
-      } else {
-        setNumColumns(3);
-      }
-    };
-
-    updateColumns(containerRef.current.clientWidth);
-
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        updateColumns(entry.contentRect.width);
-      }
-    });
-
-    ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, []);
-
-  // Post message to parent container whenever layout or filter dimensions adjust
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const timer = setTimeout(() => {
-        sendWidgetHeight();
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedTag, filteredList.length, numColumns]);
-
-  // Round-robin distribution across responsive flex columns (Pinterest-style)
-  const columns = Array.from({ length: numColumns }, () => [] as Testimonial[]);
-  filteredList.forEach((t, i) => {
-    columns[i % numColumns].push(t);
-  });
 
   return (
-    <div style={{ fontFamily: FONT, padding: "20px 16px 28px", background: colors.pageBg, color: colors.text }}>
-      <style>{`
-        .blovi-masonry-grid {
-          gap: 20px;
-        }
-        .blovi-masonry-col {
-          gap: 20px;
-        }
-        @media (max-width: 639px) {
-          .blovi-masonry-grid,
-          .blovi-masonry-col {
-            gap: 16px !important;
-          }
-          .blovi-wall-card {
-            padding: 20px 18px !important;
-          }
-        }
-        @media (min-width: 640px) and (max-width: 1023px) {
-          .blovi-masonry-grid,
-          .blovi-masonry-col {
-            gap: 14px !important;
-          }
-          .blovi-wall-card {
-            padding: 18px 16px !important;
-          }
-        }
-      `}</style>
+    <div style={{ containerType: "inline-size", fontFamily: FONT, padding: "20px 16px 28px", background: colors.pageBg, color: colors.text }}>
+
 
       {/* Dynamic Tag Filter Pills */}
       {allTags.length > 0 && (
@@ -174,6 +103,7 @@ export function WallLayout({
         >
           <button
             type="button"
+            aria-pressed={selectedTag === null}
             onClick={() => setSelectedTag(null)}
             style={{
               fontFamily: FONT,
@@ -196,6 +126,7 @@ export function WallLayout({
               <button
                 key={tag}
                 type="button"
+                aria-pressed={isSelected}
                 onClick={() => setSelectedTag(tag)}
                 style={{
                   fontFamily: FONT,
@@ -227,51 +158,12 @@ export function WallLayout({
             width: "100%",
           }}
         >
-          {/* Responsive 3-Column Round-Robin Masonry */}
-          <div
-            ref={containerRef}
-            className="blovi-masonry-grid"
-            style={{
-              display: "flex",
-              gap: "20px",
-              alignItems: "flex-start",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            {columns.map((colItems, colIdx) => (
-              <div
-                key={`masonry-col-${colIdx}`}
-                className={`blovi-masonry-col blovi-col-${colIdx + 1}`}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "20px",
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
-                {colItems.map((t, itemIdx) => (
-                  <TestimonialCard
-                    key={`t-${t.id}-${itemIdx}`}
-                    t={t}
-                    showRatings={showRatings}
-                    colors={colors}
-                    radius={radiusPx}
-                    layout={layout}
-                    index={itemIdx}
-                    showPhotos={showPhotos}
-                    useGravatar={useGravatar}
-                    fallbackAvatar={fallbackAvatar}
-                    showDate={showDate}
-                    cardLayout={cardLayout}
-                    onExpandChange={() => {
-                      if (typeof window !== "undefined") {
-                        setTimeout(() => sendWidgetHeight(), 100);
-                      }
-                    }}
-                  />
-                ))}
+          <div className={`blovi-masonry-grid ${styles.grid}`}>
+            {filteredList.map((t) => (
+              <div key={t.id} className={styles.item}>
+                <TestimonialCard t={t} showRatings={showRatings} colors={colors} radius={radiusPx}
+                  layout={layout} showPhotos={showPhotos} useGravatar={useGravatar}
+                  fallbackAvatar={fallbackAvatar} showDate={showDate} cardLayout={cardLayout} />
               </div>
             ))}
           </div>

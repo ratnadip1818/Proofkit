@@ -10,6 +10,7 @@ export const StarIcon = ({
   size: number;
 }) => (
   <svg
+    aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     width={size}
     height={size}
@@ -42,7 +43,7 @@ export function Stars({
   const unlitStroke = colors.starOff || "#E5E7EB";
 
   return (
-    <div style={{ display: "flex", gap: "2.5px", marginBottom, alignItems: "center" }}>
+    <div role="img" aria-label={`${Math.min(5, Math.max(0, rating))} out of 5 stars`} style={{ display: "flex", gap: "2.5px", marginBottom, alignItems: "center" }}>
       {[1, 2, 3, 4, 5].map((n) => {
         const isLit = n <= rating;
         return (

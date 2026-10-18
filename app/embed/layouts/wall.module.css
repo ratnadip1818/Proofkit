@@ -1,0 +1,4 @@
+.grid { columns: 1; column-gap: 20px; }
+.item { break-inside: avoid; padding-bottom: 20px; }
+@container (min-width: 560px) { .grid { columns: 2; } }
+@container (min-width: 920px) { .grid { columns: 3; } }

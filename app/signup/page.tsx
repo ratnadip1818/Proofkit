@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, Suspense, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { verifyAndStoreAccessCode, claimStoredAccessCode } from "./actions";
 
 function GoogleIcon() {
   return (
@@ -18,46 +16,21 @@ function GoogleIcon() {
   );
 }
 
-function SignupForm() {
+export default function SignupPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Auto-fill invite code from URL if present (?invite=XYZ or ?code=XYZ)
-  useEffect(() => {
-    const codeFromUrl = searchParams.get("invite") || searchParams.get("code");
-    if (codeFromUrl) {
-      setInviteCode(codeFromUrl.trim().toUpperCase());
-    }
-  }, [searchParams]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setMessage(null);
-
-    if (!inviteCode.trim()) {
-      setError("Please enter your invite code to create an account.");
-      return;
-    }
-
     setLoading(true);
 
-    // 1. Validate invite code first
-    const codeCheck = await verifyAndStoreAccessCode(inviteCode);
-    if (!codeCheck.valid) {
-      setError(codeCheck.error || "Invalid access code. An invite pass is required to register.");
-      setLoading(false);
-      return;
-    }
-
-    // 2. Proceed with Supabase Auth signup
     const supabase = createClient();
     const { data, error: authError } = await supabase.auth.signUp({
       email,
@@ -79,29 +52,13 @@ function SignupForm() {
       return;
     }
 
-    // 3. Claim the invite code for the new session immediately
-    await claimStoredAccessCode();
-
     router.push("/onboarding");
     router.refresh();
   }
 
   async function handleGoogleSignIn() {
     setError(null);
-    if (!inviteCode.trim()) {
-      setError("Please enter your invite code before continuing with Google.");
-      return;
-    }
-
     setLoading(true);
-
-    // Validate and store invite code in cookie before OAuth redirect
-    const codeCheck = await verifyAndStoreAccessCode(inviteCode);
-    if (!codeCheck.valid) {
-      setError(codeCheck.error || "Invalid access code. An invite pass is required to register.");
-      setLoading(false);
-      return;
-    }
 
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
@@ -124,37 +81,15 @@ function SignupForm() {
             >
               Blovi
             </Link>
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs font-semibold text-[#2563EB]">
-              <KeyRound size={13} />
-              <span>Invite-Only Registration</span>
-            </div>
+            <h2 className="mt-2 text-lg font-bold text-[#1A1A1A]">
+              Create your account
+            </h2>
             <p className="mt-1 text-xs text-[#6B6B6B]">
-              Enter your access code to create your workspace
+              Start turning customer love into high-converting proof
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Invite Code Input */}
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="inviteCode"
-                className="text-xs font-semibold uppercase tracking-wider text-[#1A1A1A] flex items-center justify-between"
-              >
-                <span>Invite / Access Code</span>
-                <span className="text-[10px] text-[#2563EB] lowercase font-normal">required</span>
-              </label>
-              <input
-                id="inviteCode"
-                name="inviteCode"
-                type="text"
-                required
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                className="rounded-lg border border-[#ECE7E0] px-3.5 py-2.5 text-sm font-mono text-[#1A1A1A] placeholder-zinc-400 uppercase tracking-wider transition-colors focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-[#FAF8F5]"
-                placeholder="e.g. BLOVI2026"
-              />
-            </div>
-
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="email"
@@ -248,10 +183,3 @@ function SignupForm() {
   );
 }
 
-export default function SignupPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAF8F5]" />}>
-      <SignupForm />
-    </Suspense>
-  );
-}
