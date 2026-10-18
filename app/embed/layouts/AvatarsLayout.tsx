@@ -9,6 +9,7 @@ import { getPresetDefinition } from "../styles/registry";
 import { Stars } from "../components/Stars";
 import { Avatar } from "../components/Avatar";
 import { BadgeLink } from "../components/BadgeLink";
+import { sendWidgetHeight } from "../utils";
 
 export interface AvatarsLayoutProps {
   testimonials: Testimonial[];
@@ -61,6 +62,7 @@ export function AvatarsLayout({
   highlightColor,
   maxAvatars = 5,
   showRatingNumber = false,
+  avatarText,
   avatarBorderColor,
   avatarUrl,
 }: AvatarsLayoutProps) {
@@ -97,16 +99,25 @@ export function AvatarsLayout({
 
   const displayAvg = avgRating.toFixed(1);
 
-  // 2. Resolve Colors & Default Seamless Sizing
-  const isDark = theme === "dark";
-  const resolvedTextColor = textColor || (isDark ? "#D1D5DB" : "#374151");
-  const resolvedBorderColor = avatarBorderColor || (isDark ? "#27272A" : "#FFFFFF");
+  // 2. Subtitle Text & Formatting (Senja Reference 2: "from 4 reviews")
+  const formattedSubtitle = useMemo(() => {
+    if (avatarText && avatarText.trim()) {
+      return avatarText
+        .replace(/{count}/g, totalCount.toString())
+        .replace(/{testimonial_count}/g, totalCount.toString());
+    }
+    return `from ${totalCount} reviews`;
+  }, [avatarText, totalCount]);
 
-  // Fixed optimal avatar size (40px) with clean negative overlap
+  // 3. Resolve Colors & Default Seamless Sizing
+  const isDark = theme === "dark";
+  const resolvedTextColor = textColor || (isDark ? "#D1D5DB" : "#4B5563");
+
+  // Fixed optimal avatar size (40px) with clean seamless negative overlap
   const sizePx = 40;
   const overlapMargin = "-10px";
 
-  // 3. Avatars slice & remaining count
+  // 4. Avatars slice & remaining count
   const effectiveMax = Math.max(1, Math.min(maxAvatars, 12));
   const displayedTestimonials = useMemo(() => {
     return testimonials.slice(0, effectiveMax);
@@ -114,14 +125,24 @@ export function AvatarsLayout({
 
   const remainingCount = totalCount > displayedTestimonials.length ? totalCount - displayedTestimonials.length : 0;
 
-  // 4. Interactive State for Preview Card (Hover & Click support)
+  // 5. Interactive State for Preview Card (Hover & Click support)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
 
   // Active item is either clicked or hovered
   const activeIndex = clickedIndex !== null ? clickedIndex : hoveredIndex;
 
-  // 5. Interactive Link Wrapper
+  // Dynamic height reporting to embed parent
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const timer = setTimeout(() => {
+        sendWidgetHeight();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeIndex, testimonials.length]);
+
+  // 6. Interactive Link Wrapper
   const WrapperTag = avatarUrl ? "a" : "div";
   const wrapperProps = avatarUrl
     ? {
@@ -135,11 +156,11 @@ export function AvatarsLayout({
       };
 
   return (
-    <div className="w-full flex items-center justify-start px-2 pt-2 pb-32 select-none">
+    <div className="w-full flex items-center justify-start px-2 pt-2 pb-36 select-none">
       <WrapperTag {...(wrapperProps as any)}>
-        {/* Default Seamless Inline Group (No Card Box, No Pill Capsule) */}
+        {/* Seamless Inline Avatar Cluster Group (Matching Senja Reference 2) */}
         <div className="inline-flex items-center gap-3">
-          {/* Overlapping Avatars Stack */}
+          {/* Overlapping Avatars Stack (No Border Rings, Seamless Overlap) */}
           <div className="flex items-center shrink-0" style={{ isolation: "isolate" }}>
             {displayedTestimonials.map((t, idx) => {
               const quoteSnippet = t.display_body || t.body_original || "";
@@ -168,15 +189,14 @@ export function AvatarsLayout({
                     zIndex: isActive ? 50 : displayedTestimonials.length - idx,
                   }}
                 >
+                  {/* Clean Borderless Avatar Circle (Zero Ring Outline) */}
                   <div
-                    className={`rounded-full transition-transform duration-200 cursor-pointer ${
-                      isActive ? "scale-110 shadow-md" : "group-hover:scale-110"
+                    className={`rounded-full transition-transform duration-200 cursor-pointer overflow-hidden shadow-2xs ${
+                      isActive ? "scale-110 shadow-md ring-2 ring-blue-500/30" : "group-hover:scale-110"
                     }`}
                     title={t.author_name}
                     style={{
-                      border: `2px solid ${resolvedBorderColor}`,
                       borderRadius: "50%",
-                      overflow: "hidden",
                     }}
                   >
                     <Avatar
@@ -191,10 +211,10 @@ export function AvatarsLayout({
                     />
                   </div>
 
-                  {/* Optimized Expand View Card (No triangular notch mark, no quotation marks) */}
+                  {/* Fully Visible Expand View Card */}
                   {quoteSnippet && (
                     <div
-                      className={`absolute ${cardPositionClass} top-full mt-2.5 w-64 p-3.5 rounded-2xl text-left shadow-xl z-50 transition-all duration-200 pointer-events-auto ${
+                      className={`absolute ${cardPositionClass} top-full mt-2.5 w-64 p-3.5 rounded-2xl text-left shadow-2xl z-50 transition-all duration-200 pointer-events-auto ${
                         isActive
                           ? "opacity-100 visible translate-y-0 scale-100"
                           : "opacity-0 invisible -translate-y-1 scale-95 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:scale-100 group-hover:pointer-events-auto"
@@ -204,8 +224,8 @@ export function AvatarsLayout({
                         color: isDark ? "#F4F4F5" : "#18181B",
                         border: isDark ? "1px solid #27272A" : "1px solid #E4E4E7",
                         boxShadow: isDark
-                          ? "0 14px 34px -6px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4)"
-                          : "0 14px 34px -6px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04)",
+                          ? "0 18px 40px -6px rgba(0, 0, 0, 0.7), 0 6px 16px rgba(0, 0, 0, 0.5)"
+                          : "0 18px 40px -6px rgba(0, 0, 0, 0.15), 0 6px 16px rgba(0, 0, 0, 0.05)",
                       }}
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -231,7 +251,7 @@ export function AvatarsLayout({
                         )}
                       </div>
 
-                      {/* Clean review text (No quotation marks) */}
+                      {/* Clean review text */}
                       <p
                         className="text-xs leading-relaxed line-clamp-4 font-normal"
                         style={{ color: isDark ? "#D4D4D8" : "#3F3F46" }}
@@ -244,18 +264,16 @@ export function AvatarsLayout({
               );
             })}
 
-            {/* Optional Overflow Pill (+N) */}
+            {/* Overflow Pill (+N) Without Border Ring */}
             {remainingCount > 0 && (
               <div
-                className="relative flex items-center justify-center rounded-full font-bold text-xs shrink-0 select-none transition-transform hover:scale-110"
+                className="relative flex items-center justify-center rounded-full font-bold text-xs shrink-0 select-none transition-transform hover:scale-110 shadow-2xs"
                 style={{
                   width: sizePx,
                   height: sizePx,
-                  border: `2px solid ${resolvedBorderColor}`,
                   backgroundColor: accent || (isDark ? "#3F3F46" : "#E4E4E7"),
                   color: accent ? "#FFFFFF" : isDark ? "#F4F4F5" : "#27272A",
                   zIndex: 0,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
                 }}
               >
                 +{remainingCount > 99 ? "99" : remainingCount}
@@ -263,26 +281,35 @@ export function AvatarsLayout({
             )}
           </div>
 
-          {/* Clean Horizontal Stars & Rating Score Row (No Subtitle Text) */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {showRatings && (
-              <Stars
-                rating={roundedRating}
-                colors={colors}
-                size={16}
-                marginBottom={0}
-              />
-            )}
+          {/* Stacked Stars & Reviews Subtitle (Senja Reference 2 Signature) */}
+          <div className="flex flex-col justify-center gap-1 shrink-0 min-w-0">
+            <div className="flex items-center gap-1.5">
+              {showRatings && (
+                <Stars
+                  rating={roundedRating}
+                  colors={colors}
+                  size={15}
+                  marginBottom={0}
+                />
+              )}
 
-            {/* Optional Rating Score Number (e.g. "4.9") */}
-            {showRatingNumber && (
-              <span
-                className="font-bold text-xs sm:text-sm leading-none ml-0.5 tracking-tight"
-                style={{ color: resolvedTextColor }}
-              >
-                {displayAvg}
-              </span>
-            )}
+              {/* Optional Rating Score Number (e.g. "4.9") */}
+              {showRatingNumber && (
+                <span
+                  className="font-bold text-xs sm:text-sm leading-none ml-0.5 tracking-tight"
+                  style={{ color: resolvedTextColor }}
+                >
+                  {displayAvg}
+                </span>
+              )}
+            </div>
+
+            <div
+              className="text-xs sm:text-[13px] font-medium tracking-tight truncate transition-opacity"
+              style={{ color: resolvedTextColor }}
+            >
+              {formattedSubtitle}
+            </div>
           </div>
 
           {/* Optional Tiny Blovi Badge/Watermark */}

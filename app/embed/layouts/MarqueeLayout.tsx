@@ -10,7 +10,6 @@ import {
   EmptyState,
   BadgeLink,
   TestimonialCard,
-  TestimonialModal,
 } from "../components";
 import { sendWidgetHeight } from "../utils";
 
@@ -55,7 +54,6 @@ export function MarqueeLayout({
   ratingColor,
   ratingBorderColor,
   highlightColor,
-  marqueeRows = 2,
   marqueePauseOnHover = true,
 }: MarqueeLayoutProps) {
   const presetDef = getPresetDefinition(preset);
@@ -73,43 +71,34 @@ export function MarqueeLayout({
     }
   );
 
-  const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
+  // In-place inline expansion state (No popup modal per user requirement!)
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const isAnyExpanded = expandedKey !== null;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const timer = setTimeout(() => {
         sendWidgetHeight();
-      }, 450);
+      }, 350);
       return () => clearTimeout(timer);
     }
-  }, [testimonials.length, marqueeRows]);
+  }, [testimonials.length, expandedKey]);
 
   // Calm, readable slow pace default
   const row1Duration = 55;
   const row2Duration = 60;
 
-  // Fixed consistent card dimensions (320px width x 185px height)
+  // Fixed consistent card dimensions (320px width x 185px height base)
   const consistentCardWidth = 320;
   const consistentCardHeight = 185;
 
-  // Prepare duplicate items for infinite smooth scrolling
+  // Prepare duplicate items for infinite smooth scrolling (Always 2 Rows)
   const { row1Items, row2Items } = useMemo(() => {
     if (!testimonials || testimonials.length === 0) {
       return { row1Items: [], row2Items: [] };
     }
 
-    if (marqueeRows === 1) {
-      let mult = [...testimonials];
-      while (mult.length < 8) {
-        mult = [...mult, ...testimonials];
-      }
-      return {
-        row1Items: [...mult, ...mult],
-        row2Items: [],
-      };
-    }
-
-    // Split evenly across 2 rows
+    // Split evenly across 2 opposing rows (permanently dual marquee)
     let r1: Testimonial[] = [];
     let r2: Testimonial[] = [];
 
@@ -138,7 +127,7 @@ export function MarqueeLayout({
       row1Items: [...r1, ...r1],
       row2Items: [...r2, ...r2],
     };
-  }, [testimonials, marqueeRows]);
+  }, [testimonials]);
 
   if (!testimonials || testimonials.length === 0) {
     return (
@@ -152,9 +141,10 @@ export function MarqueeLayout({
 
   return (
     <div
+      className="blovi-marquee-container"
       style={{
         fontFamily: FONT,
-        padding: "20px 0",
+        padding: "16px 0 36px 0",
         background: isDark ? (colors.pageBg || "#0B0F19") : (colors.pageBg || "transparent"),
         overflow: "hidden",
         width: "100%",
@@ -172,56 +162,74 @@ export function MarqueeLayout({
         }
         .blovi-marquee-track-row1 {
           display: flex;
+          align-items: flex-start;
           gap: 16px;
           width: max-content;
           will-change: transform;
           animation: blovi-marquee-left ${row1Duration}s linear infinite;
-          padding: 4px 0;
+          padding: 6px 0 20px 0;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
         .blovi-marquee-track-row2 {
           display: flex;
+          align-items: flex-start;
           gap: 16px;
           width: max-content;
           will-change: transform;
           animation: blovi-marquee-right ${row2Duration}s linear infinite;
-          padding: 4px 0;
+          padding: 6px 0 20px 0;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
+        /* Stop animation immediately on pointer hover across container OR when any card is expanded */
         ${
           marqueePauseOnHover
             ? `
-        .blovi-marquee-track-row1:hover,
-        .blovi-marquee-track-row2:hover {
-          animation-play-state: paused;
+        .blovi-marquee-container:hover .blovi-marquee-track-row1,
+        .blovi-marquee-container:hover .blovi-marquee-track-row2 {
+          animation-play-state: paused !important;
         }
         `
             : ""
         }
-        /* Consistent Card Sizing: fixed 320px width & 185px height */
+        ${
+          isAnyExpanded
+            ? `
+        .blovi-marquee-track-row1,
+        .blovi-marquee-track-row2 {
+          animation-play-state: paused !important;
+        }
+        `
+            : ""
+        }
+        /* Consistent Card Sizing: 320px width & 185px base height with inline downward expansion */
         .blovi-marquee-card-wrapper {
           width: ${consistentCardWidth}px;
-          height: ${consistentCardHeight}px;
+          min-height: ${consistentCardHeight}px;
+          height: auto;
           flex-shrink: 0;
           cursor: pointer;
-          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
           transform: translate3d(0, 0, 0);
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
         .blovi-marquee-card-wrapper:hover {
-          transform: translateY(-3px);
+          transform: translateY(-2px);
+        }
+        .blovi-marquee-card-wrapper.is-expanded {
+          z-index: 50;
         }
         .blovi-marquee-card-wrapper .blovi-card {
-          height: 100% !important;
+          min-height: ${consistentCardHeight}px !important;
+          height: auto !important;
           display: flex !important;
           flex-direction: column !important;
           justify-content: flex-start !important;
           padding: 16px 18px !important;
-          overflow: hidden !important;
-          transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: border-color 0.25s ease, box-shadow 0.25s ease;
         }
         .blovi-marquee-card-wrapper:hover .blovi-card {
           border-color: ${colors.accent || "#2563EB"} !important;
@@ -231,8 +239,16 @@ export function MarqueeLayout({
               : "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 15px -3px rgba(37, 99, 235, 0.1)"
           } !important;
         }
-        /* Clamp testimonial review body to 3 lines cleanly */
-        .blovi-marquee-card-wrapper .blovi-card p {
+        .blovi-marquee-card-wrapper.is-expanded .blovi-card {
+          border-color: ${colors.accent || "#2563EB"} !important;
+          box-shadow: ${
+            isDark
+              ? "0 20px 45px -8px rgba(0, 0, 0, 0.8), 0 0 20px -3px rgba(37, 99, 235, 0.25)"
+              : "0 20px 45px -8px rgba(0, 0, 0, 0.18), 0 0 20px -3px rgba(37, 99, 235, 0.12)"
+          } !important;
+        }
+        /* When NOT expanded: clamp to 3 lines cleanly */
+        .blovi-marquee-card-wrapper:not(.is-expanded) .blovi-card p {
           display: -webkit-box !important;
           -webkit-line-clamp: 3 !important;
           -webkit-box-orient: vertical !important;
@@ -241,8 +257,22 @@ export function MarqueeLayout({
           font-size: 13.5px !important;
           line-height: 1.5 !important;
         }
+        /* When expanded: show full text downwards without any popup modal */
+        .blovi-marquee-card-wrapper.is-expanded .blovi-card p {
+          display: block !important;
+          -webkit-line-clamp: unset !important;
+          overflow: visible !important;
+          font-size: 13.5px !important;
+          line-height: 1.55 !important;
+        }
+        /* Style the read more / show less toggle button */
         .blovi-marquee-card-wrapper .blovi-card button {
-          display: none !important;
+          display: inline-flex !important;
+          font-size: 12px !important;
+          font-weight: 600 !important;
+          color: ${colors.accent || "#2563EB"} !important;
+          margin-top: 6px !important;
+          cursor: pointer !important;
         }
         @media (prefers-reduced-motion: reduce) {
           .blovi-marquee-track-row1,
@@ -262,43 +292,25 @@ export function MarqueeLayout({
             "linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%)",
           display: "flex",
           flexDirection: "column",
-          gap: "16px",
-          padding: "6px 0",
+          gap: "14px",
+          padding: "4px 0",
         }}
       >
-        {/* ROW 1 (Scrolls Left) */}
+        {/* ROW 1 (Dual Marquee - Scrolls Left) */}
         <div className="blovi-marquee-track-row1">
-          {row1Items.map((t, i) => (
-            <div
-              key={`r1-${t.id}-${i}`}
-              className="blovi-marquee-card-wrapper"
-              onClick={() => setActiveModalTestimonial(t)}
-            >
-              <TestimonialCard
-                t={t}
-                showRatings={showRatings}
-                colors={colors}
-                radius={radiusPx}
-                index={i}
-                showPhotos={showPhotos}
-                useGravatar={useGravatar}
-                fallbackAvatar={fallbackAvatar}
-                cardLayout="top"
-                showDate={false}
-                onReadMore={setActiveModalTestimonial}
-              />
-            </div>
-          ))}
-        </div>
+          {row1Items.map((t, i) => {
+            const cardKey = `r1-${t.id}-${i}`;
+            const isExpanded = expandedKey === cardKey;
 
-        {/* ROW 2 (Dual Marquee - Scrolls Right) */}
-        {marqueeRows === 2 && row2Items.length > 0 && (
-          <div className="blovi-marquee-track-row2">
-            {row2Items.map((t, i) => (
+            return (
               <div
-                key={`r2-${t.id}-${i}`}
-                className="blovi-marquee-card-wrapper"
-                onClick={() => setActiveModalTestimonial(t)}
+                key={cardKey}
+                className={`blovi-marquee-card-wrapper ${isExpanded ? "is-expanded" : ""}`}
+                onClick={(e) => {
+                  // Toggle expand in place downwards (No popup modal!)
+                  e.stopPropagation();
+                  setExpandedKey(isExpanded ? null : cardKey);
+                }}
               >
                 <TestimonialCard
                   t={t}
@@ -311,10 +323,46 @@ export function MarqueeLayout({
                   fallbackAvatar={fallbackAvatar}
                   cardLayout="top"
                   showDate={false}
-                  onReadMore={setActiveModalTestimonial}
+                  onExpandChange={(exp) => setExpandedKey(exp ? cardKey : null)}
                 />
               </div>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* ROW 2 (Dual Marquee - Scrolls Right) */}
+        {row2Items.length > 0 && (
+          <div className="blovi-marquee-track-row2">
+            {row2Items.map((t, i) => {
+              const cardKey = `r2-${t.id}-${i}`;
+              const isExpanded = expandedKey === cardKey;
+
+              return (
+                <div
+                  key={cardKey}
+                  className={`blovi-marquee-card-wrapper ${isExpanded ? "is-expanded" : ""}`}
+                  onClick={(e) => {
+                    // Toggle expand in place downwards (No popup modal!)
+                    e.stopPropagation();
+                    setExpandedKey(isExpanded ? null : cardKey);
+                  }}
+                >
+                  <TestimonialCard
+                    t={t}
+                    showRatings={showRatings}
+                    colors={colors}
+                    radius={radiusPx}
+                    index={i}
+                    showPhotos={showPhotos}
+                    useGravatar={useGravatar}
+                    fallbackAvatar={fallbackAvatar}
+                    cardLayout="top"
+                    showDate={false}
+                    onExpandChange={(exp) => setExpandedKey(exp ? cardKey : null)}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -323,16 +371,6 @@ export function MarqueeLayout({
         <div style={{ marginTop: "16px" }}>
           <BadgeLink colors={colors} />
         </div>
-      )}
-
-      {activeModalTestimonial && (
-        <TestimonialModal
-          t={activeModalTestimonial}
-          onClose={() => setActiveModalTestimonial(null)}
-          colors={colors}
-          radius={radiusPx}
-          showRatings={showRatings}
-        />
       )}
     </div>
   );

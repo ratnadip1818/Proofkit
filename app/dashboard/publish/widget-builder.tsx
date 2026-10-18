@@ -553,10 +553,15 @@ export default function WidgetBuilder({
   const testimonialsKey = `${selectModeType}-${selectedIdsParamValue}-${autoRatingFilter}`;
 
   // Live dynamic preview URL
+  const previewBgColor =
+    (layout === "quotes" || layout === "badge" || layout === "avatars") && backgroundColor === "#FFFFFF"
+      ? "transparent"
+      : backgroundColor;
+
   const rawPreviewUrl = `/embed/preview?user=${userId || "demo-widget"}&type=${layout}&preset=${preset}&theme=${theme}&accent=${encodeURIComponent(
     primaryColor
   )}&backgroundColor=${encodeURIComponent(
-    backgroundColor
+    previewBgColor
   )}&textColor=${encodeURIComponent(
     textColor
   )}&ratingColor=${encodeURIComponent(
@@ -859,101 +864,15 @@ export default function WidgetBuilder({
               </>
             )}
 
-            {/* If Badge: Show Rating Badge Customization Options */}
+            {/* If Badge: Rating Badge Status (Reference 1 Signature Look) */}
             {layout === "badge" && (
               <>
-                <section className="space-y-4">
+                <section className="space-y-3">
                   <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                     Rating Badge Settings
                   </span>
-
-                  {/* Badge Style: Large score box vs inline */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Badge Style
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
-                      <button
-                        type="button"
-                        onClick={() => setBadgeStyle("large")}
-                        className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                          badgeStyle === "large"
-                            ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                            : "text-zinc-500 hover:text-[#1A1A1A]"
-                        }`}
-                      >
-                        Large score box
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setBadgeStyle("inline")}
-                        className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                          badgeStyle === "inline"
-                            ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                            : "text-zinc-500 hover:text-[#1A1A1A]"
-                        }`}
-                      >
-                        Inline text
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Score Box Color (if large style) */}
-                  {badgeStyle === "large" && (
-                    <div className="space-y-1.5">
-                      <span className="text-xs font-medium text-zinc-700 block">
-                        Score Box Color
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={ratingBoxBg}
-                          onChange={(e) => setRatingBoxBg(e.target.value)}
-                          className="w-7 h-7 rounded-lg border border-[#E3E0DB] cursor-pointer p-0.5 bg-white shrink-0"
-                        />
-                        <input
-                          type="text"
-                          value={ratingBoxBg}
-                          onChange={(e) => setRatingBoxBg(e.target.value)}
-                          placeholder="#1A1A1A"
-                          className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
-                        />
-                      </div>
-                      {/* Quick Palette Pills */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        {[
-                          { label: "Dark", color: "#18181B" },
-                          { label: "Blue", color: "#2563EB" },
-                          { label: "Emerald", color: "#059669" },
-                          { label: "Amber", color: "#D97706" },
-                          { label: "Purple", color: "#7C3AED" },
-                        ].map((p) => (
-                          <button
-                            key={p.color}
-                            type="button"
-                            onClick={() => setRatingBoxBg(p.color)}
-                            className="px-2 py-0.5 text-[10px] font-medium rounded border border-[#E3E0DB] bg-white hover:bg-zinc-50 transition-colors flex items-center gap-1 cursor-pointer"
-                          >
-                            <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.color }} />
-                            <span>{p.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Optional Target Link */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Target Link (Optional)
-                    </span>
-                    <input
-                      type="url"
-                      value={badgeUrl}
-                      onChange={(e) => setBadgeUrl(e.target.value)}
-                      placeholder="https://example.com/reviews or #wall"
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
-                    />
+                  <div className="p-3 bg-zinc-50 border border-[#E3E0DB] rounded-xl text-xs text-zinc-600 leading-relaxed">
+                    Signature Senja-style Rating Badge featuring boxed rating score and gold star reviews count. Automatically formatted and synced.
                   </div>
                 </section>
                 <div className="h-px bg-[#E3E0DB]/60" />
@@ -1005,42 +924,6 @@ export default function WidgetBuilder({
                       checked={showRatingNumber}
                       onChange={(v) => setShowRatingNumber(v)}
                       size="sm"
-                    />
-                  </div>
-
-                  {/* Avatar Ring Border Color */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Avatar Border Ring
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={avatarBorderColor}
-                        onChange={(e) => setAvatarBorderColor(e.target.value)}
-                        className="w-7 h-7 rounded-lg border border-[#E3E0DB] cursor-pointer p-0.5 bg-white shrink-0"
-                      />
-                      <input
-                        type="text"
-                        value={avatarBorderColor}
-                        onChange={(e) => setAvatarBorderColor(e.target.value)}
-                        placeholder="#FFFFFF"
-                        className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Target Link */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Target Link (Optional)
-                    </span>
-                    <input
-                      type="url"
-                      value={avatarUrl}
-                      onChange={(e) => setAvatarUrl(e.target.value)}
-                      placeholder="https://example.com/reviews or #wall"
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
                     />
                   </div>
                 </section>
@@ -1119,37 +1002,16 @@ export default function WidgetBuilder({
                     Dual Marquee Settings
                   </span>
 
-                  {/* Marquee Rows: 2 Rows vs 1 Row */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Number of Rows
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: 2, label: "2 Rows (Dual)" },
-                        { id: 1, label: "1 Row (Single)" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setMarqueeRows(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            marqueeRows === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Pause on Hover */}
                   <label className="flex items-center justify-between cursor-pointer select-none pt-1">
-                    <span className="text-xs font-medium text-zinc-700">
-                      Pause on Hover
-                    </span>
+                    <div>
+                      <span className="text-xs font-medium text-zinc-700 block">
+                        Pause on Hover
+                      </span>
+                      <span className="text-[11px] text-zinc-400">
+                        Stop animation when pointer enters the marquee
+                      </span>
+                    </div>
                     <Switch
                       checked={marqueePauseOnHover}
                       onChange={setMarqueePauseOnHover}
@@ -1420,21 +1282,34 @@ export default function WidgetBuilder({
                   />
                 </div>
               </div>
-            ) : layout === "badge" || layout === "avatars" ? (
-              /* Rating Badge & Avatar Cluster: Centered directly on dot-grid canvas */
+            ) : layout === "badge" ? (
+              /* Rating Badge: Centered directly on dot-grid canvas */
+              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
+                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-xl">
+                  <iframe
+                    key={`preview-badge-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: "120px" }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            ) : layout === "avatars" ? (
+              /* Avatar Cluster: Centered directly on dot-grid canvas with full expand card clearance */
               <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
                 <div className="w-full flex items-center justify-center transition-all duration-300 max-w-2xl">
                   <iframe
-                    key={`preview-${layout}-${rawPreviewUrl}`}
+                    key={`preview-avatars-${rawPreviewUrl}`}
                     src={rawPreviewUrl}
                     className="w-full border-none block bg-transparent"
-                    style={{ height: "160px" }}
+                    style={{ height: "320px" }}
                     title="Live Render Output"
                   />
                 </div>
               </div>
             ) : layout === "quotes" ? (
-              /* Hero Quotes: Centered on dot-grid canvas */
+              /* Hero Quotes: Centered on dot-grid canvas without background box */
               <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
                 <div
                   className={`w-full flex items-center justify-center transition-all duration-300 ${
@@ -1446,12 +1321,7 @@ export default function WidgetBuilder({
                     src={rawPreviewUrl}
                     className="w-full border-none block bg-transparent transition-all duration-200"
                     style={{
-                      height:
-                        iframeHeight < 750
-                          ? `${Math.max(iframeHeight, 220)}px`
-                          : maxQuotes === 1
-                          ? "280px"
-                          : "420px",
+                      height: maxQuotes === 1 ? "260px" : "420px",
                       maxHeight: "85vh",
                     }}
                     title="Live Render Output"
@@ -1466,7 +1336,7 @@ export default function WidgetBuilder({
                     key={`preview-marquee-${rawPreviewUrl}`}
                     src={rawPreviewUrl}
                     className="w-full border-none block bg-transparent"
-                    style={{ height: marqueeRows === 2 ? "480px" : "260px" }}
+                    style={{ height: "480px" }}
                     title="Live Render Output"
                   />
                 </div>

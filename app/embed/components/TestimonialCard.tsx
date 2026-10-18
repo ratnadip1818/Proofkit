@@ -56,7 +56,7 @@ export function TestimonialCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const rawText = t.display_body ?? t.body_original ?? "";
   const text = rawText.replace(/^["“'\u201C\u201D]+|["”'\u201C\u201D]+$/g, "").trim();
-  const isLong = text.length > 170 || text.includes("\n");
+  const isLong = text.length > 120 || text.includes("\n");
   const isLightSurface = colors.cardBg === "#ffffff" || colors.cardBg === "#fffdfa" || !colors.cardBg;
   const formattedDate = formatReviewDate(t.created_at);
 

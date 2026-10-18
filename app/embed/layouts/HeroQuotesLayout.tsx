@@ -106,11 +106,11 @@ export function HeroQuotesLayout({
     <div
       className="w-full py-6 px-4 flex flex-col items-center select-none"
       style={{
-        backgroundColor: backgroundColor || (isDark ? "#0B0F19" : "transparent"),
+        backgroundColor: (backgroundColor && backgroundColor !== "#FFFFFF") ? backgroundColor : (isDark ? "#0B0F19" : "transparent"),
         color: colors.text,
       }}
     >
-      {/* Frameless Editorial Quotes Presentation (Senja Reference 3 Signature) */}
+      {/* Frameless Editorial Quotes Presentation (Zero Card Box Behind Quotes) */}
       {isSingleQuote ? (
         /* Variant A: Single Hero Statement (Max Quotes = 1) */
         <div className="w-full max-w-2xl mx-auto flex flex-col items-center text-center py-4 px-2">
@@ -126,15 +126,13 @@ export function HeroQuotesLayout({
                 className="w-full flex flex-col items-center gap-4 cursor-pointer group transition-transform duration-200 hover:-translate-y-1"
                 onClick={() => setActiveModalTestimonial(t)}
               >
-                {/* 1. Prominent Top Avatar */}
+                {/* 1. Prominent Top Avatar (Clean, no card border) */}
                 {showPhotos && (
                   <div className="shrink-0 mb-1">
                     <div
-                      className="rounded-full shadow-md transition-transform duration-200 group-hover:scale-105"
+                      className="rounded-full shadow-sm transition-transform duration-200 group-hover:scale-105 overflow-hidden"
                       style={{
-                        padding: "3px",
-                        backgroundColor: isDark ? "#27272A" : "#FFFFFF",
-                        border: isDark ? "1.5px solid #3F3F46" : "1.5px solid #E5E7EB",
+                        border: isDark ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(0, 0, 0, 0.08)",
                       }}
                     >
                       <Avatar
@@ -142,7 +140,7 @@ export function HeroQuotesLayout({
                         avatarUrl={photoUrl}
                         email={t.author_email || t.email}
                         colors={colors}
-                        size={60}
+                        size={64}
                         showPhotos={true}
                         useGravatar={useGravatar}
                         fallbackAvatar={fallbackAvatar}
@@ -151,23 +149,23 @@ export function HeroQuotesLayout({
                   </div>
                 )}
 
-                {/* 2. Prominent Hero Quote Text */}
-                <div className="text-center px-2">
+                {/* 2. Premium Hero Quote Typography */}
+                <div className="text-center px-2 max-w-2xl mx-auto">
                   <p
-                    className="text-lg sm:text-xl md:text-2xl font-medium leading-relaxed tracking-tight"
+                    className="text-xl sm:text-2xl md:text-[27px] font-normal leading-[1.48] tracking-[-0.015em]"
                     style={{
-                      color: textColor || (isDark ? "#F4F4F5" : "#18181B"),
+                      color: textColor || (isDark ? "#F9FAFB" : "#111827"),
                     }}
                   >
                     <span
-                      className="font-serif font-bold text-xl sm:text-2xl opacity-40 select-none mr-1"
+                      className="font-serif text-2xl sm:text-3xl opacity-35 select-none mr-1.5"
                       style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
                     >
                       &ldquo;
                     </span>
                     {quote}
                     <span
-                      className="font-serif font-bold text-xl sm:text-2xl opacity-40 select-none ml-1"
+                      className="font-serif text-2xl sm:text-3xl opacity-35 select-none ml-1.5"
                       style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
                     >
                       &rdquo;
@@ -177,17 +175,17 @@ export function HeroQuotesLayout({
 
                 {/* 3. Gold Stars Rating */}
                 {showRatings && typeof t.rating === "number" && t.rating > 0 && (
-                  <div className="flex justify-center mt-1">
+                  <div className="flex justify-center mt-0.5">
                     <Stars rating={t.rating} colors={colors} size={18} marginBottom={0} />
                   </div>
                 )}
 
                 {/* 4. Author Details */}
-                <div className="flex flex-col items-center gap-0.5 mt-0.5">
+                <div className="flex flex-col items-center gap-0.5 mt-1">
                   <span
-                    className="font-bold text-base tracking-tight"
+                    className="font-semibold text-base sm:text-[17px] tracking-tight"
                     style={{
-                      color: isDark ? "#FFFFFF" : "#09090B",
+                      color: isDark ? "#FFFFFF" : "#111827",
                     }}
                   >
                     {t.author_name}
@@ -196,7 +194,7 @@ export function HeroQuotesLayout({
                     <span
                       className="text-xs sm:text-sm font-normal"
                       style={{
-                        color: isDark ? "#A1A1AA" : "#71717A",
+                        color: isDark ? "#9CA3AF" : "#6B7280",
                       }}
                     >
                       {authorRole}
@@ -228,15 +226,13 @@ export function HeroQuotesLayout({
                 className="w-full flex flex-col items-center gap-3.5 p-2 cursor-pointer group transition-transform duration-200 hover:-translate-y-1"
                 onClick={() => setActiveModalTestimonial(t)}
               >
-                {/* 1. Top Avatar */}
+                {/* 1. Top Avatar (Clean, no card border) */}
                 {showPhotos && (
                   <div className="shrink-0 mb-1">
                     <div
-                      className="rounded-full shadow-xs transition-transform duration-200 group-hover:scale-105"
+                      className="rounded-full shadow-2xs transition-transform duration-200 group-hover:scale-105 overflow-hidden"
                       style={{
-                        padding: "2px",
-                        backgroundColor: isDark ? "#27272A" : "#FFFFFF",
-                        border: isDark ? "1px solid #3F3F46" : "1px solid #E5E7EB",
+                        border: isDark ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(0, 0, 0, 0.08)",
                       }}
                     >
                       <Avatar
@@ -244,7 +240,7 @@ export function HeroQuotesLayout({
                         avatarUrl={photoUrl}
                         email={t.author_email || t.email}
                         colors={colors}
-                        size={52}
+                        size={54}
                         showPhotos={true}
                         useGravatar={useGravatar}
                         fallbackAvatar={fallbackAvatar}
@@ -254,22 +250,22 @@ export function HeroQuotesLayout({
                 )}
 
                 {/* 2. Frameless Editorial Quote Text */}
-                <div className="text-center px-1">
+                <div className="text-center px-1 max-w-sm mx-auto">
                   <p
-                    className="text-[14.5px] sm:text-[15.5px] font-normal leading-relaxed line-clamp-4"
+                    className="text-[15px] sm:text-[16px] font-normal leading-[1.55] tracking-tight line-clamp-4"
                     style={{
-                      color: textColor || (isDark ? "#F4F4F5" : "#27272A"),
+                      color: textColor || (isDark ? "#F3F4F6" : "#1F2937"),
                     }}
                   >
                     <span
-                      className="font-serif font-bold text-lg opacity-40 select-none mr-0.5"
+                      className="font-serif text-lg opacity-35 select-none mr-1"
                       style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
                     >
                       &ldquo;
                     </span>
                     {quote}
                     <span
-                      className="font-serif font-bold text-lg opacity-40 select-none ml-0.5"
+                      className="font-serif text-lg opacity-35 select-none ml-1"
                       style={{ color: isDark ? "#A1A1AA" : "#71717A" }}
                     >
                       &rdquo;
@@ -285,11 +281,11 @@ export function HeroQuotesLayout({
                 )}
 
                 {/* 4. Author Details */}
-                <div className="flex flex-col items-center gap-0.5">
+                <div className="flex flex-col items-center gap-0.5 mt-0.5">
                   <span
-                    className="font-semibold text-sm tracking-tight"
+                    className="font-semibold text-sm sm:text-[15px] tracking-tight"
                     style={{
-                      color: isDark ? "#FFFFFF" : "#09090B",
+                      color: isDark ? "#FFFFFF" : "#111827",
                     }}
                   >
                     {t.author_name}
@@ -298,7 +294,7 @@ export function HeroQuotesLayout({
                     <span
                       className="text-xs font-normal"
                       style={{
-                        color: isDark ? "#A1A1AA" : "#71717A",
+                        color: isDark ? "#9CA3AF" : "#6B7280",
                       }}
                     >
                       {authorRole}

@@ -35,7 +35,7 @@ export function BadgeLayout({
   testimonials = [],
   theme = "light",
   showRatings = true,
-  // Note: Blovi branding is intentionally excluded on this widget per design requirements
+  // Note: Blovi branding is permanently excluded on Rating Badge per user requirement
   showBadge = false,
   accent,
   radius = "rounded",
@@ -45,7 +45,7 @@ export function BadgeLayout({
   ratingColor,
   ratingBorderColor,
   highlightColor,
-  badgeStyle = "large",
+  badgeText,
   badgeUrl,
   ratingBoxBg,
   ratingBoxText,
@@ -66,7 +66,7 @@ export function BadgeLayout({
   );
 
   // 1. Calculate Average Rating & Count
-  const { avgRating, roundedRating } = useMemo(() => {
+  const { avgRating, totalCount, roundedRating } = useMemo(() => {
     const rated = testimonials.filter((t) => typeof t.rating === "number" && t.rating > 0);
     const count = testimonials.length > 0 ? testimonials.length : 128;
     if (rated.length === 0) {
@@ -83,13 +83,23 @@ export function BadgeLayout({
 
   const displayAvg = avgRating.toFixed(1);
 
-  // 2. Resolve Colors & Box Aesthetics
+  // 2. Format Subtitle Text (Senja signature: "from 128 reviews")
+  const formattedSubtitle = useMemo(() => {
+    if (badgeText && badgeText.trim()) {
+      return badgeText
+        .replace(/{count}/g, totalCount.toString())
+        .replace(/{testimonial_count}/g, totalCount.toString());
+    }
+    return `from ${totalCount} reviews`;
+  }, [badgeText, totalCount]);
+
+  // 3. Resolve Colors & Box Aesthetics
   const isDark = theme === "dark";
-  const resolvedTextColor = textColor || (isDark ? "#D1D5DB" : "#374151");
+  const resolvedTextColor = textColor || (isDark ? "#D1D5DB" : "#4B5563");
   const boxBg = ratingBoxBg || (accent ? accent : isDark ? "#27272A" : "#18181B");
   const boxText = ratingBoxText || "#FFFFFF";
 
-  // 3. Interactive Link Component wrapper
+  // 4. Interactive Link Component wrapper
   const WrapperTag = badgeUrl ? "a" : "div";
   const wrapperProps = badgeUrl
     ? {
@@ -105,54 +115,41 @@ export function BadgeLayout({
   return (
     <div className="w-full flex items-center justify-start py-1 select-none">
       <WrapperTag {...(wrapperProps as any)}>
-        {/* Default Seamless Presentation (No Pill, No Card Container) */}
-        {badgeStyle === "large" ? (
-          /* Style A: Large Boxed Score + Stars Row (Reference 1 Signature) */
-          <div className="inline-flex items-center gap-2.5 transition-all">
-            <div
-              className="flex items-center justify-center px-2.5 py-1.5 font-bold text-sm sm:text-base leading-none tracking-tight shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
-              style={{
-                backgroundColor: boxBg,
-                color: boxText,
-                borderRadius: `${Math.min(radiusPx, 8)}px`,
-              }}
-            >
-              <span>{displayAvg}</span>
-            </div>
-
-            {showRatings && (
-              <div className="shrink-0 flex items-center">
-                <Stars
-                  rating={roundedRating}
-                  colors={colors}
-                  size={18}
-                  marginBottom={0}
-                />
-              </div>
-            )}
+        {/* Signature Senja Reference 1 Presentation (Dark Score Box + Stacked Stars & Reviews) */}
+        <div className="inline-flex items-center gap-3 transition-all">
+          {/* A. Dark Score Box */}
+          <div
+            className="flex items-center justify-center px-2.5 py-1.5 font-extrabold text-sm sm:text-base leading-none tracking-tight shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
+            style={{
+              backgroundColor: boxBg,
+              color: boxText,
+              borderRadius: `${Math.min(radiusPx, 10)}px`,
+            }}
+          >
+            <span>{displayAvg}</span>
           </div>
-        ) : (
-          /* Style B: Seamless Inline Stars + Score Text */
-          <div className="inline-flex items-center gap-2 transition-all">
+
+          {/* B. Stacked Stars & Reviews Subtitle */}
+          <div className="flex flex-col justify-center gap-1 min-w-0">
             {showRatings && (
               <div className="shrink-0 flex items-center">
                 <Stars
                   rating={roundedRating}
                   colors={colors}
-                  size={18}
+                  size={15}
                   marginBottom={0}
                 />
               </div>
             )}
 
-            <span
-              className="font-bold text-sm sm:text-base leading-none tracking-tight"
+            <div
+              className="text-xs sm:text-[13px] font-medium tracking-tight truncate transition-opacity"
               style={{ color: resolvedTextColor }}
             >
-              {displayAvg}
-            </span>
+              {formattedSubtitle}
+            </div>
           </div>
-        )}
+        </div>
       </WrapperTag>
     </div>
   );

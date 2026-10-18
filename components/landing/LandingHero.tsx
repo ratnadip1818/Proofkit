@@ -27,7 +27,7 @@ export default function LandingHero() {
           </h1>
 
           {/* Subtext */}
-          <p className="mt-6 max-w-[620px] text-pretty text-[17px] leading-relaxed text-gray-600 md:text-[20px]">
+          <p className="mt-6 max-w-[620px] text-pretty text-[17px] leading-relaxed text-[#787774] md:text-[20px]">
             Collect the moments customers already share. Curate them into proof that makes your next customer feel certain.
           </p>
 
@@ -45,9 +45,9 @@ export default function LandingHero() {
 
             <a
               href="#how-it-works"
-              className="group inline-flex items-center gap-2.5 rounded-full border border-gray-200/90 bg-white px-5 py-3.5 text-[14px] font-semibold text-gray-700 shadow-sm transition hover:border-gray-900 hover:text-gray-900"
+              className="group inline-flex items-center gap-2.5 rounded-full border border-[#E3E0DB] bg-white px-5 py-3.5 text-[14px] font-semibold text-[#1A1A1A] shadow-xs transition hover:border-[#1A1A1A] hover:text-[#1A1A1A]"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition group-hover:bg-gray-900 group-hover:text-white">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FAF8F5] text-[#1A1A1A] transition group-hover:bg-[#1A1A1A] group-hover:text-white">
                 <Play size={10} fill="currentColor" />
               </span>
               See how it works
@@ -56,19 +56,19 @@ export default function LandingHero() {
 
         </div>
 
-        {/* CENTERED SHOWCASE CANVAS CONTAINER (Inspired by reference site) */}
+        {/* CENTERED SHOWCASE CANVAS CONTAINER */}
         <div className="mt-14 md:mt-20 mx-auto w-full max-w-[1240px]">
-          <div className="relative w-full rounded-[32px] md:rounded-[44px] bg-gradient-to-b from-[#FAF8F5] via-[#F4F6FB] to-[#EDF2FC] p-4 sm:p-8 md:p-12 lg:p-14 border border-gray-200/80 shadow-[0_25px_60px_-15px_rgba(37,99,235,0.08)] overflow-hidden">
+          <div className="relative w-full rounded-[32px] md:rounded-[44px] bg-[#FAF8F5] p-4 sm:p-8 md:p-12 lg:p-14 border border-[#E3E0DB] shadow-[0_25px_60px_-15px_rgba(37,99,235,0.08)] overflow-hidden">
             
             {/* Background Glow Accents */}
             <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-72 w-3/4 rounded-full bg-blue-400/12 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-indigo-300/15 blur-3xl" />
 
             {/* FLOATING CARD 1 (Top-Left): Collection Form (Desktop) */}
-            <div className="hidden lg:block absolute left-6 xl:left-10 top-14 xl:top-18 w-[260px] xl:w-[285px] rounded-2xl bg-white p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.16)] border border-gray-200/80 z-20 transition-all duration-300 hover:scale-105 hover:-rotate-1 -rotate-2 cursor-pointer">
+            <div className="hidden lg:block absolute left-6 xl:left-10 top-14 xl:top-18 w-[260px] xl:w-[285px] rounded-2xl bg-white p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.16)] border border-[#E3E0DB] z-20 transition-all duration-300 hover:scale-105 hover:-rotate-1 -rotate-2 cursor-pointer">
               <div className="flex items-center justify-between px-2.5 py-1.5 mb-1.5 border-b border-gray-100">
-                <span className="text-[11px] font-semibold text-gray-700">01. Collection Form</span>
-                <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Branded link</span>
+                <span className="text-[11px] font-semibold text-[#1A1A1A]">01. Collection Form</span>
+                <span className="text-[10px] font-medium text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Branded link</span>
               </div>
               <div className="rounded-xl overflow-hidden bg-white">
                 <Image
@@ -85,28 +85,28 @@ export default function LandingHero() {
             </div>
 
             {/* CENTERPIECE: Main Tablet / App Browser Showcase Frame */}
-            <div className="relative mx-auto max-w-[880px] rounded-2xl md:rounded-3xl bg-white border border-gray-200/90 shadow-[0_24px_55px_rgba(15,23,42,0.14)] overflow-hidden z-10 transition-transform duration-500 hover:scale-[1.01]">
+            <div className="relative mx-auto max-w-[880px] rounded-2xl md:rounded-3xl bg-white border border-[#E3E0DB] shadow-[0_24px_55px_rgba(15,23,42,0.14)] overflow-hidden z-10 transition-transform duration-500 hover:scale-[1.01]">
               
               {/* Top Browser Bar */}
-              <div className="bg-[#FAF8F5] px-4 py-2.5 border-b border-gray-200/70 flex items-center justify-between">
+              <div className="bg-[#FAF8F5] px-4 py-2.5 border-b border-[#E3E0DB]/80 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
                   <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
                   <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
-                  <span className="text-[11px] font-medium text-gray-500 font-sans tracking-tight ml-2">
+                  <span className="text-[11px] font-medium text-[#787774] font-sans tracking-tight ml-2">
                     blovi.space/dashboard/manage
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-medium text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Live Dashboard
                   </span>
                 </div>
               </div>
 
-              {/* Main Screenshot: Manage Dashboard */}
-              <div className="p-0.5 bg-white">
+              {/* Main Manage Table Screenshot */}
+              <div className="relative w-full bg-white">
                 <Image
                   src="/images/hero-manage-dashboard.png"
                   alt="Blovi Manage Dashboard"
@@ -115,62 +115,62 @@ export default function LandingHero() {
                   quality={100}
                   unoptimized
                   priority
-                  className="w-full h-auto object-cover max-h-[460px] md:max-h-[520px]"
+                  className="w-full h-auto object-contain block"
                 />
               </div>
             </div>
 
-            {/* FLOATING CARD 2 (Bottom-Right): Wall of Love Review Widget (Desktop) */}
-            <div className="hidden lg:block absolute right-6 xl:right-10 bottom-8 xl:bottom-12 w-[330px] xl:w-[360px] rounded-2xl bg-white p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.18)] border border-gray-200/80 z-20 transition-all duration-300 hover:scale-105 hover:rotate-1 rotate-2 cursor-pointer">
+            {/* FLOATING CARD 2 (Bottom-Right): Wall of Love Widget (Desktop) */}
+            <div className="hidden lg:block absolute right-6 xl:right-10 bottom-10 xl:bottom-12 w-[270px] xl:w-[295px] rounded-2xl bg-white p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.16)] border border-[#E3E0DB] z-20 transition-all duration-300 hover:scale-105 hover:rotate-1 rotate-2 cursor-pointer">
               <div className="flex items-center justify-between px-2.5 py-1.5 mb-1.5 border-b border-gray-100">
-                <span className="text-[11px] font-semibold text-gray-700">03. Wall of Love Widget</span>
-                <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Embed ready</span>
+                <span className="text-[11px] font-semibold text-[#1A1A1A]">03. Wall of Love Widget</span>
+                <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Embed ready</span>
               </div>
               <div className="rounded-xl overflow-hidden bg-white">
                 <Image
                   src="/images/hero-wall-widget.png"
-                  alt="Wall of Love Review Widget"
-                  width={800}
+                  alt="Wall of Love Preview"
+                  width={500}
                   height={600}
                   quality={100}
                   unoptimized
                   priority
-                  className="w-full h-auto object-cover max-h-[220px]"
+                  className="w-full h-auto object-contain block"
                 />
               </div>
             </div>
 
-            {/* MOBILE & TABLET COMPLEMENTARY CARDS (< 1024px) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 lg:hidden relative z-10">
-              {/* Mobile Card 1: Collection Form */}
-              <div className="rounded-xl bg-white p-2.5 shadow-md border border-gray-200/80 overflow-hidden">
-                <div className="flex items-center justify-between px-2 py-1 mb-1.5 border-b border-gray-100">
-                  <span className="text-[11px] font-semibold text-gray-700">01. Collection Form</span>
-                  <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Collect</span>
+            {/* MOBILE ONLY / TABLET ONLY: Display the two cards in clean responsive grid beneath browser frame */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 lg:hidden relative z-20">
+              <div className="rounded-2xl bg-white p-3 shadow-md border border-[#E3E0DB]">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-100">
+                  <span className="text-xs font-semibold text-[#1A1A1A]">01. Collection Form</span>
+                  <span className="text-[10px] font-medium text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-full">Branded link</span>
                 </div>
                 <Image
                   src="/images/hero-collect-form.png"
-                  alt="Collection Form"
+                  alt="Collection Form Preview"
                   width={500}
                   height={600}
+                  quality={100}
                   unoptimized
-                  className="w-full h-auto object-contain rounded-lg"
+                  className="w-full h-auto object-contain block rounded-lg"
                 />
               </div>
 
-              {/* Mobile Card 2: Wall of Love */}
-              <div className="rounded-xl bg-white p-2.5 shadow-md border border-gray-200/80 overflow-hidden">
-                <div className="flex items-center justify-between px-2 py-1 mb-1.5 border-b border-gray-100">
-                  <span className="text-[11px] font-semibold text-gray-700">03. Wall of Love Widget</span>
-                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Showcase</span>
+              <div className="rounded-2xl bg-white p-3 shadow-md border border-[#E3E0DB]">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-100">
+                  <span className="text-xs font-semibold text-[#1A1A1A]">03. Wall of Love Widget</span>
+                  <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Embed ready</span>
                 </div>
                 <Image
                   src="/images/hero-wall-widget.png"
-                  alt="Wall of Love Widget"
-                  width={800}
+                  alt="Wall of Love Preview"
+                  width={500}
                   height={600}
+                  quality={100}
                   unoptimized
-                  className="w-full h-auto object-cover rounded-lg max-h-[220px]"
+                  className="w-full h-auto object-contain block rounded-lg"
                 />
               </div>
             </div>
