@@ -9,6 +9,8 @@ import { ConversationLayout, type ConversationLayoutProps } from "./Conversation
 import { BentoLayout } from "./BentoLayout";
 import { OrbitLayout } from "./OrbitLayout";
 import { StackLayout } from "./StackLayout";
+import { BadgeLayout, type BadgeLayoutProps } from "./BadgeLayout";
+import { AvatarsLayout, type AvatarsLayoutProps } from "./AvatarsLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -121,6 +123,28 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
       supportsTagFiltering: false,
       supportsPagination: false,
       supportsAutoplay: true,
+      supportsMultipleItems: true,
+    },
+  },
+  badge: {
+    id: "badge",
+    name: "Rating Badge",
+    component: BadgeLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: false,
+      supportsMultipleItems: false,
+    },
+  },
+  avatars: {
+    id: "avatars",
+    name: "Avatar Cluster",
+    component: AvatarsLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: false,
       supportsMultipleItems: true,
     },
   },

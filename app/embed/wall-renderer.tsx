@@ -16,6 +16,8 @@ import {
   BentoLayout,
   OrbitLayout,
   StackLayout,
+  BadgeLayout,
+  AvatarsLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -79,6 +81,21 @@ export interface WallRendererProps {
   chatFounderReply?: string;
   showDate?: boolean;
   cardLayout?: "top" | "bottom";
+  badgeStyle?: "large" | "inline";
+  badgeText?: string;
+  badgeAlign?: "left" | "center" | "right";
+  badgeContainer?: "plain" | "pill" | "card";
+  badgeUrl?: string;
+  ratingBoxBg?: string;
+  ratingBoxText?: string;
+  maxAvatars?: number;
+  avatarSize?: "sm" | "md" | "lg";
+  avatarAlign?: "left" | "center" | "right";
+  avatarContainer?: "plain" | "pill" | "card";
+  avatarText?: string;
+  showRatingNumber?: boolean;
+  avatarBorderColor?: string;
+  avatarUrl?: string;
 }
 
 /**
@@ -111,8 +128,76 @@ export default function WallRenderer({
   chatFounderReply,
   showDate = true,
   cardLayout = "top",
+  badgeStyle = "large",
+  badgeText,
+  badgeAlign = "left",
+  badgeContainer = "plain",
+  badgeUrl,
+  ratingBoxBg,
+  ratingBoxText,
+  maxAvatars = 5,
+  avatarSize = "md",
+  avatarAlign = "left",
+  avatarContainer = "plain",
+  avatarText,
+  showRatingNumber = false,
+  avatarBorderColor,
+  avatarUrl,
 }: WallRendererProps) {
   const presetDef = getPresetDefinition(preset);
+
+  if (type === "avatars") {
+    return (
+      <AvatarsLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
+        maxAvatars={maxAvatars}
+        avatarSize={avatarSize}
+        avatarAlign={avatarAlign}
+        avatarContainer={avatarContainer}
+        avatarText={avatarText}
+        showRatingNumber={showRatingNumber}
+        avatarBorderColor={avatarBorderColor}
+        avatarUrl={avatarUrl}
+      />
+    );
+  }
+
+  if (type === "badge") {
+    return (
+      <BadgeLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
+        badgeStyle={badgeStyle}
+        badgeText={badgeText}
+        badgeAlign={badgeAlign}
+        badgeContainer={badgeContainer}
+        badgeUrl={badgeUrl}
+        ratingBoxBg={ratingBoxBg}
+        ratingBoxText={ratingBoxText}
+      />
+    );
+  }
 
   if (type === "single") {
     const activeTestimonial = testimonial ?? testimonials[featuredIndex] ?? testimonials[0] ?? null;

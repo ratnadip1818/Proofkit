@@ -36,6 +36,21 @@ interface WidgetConfig {
   autoRating: string;
   showDate: boolean;
   cardLayout: "top" | "bottom";
+  badgeStyle?: "large" | "inline";
+  badgeText?: string;
+  badgeAlign?: "left" | "center" | "right";
+  badgeContainer?: "plain" | "pill" | "card";
+  badgeUrl?: string;
+  ratingBoxBg?: string;
+  ratingBoxText?: string;
+  maxAvatars?: number;
+  avatarSize?: "sm" | "md" | "lg";
+  avatarAlign?: "left" | "center" | "right";
+  avatarContainer?: "plain" | "pill" | "card";
+  avatarText?: string;
+  showRatingNumber?: boolean;
+  avatarBorderColor?: string;
+  avatarUrl?: string;
 }
 
 export default function WidgetClientWrapper({
@@ -67,7 +82,7 @@ export default function WidgetClientWrapper({
     const isDemo = getParam("demo") === "1";
     const spType = getParam("type");
     const rawType: WidgetType =
-      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack"
+      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack" || spType === "badge" || spType === "avatars"
         ? spType
         : "wall";
     const requestedType: WidgetType =
@@ -120,6 +135,24 @@ export default function WidgetClientWrapper({
     const showDate = getParam("showDate") !== "false";
     const cardLayout = getParam("cardLayout") === "bottom" ? "bottom" : "top";
 
+    const badgeStyle = getParam("badgeStyle") === "inline" ? "inline" : "large";
+    const badgeText = getParam("badgeText") || undefined;
+    const badgeAlign = (getParam("badgeAlign") as "left" | "center" | "right") || "left";
+    const badgeContainer = (getParam("badgeContainer") as "plain" | "pill" | "card") || "plain";
+    const badgeUrl = getParam("badgeUrl") || undefined;
+    const ratingBoxBg = getParam("ratingBoxBg") || undefined;
+    const ratingBoxText = getParam("ratingBoxText") || undefined;
+
+    const rawMaxAvatars = getParam("maxAvatars");
+    const maxAvatars = rawMaxAvatars ? parseInt(rawMaxAvatars, 10) || 5 : 5;
+    const avatarSize = (getParam("avatarSize") as "sm" | "md" | "lg") || "md";
+    const avatarAlign = (getParam("avatarAlign") as "left" | "center" | "right") || "left";
+    const avatarContainer = (getParam("avatarContainer") as "plain" | "pill" | "card") || "plain";
+    const avatarText = getParam("avatarText") || undefined;
+    const showRatingNumber = getParam("showRatingNumber") === "true";
+    const avatarBorderColor = getParam("avatarBorderColor") || undefined;
+    const avatarUrl = getParam("avatarUrl") || undefined;
+
     return {
       isDemo,
       requestedType,
@@ -148,6 +181,21 @@ export default function WidgetClientWrapper({
       autoRating,
       showDate,
       cardLayout,
+      badgeStyle,
+      badgeText,
+      badgeAlign,
+      badgeContainer,
+      badgeUrl,
+      ratingBoxBg,
+      ratingBoxText,
+      maxAvatars,
+      avatarSize,
+      avatarAlign,
+      avatarContainer,
+      avatarText,
+      showRatingNumber,
+      avatarBorderColor,
+      avatarUrl,
     };
   });
 
@@ -168,7 +216,7 @@ export default function WidgetClientWrapper({
     const spType = searchParams.get("type");
     if (spType) {
       const rawType: WidgetType =
-        spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack"
+        spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack" || spType === "badge" || spType === "avatars"
           ? spType
           : "wall";
       const requestedType: WidgetType =
@@ -206,6 +254,24 @@ export default function WidgetClientWrapper({
         : undefined;
       const autoRating = searchParams.get("autoRating") || searchParams.get("auto_rating") || "all";
 
+      const badgeStyle = searchParams.get("badgeStyle") === "inline" ? "inline" : "large";
+      const badgeText = searchParams.get("badgeText") || undefined;
+      const badgeAlign = (searchParams.get("badgeAlign") as "left" | "center" | "right") || "left";
+      const badgeContainer = (searchParams.get("badgeContainer") as "plain" | "pill" | "card") || "plain";
+      const badgeUrl = searchParams.get("badgeUrl") || undefined;
+      const ratingBoxBg = searchParams.get("ratingBoxBg") || undefined;
+      const ratingBoxText = searchParams.get("ratingBoxText") || undefined;
+
+      const spMaxAvatars = searchParams.get("maxAvatars");
+      const maxAvatars = spMaxAvatars ? parseInt(spMaxAvatars, 10) : 5;
+      const avatarSize = (searchParams.get("avatarSize") as "sm" | "md" | "lg") || "md";
+      const avatarAlign = (searchParams.get("avatarAlign") as "left" | "center" | "right") || "left";
+      const avatarContainer = (searchParams.get("avatarContainer") as "plain" | "pill" | "card") || "plain";
+      const avatarText = searchParams.get("avatarText") || undefined;
+      const showRatingNumber = searchParams.get("showRatingNumber") === "true";
+      const avatarBorderColor = searchParams.get("avatarBorderColor") || undefined;
+      const avatarUrl = searchParams.get("avatarUrl") || undefined;
+
       setConfig((prev) => ({
         ...prev,
         requestedType,
@@ -227,6 +293,21 @@ export default function WidgetClientWrapper({
         selectMode,
         selectedIds,
         autoRating,
+        badgeStyle,
+        badgeText,
+        badgeAlign,
+        badgeContainer,
+        badgeUrl,
+        ratingBoxBg,
+        ratingBoxText,
+        maxAvatars,
+        avatarSize,
+        avatarAlign,
+        avatarContainer,
+        avatarText,
+        showRatingNumber,
+        avatarBorderColor,
+        avatarUrl,
       }));
     }
 
@@ -396,9 +477,23 @@ export default function WidgetClientWrapper({
         ratingBorderColor={ratingBorderColor}
         highlightColor={highlightColor}
         chatCustomerPrompt={chatCustomerPrompt}
-        chatFounderReply={chatFounderReply}
         showDate={config.showDate}
         cardLayout={config.cardLayout}
+        badgeStyle={config.badgeStyle}
+        badgeText={config.badgeText}
+        badgeAlign={config.badgeAlign}
+        badgeContainer={config.badgeContainer}
+        badgeUrl={config.badgeUrl}
+        ratingBoxBg={config.ratingBoxBg}
+        ratingBoxText={config.ratingBoxText}
+        maxAvatars={config.maxAvatars}
+        avatarSize={config.avatarSize}
+        avatarAlign={config.avatarAlign}
+        avatarContainer={config.avatarContainer}
+        avatarText={config.avatarText}
+        showRatingNumber={config.showRatingNumber}
+        avatarBorderColor={config.avatarBorderColor}
+        avatarUrl={config.avatarUrl}
       />
 
       {/* Hidden container for testimonials data to safely pass to the parent page schema builder */}

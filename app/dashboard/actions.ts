@@ -302,7 +302,7 @@ export async function updateForm(
 export interface WidgetConfigInput {
   widget_id?: string;
   name?: string;
-  layout?: "wall" | "orbit" | "stack";
+  layout?: "wall" | "orbit" | "stack" | "badge" | "avatars";
   placement?: string;
   preset?: string;
   theme?: string;
@@ -320,6 +320,21 @@ export interface WidgetConfigInput {
   select_mode?: "auto" | "manual";
   selected_testimonial_ids?: string[];
   auto_rating_filter?: string;
+  badge_style?: "large" | "inline";
+  badge_text?: string;
+  badge_align?: "left" | "center" | "right";
+  badge_container?: "plain" | "pill" | "card";
+  badge_url?: string;
+  rating_box_bg?: string;
+  rating_box_text?: string;
+  max_avatars?: number;
+  avatar_size?: "sm" | "md" | "lg";
+  avatar_align?: "left" | "center" | "right";
+  avatar_container?: "plain" | "pill" | "card";
+  avatar_text?: string;
+  show_rating_number?: boolean;
+  avatar_border_color?: string;
+  avatar_url?: string;
 }
 
 export interface SavedWidgetRecord {
@@ -357,7 +372,7 @@ export async function getSavedWidgets(): Promise<SavedWidgetRecord[]> {
 
 export async function createSavedWidget(input: {
   name: string;
-  layout: "wall" | "orbit" | "stack";
+  layout: "wall" | "orbit" | "stack" | "badge" | "avatars";
   placement?: string;
   settings?: Record<string, any>;
 }): Promise<{ error: string | null; widget?: SavedWidgetRecord }> {
@@ -419,7 +434,7 @@ export async function updateSavedWidget(
   widgetId: string,
   updates: {
     name?: string;
-    layout?: "wall" | "orbit" | "stack";
+    layout?: "wall" | "orbit" | "stack" | "badge" | "avatars";
     settings?: Record<string, any>;
     theme?: string;
     accent?: string;
@@ -577,6 +592,21 @@ export async function saveWidgetConfig(
         auto_rating_filter: config.auto_rating_filter,
         layout: config.layout,
         placement: config.placement,
+        badge_style: config.badge_style,
+        badge_text: config.badge_text,
+        badge_align: config.badge_align,
+        badge_container: config.badge_container,
+        badge_url: config.badge_url,
+        rating_box_bg: config.rating_box_bg,
+        rating_box_text: config.rating_box_text,
+        max_avatars: config.max_avatars,
+        avatar_size: config.avatar_size,
+        avatar_align: config.avatar_align,
+        avatar_container: config.avatar_container,
+        avatar_text: config.avatar_text,
+        show_rating_number: config.show_rating_number,
+        avatar_border_color: config.avatar_border_color,
+        avatar_url: config.avatar_url,
       };
 
       await admin

@@ -109,6 +109,8 @@
   // Baseline height estimation to eliminate layout shift before iframe renders
   function getEstimatedHeight(type) {
     switch (type) {
+      case "badge": return 64;
+      case "avatars": return 64;
       case "single": return 200;
       case "marquee": return 160;
       case "carousel": return 320;
@@ -222,7 +224,7 @@
 
 
   var params = [];
-  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "backgroundColor", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "font", "fontFamily", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding", "selectMode", "selectedIds", "autoRating"].forEach(
+  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "backgroundColor", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "font", "fontFamily", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding", "selectMode", "selectedIds", "autoRating", "badgeStyle", "badgeText", "badgeAlign", "badgeContainer", "badgeUrl", "ratingBoxBg", "ratingBoxText", "maxAvatars", "avatarSize", "avatarAlign", "avatarContainer", "avatarText", "showRatingNumber", "avatarBorderColor", "avatarUrl"].forEach(
     function (key) {
       var val = getAttr(key);
       if (!val) return;

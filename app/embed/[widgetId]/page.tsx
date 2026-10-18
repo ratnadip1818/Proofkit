@@ -35,7 +35,7 @@ export default async function EmbedPage({
     const headersList = await headers();
     const referer = headersList.get("referer");
     const widgetTypeParam = typeof sParams.type === "string" ? sParams.type : typeof sParams.layout === "string" ? sParams.layout : "wall";
-    const safeWidgetType = (["wall", "carousel", "marquee", "single"].includes(widgetTypeParam) ? widgetTypeParam : "wall") as "wall" | "carousel" | "marquee" | "single";
+    const safeWidgetType = (["wall", "carousel", "marquee", "single", "spotlight", "conversation", "bento", "orbit", "stack", "badge", "avatars"].includes(widgetTypeParam) ? widgetTypeParam : "wall") as "wall" | "carousel" | "marquee" | "single";
     logWidgetView(widgetId, safeWidgetType, referer).catch(() => {});
   } catch {}
 

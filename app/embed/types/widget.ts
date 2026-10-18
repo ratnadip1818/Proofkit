@@ -3,7 +3,7 @@ import type { ThemeColors } from "../theme/types";
 import type { WidgetPresetId } from "../styles/types";
 
 /** Supported widget layout types */
-export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento" | "orbit" | "stack";
+export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento" | "orbit" | "stack" | "badge" | "avatars";
 
 /** Border radius variants */
 export type WidgetRadius = "sharp" | "rounded" | "pill";
@@ -65,6 +65,29 @@ export interface SingleQuoteLayoutProps extends WidgetLayoutProps {
   layout?: SingleQuoteLayout;
 }
 
+/** Props for the Badge layout */
+export interface BadgeLayoutProps extends WidgetLayoutProps {
+  badgeStyle?: "large" | "inline";
+  badgeText?: string;
+  badgeAlign?: "left" | "center" | "right";
+  badgeContainer?: "plain" | "pill" | "card";
+  badgeUrl?: string;
+  ratingBoxBg?: string;
+  ratingBoxText?: string;
+}
+
+/** Props for the Avatars layout */
+export interface AvatarsLayoutProps extends WidgetLayoutProps {
+  maxAvatars?: number;
+  avatarSize?: "sm" | "md" | "lg";
+  avatarAlign?: "left" | "center" | "right";
+  avatarContainer?: "plain" | "pill" | "card";
+  avatarText?: string;
+  showRatingNumber?: boolean;
+  avatarBorderColor?: string;
+  avatarUrl?: string;
+}
+
 /** Overall configuration passed into client wrapper */
 export interface WidgetConfig {
   isDemo: boolean;
@@ -82,4 +105,19 @@ export interface WidgetConfig {
   fallbackAvatar?: string;
   chatCustomerPrompt?: string;
   chatFounderReply?: string;
+  badgeStyle?: "large" | "inline";
+  badgeText?: string;
+  badgeAlign?: "left" | "center" | "right";
+  badgeContainer?: "plain" | "pill" | "card";
+  badgeUrl?: string;
+  ratingBoxBg?: string;
+  ratingBoxText?: string;
+  maxAvatars?: number;
+  avatarSize?: "sm" | "md" | "lg";
+  avatarAlign?: "left" | "center" | "right";
+  avatarContainer?: "plain" | "pill" | "card";
+  avatarText?: string;
+  showRatingNumber?: boolean;
+  avatarBorderColor?: string;
+  avatarUrl?: string;
 }

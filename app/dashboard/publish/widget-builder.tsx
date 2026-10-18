@@ -95,6 +95,8 @@ const WIDGET_TITLES: Record<WidgetType, string> = {
   spotlight: "Spotlight",
   conversation: "Conversation",
   bento: "Bento Grid",
+  badge: "Rating Badge",
+  avatars: "Avatar Cluster",
 };
 
 export default function WidgetBuilder({
@@ -197,6 +199,51 @@ export default function WidgetBuilder({
   );
   const [stackEmbedMode, setStackEmbedMode] = useState<"floating" | "inline">(
     savedSettings?.stackEmbedMode || "floating"
+  );
+  const [badgeStyle, setBadgeStyle] = useState<"large" | "inline">(
+    savedSettings?.badgeStyle || savedSettings?.badge_style || "large"
+  );
+  const [badgeText, setBadgeText] = useState<string>(
+    savedSettings?.badgeText || savedSettings?.badge_text || "from {count} reviews"
+  );
+  const [badgeAlign, setBadgeAlign] = useState<"left" | "center" | "right">(
+    savedSettings?.badgeAlign || savedSettings?.badge_align || "left"
+  );
+  const [badgeContainer, setBadgeContainer] = useState<"plain" | "pill" | "card">(
+    savedSettings?.badgeContainer || savedSettings?.badge_container || "plain"
+  );
+  const [badgeUrl, setBadgeUrl] = useState<string>(
+    savedSettings?.badgeUrl || savedSettings?.badge_url || ""
+  );
+  const [ratingBoxBg, setRatingBoxBg] = useState<string>(
+    savedSettings?.ratingBoxBg || savedSettings?.rating_box_bg || "#1A1A1A"
+  );
+  const [ratingBoxText, setRatingBoxText] = useState<string>(
+    savedSettings?.ratingBoxText || savedSettings?.rating_box_text || "#FFFFFF"
+  );
+  const [maxAvatars, setMaxAvatars] = useState<number>(
+    savedSettings?.maxAvatars || savedSettings?.max_avatars || 5
+  );
+  const [avatarSize, setAvatarSize] = useState<"sm" | "md" | "lg">(
+    savedSettings?.avatarSize || savedSettings?.avatar_size || "md"
+  );
+  const [avatarAlign, setAvatarAlign] = useState<"left" | "center" | "right">(
+    savedSettings?.avatarAlign || savedSettings?.avatar_align || "left"
+  );
+  const [avatarContainer, setAvatarContainer] = useState<"plain" | "pill" | "card">(
+    savedSettings?.avatarContainer || savedSettings?.avatar_container || "plain"
+  );
+  const [avatarText, setAvatarText] = useState<string>(
+    savedSettings?.avatarText || savedSettings?.avatar_text || "from {count} reviews"
+  );
+  const [showRatingNumber, setShowRatingNumber] = useState<boolean>(
+    savedSettings?.showRatingNumber ?? savedSettings?.show_rating_number ?? false
+  );
+  const [avatarBorderColor, setAvatarBorderColor] = useState<string>(
+    savedSettings?.avatarBorderColor || savedSettings?.avatar_border_color || "#FFFFFF"
+  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    savedSettings?.avatarUrl || savedSettings?.avatar_url || ""
   );
 
   // Effective testimonials pool: real testimonials if present, otherwise SAMPLE_TESTIMONIALS for live studio testing
@@ -358,6 +405,21 @@ export default function WidgetBuilder({
           select_mode: selectModeType,
           selected_testimonial_ids: manualSelectedIds,
           auto_rating_filter: autoRatingFilter,
+          badge_style: badgeStyle,
+          badge_text: badgeText,
+          badge_align: badgeAlign,
+          badge_container: badgeContainer,
+          badge_url: badgeUrl,
+          rating_box_bg: ratingBoxBg,
+          rating_box_text: ratingBoxText,
+          max_avatars: maxAvatars,
+          avatar_size: avatarSize,
+          avatar_align: avatarAlign,
+          avatar_container: avatarContainer,
+          avatar_text: avatarText,
+          show_rating_number: showRatingNumber,
+          avatar_border_color: avatarBorderColor,
+          avatar_url: avatarUrl,
         });
         setIsSaved(true);
       } catch (err) {
@@ -387,6 +449,21 @@ export default function WidgetBuilder({
     selectModeType,
     manualSelectedIds,
     autoRatingFilter,
+    badgeStyle,
+    badgeText,
+    badgeAlign,
+    badgeContainer,
+    badgeUrl,
+    ratingBoxBg,
+    ratingBoxText,
+    maxAvatars,
+    avatarSize,
+    avatarAlign,
+    avatarContainer,
+    avatarText,
+    showRatingNumber,
+    avatarBorderColor,
+    avatarUrl,
   ]);
 
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
@@ -448,12 +525,29 @@ export default function WidgetBuilder({
     selectedIdsParamValue
   )}&autoRating=${encodeURIComponent(
     autoRatingFilter
-  )}&showDate=${showDate}&cardLayout=${cardLayout}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
+  )}&showDate=${showDate}&cardLayout=${cardLayout}&badgeStyle=${badgeStyle}&badgeText=${encodeURIComponent(
+    badgeText
+  )}&badgeAlign=${badgeAlign}&badgeContainer=${badgeContainer}&badgeUrl=${encodeURIComponent(
+    badgeUrl
+  )}&ratingBoxBg=${encodeURIComponent(
+    ratingBoxBg
+  )}&ratingBoxText=${encodeURIComponent(
+    ratingBoxText
+  )}&maxAvatars=${maxAvatars}&avatarSize=${avatarSize}&avatarAlign=${avatarAlign}&avatarContainer=${avatarContainer}&avatarText=${encodeURIComponent(
+    avatarText
+  )}&showRatingNumber=${showRatingNumber}&avatarBorderColor=${encodeURIComponent(
+    avatarBorderColor
+  )}&avatarUrl=${encodeURIComponent(
+    avatarUrl
+  )}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
 
   const publicShareUrl = `${appUrl}/embed/${userId || "demo-widget"}?type=${layout}`;
 
   const getEstimatedHeight = (layoutType: string, count: number): number => {
     switch (layoutType) {
+      case "badge":
+      case "avatars":
+        return 75;
       case "stack":
         return 190;
       case "orbit":
@@ -713,6 +807,360 @@ export default function WidgetBuilder({
               </>
             )}
 
+            {/* If Badge: Show Rating Badge Customization Options */}
+            {layout === "badge" && (
+              <>
+                <section className="space-y-4">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Rating Badge Settings
+                  </span>
+
+                  {/* Badge Style: Large score box vs inline */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Badge Style
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                      <button
+                        type="button"
+                        onClick={() => setBadgeStyle("large")}
+                        className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                          badgeStyle === "large"
+                            ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                            : "text-zinc-500 hover:text-[#1A1A1A]"
+                        }`}
+                      >
+                        Large score box
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBadgeStyle("inline")}
+                        className={`py-1.5 px-3 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                          badgeStyle === "inline"
+                            ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                            : "text-zinc-500 hover:text-[#1A1A1A]"
+                        }`}
+                      >
+                        Inline text
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Score Box Color (if large style) */}
+                  {badgeStyle === "large" && (
+                    <div className="space-y-1.5">
+                      <span className="text-xs font-medium text-zinc-700 block">
+                        Score Box Color
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={ratingBoxBg}
+                          onChange={(e) => setRatingBoxBg(e.target.value)}
+                          className="w-7 h-7 rounded-lg border border-[#E3E0DB] cursor-pointer p-0.5 bg-white shrink-0"
+                        />
+                        <input
+                          type="text"
+                          value={ratingBoxBg}
+                          onChange={(e) => setRatingBoxBg(e.target.value)}
+                          placeholder="#1A1A1A"
+                          className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
+                        />
+                      </div>
+                      {/* Quick Palette Pills */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[
+                          { label: "Dark", color: "#18181B" },
+                          { label: "Blue", color: "#2563EB" },
+                          { label: "Emerald", color: "#059669" },
+                          { label: "Amber", color: "#D97706" },
+                          { label: "Purple", color: "#7C3AED" },
+                        ].map((p) => (
+                          <button
+                            key={p.color}
+                            type="button"
+                            onClick={() => setRatingBoxBg(p.color)}
+                            className="px-2 py-0.5 text-[10px] font-medium rounded border border-[#E3E0DB] bg-white hover:bg-zinc-50 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.color }} />
+                            <span>{p.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Subtitle Text */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-zinc-700 block">
+                        Subtitle Text
+                      </span>
+                      <span className="text-[10px] text-zinc-400">
+                        {"Use {count} for count"}
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={badgeText}
+                      onChange={(e) => setBadgeText(e.target.value)}
+                      placeholder="from {count} reviews"
+                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
+                    />
+                  </div>
+
+                  {/* Container Shape */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Container Style
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "plain", label: "Seamless" },
+                        { id: "pill", label: "Pill pill" },
+                        { id: "card", label: "Card box" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setBadgeContainer(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            badgeContainer === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Alignment */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Alignment
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {(["left", "center", "right"] as const).map((a) => (
+                        <button
+                          key={a}
+                          type="button"
+                          onClick={() => setBadgeAlign(a)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer capitalize font-medium ${
+                            badgeAlign === a
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {a}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Optional Target Link */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Target Link (Optional)
+                    </span>
+                    <input
+                      type="url"
+                      value={badgeUrl}
+                      onChange={(e) => setBadgeUrl(e.target.value)}
+                      placeholder="https://example.com/reviews or #wall"
+                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
+                    />
+                  </div>
+                </section>
+                <div className="h-px bg-[#E3E0DB]/60" />
+              </>
+            )}
+
+            {/* If Avatars: Show Avatar Cluster Customization Options (Reference 2) */}
+            {layout === "avatars" && (
+              <>
+                <section className="space-y-4">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Avatar Cluster Settings
+                  </span>
+
+                  {/* Avatar Size */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Avatar Size
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "sm", label: "Small (32px)" },
+                        { id: "md", label: "Medium (40px)" },
+                        { id: "lg", label: "Large (48px)" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setAvatarSize(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            avatarSize === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Max Avatars Displayed */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Max Avatars
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-4 gap-1 border border-[#E3E0DB]">
+                      {[3, 5, 7, 10].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setMaxAvatars(num)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            maxAvatars === num
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Show Rating Score Number Toggle */}
+                  <div className="flex items-center justify-between py-1">
+                    <div>
+                      <span className="text-xs font-medium text-zinc-700 block">
+                        Rating Score Number
+                      </span>
+                      <span className="text-[11px] text-zinc-400">
+                        Display &apos;4.9&apos; score next to stars
+                      </span>
+                    </div>
+                    <Switch
+                      checked={showRatingNumber}
+                      onChange={(v) => setShowRatingNumber(v)}
+                      size="sm"
+                    />
+                  </div>
+
+                  {/* Subtitle Text */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-zinc-700 block">
+                        Subtitle Text
+                      </span>
+                      <span className="text-[10px] text-zinc-400">
+                        {"Use {count} and {avg}"}
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={avatarText}
+                      onChange={(e) => setAvatarText(e.target.value)}
+                      placeholder="from {count} reviews"
+                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
+                    />
+                  </div>
+
+                  {/* Container Style */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Container Style
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "plain", label: "Seamless" },
+                        { id: "pill", label: "Pill capsule" },
+                        { id: "card", label: "Card box" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setAvatarContainer(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            avatarContainer === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Alignment */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Alignment
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {(["left", "center", "right"] as const).map((a) => (
+                        <button
+                          key={a}
+                          type="button"
+                          onClick={() => setAvatarAlign(a)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer capitalize font-medium ${
+                            avatarAlign === a
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {a}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Avatar Ring Border Color */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Avatar Border Ring
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={avatarBorderColor}
+                        onChange={(e) => setAvatarBorderColor(e.target.value)}
+                        className="w-7 h-7 rounded-lg border border-[#E3E0DB] cursor-pointer p-0.5 bg-white shrink-0"
+                      />
+                      <input
+                        type="text"
+                        value={avatarBorderColor}
+                        onChange={(e) => setAvatarBorderColor(e.target.value)}
+                        placeholder="#FFFFFF"
+                        className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Target Link */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Target Link (Optional)
+                    </span>
+                    <input
+                      type="url"
+                      value={avatarUrl}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      placeholder="https://example.com/reviews or #wall"
+                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
+                    />
+                  </div>
+                </section>
+                <div className="h-px bg-[#E3E0DB]/60" />
+              </>
+            )}
+
             {/* 1. CUSTOMER PHOTOS SECTION */}
             <section className="space-y-3">
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
@@ -959,6 +1407,19 @@ export default function WidgetBuilder({
                     src={rawPreviewUrl}
                     className="w-full border-none block bg-transparent"
                     style={{ height: "200px" }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            ) : layout === "badge" || layout === "avatars" ? (
+              /* Rating Badge & Avatar Cluster: Centered directly on dot-grid canvas */
+              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
+                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-2xl">
+                  <iframe
+                    key={`preview-${layout}-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: "160px" }}
                     title="Live Render Output"
                   />
                 </div>

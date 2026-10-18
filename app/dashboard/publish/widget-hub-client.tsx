@@ -6,6 +6,8 @@ import {
   Layers,
   Compass,
   Quote,
+  Award,
+  Users,
   X,
   ChevronDown,
   ArrowRight,
@@ -45,11 +47,11 @@ interface WidgetHubClientProps {
   initialWidgetId?: string | null;
 }
 
-type FilterCategory = "all" | "wall" | "orbit" | "stack";
+type FilterCategory = "all" | "wall" | "orbit" | "stack" | "badge" | "avatars";
 
 interface TemplateCardDef {
   id: WidgetType;
-  category: "wall" | "orbit" | "stack";
+  category: "wall" | "orbit" | "stack" | "badge" | "avatars";
   title: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   previewImage: string;
@@ -77,6 +79,20 @@ const TEMPLATES: TemplateCardDef[] = [
     icon: Quote,
     previewImage: "/widgets/card-spotlight.png",
   },
+  {
+    id: "badge",
+    category: "badge",
+    title: "Rating Badge",
+    icon: Award,
+    previewImage: "/widgets/rating-badge.png",
+  },
+  {
+    id: "avatars",
+    category: "avatars",
+    title: "Avatar Cluster",
+    icon: Users,
+    previewImage: "/widgets/avatar-cluster.png",
+  },
 ];
 
 const PLACEMENT_OPTIONS = [
@@ -100,15 +116,25 @@ const LAYOUT_LABELS: Record<string, string> = {
   carousel: "Orbit Social Cosmos",
   stack: "Card Spotlight",
   spotlight: "Card Spotlight",
+  badge: "Rating Badge",
+  avatars: "Avatar Cluster",
 };
 
 function normalizeLayout(widget: SavedWidgetRecord): WidgetType {
   const settingsLayout = widget.settings?.layout;
-  if (settingsLayout === "wall" || settingsLayout === "orbit" || settingsLayout === "stack") {
+  if (
+    settingsLayout === "wall" ||
+    settingsLayout === "orbit" ||
+    settingsLayout === "stack" ||
+    settingsLayout === "badge" ||
+    settingsLayout === "avatars"
+  ) {
     return settingsLayout;
   }
   if (widget.widget_type === "spotlight" || widget.widget_type === "single") return "stack";
   if (widget.widget_type === "carousel" || widget.widget_type === "marquee") return "orbit";
+  if (widget.widget_type === "badge") return "badge";
+  if (widget.widget_type === "avatars") return "avatars";
   return "wall";
 }
 
@@ -501,6 +527,30 @@ export default function WidgetHubClient({
             >
               Great next to CTA
             </button>
+
+            <button
+              type="button"
+              onClick={() => setTemplateFilter("badge")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shrink-0 ${
+                templateFilter === "badge"
+                  ? "bg-blue-50 text-[#2563EB] border border-blue-200/90 font-semibold shadow-xs"
+                  : "bg-white text-[#787774] border border-[#E3E0DB] hover:border-[#2563EB]/40 hover:text-[#2563EB]"
+              }`}
+            >
+              Rating Badge
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTemplateFilter("avatars")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shrink-0 ${
+                templateFilter === "avatars"
+                  ? "bg-blue-50 text-[#2563EB] border border-blue-200/90 font-semibold shadow-xs"
+                  : "bg-white text-[#787774] border border-[#E3E0DB] hover:border-[#2563EB]/40 hover:text-[#2563EB]"
+              }`}
+            >
+              Avatar Cluster
+            </button>
           </div>
 
           {/* Template Grid */}
@@ -765,6 +815,10 @@ export default function WidgetHubClient({
                           ? "/widgets/wall-of-love.png"
                           : normLayout === "orbit"
                           ? "/widgets/orbit-cosmos.png"
+                          : normLayout === "badge"
+                          ? "/widgets/rating-badge.png"
+                          : normLayout === "avatars"
+                          ? "/widgets/avatar-cluster.png"
                           : "/widgets/card-spotlight.png"
                       }
                       alt={widget.name}

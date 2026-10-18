@@ -7,4 +7,6 @@ export * from "./ConversationLayout";
 export * from "./BentoLayout";
 export * from "./OrbitLayout";
 export * from "./StackLayout";
+export * from "./BadgeLayout";
+export * from "./AvatarsLayout";
 export * from "./registry";
