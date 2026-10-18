@@ -51,6 +51,15 @@ interface WidgetConfig {
   showRatingNumber?: boolean;
   avatarBorderColor?: string;
   avatarUrl?: string;
+  quotesColumns?: 2 | 3;
+  quotesStyle?: "editorial" | "card";
+  avatarPosition?: "top" | "bottom";
+  maxQuotes?: number;
+  marqueeRows?: 1 | 2;
+  marqueeDirection?: "left" | "right" | "opposing";
+  marqueeSpeed?: "slow" | "normal" | "fast";
+  marqueePauseOnHover?: boolean;
+  marqueeCardWidth?: number;
 }
 
 export default function WidgetClientWrapper({
@@ -82,7 +91,7 @@ export default function WidgetClientWrapper({
     const isDemo = getParam("demo") === "1";
     const spType = getParam("type");
     const rawType: WidgetType =
-      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack" || spType === "badge" || spType === "avatars"
+      spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack" || spType === "badge" || spType === "avatars" || spType === "quotes"
         ? spType
         : "wall";
     const requestedType: WidgetType =
@@ -153,6 +162,21 @@ export default function WidgetClientWrapper({
     const avatarBorderColor = getParam("avatarBorderColor") || undefined;
     const avatarUrl = getParam("avatarUrl") || undefined;
 
+    const rawQuotesCols = getParam("quotesColumns") || getParam("columns");
+    const quotesColumns: 2 | 3 = rawQuotesCols === "2" ? 2 : 3;
+    const quotesStyle = (getParam("quotesStyle") as "editorial" | "card") || "editorial";
+    const avatarPosition = (getParam("avatarPosition") as "top" | "bottom") || "top";
+    const rawMaxQuotes = getParam("maxQuotes") || getParam("quotesMax");
+    const maxQuotes = rawMaxQuotes ? parseInt(rawMaxQuotes, 10) || 5 : 5;
+
+    const rawMarqueeRows = getParam("marqueeRows") || getParam("rows");
+    const marqueeRows: 1 | 2 = rawMarqueeRows === "1" ? 1 : 2;
+    const marqueeDirection = (getParam("marqueeDirection") as "left" | "right" | "opposing") || "opposing";
+    const marqueeSpeed = (getParam("marqueeSpeed") as "slow" | "normal" | "fast") || "normal";
+    const marqueePauseOnHover = getParam("marqueePauseOnHover") !== "false";
+    const rawMarqueeWidth = getParam("marqueeCardWidth") || getParam("cardWidth");
+    const marqueeCardWidth = rawMarqueeWidth ? parseInt(rawMarqueeWidth, 10) || 290 : 290;
+
     return {
       isDemo,
       requestedType,
@@ -196,6 +220,15 @@ export default function WidgetClientWrapper({
       showRatingNumber,
       avatarBorderColor,
       avatarUrl,
+      quotesColumns,
+      quotesStyle,
+      avatarPosition,
+      maxQuotes,
+      marqueeRows,
+      marqueeDirection,
+      marqueeSpeed,
+      marqueePauseOnHover,
+      marqueeCardWidth,
     };
   });
 
@@ -216,7 +249,7 @@ export default function WidgetClientWrapper({
     const spType = searchParams.get("type");
     if (spType) {
       const rawType: WidgetType =
-        spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack" || spType === "badge" || spType === "avatars"
+        spType === "carousel" || spType === "marquee" || spType === "single" || spType === "spotlight" || spType === "conversation" || spType === "bento" || spType === "orbit" || spType === "stack" || spType === "badge" || spType === "avatars" || spType === "quotes"
           ? spType
           : "wall";
       const requestedType: WidgetType =
@@ -272,6 +305,21 @@ export default function WidgetClientWrapper({
       const avatarBorderColor = searchParams.get("avatarBorderColor") || undefined;
       const avatarUrl = searchParams.get("avatarUrl") || undefined;
 
+      const spQuotesCols = searchParams.get("quotesColumns");
+      const quotesColumns = (spQuotesCols === "2" ? 2 : 3) as 2 | 3;
+      const quotesStyle = (searchParams.get("quotesStyle") as "editorial" | "card") || "editorial";
+      const avatarPosition = (searchParams.get("avatarPosition") as "top" | "bottom") || "top";
+      const spMaxQuotes = searchParams.get("maxQuotes");
+      const maxQuotes = spMaxQuotes ? parseInt(spMaxQuotes, 10) : 3;
+
+      const spMarqueeRows = searchParams.get("marqueeRows") || searchParams.get("rows");
+      const marqueeRows = (spMarqueeRows === "1" ? 1 : 2) as 1 | 2;
+      const marqueeDirection = (searchParams.get("marqueeDirection") as "left" | "right" | "opposing") || "opposing";
+      const marqueeSpeed = (searchParams.get("marqueeSpeed") as "slow" | "normal" | "fast") || "normal";
+      const marqueePauseOnHover = searchParams.get("marqueePauseOnHover") !== "false";
+      const spMarqueeWidth = searchParams.get("marqueeCardWidth") || searchParams.get("cardWidth");
+      const marqueeCardWidth = spMarqueeWidth ? parseInt(spMarqueeWidth, 10) : 290;
+
       setConfig((prev) => ({
         ...prev,
         requestedType,
@@ -308,6 +356,15 @@ export default function WidgetClientWrapper({
         showRatingNumber,
         avatarBorderColor,
         avatarUrl,
+        quotesColumns,
+        quotesStyle,
+        avatarPosition,
+        maxQuotes,
+        marqueeRows,
+        marqueeDirection,
+        marqueeSpeed,
+        marqueePauseOnHover,
+        marqueeCardWidth,
       }));
     }
 
@@ -494,6 +551,15 @@ export default function WidgetClientWrapper({
         showRatingNumber={config.showRatingNumber}
         avatarBorderColor={config.avatarBorderColor}
         avatarUrl={config.avatarUrl}
+        quotesColumns={config.quotesColumns}
+        quotesStyle={config.quotesStyle}
+        avatarPosition={config.avatarPosition}
+        maxQuotes={config.maxQuotes}
+        marqueeRows={config.marqueeRows}
+        marqueeDirection={config.marqueeDirection}
+        marqueeSpeed={config.marqueeSpeed}
+        marqueePauseOnHover={config.marqueePauseOnHover}
+        marqueeCardWidth={config.marqueeCardWidth}
       />
 
       {/* Hidden container for testimonials data to safely pass to the parent page schema builder */}

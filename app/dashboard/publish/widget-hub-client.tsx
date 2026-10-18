@@ -8,6 +8,7 @@ import {
   Quote,
   Award,
   Users,
+  MoveHorizontal,
   X,
   ChevronDown,
   ArrowRight,
@@ -47,11 +48,11 @@ interface WidgetHubClientProps {
   initialWidgetId?: string | null;
 }
 
-type FilterCategory = "all" | "wall" | "orbit" | "stack" | "badge" | "avatars";
+type FilterCategory = "all" | "wall" | "orbit" | "stack" | "badge" | "avatars" | "quotes" | "marquee";
 
 interface TemplateCardDef {
   id: WidgetType;
-  category: "wall" | "orbit" | "stack" | "badge" | "avatars";
+  category: "wall" | "orbit" | "stack" | "badge" | "avatars" | "quotes" | "marquee";
   title: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   previewImage: string;
@@ -93,6 +94,20 @@ const TEMPLATES: TemplateCardDef[] = [
     icon: Users,
     previewImage: "/widgets/avatar-cluster.png",
   },
+  {
+    id: "quotes",
+    category: "quotes",
+    title: "Hero Quotes",
+    icon: Quote,
+    previewImage: "/widgets/hero-quotes.png",
+  },
+  {
+    id: "marquee",
+    category: "marquee",
+    title: "Dual Marquee",
+    icon: MoveHorizontal,
+    previewImage: "/widgets/dual-marquee.png",
+  },
 ];
 
 const PLACEMENT_OPTIONS = [
@@ -118,6 +133,8 @@ const LAYOUT_LABELS: Record<string, string> = {
   spotlight: "Card Spotlight",
   badge: "Rating Badge",
   avatars: "Avatar Cluster",
+  quotes: "Hero Quotes",
+  marquee: "Dual Marquee",
 };
 
 function normalizeLayout(widget: SavedWidgetRecord): WidgetType {
@@ -127,14 +144,18 @@ function normalizeLayout(widget: SavedWidgetRecord): WidgetType {
     settingsLayout === "orbit" ||
     settingsLayout === "stack" ||
     settingsLayout === "badge" ||
-    settingsLayout === "avatars"
+    settingsLayout === "avatars" ||
+    settingsLayout === "quotes" ||
+    settingsLayout === "marquee"
   ) {
     return settingsLayout;
   }
   if (widget.widget_type === "spotlight" || widget.widget_type === "single") return "stack";
-  if (widget.widget_type === "carousel" || widget.widget_type === "marquee") return "orbit";
+  if (widget.widget_type === "marquee") return "marquee";
+  if (widget.widget_type === "carousel") return "orbit";
   if (widget.widget_type === "badge") return "badge";
   if (widget.widget_type === "avatars") return "avatars";
+  if (widget.widget_type === "quotes") return "quotes";
   return "wall";
 }
 
@@ -189,7 +210,7 @@ export default function WidgetHubClient({
   const [templateFilter, setTemplateFilter] = useState<FilterCategory>("all");
 
   // Saved Widgets filter dropdown state
-  const [savedFilter, setSavedFilter] = useState<"all" | "wall" | "orbit" | "stack">("all");
+  const [savedFilter, setSavedFilter] = useState<"all" | "wall" | "orbit" | "stack" | "badge" | "avatars" | "quotes" | "marquee">("all");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -295,7 +316,7 @@ export default function WidgetHubClient({
     try {
       const res = await createSavedWidget({
         name: finalName,
-        layout: chosenLayout as "wall" | "orbit" | "stack",
+        layout: chosenLayout as any,
         placement: widgetPlacementInput,
       });
 
@@ -551,6 +572,30 @@ export default function WidgetHubClient({
             >
               Avatar Cluster
             </button>
+
+            <button
+              type="button"
+              onClick={() => setTemplateFilter("quotes")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shrink-0 ${
+                templateFilter === "quotes"
+                  ? "bg-blue-50 text-[#2563EB] border border-blue-200/90 font-semibold shadow-xs"
+                  : "bg-white text-[#787774] border border-[#E3E0DB] hover:border-[#2563EB]/40 hover:text-[#2563EB]"
+              }`}
+            >
+              Hero Quotes
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTemplateFilter("marquee")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shrink-0 ${
+                templateFilter === "marquee"
+                  ? "bg-blue-50 text-[#2563EB] border border-blue-200/90 font-semibold shadow-xs"
+                  : "bg-white text-[#787774] border border-[#E3E0DB] hover:border-[#2563EB]/40 hover:text-[#2563EB]"
+              }`}
+            >
+              Dual Marquee
+            </button>
           </div>
 
           {/* Template Grid */}
@@ -762,8 +807,8 @@ export default function WidgetHubClient({
                   <button
                     type="button"
                     onClick={() => {
-                      setSavedFilter("stack");
-                      setIsFilterDropdownOpen(false);
+                       setSavedFilter("stack");
+                       setIsFilterDropdownOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-xs font-medium flex items-center justify-between hover:bg-gray-50 cursor-pointer ${
                       savedFilter === "stack" ? "text-[#2563EB] font-bold bg-blue-50/50" : "text-[#1A1A1A]"
@@ -771,6 +816,59 @@ export default function WidgetHubClient({
                   >
                     <span>Card Spotlight</span>
                     {savedFilter === "stack" && <Check size={13} className="text-[#2563EB]" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                       setSavedFilter("badge");
+                       setIsFilterDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs font-medium flex items-center justify-between hover:bg-gray-50 cursor-pointer ${
+                      savedFilter === "badge" ? "text-[#2563EB] font-bold bg-blue-50/50" : "text-[#1A1A1A]"
+                    }`}
+                  >
+                    <span>Rating Badge</span>
+                    {savedFilter === "badge" && <Check size={13} className="text-[#2563EB]" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                       setSavedFilter("avatars");
+                       setIsFilterDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs font-medium flex items-center justify-between hover:bg-gray-50 cursor-pointer ${
+                      savedFilter === "avatars" ? "text-[#2563EB] font-bold bg-blue-50/50" : "text-[#1A1A1A]"
+                    }`}
+                  >
+                    <span>Avatar Cluster</span>
+                    {savedFilter === "avatars" && <Check size={13} className="text-[#2563EB]" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                       setSavedFilter("quotes");
+                       setIsFilterDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs font-medium flex items-center justify-between hover:bg-gray-50 cursor-pointer ${
+                      savedFilter === "quotes" ? "text-[#2563EB] font-bold bg-blue-50/50" : "text-[#1A1A1A]"
+                    }`}
+                  >
+                    <span>Hero Quotes</span>
+                    {savedFilter === "quotes" && <Check size={13} className="text-[#2563EB]" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                       setSavedFilter("marquee");
+                       setIsFilterDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-xs font-medium flex items-center justify-between hover:bg-gray-50 cursor-pointer ${
+                      savedFilter === "marquee" ? "text-[#2563EB] font-bold bg-blue-50/50" : "text-[#1A1A1A]"
+                    }`}
+                  >
+                    <span>Dual Marquee</span>
+                    {savedFilter === "marquee" && <Check size={13} className="text-[#2563EB]" />}
                   </button>
                 </div>
               )}
@@ -819,6 +917,10 @@ export default function WidgetHubClient({
                           ? "/widgets/rating-badge.png"
                           : normLayout === "avatars"
                           ? "/widgets/avatar-cluster.png"
+                          : normLayout === "quotes"
+                          ? "/widgets/hero-quotes.png"
+                          : normLayout === "marquee"
+                          ? "/widgets/dual-marquee.png"
                           : "/widgets/card-spotlight.png"
                       }
                       alt={widget.name}

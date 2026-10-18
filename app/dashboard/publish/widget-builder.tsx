@@ -90,13 +90,14 @@ const WIDGET_TITLES: Record<WidgetType, string> = {
   orbit: "Orbit Social Cosmos",
   stack: "Card Spotlight",
   carousel: "Carousel",
-  marquee: "Marquee",
+  marquee: "Dual Marquee",
   single: "Single Quote",
   spotlight: "Spotlight",
   conversation: "Conversation",
   bento: "Bento Grid",
   badge: "Rating Badge",
   avatars: "Avatar Cluster",
+  quotes: "Hero Quotes",
 };
 
 export default function WidgetBuilder({
@@ -244,6 +245,35 @@ export default function WidgetBuilder({
   );
   const [avatarUrl, setAvatarUrl] = useState<string>(
     savedSettings?.avatarUrl || savedSettings?.avatar_url || ""
+  );
+
+  const [quotesColumns, setQuotesColumns] = useState<2 | 3>(
+    savedSettings?.quotesColumns || savedSettings?.quotes_columns || 3
+  );
+  const [quotesStyle, setQuotesStyle] = useState<"editorial" | "card">(
+    savedSettings?.quotesStyle || savedSettings?.quotes_style || "editorial"
+  );
+  const [avatarPosition, setAvatarPosition] = useState<"top" | "bottom">(
+    savedSettings?.avatarPosition || savedSettings?.avatar_position || "top"
+  );
+  const [maxQuotes, setMaxQuotes] = useState<number>(
+    savedSettings?.maxQuotes || savedSettings?.max_quotes || 3
+  );
+
+  const [marqueeRows, setMarqueeRows] = useState<1 | 2>(
+    savedSettings?.marqueeRows || savedSettings?.marquee_rows || 2
+  );
+  const [marqueeDirection, setMarqueeDirection] = useState<"opposing" | "left" | "right">(
+    savedSettings?.marqueeDirection || savedSettings?.marquee_direction || "opposing"
+  );
+  const [marqueeSpeed, setMarqueeSpeed] = useState<"slow" | "normal" | "fast">(
+    savedSettings?.marqueeSpeed || savedSettings?.marquee_speed || "normal"
+  );
+  const [marqueePauseOnHover, setMarqueePauseOnHover] = useState<boolean>(
+    savedSettings?.marqueePauseOnHover ?? savedSettings?.marquee_pause_on_hover ?? true
+  );
+  const [marqueeCardWidth, setMarqueeCardWidth] = useState<number>(
+    savedSettings?.marqueeCardWidth || savedSettings?.marquee_card_width || 290
   );
 
   // Effective testimonials pool: real testimonials if present, otherwise SAMPLE_TESTIMONIALS for live studio testing
@@ -420,6 +450,15 @@ export default function WidgetBuilder({
           show_rating_number: showRatingNumber,
           avatar_border_color: avatarBorderColor,
           avatar_url: avatarUrl,
+          quotes_columns: quotesColumns,
+          quotes_style: quotesStyle,
+          avatar_position: avatarPosition,
+          max_quotes: maxQuotes,
+          marquee_rows: marqueeRows,
+          marquee_direction: marqueeDirection,
+          marquee_speed: marqueeSpeed,
+          marquee_pause_on_hover: marqueePauseOnHover,
+          marquee_card_width: marqueeCardWidth,
         });
         setIsSaved(true);
       } catch (err) {
@@ -464,6 +503,15 @@ export default function WidgetBuilder({
     showRatingNumber,
     avatarBorderColor,
     avatarUrl,
+    quotesColumns,
+    quotesStyle,
+    avatarPosition,
+    maxQuotes,
+    marqueeRows,
+    marqueeDirection,
+    marqueeSpeed,
+    marqueePauseOnHover,
+    marqueeCardWidth,
   ]);
 
   const appUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.blovi.space";
@@ -539,7 +587,7 @@ export default function WidgetBuilder({
     avatarBorderColor
   )}&avatarUrl=${encodeURIComponent(
     avatarUrl
-  )}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
+  )}&quotesColumns=${quotesColumns}&quotesStyle=${quotesStyle}&avatarPosition=${avatarPosition}&maxQuotes=${maxQuotes}&marqueeRows=${marqueeRows}&marqueeDirection=${marqueeDirection}&marqueeSpeed=${marqueeSpeed}&marqueePauseOnHover=${marqueePauseOnHover}&marqueeCardWidth=${marqueeCardWidth}&max=9&desktop=1&v=${testimonialsKey}&r=${refreshKey}`;
 
   const publicShareUrl = `${appUrl}/embed/${userId || "demo-widget"}?type=${layout}`;
 
@@ -548,6 +596,10 @@ export default function WidgetBuilder({
       case "badge":
       case "avatars":
         return 75;
+      case "quotes":
+        return 340;
+      case "marquee":
+        return marqueeRows === 2 ? 400 : 200;
       case "stack":
         return 190;
       case "orbit":
@@ -1161,6 +1213,249 @@ export default function WidgetBuilder({
               </>
             )}
 
+            {/* If Quotes: Show Hero Quotes Customization Options (Reference 3) */}
+            {layout === "quotes" && (
+              <>
+                <section className="space-y-4">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Hero Quotes Settings
+                  </span>
+
+                  {/* Columns */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Grid Columns
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: 2, label: "2 Columns" },
+                        { id: 3, label: "3 Columns" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setQuotesColumns(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            quotesColumns === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Container Style */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Card Container
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "editorial", label: "Editorial Frameless" },
+                        { id: "card", label: "Soft Card Box" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setQuotesStyle(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            quotesStyle === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Avatar Position */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Avatar Position
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "top", label: "Centered on Top" },
+                        { id: "bottom", label: "Bottom Profile" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setAvatarPosition(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            avatarPosition === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Max Quotes */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Max Quotes Displayed
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-4 gap-1 border border-[#E3E0DB]">
+                      {[2, 3, 4, 6].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setMaxQuotes(num)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            maxQuotes === num
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+                <div className="h-px bg-[#E3E0DB]/60" />
+              </>
+            )}
+
+            {/* If Marquee: Show Dual Marquee Customization Options (Reference 4) */}
+            {layout === "marquee" && (
+              <>
+                <section className="space-y-4">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Dual Marquee Settings
+                  </span>
+
+                  {/* Marquee Rows: 2 Rows vs 1 Row */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Number of Rows
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-2 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: 2, label: "2 Rows (Dual)" },
+                        { id: 1, label: "1 Row (Single)" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setMarqueeRows(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            marqueeRows === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Scroll Direction */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Scroll Direction
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "opposing", label: "Opposing" },
+                        { id: "left", label: "Left" },
+                        { id: "right", label: "Right" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setMarqueeDirection(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            marqueeDirection === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Speed */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Scroll Speed
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: "slow", label: "Slow" },
+                        { id: "normal", label: "Normal" },
+                        { id: "fast", label: "Fast" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setMarqueeSpeed(item.id as any)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            marqueeSpeed === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Card Width */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-medium text-zinc-700 block">
+                      Card Width
+                    </span>
+                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
+                      {[
+                        { id: 260, label: "260px" },
+                        { id: 290, label: "290px" },
+                        { id: 330, label: "330px" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setMarqueeCardWidth(item.id)}
+                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
+                            marqueeCardWidth === item.id
+                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
+                              : "text-zinc-500 hover:text-[#1A1A1A]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pause on Hover */}
+                  <label className="flex items-center justify-between cursor-pointer select-none pt-1">
+                    <span className="text-xs font-medium text-zinc-700">
+                      Pause on Hover
+                    </span>
+                    <Switch
+                      checked={marqueePauseOnHover}
+                      onChange={setMarqueePauseOnHover}
+                    />
+                  </label>
+                </section>
+                <div className="h-px bg-[#E3E0DB]/60" />
+              </>
+            )}
+
             {/* 1. CUSTOMER PHOTOS SECTION */}
             <section className="space-y-3">
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
@@ -1420,6 +1715,32 @@ export default function WidgetBuilder({
                     src={rawPreviewUrl}
                     className="w-full border-none block bg-transparent"
                     style={{ height: "160px" }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            ) : layout === "quotes" ? (
+              /* Hero Quotes: Centered on dot-grid canvas */
+              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
+                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-5xl">
+                  <iframe
+                    key={`preview-quotes-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: "460px" }}
+                    title="Live Render Output"
+                  />
+                </div>
+              </div>
+            ) : layout === "marquee" ? (
+              /* Dual Marquee: Wide container on dot-grid canvas */
+              <div className="flex-1 w-full h-full flex items-center justify-center overflow-auto p-4 sm:p-6">
+                <div className="w-full flex items-center justify-center transition-all duration-300 max-w-6xl">
+                  <iframe
+                    key={`preview-marquee-${rawPreviewUrl}`}
+                    src={rawPreviewUrl}
+                    className="w-full border-none block bg-transparent"
+                    style={{ height: marqueeRows === 2 ? "480px" : "260px" }}
                     title="Live Render Output"
                   />
                 </div>

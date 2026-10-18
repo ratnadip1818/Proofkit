@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Testimonial } from "../constants";
 import { FONT, SHADOWS, TRANSITIONS, buildStyle } from "../theme/tokens";
 import type { WidgetRadius, WidgetTheme as WallTheme } from "../types/widget";
@@ -30,6 +30,13 @@ export interface MarqueeLayoutProps {
   ratingColor?: string;
   ratingBorderColor?: string;
   highlightColor?: string;
+  // Dual-Row Marquee Specific Options (Matching Senja Reference #4)
+  marqueeRows?: 1 | 2;
+  marqueeDirection?: "left" | "right" | "opposing";
+  marqueeSpeed?: "slow" | "normal" | "fast";
+  marqueePauseOnHover?: boolean;
+  cardLayout?: "top" | "bottom";
+  cardWidth?: number;
 }
 
 export function MarqueeLayout({
@@ -48,6 +55,12 @@ export function MarqueeLayout({
   ratingColor,
   ratingBorderColor,
   highlightColor,
+  marqueeRows = 2,
+  marqueeDirection = "opposing",
+  marqueeSpeed = "normal",
+  marqueePauseOnHover = true,
+  cardLayout = "top",
+  cardWidth = 290,
 }: MarqueeLayoutProps) {
   const presetDef = getPresetDefinition(preset);
   const { colors, radius: radiusPx } = buildStyle(
@@ -63,6 +76,7 @@ export function MarqueeLayout({
       highlightColor,
     }
   );
+
   const [activeModalTestimonial, setActiveModalTestimonial] = useState<Testimonial | null>(null);
 
   useEffect(() => {
@@ -72,91 +86,190 @@ export function MarqueeLayout({
       }, 450);
       return () => clearTimeout(timer);
     }
-  }, [testimonials.length]);
+  }, [testimonials.length, marqueeRows]);
 
-  if (testimonials.length === 0) {
+  // Duration in seconds based on speed
+  const durationSeconds = useMemo(() => {
+    switch (marqueeSpeed) {
+      case "fast":
+        return 18;
+      case "slow":
+        return 48;
+      case "normal":
+      default:
+        return 30;
+    }
+  }, [marqueeSpeed]);
+
+  // Prepare items for Row 1 and Row 2
+  const { row1Items, row2Items } = useMemo(() => {
+    if (!testimonials || testimonials.length === 0) {
+      return { row1Items: [], row2Items: [] };
+    }
+
+    if (marqueeRows === 1) {
+      let mult = [...testimonials];
+      while (mult.length < 8) {
+        mult = [...mult, ...testimonials];
+      }
+      return {
+        row1Items: [...mult, ...mult],
+        row2Items: [],
+      };
+    }
+
+    // Split for 2 rows
+    let r1: Testimonial[] = [];
+    let r2: Testimonial[] = [];
+
+    if (testimonials.length === 1) {
+      r1 = [testimonials[0]];
+      r2 = [testimonials[0]];
+    } else {
+      testimonials.forEach((t, i) => {
+        if (i % 2 === 0) {
+          r1.push(t);
+        } else {
+          r2.push(t);
+        }
+      });
+      if (r2.length === 0) r2 = [...r1];
+    }
+
+    while (r1.length < 6) {
+      r1 = [...r1, ...r1];
+    }
+    while (r2.length < 6) {
+      r2 = [...r2, ...r2];
+    }
+
+    return {
+      row1Items: [...r1, ...r1],
+      row2Items: [...r2, ...r2],
+    };
+  }, [testimonials, marqueeRows]);
+
+  if (!testimonials || testimonials.length === 0) {
     return (
-      <div style={{ fontFamily: FONT, padding: "16px", background: colors.pageBg }}>
+      <div style={{ fontFamily: FONT, padding: "24px", background: colors.pageBg }}>
         <EmptyState colors={colors} />
       </div>
     );
   }
 
-  let multipliedItems = [...testimonials];
-  while (multipliedItems.length < 12) {
-    multipliedItems = [...multipliedItems, ...testimonials];
-  }
-  const items = [...multipliedItems, ...multipliedItems];
-  const duration = Math.max(15, multipliedItems.length * 4);
-  const singleStepWidth = 280 + 12;
-  const totalShiftPx = multipliedItems.length * singleStepWidth;
+  // Row 1 & Row 2 animation class names and durations
+  const row1AnimationName =
+    marqueeDirection === "right" ? "blovi-marquee-right" : "blovi-marquee-left";
+  const row2AnimationName =
+    marqueeDirection === "opposing"
+      ? "blovi-marquee-right"
+      : marqueeDirection === "right"
+      ? "blovi-marquee-right"
+      : "blovi-marquee-left";
+
+  const isDark = theme === "dark";
 
   return (
     <div
       style={{
         fontFamily: FONT,
-        padding: "16px 0",
-        background: colors.pageBg,
+        padding: "20px 0",
+        background: isDark ? (colors.pageBg || "#0B0F19") : (colors.pageBg || "transparent"),
         overflow: "hidden",
+        width: "100%",
+        position: "relative",
       }}
     >
       <style>{`
-        @keyframes proofkit-marquee {
-          from { transform: translate3d(0, 0, 0); }
-          to { transform: translate3d(-${totalShiftPx}px, 0, 0); }
+        @keyframes blovi-marquee-left {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
-        .proofkit-marquee-track {
-          animation: proofkit-marquee ${duration}s linear infinite;
-          padding: 8px 0;
+        @keyframes blovi-marquee-right {
+          0% { transform: translate3d(-50%, 0, 0); }
+          100% { transform: translate3d(0, 0, 0); }
+        }
+        .blovi-marquee-track-row1 {
+          display: flex;
+          gap: 16px;
+          width: max-content;
           will-change: transform;
-          transform: translate3d(0, 0, 0);
+          animation: ${row1AnimationName} ${durationSeconds}s linear infinite;
+          padding: 4px 0;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
-        .proofkit-marquee-track:hover {
+        .blovi-marquee-track-row2 {
+          display: flex;
+          gap: 16px;
+          width: max-content;
+          will-change: transform;
+          animation: ${row2AnimationName} ${Math.round(durationSeconds * 1.08)}s linear infinite;
+          padding: 4px 0;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        ${
+          marqueePauseOnHover
+            ? `
+        .blovi-marquee-track-row1:hover,
+        .blovi-marquee-track-row2:hover {
           animation-play-state: paused;
         }
-        .proofkit-marquee-card-wrapper {
-          width: 280px;
+        `
+            : ""
+        }
+        .blovi-marquee-card-wrapper {
+          width: ${cardWidth}px;
           flex-shrink: 0;
           cursor: pointer;
-          transition: ${TRANSITIONS.hover};
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           transform: translate3d(0, 0, 0);
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
-        .proofkit-marquee-card-wrapper:hover {
-          transform: translateY(-4px) scale(1.02);
+        .blovi-marquee-card-wrapper:hover {
+          transform: translateY(-3px);
         }
         .blovi-card {
           transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          transform: translate3d(0, 0, 0);
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
         }
-        .proofkit-marquee-card-wrapper:hover .blovi-card {
-          border-color: ${colors.accent} !important;
-          box-shadow: ${colors.cardBg === "#ffffff" ? SHADOWS.cardHoverLight : SHADOWS.cardHoverDark} !important;
+        .blovi-marquee-card-wrapper:hover .blovi-card {
+          border-color: ${colors.accent || "#2563EB"} !important;
+          box-shadow: ${
+            isDark
+              ? "0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(37, 99, 235, 0.15)"
+              : "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 15px -3px rgba(37, 99, 235, 0.1)"
+          } !important;
         }
         @media (prefers-reduced-motion: reduce) {
-          .proofkit-marquee-track { animation: none; }
+          .blovi-marquee-track-row1,
+          .blovi-marquee-track-row2 {
+            animation: none;
+          }
         }
       `}</style>
+
+      {/* Masked Marquee Wrapper with soft edge gradients */}
       <div
         style={{
           overflow: "hidden",
-          WebkitMaskImage: "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)",
-          maskImage: "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)",
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%)",
+          maskImage:
+            "linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          padding: "6px 0",
         }}
       >
-        <div
-          className="proofkit-marquee-track"
-          style={{ display: "flex", gap: "12px", width: "max-content" }}
-        >
-          {items.map((t, i) => (
+        {/* ROW 1 */}
+        <div className="blovi-marquee-track-row1">
+          {row1Items.map((t, i) => (
             <div
-              key={`${t.id}-${i}`}
-              className="proofkit-marquee-card-wrapper"
+              key={`r1-${t.id}-${i}`}
+              className="blovi-marquee-card-wrapper"
               onClick={() => setActiveModalTestimonial(t)}
             >
               <TestimonialCard
@@ -168,15 +281,44 @@ export function MarqueeLayout({
                 showPhotos={showPhotos}
                 useGravatar={useGravatar}
                 fallbackAvatar={fallbackAvatar}
+                cardLayout={cardLayout}
+                showDate={false}
                 onReadMore={setActiveModalTestimonial}
               />
             </div>
           ))}
         </div>
+
+        {/* ROW 2 (Dual Marquee) */}
+        {marqueeRows === 2 && row2Items.length > 0 && (
+          <div className="blovi-marquee-track-row2">
+            {row2Items.map((t, i) => (
+              <div
+                key={`r2-${t.id}-${i}`}
+                className="blovi-marquee-card-wrapper"
+                onClick={() => setActiveModalTestimonial(t)}
+              >
+                <TestimonialCard
+                  t={t}
+                  showRatings={showRatings}
+                  colors={colors}
+                  radius={radiusPx}
+                  index={i}
+                  showPhotos={showPhotos}
+                  useGravatar={useGravatar}
+                  fallbackAvatar={fallbackAvatar}
+                  cardLayout={cardLayout}
+                  showDate={false}
+                  onReadMore={setActiveModalTestimonial}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {showBadge && (
-        <div style={{ marginTop: "12px" }}>
+        <div style={{ marginTop: "16px" }}>
           <BadgeLink colors={colors} />
         </div>
       )}

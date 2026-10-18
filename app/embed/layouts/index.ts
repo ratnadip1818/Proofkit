@@ -9,4 +9,5 @@ export * from "./OrbitLayout";
 export * from "./StackLayout";
 export * from "./BadgeLayout";
 export * from "./AvatarsLayout";
+export * from "./HeroQuotesLayout";
 export * from "./registry";

@@ -11,6 +11,7 @@ import { OrbitLayout } from "./OrbitLayout";
 import { StackLayout } from "./StackLayout";
 import { BadgeLayout, type BadgeLayoutProps } from "./BadgeLayout";
 import { AvatarsLayout, type AvatarsLayoutProps } from "./AvatarsLayout";
+import { HeroQuotesLayout, type HeroQuotesLayoutProps } from "./HeroQuotesLayout";
 
 export interface LayoutCapabilities {
   supportsTagFiltering: boolean;
@@ -141,6 +142,17 @@ export const layoutRegistry: Record<WidgetType, LayoutDefinition<any>> = {
     id: "avatars",
     name: "Avatar Cluster",
     component: AvatarsLayout,
+    capabilities: {
+      supportsTagFiltering: false,
+      supportsPagination: false,
+      supportsAutoplay: false,
+      supportsMultipleItems: true,
+    },
+  },
+  quotes: {
+    id: "quotes",
+    name: "Hero Quotes Grid",
+    component: HeroQuotesLayout,
     capabilities: {
       supportsTagFiltering: false,
       supportsPagination: false,

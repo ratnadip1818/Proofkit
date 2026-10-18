@@ -3,7 +3,7 @@ import type { ThemeColors } from "../theme/types";
 import type { WidgetPresetId } from "../styles/types";
 
 /** Supported widget layout types */
-export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento" | "orbit" | "stack" | "badge" | "avatars";
+export type WidgetType = "wall" | "carousel" | "marquee" | "single" | "spotlight" | "conversation" | "bento" | "orbit" | "stack" | "badge" | "avatars" | "quotes";
 
 /** Border radius variants */
 export type WidgetRadius = "sharp" | "rounded" | "pill";
@@ -51,7 +51,22 @@ export interface WallLayoutProps extends WidgetLayoutProps {
 export type CarouselLayoutProps = WidgetLayoutProps;
 
 /** Props for the Marquee layout */
-export type MarqueeLayoutProps = WidgetLayoutProps;
+export interface MarqueeLayoutProps extends WidgetLayoutProps {
+  marqueeRows?: 1 | 2;
+  marqueeDirection?: "left" | "right" | "opposing";
+  marqueeSpeed?: "slow" | "normal" | "fast";
+  marqueePauseOnHover?: boolean;
+  cardLayout?: "top" | "bottom";
+  cardWidth?: number;
+  showPhotos?: boolean;
+  useGravatar?: boolean;
+  fallbackAvatar?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  ratingColor?: string;
+  ratingBorderColor?: string;
+  highlightColor?: string;
+}
 
 /** Props for the Spotlight layout */
 export type SpotlightLayoutProps = WidgetLayoutProps;
@@ -88,6 +103,17 @@ export interface AvatarsLayoutProps extends WidgetLayoutProps {
   avatarUrl?: string;
 }
 
+/** Props for the Hero Quotes layout */
+export interface HeroQuotesLayoutProps extends WidgetLayoutProps {
+  columns?: 2 | 3;
+  quotesStyle?: "editorial" | "card";
+  avatarPosition?: "top" | "bottom";
+  maxQuotes?: number;
+  showPhotos?: boolean;
+  useGravatar?: boolean;
+  fallbackAvatar?: string;
+}
+
 /** Overall configuration passed into client wrapper */
 export interface WidgetConfig {
   isDemo: boolean;
@@ -120,4 +146,13 @@ export interface WidgetConfig {
   showRatingNumber?: boolean;
   avatarBorderColor?: string;
   avatarUrl?: string;
+  quotesColumns?: 2 | 3;
+  quotesStyle?: "editorial" | "card";
+  avatarPosition?: "top" | "bottom";
+  maxQuotes?: number;
+  marqueeRows?: 1 | 2;
+  marqueeDirection?: "left" | "right" | "opposing";
+  marqueeSpeed?: "slow" | "normal" | "fast";
+  marqueePauseOnHover?: boolean;
+  marqueeCardWidth?: number;
 }

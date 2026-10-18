@@ -302,7 +302,7 @@ export async function updateForm(
 export interface WidgetConfigInput {
   widget_id?: string;
   name?: string;
-  layout?: "wall" | "orbit" | "stack" | "badge" | "avatars";
+  layout?: "wall" | "orbit" | "stack" | "badge" | "avatars" | "quotes" | "marquee";
   placement?: string;
   preset?: string;
   theme?: string;
@@ -335,6 +335,15 @@ export interface WidgetConfigInput {
   show_rating_number?: boolean;
   avatar_border_color?: string;
   avatar_url?: string;
+  quotes_columns?: 2 | 3;
+  quotes_style?: "editorial" | "card";
+  avatar_position?: "top" | "bottom";
+  max_quotes?: number;
+  marquee_rows?: 1 | 2;
+  marquee_direction?: "left" | "right" | "opposing";
+  marquee_speed?: "slow" | "normal" | "fast";
+  marquee_pause_on_hover?: boolean;
+  marquee_card_width?: number;
 }
 
 export interface SavedWidgetRecord {
@@ -372,7 +381,7 @@ export async function getSavedWidgets(): Promise<SavedWidgetRecord[]> {
 
 export async function createSavedWidget(input: {
   name: string;
-  layout: "wall" | "orbit" | "stack" | "badge" | "avatars";
+  layout: "wall" | "orbit" | "stack" | "badge" | "avatars" | "quotes" | "marquee";
   placement?: string;
   settings?: Record<string, any>;
 }): Promise<{ error: string | null; widget?: SavedWidgetRecord }> {
@@ -383,7 +392,7 @@ export async function createSavedWidget(input: {
   const dbType =
     input.layout === "wall"
       ? "wall"
-      : input.layout === "orbit"
+      : input.layout === "orbit" || input.layout === "marquee"
       ? "carousel"
       : "spotlight";
 
@@ -434,7 +443,7 @@ export async function updateSavedWidget(
   widgetId: string,
   updates: {
     name?: string;
-    layout?: "wall" | "orbit" | "stack" | "badge" | "avatars";
+    layout?: "wall" | "orbit" | "stack" | "badge" | "avatars" | "quotes" | "marquee";
     settings?: Record<string, any>;
     theme?: string;
     accent?: string;
@@ -607,6 +616,15 @@ export async function saveWidgetConfig(
         show_rating_number: config.show_rating_number,
         avatar_border_color: config.avatar_border_color,
         avatar_url: config.avatar_url,
+        quotes_columns: config.quotes_columns,
+        quotes_style: config.quotes_style,
+        avatar_position: config.avatar_position,
+        max_quotes: config.max_quotes,
+        marquee_rows: config.marquee_rows,
+        marquee_direction: config.marquee_direction,
+        marquee_speed: config.marquee_speed,
+        marquee_pause_on_hover: config.marquee_pause_on_hover,
+        marquee_card_width: config.marquee_card_width,
       };
 
       await admin

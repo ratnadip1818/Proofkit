@@ -2,118 +2,78 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Play, Check, Star } from "lucide-react";
+import { ArrowUpRight, Play } from "lucide-react";
 
 export default function LandingHero() {
   return (
-    <section className="relative overflow-hidden bg-white pt-28 md:pt-36 lg:pt-40 pb-16">
-      <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 items-center justify-center gap-8 lg:gap-12 min-h-[620px]">
+    <section className="relative overflow-hidden bg-white pt-28 md:pt-36 lg:pt-40 pb-20 md:pb-28">
+      {/* Subtle Ambient Background Mesh */}
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[500px] w-full max-w-[1400px] bg-[radial-gradient(ellipse_at_top,rgba(37,99,235,0.08),transparent_70%)] blur-2xl" />
+
+      <div className="mx-auto max-w-[1360px] px-4 md:px-8 relative z-10">
+        
+        {/* CENTERED HERO HEADER */}
+        <div className="mx-auto flex max-w-[940px] flex-col items-center text-center">
           
-          {/* LEFT SIDE — White Background */}
-          <div className="lg:col-span-6 bg-white px-4 py-8 md:px-8 lg:px-12 flex flex-col justify-center z-10">
-            
-            {/* Headline */}
-            <h1
-              className="text-balance text-[clamp(2.75rem,5.5vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.05em] text-[#1A1A1A]"
-              style={{ fontFamily: "var(--font-display)" }}
+          {/* Main Headline */}
+          <h1
+            className="text-balance text-[clamp(2.75rem,5.8vw,5.25rem)] font-medium leading-[1.03] tracking-[-0.055em] text-[#1A1A1A]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Make every good word{" "}
+            <span className="font-serif-accent font-normal italic tracking-[-0.03em] text-[#2563EB]">
+              do more.
+            </span>
+          </h1>
+
+          {/* Subtext */}
+          <p className="mt-6 max-w-[620px] text-pretty text-[17px] leading-relaxed text-gray-600 md:text-[20px]">
+            Collect the moments customers already share. Curate them into proof that makes your next customer feel certain.
+          </p>
+
+          {/* Centered CTA Buttons */}
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            <Link
+              href="/signup"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-[#2563EB] px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_24px_rgba(37,99,235,0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1d4ed8] hover:shadow-[0_12px_28px_rgba(37,99,235,0.4)]"
             >
-              Make every good word
-              <span className="block font-serif-accent font-normal italic tracking-[-0.03em] text-[#2563EB]">
-                do more.
+              Start collecting proof
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-200 group-hover:rotate-45">
+                <ArrowUpRight size={15} strokeWidth={2.5} />
               </span>
-            </h1>
+            </Link>
 
-            {/* Subtext */}
-            <p className="mt-6 max-w-[500px] text-pretty text-[16px] leading-relaxed text-gray-600 md:text-[18px]">
-              Collect the moments customers already share. Curate them into proof that makes your next customer feel certain.
-            </p>
-
-            {/* 3 Creative Bullets */}
-            <div className="mt-8 flex flex-col gap-3.5">
-              {[
-                "Collect testimonials",
-                "Manage them",
-                "Showcase on your website",
-              ].map((bullet) => (
-                <div key={bullet} className="flex items-center gap-3">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                    <Check size={13} strokeWidth={3} />
-                  </div>
-                  <span className="text-[15px] font-semibold text-gray-800">
-                    {bullet}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Link
-                href="/signup"
-                className="group inline-flex items-center gap-3 rounded-full bg-[#2563EB] px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_24px_rgba(37,99,235,0.3)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
-              >
-                Start collecting proof
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-200 group-hover:rotate-45">
-                  <ArrowUpRight size={15} strokeWidth={2.5} />
-                </span>
-              </Link>
-
-              <a
-                href="#how-it-works"
-                className="group inline-flex items-center gap-2.5 rounded-full px-5 py-3.5 text-[14px] font-semibold text-gray-600 transition hover:text-gray-900"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition group-hover:border-gray-900 group-hover:bg-gray-50">
-                  <Play size={11} fill="currentColor" />
-                </span>
-                See how it works
-              </a>
-            </div>
-
-            {/* AppSumo Featured Partner Trust Bar */}
-            <div className="mt-9 flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-6 border-t border-gray-100">
-              <a
-                href="https://appsumo.com/products/blovi?utm_source=partner-badge&utm_medium=referral&utm_campaign=partner-255021"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block transition-transform duration-200 hover:scale-[1.02] shrink-0"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://appsumo2ppnuxt.b-cdn.net/img/as-badge-featured.2433f63.png"
-                  alt="AppSumo badge"
-                  className="h-10 w-auto object-contain"
-                />
-              </a>
-
-              <div className="hidden sm:block h-7 w-px bg-gray-200" />
-
-              <div className="flex items-center gap-2">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <p className="text-xs font-semibold text-gray-700">
-                  <span className="font-bold text-gray-900">Official AppSumo Select Partner</span>
-                </p>
-              </div>
-            </div>
-
+            <a
+              href="#how-it-works"
+              className="group inline-flex items-center gap-2.5 rounded-full border border-gray-200/90 bg-white px-5 py-3.5 text-[14px] font-semibold text-gray-700 shadow-sm transition hover:border-gray-900 hover:text-gray-900"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition group-hover:bg-gray-900 group-hover:text-white">
+                <Play size={10} fill="currentColor" />
+              </span>
+              See how it works
+            </a>
           </div>
 
-          {/* RIGHT SIDE — Vibrant Blue Rectangle with 3D Stacked High-Res Screenshots */}
-          <div className="lg:col-span-6 bg-[#2563EB] rounded-3xl p-6 md:p-8 lg:p-10 relative flex items-center justify-center min-h-[540px] md:min-h-[580px] overflow-hidden shadow-2xl">
+        </div>
+
+        {/* CENTERED SHOWCASE CANVAS CONTAINER (Inspired by reference site) */}
+        <div className="mt-14 md:mt-20 mx-auto w-full max-w-[1240px]">
+          <div className="relative w-full rounded-[32px] md:rounded-[44px] bg-gradient-to-b from-[#FAF8F5] via-[#F4F6FB] to-[#EDF2FC] p-4 sm:p-8 md:p-12 lg:p-14 border border-gray-200/80 shadow-[0_25px_60px_-15px_rgba(37,99,235,0.08)] overflow-hidden">
             
-            {/* Background Glows */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1d4ed8] via-[#2563eb] to-[#3b82f6] opacity-95" />
-            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-            <div className="absolute -left-20 -bottom-20 h-80 w-80 rounded-full bg-blue-300/20 blur-3xl pointer-events-none" />
+            {/* Background Glow Accents */}
+            <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-72 w-3/4 rounded-full bg-blue-400/12 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-indigo-300/15 blur-3xl" />
 
-            {/* 3D Stack Container matching 4th reference image */}
-            <div className="relative w-full max-w-[580px] h-[480px] md:h-[500px]">
-
-              {/* LAYER 1 (Top-Right): Collection Form Card (Clean Borderless Card) */}
-              <div className="absolute -top-2 right-1 w-[36%] bg-white rounded-xl shadow-[0_20px_45px_rgba(0,0,0,0.22)] overflow-hidden border border-gray-200/50 z-40 transition-transform duration-300 hover:scale-[1.03]">
+            {/* FLOATING CARD 1 (Top-Left): Collection Form (Desktop) */}
+            <div className="hidden lg:block absolute left-6 xl:left-10 top-14 xl:top-18 w-[260px] xl:w-[285px] rounded-2xl bg-white p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.16)] border border-gray-200/80 z-20 transition-all duration-300 hover:scale-105 hover:-rotate-1 -rotate-2 cursor-pointer">
+              <div className="flex items-center justify-between px-2.5 py-1.5 mb-1.5 border-b border-gray-100">
+                <span className="text-[11px] font-semibold text-gray-700">01. Collection Form</span>
+                <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Branded link</span>
+              </div>
+              <div className="rounded-xl overflow-hidden bg-white">
                 <Image
                   src="/images/hero-collect-form.png"
-                  alt="Collection Form"
+                  alt="Collection Form Preview"
                   width={500}
                   height={600}
                   quality={100}
@@ -122,60 +82,102 @@ export default function LandingHero() {
                   className="w-full h-auto object-contain block"
                 />
               </div>
+            </div>
 
-              {/* LAYER 2 (Left-Middle): Manage Dashboard Window */}
-              <div className="absolute top-16 left-0 w-[64%] bg-white rounded-xl shadow-[0_22px_45px_rgba(0,0,0,0.22)] border border-gray-200/50 overflow-hidden z-20 transition-transform duration-300 hover:scale-[1.02]">
-                <div className="bg-[#FAF8F5] px-3 py-1.5 border-b border-gray-200/60 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span className="text-[10px] font-medium text-gray-400 font-sans tracking-tight ml-1.5">Manage Dashboard</span>
-                  </div>
+            {/* CENTERPIECE: Main Tablet / App Browser Showcase Frame */}
+            <div className="relative mx-auto max-w-[880px] rounded-2xl md:rounded-3xl bg-white border border-gray-200/90 shadow-[0_24px_55px_rgba(15,23,42,0.14)] overflow-hidden z-10 transition-transform duration-500 hover:scale-[1.01]">
+              
+              {/* Top Browser Bar */}
+              <div className="bg-[#FAF8F5] px-4 py-2.5 border-b border-gray-200/70 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" />
+                  <span className="text-[11px] font-medium text-gray-500 font-sans tracking-tight ml-2">
+                    blovi.space/dashboard/manage
+                  </span>
                 </div>
-                <div className="p-0.5 bg-white">
-                  <Image
-                    src="/images/hero-manage-dashboard.png"
-                    alt="Manage Dashboard"
-                    width={700}
-                    height={500}
-                    quality={100}
-                    unoptimized
-                    priority
-                    className="w-full h-auto object-cover max-h-[220px]"
-                  />
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live Dashboard
+                  </span>
                 </div>
               </div>
 
-              {/* LAYER 3 (Bottom-Front): Main Wall of Love Review Widget */}
-              <div className="absolute bottom-0 right-0 w-[78%] bg-white rounded-xl shadow-[0_30px_70px_rgba(0,0,0,0.32)] border border-gray-200/60 overflow-hidden z-30 transition-transform duration-300 hover:scale-[1.02]">
-                <div className="bg-[#FAF8F5] px-3 py-1.5 border-b border-gray-200/60 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <span className="text-[10px] font-medium text-gray-400 font-sans tracking-tight ml-1.5">Wall of Love Widget</span>
-                  </div>
+              {/* Main Screenshot: Manage Dashboard */}
+              <div className="p-0.5 bg-white">
+                <Image
+                  src="/images/hero-manage-dashboard.png"
+                  alt="Blovi Manage Dashboard"
+                  width={1400}
+                  height={900}
+                  quality={100}
+                  unoptimized
+                  priority
+                  className="w-full h-auto object-cover max-h-[460px] md:max-h-[520px]"
+                />
+              </div>
+            </div>
+
+            {/* FLOATING CARD 2 (Bottom-Right): Wall of Love Review Widget (Desktop) */}
+            <div className="hidden lg:block absolute right-6 xl:right-10 bottom-8 xl:bottom-12 w-[330px] xl:w-[360px] rounded-2xl bg-white p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.18)] border border-gray-200/80 z-20 transition-all duration-300 hover:scale-105 hover:rotate-1 rotate-2 cursor-pointer">
+              <div className="flex items-center justify-between px-2.5 py-1.5 mb-1.5 border-b border-gray-100">
+                <span className="text-[11px] font-semibold text-gray-700">03. Wall of Love Widget</span>
+                <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Embed ready</span>
+              </div>
+              <div className="rounded-xl overflow-hidden bg-white">
+                <Image
+                  src="/images/hero-wall-widget.png"
+                  alt="Wall of Love Review Widget"
+                  width={800}
+                  height={600}
+                  quality={100}
+                  unoptimized
+                  priority
+                  className="w-full h-auto object-cover max-h-[220px]"
+                />
+              </div>
+            </div>
+
+            {/* MOBILE & TABLET COMPLEMENTARY CARDS (< 1024px) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 lg:hidden relative z-10">
+              {/* Mobile Card 1: Collection Form */}
+              <div className="rounded-xl bg-white p-2.5 shadow-md border border-gray-200/80 overflow-hidden">
+                <div className="flex items-center justify-between px-2 py-1 mb-1.5 border-b border-gray-100">
+                  <span className="text-[11px] font-semibold text-gray-700">01. Collection Form</span>
+                  <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Collect</span>
                 </div>
-                <div className="p-0.5 bg-white">
-                  <Image
-                    src="/images/hero-wall-widget.png"
-                    alt="Main Wall of Love Review Widget"
-                    width={800}
-                    height={600}
-                    quality={100}
-                    unoptimized
-                    priority
-                    className="w-full h-auto object-cover max-h-[290px]"
-                  />
-                </div>
+                <Image
+                  src="/images/hero-collect-form.png"
+                  alt="Collection Form"
+                  width={500}
+                  height={600}
+                  unoptimized
+                  className="w-full h-auto object-contain rounded-lg"
+                />
               </div>
 
+              {/* Mobile Card 2: Wall of Love */}
+              <div className="rounded-xl bg-white p-2.5 shadow-md border border-gray-200/80 overflow-hidden">
+                <div className="flex items-center justify-between px-2 py-1 mb-1.5 border-b border-gray-100">
+                  <span className="text-[11px] font-semibold text-gray-700">03. Wall of Love Widget</span>
+                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Showcase</span>
+                </div>
+                <Image
+                  src="/images/hero-wall-widget.png"
+                  alt="Wall of Love Widget"
+                  width={800}
+                  height={600}
+                  unoptimized
+                  className="w-full h-auto object-cover rounded-lg max-h-[220px]"
+                />
+              </div>
             </div>
 
           </div>
-
         </div>
+
       </div>
     </section>
   );

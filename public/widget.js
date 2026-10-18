@@ -111,8 +111,9 @@
     switch (type) {
       case "badge": return 64;
       case "avatars": return 64;
+      case "quotes": return 320;
       case "single": return 200;
-      case "marquee": return 160;
+      case "marquee": return (getAttr("marquee-rows") === "1" || getAttr("marqueeRows") === "1") ? 180 : 380;
       case "carousel": return 320;
       case "stack": return 190;
       case "conversation": return 420;
@@ -224,7 +225,7 @@
 
 
   var params = [];
-  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "backgroundColor", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "font", "fontFamily", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding", "selectMode", "selectedIds", "autoRating", "badgeStyle", "badgeText", "badgeAlign", "badgeContainer", "badgeUrl", "ratingBoxBg", "ratingBoxText", "maxAvatars", "avatarSize", "avatarAlign", "avatarContainer", "avatarText", "showRatingNumber", "avatarBorderColor", "avatarUrl"].forEach(
+  ["type", "layout", "preset", "theme", "max", "ratings", "badge", "featured", "demo", "accent", "radius", "backgroundColor", "textColor", "ratingColor", "ratingBorderColor", "highlightColor", "font", "fontFamily", "showPhotos", "useGravatar", "fallbackAvatar", "showBranding", "selectMode", "selectedIds", "autoRating", "badgeStyle", "badgeText", "badgeAlign", "badgeContainer", "badgeUrl", "ratingBoxBg", "ratingBoxText", "maxAvatars", "avatarSize", "avatarAlign", "avatarContainer", "avatarText", "showRatingNumber", "avatarBorderColor", "avatarUrl", "quotesColumns", "quotesStyle", "avatarPosition", "maxQuotes", "marqueeRows", "marqueeDirection", "marqueeSpeed", "marqueePauseOnHover", "marqueeCardWidth"].forEach(
     function (key) {
       var val = getAttr(key);
       if (!val) return;

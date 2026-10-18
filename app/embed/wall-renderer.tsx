@@ -18,6 +18,7 @@ import {
   StackLayout,
   BadgeLayout,
   AvatarsLayout,
+  HeroQuotesLayout,
   getLayoutDefinition,
   layoutRegistry,
   type LayoutDefinition,
@@ -96,6 +97,15 @@ export interface WallRendererProps {
   showRatingNumber?: boolean;
   avatarBorderColor?: string;
   avatarUrl?: string;
+  quotesColumns?: 2 | 3;
+  quotesStyle?: "editorial" | "card";
+  avatarPosition?: "top" | "bottom";
+  maxQuotes?: number;
+  marqueeRows?: 1 | 2;
+  marqueeDirection?: "left" | "right" | "opposing";
+  marqueeSpeed?: "slow" | "normal" | "fast";
+  marqueePauseOnHover?: boolean;
+  marqueeCardWidth?: number;
 }
 
 /**
@@ -143,8 +153,43 @@ export default function WallRenderer({
   showRatingNumber = false,
   avatarBorderColor,
   avatarUrl,
+  quotesColumns = 3,
+  quotesStyle = "editorial",
+  avatarPosition = "top",
+  maxQuotes = 5,
+  marqueeRows = 2,
+  marqueeDirection = "opposing",
+  marqueeSpeed = "normal",
+  marqueePauseOnHover = true,
+  marqueeCardWidth = 290,
 }: WallRendererProps) {
   const presetDef = getPresetDefinition(preset);
+
+  if (type === "quotes") {
+    return (
+      <HeroQuotesLayout
+        testimonials={testimonials}
+        theme={theme}
+        showRatings={showRatings}
+        showBadge={showBadge}
+        accent={accent}
+        radius={radius}
+        preset={presetDef.id}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        ratingColor={ratingColor}
+        ratingBorderColor={ratingBorderColor}
+        highlightColor={highlightColor}
+        columns={quotesColumns}
+        quotesStyle={quotesStyle}
+        avatarPosition={avatarPosition}
+        maxQuotes={maxQuotes}
+        showPhotos={showPhotos}
+        useGravatar={useGravatar}
+        fallbackAvatar={fallbackAvatar}
+      />
+    );
+  }
 
   if (type === "avatars") {
     return (
@@ -264,6 +309,12 @@ export default function WallRenderer({
         ratingColor={ratingColor}
         ratingBorderColor={ratingBorderColor}
         highlightColor={highlightColor}
+        marqueeRows={marqueeRows}
+        marqueeDirection={marqueeDirection}
+        marqueeSpeed={marqueeSpeed}
+        marqueePauseOnHover={marqueePauseOnHover}
+        cardLayout={cardLayout}
+        cardWidth={marqueeCardWidth}
       />
     );
   }
