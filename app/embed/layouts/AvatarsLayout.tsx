@@ -60,10 +60,6 @@ export function AvatarsLayout({
   ratingBorderColor,
   highlightColor,
   maxAvatars = 5,
-  avatarSize = "md",
-  avatarAlign = "left",
-  avatarContainer = "plain",
-  avatarText,
   showRatingNumber = false,
   avatarBorderColor,
   avatarUrl,
@@ -101,26 +97,16 @@ export function AvatarsLayout({
 
   const displayAvg = avgRating.toFixed(1);
 
-  // 2. Format Subtitle Text
-  const formattedText = useMemo(() => {
-    if (avatarText && avatarText.trim()) {
-      return avatarText
-        .replace(/{count}/g, totalCount.toString())
-        .replace(/{testimonial_count}/g, totalCount.toString())
-        .replace(/{avg}/g, displayAvg);
-    }
-    return `from ${totalCount} reviews`;
-  }, [avatarText, totalCount, displayAvg]);
-
-  // 3. Resolve Colors & Sizing
+  // 2. Resolve Colors & Default Seamless Sizing
   const isDark = theme === "dark";
   const resolvedTextColor = textColor || (isDark ? "#D1D5DB" : "#374151");
   const resolvedBorderColor = avatarBorderColor || (isDark ? "#27272A" : "#FFFFFF");
 
-  const sizePx = avatarSize === "sm" ? 32 : avatarSize === "lg" ? 48 : 40;
-  const overlapMargin = avatarSize === "sm" ? "-8px" : avatarSize === "lg" ? "-14px" : "-10px";
+  // Fixed optimal avatar size (40px) with clean negative overlap
+  const sizePx = 40;
+  const overlapMargin = "-10px";
 
-  // 4. Avatars slice & remaining count
+  // 3. Avatars slice & remaining count
   const effectiveMax = Math.max(1, Math.min(maxAvatars, 12));
   const displayedTestimonials = useMemo(() => {
     return testimonials.slice(0, effectiveMax);
@@ -128,35 +114,14 @@ export function AvatarsLayout({
 
   const remainingCount = totalCount > displayedTestimonials.length ? totalCount - displayedTestimonials.length : 0;
 
-  // 5. Alignment Classes
-  const alignClasses =
-    avatarAlign === "center"
-      ? "justify-center text-center"
-      : avatarAlign === "right"
-      ? "justify-end text-right"
-      : "justify-start text-left";
+  // 4. Interactive State for Preview Card (Hover & Click support)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null);
 
-  // 6. Container Style Classes
-  let containerClasses = "inline-flex items-center gap-3.5 transition-all";
-  let containerStyle: React.CSSProperties = {};
+  // Active item is either clicked or hovered
+  const activeIndex = clickedIndex !== null ? clickedIndex : hoveredIndex;
 
-  if (avatarContainer === "pill") {
-    containerClasses +=
-      " px-4 py-2.5 rounded-full border shadow-2xs " +
-      (isDark
-        ? "bg-zinc-900/90 border-zinc-800 text-zinc-100"
-        : "bg-white/95 border-zinc-200/80 text-zinc-900");
-    if (backgroundColor) containerStyle.backgroundColor = backgroundColor;
-  } else if (avatarContainer === "card") {
-    containerClasses +=
-      " p-3.5 rounded-2xl border shadow-2xs " +
-      (isDark
-        ? "bg-zinc-900 border-zinc-800 text-zinc-100"
-        : "bg-white border-zinc-200/80 text-zinc-900");
-    if (backgroundColor) containerStyle.backgroundColor = backgroundColor;
-  }
-
-  // 7. Interactive Link Wrapper
+  // 5. Interactive Link Wrapper
   const WrapperTag = avatarUrl ? "a" : "div";
   const wrapperProps = avatarUrl
     ? {
@@ -169,17 +134,24 @@ export function AvatarsLayout({
         className: "inline-block",
       };
 
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
   return (
-    <div className={`w-full flex ${alignClasses} pt-2 pb-28 select-none`}>
+    <div className="w-full flex items-center justify-start px-2 pt-2 pb-32 select-none">
       <WrapperTag {...(wrapperProps as any)}>
-        <div className={containerClasses} style={containerStyle}>
-          {/* Overlapping Avatars Stack (Senja Reference 2) */}
+        {/* Default Seamless Inline Group (No Card Box, No Pill Capsule) */}
+        <div className="inline-flex items-center gap-3">
+          {/* Overlapping Avatars Stack */}
           <div className="flex items-center shrink-0" style={{ isolation: "isolate" }}>
             {displayedTestimonials.map((t, idx) => {
               const quoteSnippet = t.display_body || t.body_original || "";
-              const isHovered = hoveredIndex === idx;
+              const isActive = activeIndex === idx;
+              const photoUrl = t.avatar_url || DEFAULT_AVATAR_PHOTOS[idx % DEFAULT_AVATAR_PHOTOS.length];
+
+              const cardPositionClass =
+                idx <= 1
+                  ? "left-0"
+                  : idx >= displayedTestimonials.length - 2
+                  ? "right-0"
+                  : "left-1/2 -translate-x-1/2";
 
               return (
                 <div
@@ -187,16 +159,20 @@ export function AvatarsLayout({
                   className="relative group transition-all duration-200 ease-out hover:z-40"
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setClickedIndex(clickedIndex === idx ? null : idx);
+                  }}
                   style={{
                     marginRight: idx === displayedTestimonials.length - 1 && remainingCount === 0 ? 0 : overlapMargin,
-                    zIndex: isHovered ? 50 : displayedTestimonials.length - idx,
+                    zIndex: isActive ? 50 : displayedTestimonials.length - idx,
                   }}
                 >
                   <div
                     className={`rounded-full transition-transform duration-200 cursor-pointer ${
-                      isHovered ? "scale-115" : "group-hover:scale-115"
+                      isActive ? "scale-110 shadow-md" : "group-hover:scale-110"
                     }`}
-                    title={`${t.author_name}${quoteSnippet ? `: "${quoteSnippet}"` : ""}`}
+                    title={t.author_name}
                     style={{
                       border: `2px solid ${resolvedBorderColor}`,
                       borderRadius: "50%",
@@ -205,7 +181,7 @@ export function AvatarsLayout({
                   >
                     <Avatar
                       name={t.author_name}
-                      avatarUrl={t.avatar_url || DEFAULT_AVATAR_PHOTOS[idx % DEFAULT_AVATAR_PHOTOS.length]}
+                      avatarUrl={photoUrl}
                       email={t.author_email || t.email}
                       colors={colors}
                       size={sizePx}
@@ -215,48 +191,52 @@ export function AvatarsLayout({
                     />
                   </div>
 
-                  {/* Interactive Micro-Card Preview on Hover */}
+                  {/* Optimized Expand View Card (No triangular notch mark, no quotation marks) */}
                   {quoteSnippet && (
                     <div
-                      className={`absolute left-1/2 -translate-x-1/2 top-full mt-2.5 w-56 p-3 rounded-xl text-left shadow-xl pointer-events-none z-50 transition-all duration-150 ${
-                        isHovered
-                          ? "opacity-100 visible scale-100"
-                          : "opacity-0 invisible scale-95 group-hover:opacity-100 group-hover:visible group-hover:scale-100"
+                      className={`absolute ${cardPositionClass} top-full mt-2.5 w-64 p-3.5 rounded-2xl text-left shadow-xl z-50 transition-all duration-200 pointer-events-auto ${
+                        isActive
+                          ? "opacity-100 visible translate-y-0 scale-100"
+                          : "opacity-0 invisible -translate-y-1 scale-95 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:scale-100 group-hover:pointer-events-auto"
                       }`}
                       style={{
-                        backgroundColor: isDark ? "#27272A" : "#FFFFFF",
+                        backgroundColor: isDark ? "#18181B" : "#FFFFFF",
                         color: isDark ? "#F4F4F5" : "#18181B",
-                        border: isDark ? "1px solid #3F3F46" : "1px solid #E4E4E7",
-                        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                        border: isDark ? "1px solid #27272A" : "1px solid #E4E4E7",
+                        boxShadow: isDark
+                          ? "0 14px 34px -6px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4)"
+                          : "0 14px 34px -6px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04)",
                       }}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {/* Triangle pointer pointing up */}
-                      <div
-                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-5px] w-2.5 h-2.5 rotate-45"
-                        style={{
-                          backgroundColor: isDark ? "#27272A" : "#FFFFFF",
-                          borderLeft: isDark ? "1px solid #3F3F46" : "1px solid #E4E4E7",
-                          borderTop: isDark ? "1px solid #3F3F46" : "1px solid #E4E4E7",
-                        }}
-                      />
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span
-                          className="font-semibold text-xs truncate"
-                          style={{ color: isDark ? "#F4F4F5" : "#09090B" }}
-                        >
-                          {t.author_name}
-                        </span>
+                      {/* Author row with photo, name & stars */}
+                      <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-black/[0.06] dark:border-white/[0.08]">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <img
+                            src={photoUrl}
+                            alt={t.author_name}
+                            className="w-5 h-5 rounded-full object-cover shrink-0"
+                          />
+                          <span
+                            className="font-semibold text-xs truncate"
+                            style={{ color: isDark ? "#F4F4F5" : "#09090B" }}
+                          >
+                            {t.author_name}
+                          </span>
+                        </div>
                         {typeof t.rating === "number" && t.rating > 0 && (
                           <div className="shrink-0 flex items-center">
                             <Stars rating={t.rating} colors={colors} size={11} marginBottom={0} />
                           </div>
                         )}
                       </div>
+
+                      {/* Clean review text (No quotation marks) */}
                       <p
-                        className="text-[11px] leading-relaxed line-clamp-3"
+                        className="text-xs leading-relaxed line-clamp-4 font-normal"
                         style={{ color: isDark ? "#D4D4D8" : "#3F3F46" }}
                       >
-                        &ldquo;{quoteSnippet}&rdquo;
+                        {quoteSnippet}
                       </p>
                     </div>
                   )}
@@ -283,37 +263,26 @@ export function AvatarsLayout({
             )}
           </div>
 
-          {/* Stars & Social Proof Stack */}
-          <div className="flex flex-col justify-center gap-0.5 min-w-0">
-            {/* Stars Row */}
-            <div className="flex items-center gap-1.5">
-              {showRatings && (
-                <Stars
-                  rating={roundedRating}
-                  colors={colors}
-                  size={15}
-                  marginBottom={0}
-                />
-              )}
+          {/* Clean Horizontal Stars & Rating Score Row (No Subtitle Text) */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {showRatings && (
+              <Stars
+                rating={roundedRating}
+                colors={colors}
+                size={16}
+                marginBottom={0}
+              />
+            )}
 
-              {/* Optional Rating Number (e.g. "5.0" or "4.9") */}
-              {showRatingNumber && (
-                <span
-                  className="font-bold text-xs sm:text-sm leading-none ml-0.5 tracking-tight"
-                  style={{ color: resolvedTextColor }}
-                >
-                  {displayAvg}
-                </span>
-              )}
-            </div>
-
-            {/* Subtitle Text (e.g. "from 128 reviews" or "Loved by 10,000+ creators") */}
-            <div
-              className="text-xs sm:text-[13px] font-medium tracking-tight truncate group-hover:opacity-85 transition-opacity"
-              style={{ color: resolvedTextColor }}
-            >
-              {formattedText}
-            </div>
+            {/* Optional Rating Score Number (e.g. "4.9") */}
+            {showRatingNumber && (
+              <span
+                className="font-bold text-xs sm:text-sm leading-none ml-0.5 tracking-tight"
+                style={{ color: resolvedTextColor }}
+              >
+                {displayAvg}
+              </span>
+            )}
           </div>
 
           {/* Optional Tiny Blovi Badge/Watermark */}

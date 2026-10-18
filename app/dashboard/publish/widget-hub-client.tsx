@@ -441,6 +441,7 @@ export default function WidgetHubClient({
     return (
       <div className="w-full h-screen overflow-hidden flex flex-col bg-[#F7F6F3]">
         <WidgetBuilder
+          key={activeWidgetId || activeLayout}
           userId={userId}
           isLifetime={isLifetime}
           email={email}

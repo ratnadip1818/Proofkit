@@ -11,16 +11,24 @@ export async function GET(
   const { widgetId } = await params;
   const supabase = createAdminClient();
 
+  const { data: savedWidget } = await supabase
+    .from("widgets")
+    .select("user_id")
+    .eq("id", widgetId)
+    .maybeSingle();
+
+  const effectiveUserId = savedWidget?.user_id || widgetId;
+
   const [testimonialsRes, plan] = await Promise.all([
     supabase
       .from("testimonials")
       .select(
         "id, author_name, author_role, body_original, display_body, rating, created_at, avatar_url, tags, source"
       )
-      .eq("user_id", widgetId)
+      .eq("user_id", effectiveUserId)
       .eq("status", "approved")
       .order("created_at", { ascending: false }),
-    getWidgetOwnerPlan(widgetId),
+    getWidgetOwnerPlan(effectiveUserId),
   ]);
 
   if (testimonialsRes.error) {

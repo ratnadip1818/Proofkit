@@ -627,16 +627,28 @@ export async function saveWidgetConfig(
         marquee_card_width: config.marquee_card_width,
       };
 
+      const dbType =
+        config.layout === "wall"
+          ? "wall"
+          : config.layout === "orbit" || config.layout === "marquee"
+          ? "carousel"
+          : "spotlight";
+
       await admin
         .from("widgets")
         .update({
           name: config.name || current.name,
           accent: config.primary_color,
+          widget_type: dbType,
+          theme: config.theme || "light",
           settings: mergedSettings,
           updated_at: new Date().toISOString(),
         })
         .eq("id", config.widget_id)
         .eq("user_id", user.id);
+
+      revalidatePath(`/embed/${config.widget_id}`);
+      updateTag("widget-" + config.widget_id);
     }
   }
 

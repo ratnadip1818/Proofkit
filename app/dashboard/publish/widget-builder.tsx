@@ -1037,33 +1037,6 @@ export default function WidgetBuilder({
                     Avatar Cluster Settings
                   </span>
 
-                  {/* Avatar Size */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Avatar Size
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "sm", label: "Small (32px)" },
-                        { id: "md", label: "Medium (40px)" },
-                        { id: "lg", label: "Large (48px)" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setAvatarSize(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            avatarSize === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Max Avatars Displayed */}
                   <div className="space-y-1.5">
                     <span className="text-xs font-medium text-zinc-700 block">
@@ -1102,75 +1075,6 @@ export default function WidgetBuilder({
                       onChange={(v) => setShowRatingNumber(v)}
                       size="sm"
                     />
-                  </div>
-
-                  {/* Subtitle Text */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-zinc-700 block">
-                        Subtitle Text
-                      </span>
-                      <span className="text-[10px] text-zinc-400">
-                        {"Use {count} and {avg}"}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={avatarText}
-                      onChange={(e) => setAvatarText(e.target.value)}
-                      placeholder="from {count} reviews"
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-[#E3E0DB] rounded-lg text-[#1A1A1A] focus:border-[#2563EB] outline-none"
-                    />
-                  </div>
-
-                  {/* Container Style */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Container Style
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {[
-                        { id: "plain", label: "Seamless" },
-                        { id: "pill", label: "Pill capsule" },
-                        { id: "card", label: "Card box" },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setAvatarContainer(item.id as any)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer font-medium ${
-                            avatarContainer === item.id
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Alignment */}
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-medium text-zinc-700 block">
-                      Alignment
-                    </span>
-                    <div className="p-1 bg-[#F7F6F3] rounded-lg grid grid-cols-3 gap-1 border border-[#E3E0DB]">
-                      {(["left", "center", "right"] as const).map((a) => (
-                        <button
-                          key={a}
-                          type="button"
-                          onClick={() => setAvatarAlign(a)}
-                          className={`py-1.5 px-2 text-xs rounded-md transition-all text-center cursor-pointer capitalize font-medium ${
-                            avatarAlign === a
-                              ? "bg-white text-[#1A1A1A] shadow-xs font-semibold border border-[#E3E0DB]"
-                              : "text-zinc-500 hover:text-[#1A1A1A]"
-                          }`}
-                        >
-                          {a}
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Avatar Ring Border Color */}

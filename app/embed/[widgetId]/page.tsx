@@ -31,18 +31,67 @@ export default async function EmbedPage({
   const { widgetId } = await params;
   const sParams = await searchParams;
 
+  const supabase = createAdminClient();
+
+  // 1. Check if widgetId is a saved widget record ID
+  const { data: savedWidgetRecord } = await supabase
+    .from("widgets")
+    .select("*")
+    .eq("id", widgetId)
+    .maybeSingle();
+
+  const ownerUserId = savedWidgetRecord ? savedWidgetRecord.user_id : widgetId;
+  const savedSettings = (savedWidgetRecord?.settings as Record<string, any>) || {};
+
+  // 2. Build merged searchParams so saved widget configurations apply to embeds
+  const mergedSearchParams: { [key: string]: string } = {};
+
+  if (savedWidgetRecord) {
+    if (savedSettings.layout || savedWidgetRecord.widget_type) {
+      mergedSearchParams.type = savedSettings.layout || savedWidgetRecord.widget_type;
+    }
+    if (savedWidgetRecord.theme) mergedSearchParams.theme = savedWidgetRecord.theme;
+    if (savedWidgetRecord.accent) mergedSearchParams.accent = savedWidgetRecord.accent;
+    if (savedSettings.preset) mergedSearchParams.preset = savedSettings.preset;
+    if (savedSettings.max_avatars) mergedSearchParams.maxAvatars = String(savedSettings.max_avatars);
+    if (savedSettings.show_rating_number !== undefined) mergedSearchParams.showRatingNumber = String(savedSettings.show_rating_number);
+    if (savedSettings.avatar_border_color) mergedSearchParams.avatarBorderColor = savedSettings.avatar_border_color;
+    if (savedSettings.avatar_url) mergedSearchParams.avatarUrl = savedSettings.avatar_url;
+    if (savedSettings.rating_color) mergedSearchParams.ratingColor = savedSettings.rating_color;
+    if (savedSettings.background_color) mergedSearchParams.backgroundColor = savedSettings.background_color;
+    if (savedSettings.text_color) mergedSearchParams.textColor = savedSettings.text_color;
+    if (savedSettings.show_photos !== undefined) mergedSearchParams.showPhotos = String(savedSettings.show_photos);
+    if (savedSettings.font_family) mergedSearchParams.font = savedSettings.font_family;
+    if (savedSettings.show_branding !== undefined) mergedSearchParams.badge = String(savedSettings.show_branding);
+    if (savedSettings.badge_style) mergedSearchParams.badgeStyle = savedSettings.badge_style;
+    if (savedSettings.badge_text) mergedSearchParams.badgeText = savedSettings.badge_text;
+    if (savedSettings.quotes_columns) mergedSearchParams.quotesColumns = String(savedSettings.quotes_columns);
+    if (savedSettings.quotes_style) mergedSearchParams.quotesStyle = savedSettings.quotes_style;
+    if (savedSettings.marquee_rows) mergedSearchParams.marqueeRows = String(savedSettings.marquee_rows);
+    if (savedSettings.marquee_direction) mergedSearchParams.marqueeDirection = savedSettings.marquee_direction;
+    if (savedSettings.marquee_speed) mergedSearchParams.marqueeSpeed = savedSettings.marquee_speed;
+    if (savedSettings.marquee_card_width) mergedSearchParams.marqueeCardWidth = String(savedSettings.marquee_card_width);
+  }
+
+  // Explicit URL query params take precedence
+  for (const [key, val] of Object.entries(sParams)) {
+    if (typeof val === "string") {
+      mergedSearchParams[key] = val;
+    }
+  }
+
   try {
     const headersList = await headers();
     const referer = headersList.get("referer");
-    const widgetTypeParam = typeof sParams.type === "string" ? sParams.type : typeof sParams.layout === "string" ? sParams.layout : "wall";
-    const safeWidgetType = (["wall", "carousel", "marquee", "single", "spotlight", "conversation", "bento", "orbit", "stack", "badge", "avatars"].includes(widgetTypeParam) ? widgetTypeParam : "wall") as "wall" | "carousel" | "marquee" | "single";
-    logWidgetView(widgetId, safeWidgetType, referer).catch(() => {});
+    const widgetTypeParam = typeof mergedSearchParams.type === "string" ? mergedSearchParams.type : typeof mergedSearchParams.layout === "string" ? mergedSearchParams.layout : "wall";
+    const safeWidgetType = (["wall", "carousel", "marquee", "single", "spotlight", "conversation", "bento", "orbit", "stack", "badge", "avatars", "quotes"].includes(widgetTypeParam) ? widgetTypeParam : "wall") as "wall" | "carousel" | "marquee" | "single";
+    logWidgetView(ownerUserId, safeWidgetType, referer).catch(() => {});
   } catch {}
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blovi.space";
 
-  const testimonialsPromise = fetch(`${baseUrl}/api/widgets/${widgetId}`, {
-    next: { tags: [`widget-${widgetId}`] },
+  const testimonialsPromise = fetch(`${baseUrl}/api/widgets/${ownerUserId}`, {
+    next: { tags: [`widget-${ownerUserId}`, `widget-${widgetId}`] },
   })
     .then((res) => {
       if (!res.ok) return [];
@@ -50,14 +99,13 @@ export default async function EmbedPage({
     })
     .catch(() => []);
 
-  const supabase = createAdminClient();
   const [testimonials, plan, { data: profile }] = await Promise.all([
     testimonialsPromise,
-    getWidgetOwnerPlan(widgetId),
+    getWidgetOwnerPlan(ownerUserId),
     supabase
       .from("profiles")
       .select("full_name")
-      .eq("id", widgetId)
+      .eq("id", ownerUserId)
       .maybeSingle(),
   ]);
 
@@ -65,7 +113,7 @@ export default async function EmbedPage({
   const { data: formData, error: formError } = await supabase
     .from("forms")
     .select("headline, custom_css, custom_font")
-    .eq("user_id", widgetId)
+    .eq("user_id", ownerUserId)
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
@@ -78,15 +126,15 @@ export default async function EmbedPage({
     plan,
     testimonials: (testimonials as Testimonial[]) ?? [],
     config: {
-      showBadge: sParams.badge !== "false",
-      type: typeof sParams.type === "string" ? sParams.type : typeof sParams.layout === "string" ? sParams.layout : undefined,
+      showBadge: mergedSearchParams.badge !== "false",
+      type: typeof mergedSearchParams.type === "string" ? mergedSearchParams.type : typeof mergedSearchParams.layout === "string" ? mergedSearchParams.layout : undefined,
     },
   });
 
   const isLifetime = isPaid;
   const approved = limitedTestimonials;
 
-  const fontParam = typeof sParams.font === "string" ? sParams.font : typeof sParams.fontFamily === "string" ? sParams.fontFamily : undefined;
+  const fontParam = typeof mergedSearchParams.font === "string" ? mergedSearchParams.font : typeof mergedSearchParams.fontFamily === "string" ? mergedSearchParams.fontFamily : undefined;
   const customFont = fontParam || form?.custom_font || "Plus Jakarta Sans";
   const customCss = form?.custom_css;
 
@@ -169,7 +217,7 @@ export default async function EmbedPage({
       `}</style>
 
       <Suspense fallback={null}>
-        <WidgetClientWrapper testimonials={approved} isLifetime={isLifetime} searchParams={sParams} />
+        <WidgetClientWrapper testimonials={approved} isLifetime={isLifetime} searchParams={mergedSearchParams} />
       </Suspense>
     </div>
   );
